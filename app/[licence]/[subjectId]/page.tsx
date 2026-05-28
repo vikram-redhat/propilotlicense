@@ -3,38 +3,47 @@ import { useEffect, useState, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { Subject, Topic } from '@/lib/types'
+import { Subject, Topic, SourceBook } from '@/lib/types'
 import SubjectIcon from '@/components/SubjectIcon'
 
+type Scope = 'subject' | 'book'
 type Mode = 'practice' | 'mock'
 type Difficulty = 'all' | 'easy' | 'medium' | 'hard'
-type QuestionCount = 5 | 10 | 20 | 50 | 100
+type QuestionCount = 20 | 50 | 100
 
-export default function SubjectPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function SessionConfigPage({ params }: { params: Promise<{ licence: string; subjectId: string }> }) {
+  const { licence, subjectId } = use(params)
   const router = useRouter()
+
   const [subject, setSubject] = useState<Subject | null>(null)
   const [topics, setTopics] = useState<Topic[]>([])
-  const [selectedTopics, setSelectedTopics] = useState<string[]>([])
-  const [mode, setMode] = useState<Mode>('practice')
-  const [difficulty, setDifficulty] = useState<Difficulty>('all')
-  const [questionCount, setQuestionCount] = useState<QuestionCount>(5)
+  const [books, setBooks] = useState<SourceBook[]>([])
   const [loading, setLoading] = useState(true)
   const [starting, setStarting] = useState(false)
 
+  const [scope, setScope] = useState<Scope>('subject')
+  const [selectedBookId, setSelectedBookId] = useState('')
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([])
+  const [mode, setMode] = useState<Mode>('practice')
+  const [difficulty, setDifficulty] = useState<Difficulty>('all')
+  const [questionCount, setQuestionCount] = useState<QuestionCount>(20)
+
   useEffect(() => {
     async function load() {
-      const [{ data: sub }, { data: tops }] = await Promise.all([
-        supabase.from('subjects').select('*').eq('id', id).single(),
-        supabase.from('topics').select('*').eq('subject_id', id).order('sort_order'),
+      const [{ data: sub }, { data: tops }, { data: bks }] = await Promise.all([
+        supabase.from('subjects').select('*').eq('id', subjectId).single(),
+        supabase.from('topics').select('*').eq('subject_id', subjectId).order('sort_order'),
+        supabase.from('source_books').select('*').eq('subject_id', subjectId).order('sort_order'),
       ])
       setSubject(sub)
       setTopics(tops || [])
+      setBooks(bks || [])
       setSelectedTopics((tops || []).map(t => t.id))
+      if (bks && bks.length > 0) setSelectedBookId(bks[0].id)
       setLoading(false)
     }
     load()
-  }, [id])
+  }, [subjectId])
 
   function toggleTopic(topicId: string) {
     setSelectedTopics(prev =>
@@ -42,17 +51,24 @@ export default function SubjectPage({ params }: { params: Promise<{ id: string }
     )
   }
 
+  const canStart = scope === 'book'
+    ? !!selectedBookId
+    : selectedTopics.length > 0
+
   async function startSession() {
     setStarting(true)
     const res = await fetch('/api/session/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        subjectId: id,
+        subjectId,
+        licenceType: licence.toUpperCase(),
+        scope,
+        sourceBookId: scope === 'book' ? selectedBookId : null,
+        topicIds: scope === 'subject' ? selectedTopics : [],
         mode,
         difficulty,
         questionCount,
-        topicIds: selectedTopics,
       }),
     })
     const data = await res.json()
@@ -80,19 +96,22 @@ export default function SubjectPage({ params }: { params: Promise<{ id: string }
     )
   }
 
+  const licenceLabel = licence.toUpperCase()
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-white border-b border-slate-200 px-4 py-3">
-        <div className="max-w-3xl mx-auto flex items-center gap-3">
-          <Link href="/" className="text-slate-400 hover:text-slate-600 transition-colors text-sm">
-            ← All Subjects
-          </Link>
+        <div className="max-w-3xl mx-auto flex items-center gap-2 text-sm">
+          <Link href="/" className="text-slate-400 hover:text-slate-600 transition-colors">Home</Link>
+          <span className="text-slate-300">/</span>
+          <Link href={`/${licence}`} className="text-slate-400 hover:text-slate-600 transition-colors">{licenceLabel}</Link>
+          <span className="text-slate-300">/</span>
+          <span className="text-slate-700 font-medium">{subject.name}</span>
         </div>
       </header>
 
       <main className="flex-1 px-4 py-8">
         <div className="max-w-3xl mx-auto">
-          {/* Subject header */}
           <div className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#EBF4FF' }}>
               <SubjectIcon name={subject.icon_name} size={24} className="text-[#185FA5]" />
@@ -105,8 +124,49 @@ export default function SubjectPage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
 
-          <div className="space-y-6">
-            {/* Mode */}
+          <div className="space-y-5">
+            {/* Step 1 — Scope */}
+            <div className="bg-white rounded-xl border border-slate-200 p-5">
+              <h2 className="font-semibold text-slate-700 mb-3">Scope</h2>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setScope('subject')}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    scope === 'subject' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="font-semibold text-slate-800 text-sm">Full Subject</div>
+                  <div className="text-xs text-slate-500 mt-1">Questions from all books</div>
+                </button>
+                <button
+                  onClick={() => setScope('book')}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    scope === 'book' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="font-semibold text-slate-800 text-sm">By Book</div>
+                  <div className="text-xs text-slate-500 mt-1">Focus on one source book</div>
+                </button>
+              </div>
+
+              {scope === 'book' && books.length > 0 && (
+                <div className="mt-3">
+                  <select
+                    value={selectedBookId}
+                    onChange={e => setSelectedBookId(e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+                  >
+                    {books.map(b => (
+                      <option key={b.id} value={b.id}>
+                        {b.title}{b.author ? ` — ${b.author}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Step 2 — Mode */}
             <div className="bg-white rounded-xl border border-slate-200 p-5">
               <h2 className="font-semibold text-slate-700 mb-3">Session Mode</h2>
               <div className="grid grid-cols-2 gap-3">
@@ -115,21 +175,21 @@ export default function SubjectPage({ params }: { params: Promise<{ id: string }
                     key={m}
                     onClick={() => setMode(m)}
                     className={`p-4 rounded-lg border-2 text-left transition-all ${
-                      mode === m
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-slate-200 hover:border-slate-300'
+                      mode === m ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="font-semibold text-slate-800 capitalize">{m === 'practice' ? 'Practice' : 'Mock Exam'}</div>
+                    <div className="font-semibold text-slate-800 text-sm capitalize">
+                      {m === 'practice' ? 'Practice' : 'Mock Exam'}
+                    </div>
                     <div className="text-xs text-slate-500 mt-1">
-                      {m === 'practice' ? 'Immediate feedback after each answer' : 'Timed, no feedback until end'}
+                      {m === 'practice' ? 'Immediate feedback after each answer' : 'Timed, feedback only at end'}
                     </div>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Difficulty */}
+            {/* Step 3 — Difficulty */}
             <div className="bg-white rounded-xl border border-slate-200 p-5">
               <h2 className="font-semibold text-slate-700 mb-3">Difficulty</h2>
               <div className="flex flex-wrap gap-2">
@@ -149,11 +209,11 @@ export default function SubjectPage({ params }: { params: Promise<{ id: string }
               </div>
             </div>
 
-            {/* Question count */}
+            {/* Step 4 — Question count */}
             <div className="bg-white rounded-xl border border-slate-200 p-5">
               <h2 className="font-semibold text-slate-700 mb-3">Number of Questions</h2>
               <div className="flex gap-2">
-                {([5, 10, 20, 50, 100] as QuestionCount[]).map(n => (
+                {([20, 50, 100] as QuestionCount[]).map(n => (
                   <button
                     key={n}
                     onClick={() => setQuestionCount(n)}
@@ -169,8 +229,8 @@ export default function SubjectPage({ params }: { params: Promise<{ id: string }
               </div>
             </div>
 
-            {/* Topics */}
-            {topics.length > 0 && (
+            {/* Step 5 — Topics (full subject mode only) */}
+            {scope === 'subject' && topics.length > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 p-5">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="font-semibold text-slate-700">Topics</h2>
@@ -209,10 +269,10 @@ export default function SubjectPage({ params }: { params: Promise<{ id: string }
               </div>
             )}
 
-            {/* Start button */}
+            {/* Start */}
             <button
               onClick={startSession}
-              disabled={starting || selectedTopics.length === 0}
+              disabled={starting || !canStart}
               className="w-full py-3.5 rounded-xl font-semibold text-white text-base transition-all disabled:opacity-50"
               style={{ backgroundColor: '#185FA5' }}
             >

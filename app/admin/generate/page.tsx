@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Subject, Topic, GeneratedQuestion } from '@/lib/types'
-import { IconSparkles, IconCheck, IconTrash, IconEdit, IconX } from '@tabler/icons-react'
+import { Subject, Topic, SourceBook, GeneratedQuestion } from '@/lib/types'
+import { IconSparkles, IconCheck, IconTrash, IconEdit, IconBook2 } from '@tabler/icons-react'
 
 interface EditableQuestion extends GeneratedQuestion {
   editing?: boolean
@@ -11,13 +11,19 @@ interface EditableQuestion extends GeneratedQuestion {
 export default function GeneratePage() {
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
+  const [books, setBooks] = useState<SourceBook[]>([])
+
   const [subjectId, setSubjectId] = useState('')
   const [subjectName, setSubjectName] = useState('')
   const [topicId, setTopicId] = useState('')
   const [topicName, setTopicName] = useState('')
+  const [bookId, setBookId] = useState('')
+  const [bookTitle, setBookTitle] = useState('')
+  const [bookAuthor, setBookAuthor] = useState('')
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
   const [count, setCount] = useState(5)
   const [context, setContext] = useState('')
+
   const [generating, setGenerating] = useState(false)
   const [generated, setGenerated] = useState<EditableQuestion[]>([])
   const [error, setError] = useState('')
@@ -29,9 +35,13 @@ export default function GeneratePage() {
   }, [])
 
   useEffect(() => {
-    if (!subjectId) { setTopics([]); setTopicId(''); setTopicName(''); return }
-    supabase.from('topics').select('*').eq('subject_id', subjectId).order('sort_order').then(({ data }) => {
-      setTopics(data || [])
+    if (!subjectId) { setTopics([]); setBooks([]); setTopicId(''); setBookId(''); return }
+    Promise.all([
+      supabase.from('topics').select('*').eq('subject_id', subjectId).order('sort_order'),
+      supabase.from('source_books').select('*').eq('subject_id', subjectId).order('sort_order'),
+    ]).then(([{ data: tops }, { data: bks }]) => {
+      setTopics(tops || [])
+      setBooks(bks || [])
     })
     const sub = subjects.find(s => s.id === subjectId)
     setSubjectName(sub?.name || '')
@@ -49,7 +59,7 @@ export default function GeneratePage() {
     const res = await fetch('/api/admin/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ subject: subjectName, topic: topicName, difficulty, count, context }),
+      body: JSON.stringify({ subject: subjectName, bookTitle, bookAuthor, topic: topicName, difficulty, count, context }),
     })
     const data = await res.json()
     if (data.error) {
@@ -68,10 +78,14 @@ export default function GeneratePage() {
       .from('questions')
       .insert({
         subject_id: subjectId,
-        topic_id: topicId,
+        topic_id: topicId || null,
+        source_book_id: bookId || null,
         question_text: q.question_text,
         difficulty,
         explanation: q.explanation,
+        source_chapter: q.source_chapter || null,
+        source_page: q.source_page || null,
+        citation_verified: false,
         source_type: 'ai',
         active: true,
       })
@@ -94,11 +108,6 @@ export default function GeneratePage() {
 
   function discard(index: number) {
     setGenerated(prev => prev.filter((_, i) => i !== index))
-    setSaved(prev => {
-      const next = { ...prev }
-      delete next[index]
-      return next
-    })
   }
 
   function toggleEdit(index: number) {
@@ -121,13 +130,13 @@ export default function GeneratePage() {
         <h1 className="text-xl font-bold text-slate-800 mb-6">AI Question Generator</h1>
 
         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5 mb-6">
-          {/* Subject */}
+          {/* Subject + Topic */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Subject *</label>
               <select
                 value={subjectId}
-                onChange={e => { setSubjectId(e.target.value); setTopicId(''); setTopicName('') }}
+                onChange={e => { setSubjectId(e.target.value); setTopicId(''); setBookId('') }}
                 className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
               >
                 <option value="">Select subject…</option>
@@ -150,6 +159,34 @@ export default function GeneratePage() {
                 {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
             </div>
+          </div>
+
+          {/* Source book */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Source Book (optional)</label>
+            <select
+              value={bookId}
+              onChange={e => {
+                setBookId(e.target.value)
+                const b = books.find(b => b.id === e.target.value)
+                setBookTitle(b?.title || '')
+                setBookAuthor(b?.author || '')
+              }}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+              disabled={!subjectId}
+            >
+              <option value="">No specific book</option>
+              {books.map(b => (
+                <option key={b.id} value={b.id}>
+                  {b.title}{b.author ? ` — ${b.author}` : ''}
+                </option>
+              ))}
+            </select>
+            {bookId && (
+              <p className="text-xs text-slate-400 mt-1">
+                AI will estimate chapter and page numbers in this book — marked as approximate until verified.
+              </p>
+            )}
           </div>
 
           {/* Difficulty */}
@@ -263,10 +300,7 @@ export default function GeneratePage() {
                       className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                       placeholder="Explanation…"
                     />
-                    <button
-                      onClick={() => toggleEdit(index)}
-                      className="text-xs text-blue-600 hover:underline"
-                    >
+                    <button onClick={() => toggleEdit(index)} className="text-xs text-blue-600 hover:underline">
                       Done editing
                     </button>
                   </div>
@@ -278,9 +312,7 @@ export default function GeneratePage() {
                         <div
                           key={letter}
                           className={`flex items-start gap-2 p-2 rounded-lg text-sm ${
-                            letter === q.correct_option
-                              ? 'bg-green-50 text-green-800 font-medium'
-                              : 'text-slate-600'
+                            letter === q.correct_option ? 'bg-green-50 text-green-800 font-medium' : 'text-slate-600'
                           }`}
                         >
                           <span className="font-bold w-4 flex-shrink-0">{letter}.</span>
@@ -289,9 +321,18 @@ export default function GeneratePage() {
                       ))}
                     </div>
                     {q.explanation && (
-                      <p className="text-xs text-slate-500 border-t border-slate-100 pt-2">
-                        {q.explanation}
-                      </p>
+                      <p className="text-xs text-slate-500 border-t border-slate-100 pt-2 mb-2">{q.explanation}</p>
+                    )}
+                    {bookTitle && (q.source_chapter || q.source_page) && (
+                      <div className="flex items-start gap-1.5 pt-2 border-t border-slate-100">
+                        <IconBook2 size={13} className="text-slate-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-slate-400">
+                          <span className="font-medium">{bookTitle}</span>
+                          {bookAuthor && <span> — {bookAuthor}</span>}
+                          {q.source_chapter && <span> · {q.source_chapter} (approx.)</span>}
+                          {q.source_page && <span> · {q.source_page} (approx.)</span>}
+                        </p>
+                      </div>
                     )}
                   </>
                 )}

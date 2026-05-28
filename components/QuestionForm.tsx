@@ -17,6 +17,7 @@ export default function QuestionForm({ question }: QuestionFormProps) {
 
   const [subjectId, setSubjectId] = useState(question?.subject_id || '')
   const [topicId, setTopicId] = useState(question?.topic_id || '')
+  const [sourceBookId, setSourceBookId] = useState(question?.source_book_id || '')
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>(question?.difficulty || 'medium')
   const [questionText, setQuestionText] = useState(question?.question_text || '')
   const [options, setOptions] = useState<Record<'A' | 'B' | 'C' | 'D', string>>({
@@ -29,6 +30,9 @@ export default function QuestionForm({ question }: QuestionFormProps) {
     (question?.options?.find(o => o.is_correct)?.option_letter as 'A' | 'B' | 'C' | 'D') || 'A'
   )
   const [explanation, setExplanation] = useState(question?.explanation || '')
+  const [sourceChapter, setSourceChapter] = useState(question?.source_chapter || '')
+  const [sourcePage, setSourcePage] = useState(question?.source_page || '')
+  const [citationVerified, setCitationVerified] = useState(question?.citation_verified ?? false)
   const [active, setActive] = useState(question?.active ?? false)
 
   useEffect(() => {
@@ -39,7 +43,7 @@ export default function QuestionForm({ question }: QuestionFormProps) {
     if (!subjectId) { setTopics([]); setSourceBooks([]); return }
     Promise.all([
       supabase.from('topics').select('*').eq('subject_id', subjectId).order('sort_order'),
-      supabase.from('source_books').select('*').eq('subject_id', subjectId),
+      supabase.from('source_books').select('*').eq('subject_id', subjectId).order('sort_order'),
     ]).then(([{ data: tops }, { data: books }]) => {
       setTopics(tops || [])
       setSourceBooks(books || [])
@@ -56,9 +60,13 @@ export default function QuestionForm({ question }: QuestionFormProps) {
     const payload = {
       subject_id: subjectId,
       topic_id: topicId || null,
+      source_book_id: sourceBookId || null,
       question_text: questionText.trim(),
       difficulty,
       explanation: explanation.trim() || null,
+      source_chapter: sourceChapter.trim() || null,
+      source_page: sourcePage.trim() || null,
+      citation_verified: citationVerified,
       source_type: question?.source_type || 'manual',
       active,
     }
@@ -97,7 +105,7 @@ export default function QuestionForm({ question }: QuestionFormProps) {
         <label className="block text-sm font-medium text-slate-700 mb-1">Subject *</label>
         <select
           value={subjectId}
-          onChange={e => { setSubjectId(e.target.value); setTopicId('') }}
+          onChange={e => { setSubjectId(e.target.value); setTopicId(''); setSourceBookId('') }}
           className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
         >
           <option value="">Select subject…</option>
@@ -118,6 +126,66 @@ export default function QuestionForm({ question }: QuestionFormProps) {
           {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
       </div>
+
+      {/* Source book */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Source Book</label>
+        <select
+          value={sourceBookId}
+          onChange={e => setSourceBookId(e.target.value)}
+          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+          disabled={!subjectId}
+        >
+          <option value="">No source book</option>
+          {sourceBooks.map(b => (
+            <option key={b.id} value={b.id}>
+              {b.title}{b.author ? ` — ${b.author}` : ''}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Chapter + Page reference (shown when a book is selected) */}
+      {sourceBookId && (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Chapter Reference</label>
+            <input
+              type="text"
+              value={sourceChapter}
+              onChange={e => setSourceChapter(e.target.value)}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800"
+              placeholder="e.g. Chapter 4"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Page Reference</label>
+            <input
+              type="text"
+              value={sourcePage}
+              onChange={e => setSourcePage(e.target.value)}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800"
+              placeholder="e.g. Page 67"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Citation verified (only if book + chapter/page filled) */}
+      {sourceBookId && (sourceChapter || sourcePage) && (
+        <div className="flex items-center gap-3 bg-teal-50 border border-teal-200 rounded-lg px-4 py-3">
+          <input
+            type="checkbox"
+            id="citation_verified"
+            checked={citationVerified}
+            onChange={e => setCitationVerified(e.target.checked)}
+            className="w-4 h-4 accent-teal-600"
+          />
+          <label htmlFor="citation_verified" className="text-sm text-teal-800 font-medium cursor-pointer">
+            Citation verified — I have confirmed the chapter and page in the physical book
+          </label>
+        </div>
+      )}
 
       {/* Difficulty */}
       <div>

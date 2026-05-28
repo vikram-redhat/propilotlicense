@@ -8,9 +8,9 @@ const weights = {
 }
 
 export async function POST(req: Request) {
-  const { subjectId, mode, difficulty, questionCount, topicIds } = await req.json()
+  const { subjectId, licenceType, scope, sourceBookId, topicIds, mode, difficulty, questionCount } = await req.json()
 
-  if (!subjectId || !mode || !difficulty || !questionCount) {
+  if (!subjectId || !mode || !difficulty || !questionCount || !scope) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
@@ -22,8 +22,9 @@ export async function POST(req: Request) {
     .eq('subject_id', subjectId)
     .eq('active', true)
 
-  if (topicIds && topicIds.length > 0) {
-    // Include questions assigned to selected topics OR unassigned (topic_id is null)
+  if (scope === 'book' && sourceBookId) {
+    query = query.eq('source_book_id', sourceBookId)
+  } else if (scope === 'subject' && topicIds && topicIds.length > 0) {
     query = query.or(`topic_id.in.(${topicIds.join(',')}),topic_id.is.null`)
   }
 
@@ -37,7 +38,6 @@ export async function POST(req: Request) {
     return Response.json({ error: 'No questions available for this configuration' }, { status: 400 })
   }
 
-  // Weight and sample questions by difficulty
   const w = weights[difficulty as keyof typeof weights] || weights.all
   const weighted: string[] = []
 
@@ -49,18 +49,19 @@ export async function POST(req: Request) {
     }
   }
 
-  // If weighted selection is too small, fall back to all
   const pool = weighted.length >= Math.min(questionCount, questions.length)
     ? weighted
     : questions.map(q => q.id)
 
-  // Shuffle and limit
   const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, questionCount)
 
   const { data: session, error: sessionError } = await supabase
     .from('sessions')
     .insert({
       subject_id: subjectId,
+      licence_type: (licenceType || 'CPL').toUpperCase(),
+      scope,
+      source_book_id: scope === 'book' ? sourceBookId : null,
       mode,
       difficulty,
       question_ids: shuffled,

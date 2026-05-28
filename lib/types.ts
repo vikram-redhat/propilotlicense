@@ -4,10 +4,12 @@ export interface Subject {
   code: string
   description: string | null
   icon_name: string | null
+  licence_types: string[]
   sort_order: number
   active: boolean
   created_at: string
   question_count?: number
+  book_count?: number
 }
 
 export interface Topic {
@@ -22,15 +24,21 @@ export interface SourceBook {
   subject_id: string
   title: string
   author: string | null
+  licence_types: string[]
+  sort_order: number
 }
 
 export interface Question {
   id: string
   subject_id: string
   topic_id: string | null
+  source_book_id: string | null
   question_text: string
   difficulty: 'easy' | 'medium' | 'hard'
   explanation: string | null
+  source_chapter: string | null
+  source_page: string | null
+  citation_verified: boolean
   source_type: 'manual' | 'ai'
   active: boolean
   flagged: boolean
@@ -38,6 +46,7 @@ export interface Question {
   options?: QuestionOption[]
   subject?: Subject
   topic?: Topic
+  source_book?: SourceBook
 }
 
 export interface QuestionOption {
@@ -51,6 +60,9 @@ export interface QuestionOption {
 export interface Session {
   id: string
   subject_id: string
+  licence_type: string
+  scope: 'subject' | 'book'
+  source_book_id: string | null
   mode: 'practice' | 'mock'
   difficulty: 'all' | 'easy' | 'medium' | 'hard'
   question_ids: string[]
@@ -70,4 +82,7 @@ export interface GeneratedQuestion {
   options: { A: string; B: string; C: string; D: string }
   correct_option: 'A' | 'B' | 'C' | 'D'
   explanation: string
+  source_chapter: string
+  source_page: string
+  difficulty: string
 }

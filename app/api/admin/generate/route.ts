@@ -3,16 +3,26 @@ import Anthropic from '@anthropic-ai/sdk'
 const client = new Anthropic()
 
 export async function POST(req: Request) {
-  const { subject, topic, difficulty, count, context } = await req.json()
+  const { subject, bookTitle, bookAuthor, topic, difficulty, count, context } = await req.json()
 
   if (!subject || !topic || !difficulty || !count) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const prompt = `You are an expert aviation examiner writing questions for the DGCA (India) CPL pilot theory exam.
+  const bookSection = bookTitle
+    ? `Source book: "${bookTitle}"${bookAuthor ? ` by ${bookAuthor}` : ''}`
+    : 'Source book: general DGCA study material'
 
-Generate exactly ${count} multiple choice questions on the topic: "${topic}" (subject: "${subject}").
-Difficulty: ${difficulty}.
+  const citationInstruction = bookTitle
+    ? `For each question, also estimate the chapter and page number in "${bookTitle}" where the relevant content is covered. Make your best estimate — these will be marked as approximate and verified by a human editor. Format chapter as "Chapter N" and page as "Page N".`
+    : 'Set source_chapter and source_page to empty strings.'
+
+  const prompt = `You are an expert aviation examiner writing questions for the DGCA (India) pilot licence exams.
+
+Generate exactly ${count} multiple choice questions on the topic: "${topic}"
+Subject: ${subject}
+${bookSection}
+Difficulty: ${difficulty}
 ${context ? `Additional context: ${context}` : ''}
 
 Difficulty guide:
@@ -20,19 +30,24 @@ Difficulty guide:
 - medium: application of concepts, standard calculations
 - hard: multi-step problems, edge cases, nuanced regulations
 
-IMPORTANT: Return ONLY a valid JSON array. No markdown fences, no explanation, no preamble.
+${citationInstruction}
+
+IMPORTANT: Return ONLY a valid JSON array. No markdown fences, no preamble, no explanation.
 
 Each element must have exactly this shape:
 {
-  "question_text": "Full question text here",
+  "question_text": "Full question text",
   "options": {
     "A": "First option",
     "B": "Second option",
     "C": "Third option",
     "D": "Fourth option"
   },
-  "correct_option": "A",
-  "explanation": "Why this answer is correct, with reference to the relevant principle or regulation."
+  "correct_option": "B",
+  "explanation": "Clear explanation of why this answer is correct.",
+  "source_chapter": "Chapter 4",
+  "source_page": "Page 67",
+  "difficulty": "${difficulty}"
 }`
 
   try {
@@ -43,7 +58,6 @@ Each element must have exactly this shape:
     })
 
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
-
     const questions = JSON.parse(text.trim())
     return Response.json({ questions })
   } catch (err) {

@@ -1,36 +1,25 @@
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
-import { Subject } from '@/lib/types'
-import SubjectIcon from '@/components/SubjectIcon'
 
-async function getSubjectsWithCounts(): Promise<Subject[]> {
-  const { data: subjects } = await supabase
-    .from('subjects')
-    .select('*')
-    .eq('active', true)
-    .order('sort_order')
+const LICENCES = [
+  {
+    code: 'cpl',
+    label: 'CPL',
+    name: 'Commercial Pilot Licence',
+    description: 'For aspiring commercial pilots. 7 theory subjects covering meteorology, air regulations, navigation, and more.',
+    exams: '7 subjects',
+  },
+  {
+    code: 'atpl',
+    label: 'ATPL',
+    name: 'Airline Transport Pilot Licence',
+    description: 'For airline pilot candidates. 8 theory subjects including all CPL topics plus advanced systems.',
+    exams: '8 subjects',
+  },
+]
 
-  if (!subjects) return []
-
-  const { data: counts } = await supabase
-    .from('questions')
-    .select('subject_id')
-    .eq('active', true)
-
-  const countMap: Record<string, number> = {}
-  counts?.forEach(q => {
-    countMap[q.subject_id] = (countMap[q.subject_id] || 0) + 1
-  })
-
-  return subjects.map(s => ({ ...s, question_count: countMap[s.id] || 0 }))
-}
-
-export default async function HomePage() {
-  const subjects = await getSubjectsWithCounts()
-
+export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
       <header className="bg-white border-b border-slate-200 px-4 py-3">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -47,63 +36,68 @@ export default async function HomePage() {
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="bg-white border-b border-slate-100 px-4 py-10">
+      <section className="bg-white border-b border-slate-100 px-4 py-12">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            Ace Your DGCA CPL Theory Exam
+            Ace Your DGCA Theory Exam
           </h1>
           <p className="text-slate-500 text-lg max-w-xl mx-auto">
-            Practice with real-style questions across all 8 subjects. Practice mode or timed mock exams.
+            Practice with real-style questions, timed mock exams, and book-referenced explanations.
           </p>
         </div>
       </section>
 
-      {/* Subjects grid */}
-      <main className="flex-1 px-4 py-8">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
-            Choose a Subject
+      <main className="flex-1 px-4 py-10">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-5 text-center">
+            Choose your licence type
           </h2>
-          {subjects.length === 0 ? (
-            <div className="text-center py-16 text-slate-400">
-              <p className="text-lg">No subjects available yet.</p>
-              <p className="text-sm mt-1">Run the seed script to populate the database.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {subjects.map(subject => (
-                <Link
-                  key={subject.id}
-                  href={`/subject/${subject.id}`}
-                  className="bg-white rounded-xl border border-slate-200 p-5 hover:border-blue-300 hover:shadow-md transition-all group"
-                >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {LICENCES.map(lic => (
+              <Link
+                key={lic.code}
+                href={`/${lic.code}`}
+                className="bg-white rounded-2xl border-2 border-slate-200 p-6 hover:border-blue-400 hover:shadow-lg transition-all group"
+              >
+                <div className="flex items-center gap-3 mb-3">
                   <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
-                    style={{ backgroundColor: '#EBF4FF' }}
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-lg"
+                    style={{ backgroundColor: '#185FA5' }}
                   >
-                    <SubjectIcon name={subject.icon_name} size={20} className="text-[#185FA5]" />
+                    {lic.label}
                   </div>
-                  <h3 className="font-semibold text-slate-800 text-sm leading-tight mb-2">
-                    {subject.name}
-                  </h3>
+                  <div>
+                    <div className="font-bold text-slate-800 text-base">{lic.label}</div>
+                    <div className="text-xs text-slate-500">{lic.name}</div>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                  {lic.description}
+                </p>
+                <div className="flex items-center justify-between">
                   <span
-                    className="inline-block text-xs font-medium px-2 py-0.5 rounded-full"
+                    className="text-xs font-medium px-2.5 py-1 rounded-full"
                     style={{ backgroundColor: '#EBF4FF', color: '#185FA5' }}
                   >
-                    {subject.question_count} questions
+                    {lic.exams}
                   </span>
-                </Link>
-              ))}
-            </div>
-          )}
+                  <span className="text-sm font-semibold group-hover:translate-x-1 transition-transform" style={{ color: '#185FA5' }}>
+                    Start →
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <p className="text-center text-xs text-slate-400 mt-6">
+            Starting with Meteorology and Air Regulations — more subjects coming soon
+          </p>
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-slate-200 px-4 py-4 bg-white">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <span className="text-xs text-slate-400">DGCA CPL Exam Prep</span>
+          <span className="text-xs text-slate-400">DGCA Exam Prep</span>
           <Link href="/admin" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
             Admin ↗
           </Link>
