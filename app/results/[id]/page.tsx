@@ -14,6 +14,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const [sessionState, setSessionState] = useState<SessionState | null>(null)
   const [books, setBooks] = useState<Record<string, SourceBook>>({})
   const [subjectName, setSubjectName] = useState('')
+  const [topicName, setTopicName] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -32,6 +33,12 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
         supabase.from('subjects').select('name').eq('id', sess.subject_id).single(),
       ])
 
+      let topicName = ''
+      if (sess.scope === 'topic' && sess.topic_id) {
+        const { data: topic } = await supabase.from('topics').select('name').eq('id', sess.topic_id).single()
+        topicName = topic?.name || ''
+      }
+
       if (qs) {
         const ordered = sess.question_ids
           .map((qid: string) => qs.find((q: Question) => q.id === qid))
@@ -48,6 +55,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
       }
 
       setSubjectName(sub?.name || '')
+      setTopicName(topicName)
       setLoading(false)
     }
     load()
@@ -75,10 +83,18 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
     const a = sessionState.answers[q.id]
     return a && !a.isCorrect
   })
+  const correctQs = questions.filter(q => {
+    const a = sessionState.answers[q.id]
+    return a && a.isCorrect
+  })
+  const reviewOrder = [...incorrectQs, ...correctQs]
 
-  const scopeLabel = session.scope === 'book' && session.source_book_id && books[session.source_book_id]
-    ? books[session.source_book_id].title
-    : 'Full Subject'
+  const scopeLabel =
+    session.scope === 'book' && session.source_book_id && books[session.source_book_id]
+      ? books[session.source_book_id].title
+      : session.scope === 'topic' && topicName
+      ? topicName
+      : 'Combined Paper'
 
   const backHref = `/${session.licence_type.toLowerCase()}/${session.subject_id}`
 
@@ -89,7 +105,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           <Link href={backHref} className="text-sm text-slate-400 hover:text-slate-600 transition-colors">
             ← {subjectName || 'Back'}
           </Link>
-          <span className="text-sm font-medium text-slate-700">Session Results</span>
+          <span className="text-sm font-medium text-slate-700">Results</span>
         </div>
       </header>
 
@@ -116,30 +132,22 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
 
           {/* Stat cards */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 mx-auto mb-2">
-                <IconCheck size={16} className="text-green-600" />
+            {[
+              { icon: <IconCheck size={16} className="text-green-600" />, bg: 'bg-green-100', value: correct, label: 'Correct' },
+              { icon: <IconX size={16} className="text-red-600" />, bg: 'bg-red-100', value: incorrect, label: 'Incorrect' },
+              { icon: <IconMinus size={16} className="text-slate-500" />, bg: 'bg-slate-100', value: skipped, label: 'Skipped' },
+            ].map(s => (
+              <div key={s.label} className="bg-white rounded-xl border border-slate-200 p-4 text-center">
+                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${s.bg} mx-auto mb-2`}>
+                  {s.icon}
+                </div>
+                <div className="text-2xl font-bold text-slate-800">{s.value}</div>
+                <div className="text-xs text-slate-500 mt-0.5">{s.label}</div>
               </div>
-              <div className="text-2xl font-bold text-slate-800">{correct}</div>
-              <div className="text-xs text-slate-500 mt-0.5">Correct</div>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-100 mx-auto mb-2">
-                <IconX size={16} className="text-red-600" />
-              </div>
-              <div className="text-2xl font-bold text-slate-800">{incorrect}</div>
-              <div className="text-xs text-slate-500 mt-0.5">Incorrect</div>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 mx-auto mb-2">
-                <IconMinus size={16} className="text-slate-500" />
-              </div>
-              <div className="text-2xl font-bold text-slate-800">{skipped}</div>
-              <div className="text-xs text-slate-500 mt-0.5">Skipped</div>
-            </div>
+            ))}
           </div>
 
-          {/* Session context badge */}
+          {/* Session context badges */}
           <div className="flex flex-wrap gap-2">
             <span className="text-xs px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 font-medium">
               {session.licence_type}
@@ -158,48 +166,60 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
             <span className="text-xs px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 font-medium capitalize">
               {session.mode}
             </span>
+            <span className="text-xs px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 font-medium">
+              {total} questions
+            </span>
           </div>
 
-          {/* Review incorrect */}
-          {incorrectQs.length > 0 && (
+          {/* Review section — incorrect first, then correct */}
+          {reviewOrder.length > 0 && (
             <div>
               <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                Review Incorrect Answers
+                Review Answers
               </h2>
               <div className="space-y-4">
-                {incorrectQs.map(q => {
+                {reviewOrder.map(q => {
                   const userAnswer = sessionState.answers[q.id]
                   const correctOpt = q.options?.find(o => o.is_correct)
-                  const userOpt = q.options?.find(o => o.option_letter === userAnswer?.selected)
+                  const userOpt = userAnswer ? q.options?.find(o => o.option_letter === userAnswer.selected) : null
                   const book = q.source_book_id ? books[q.source_book_id] : null
+                  const isWrong = userAnswer && !userAnswer.isCorrect
 
                   return (
-                    <div key={q.id} className="bg-white rounded-xl border border-slate-200 p-5">
+                    <div
+                      key={q.id}
+                      className={`bg-white rounded-xl border p-5 ${isWrong ? 'border-red-100' : 'border-slate-200'}`}
+                    >
                       <p className="text-slate-800 font-medium text-sm mb-4">{q.question_text}</p>
 
-                      {userOpt && (
+                      {userOpt && isWrong && (
                         <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-200 mb-2">
                           <IconX size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
                           <div>
                             <span className="text-xs font-semibold text-red-600 block">Your answer</span>
-                            <span className="text-sm text-red-700">{userAnswer?.selected}. {userOpt.option_text}</span>
+                            <span className="text-sm text-red-700">{userAnswer.selected}. {userOpt.option_text}</span>
                           </div>
                         </div>
                       )}
+
                       {correctOpt && (
                         <div className="flex items-start gap-2 p-3 rounded-lg bg-green-50 border border-green-200 mb-3">
                           <IconCheck size={16} className="text-green-500 flex-shrink-0 mt-0.5" />
                           <div>
-                            <span className="text-xs font-semibold text-green-600 block">Correct answer</span>
+                            <span className="text-xs font-semibold text-green-600 block">
+                              {isWrong ? 'Correct answer' : 'Your answer'}
+                            </span>
                             <span className="text-sm text-green-700">{correctOpt.option_letter}. {correctOpt.option_text}</span>
                           </div>
                         </div>
                       )}
+
                       {q.explanation && (
-                        <p className="text-xs text-slate-500 border-t border-slate-100 pt-3 leading-relaxed">
+                        <p className="text-sm text-slate-600 border-t border-slate-100 pt-3 leading-relaxed">
                           {q.explanation}
                         </p>
                       )}
+
                       {book && (
                         <div className="flex items-start gap-1.5 mt-3 pt-3 border-t border-slate-100">
                           {q.citation_verified ? (

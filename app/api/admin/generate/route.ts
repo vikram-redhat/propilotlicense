@@ -9,34 +9,36 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const bookSection = bookTitle
-    ? `Source book: "${bookTitle}"${bookAuthor ? ` by ${bookAuthor}` : ''}`
-    : 'Source book: general DGCA study material'
+  const prompt = `You are an expert aviation examiner creating questions for the DGCA (India) pilot licence exams.
 
-  const citationInstruction = bookTitle
-    ? `For each question, also estimate the chapter and page number in "${bookTitle}" where the relevant content is covered. Make your best estimate — these will be marked as approximate and verified by a human editor. Format chapter as "Chapter N" and page as "Page N".`
-    : 'Set source_chapter and source_page to empty strings.'
+Generate exactly ${count} multiple choice questions.
 
-  const prompt = `You are an expert aviation examiner writing questions for the DGCA (India) pilot licence exams.
-
-Generate exactly ${count} multiple choice questions on the topic: "${topic}"
 Subject: ${subject}
-${bookSection}
+Topic: ${topic}
+Source book: "${bookTitle}"${bookAuthor ? ` by ${bookAuthor}` : ''}
 Difficulty: ${difficulty}
 ${context ? `Additional context: ${context}` : ''}
 
 Difficulty guide:
 - easy: factual recall, definitions, simple identification
-- medium: application of concepts, standard calculations
-- hard: multi-step problems, edge cases, nuanced regulations
+- medium: application of a concept, a standard calculation, interpreting data
+- hard: multi-step problems, nuanced regulatory edge cases, combined concepts
 
-${citationInstruction}
+EXPLANATION REQUIREMENT — this is critical:
+Write the explanation as a full paragraph of 5–6 lines, in the style and voice of "${bookTitle}".
+It should read like an excerpt from the textbook itself — authoritative, educational, and covering
+the surrounding concept, not just the answer. A student reading it should feel they understand
+the topic more deeply, not just why option B was correct.
 
-IMPORTANT: Return ONLY a valid JSON array. No markdown fences, no preamble, no explanation.
+Also estimate the chapter and page in "${bookTitle}" where this topic is covered.
+Your estimates will be marked as approximate and verified by a human editor.
+Format: "Chapter N" and "Page N". Make a genuine best estimate — do not write "unknown".
 
-Each element must have exactly this shape:
+IMPORTANT: Return ONLY a valid JSON array. No markdown fences, no preamble.
+
+Each element must follow this exact shape:
 {
-  "question_text": "Full question text",
+  "question_text": "Full question text here",
   "options": {
     "A": "First option",
     "B": "Second option",
@@ -44,7 +46,7 @@ Each element must have exactly this shape:
     "D": "Fourth option"
   },
   "correct_option": "B",
-  "explanation": "Clear explanation of why this answer is correct.",
+  "explanation": "Full 5-6 line paragraph explanation in the style of the textbook...",
   "source_chapter": "Chapter 4",
   "source_page": "Page 67",
   "difficulty": "${difficulty}"
@@ -53,7 +55,7 @@ Each element must have exactly this shape:
   try {
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 4000,
+      max_tokens: 6000,
       messages: [{ role: 'user', content: prompt }],
     })
 

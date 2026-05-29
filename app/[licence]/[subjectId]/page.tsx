@@ -6,10 +6,18 @@ import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook } from '@/lib/types'
 import SubjectIcon from '@/components/SubjectIcon'
 
-type Scope = 'subject' | 'book'
+type Scope = 'topic' | 'book' | 'combined'
 type Mode = 'practice' | 'mock'
 type Difficulty = 'all' | 'easy' | 'medium' | 'hard'
-type QuestionCount = 20 | 50 | 100
+type QuestionCount = 50 | 100
+
+function formatTimeAllowed(questionCount: QuestionCount): string {
+  const totalSecs = questionCount * 45
+  const mins = Math.floor(totalSecs / 60)
+  const secs = totalSecs % 60
+  if (secs === 0) return `${mins} minutes`
+  return `${mins} minutes ${secs} seconds`
+}
 
 export default function SessionConfigPage({ params }: { params: Promise<{ licence: string; subjectId: string }> }) {
   const { licence, subjectId } = use(params)
@@ -21,12 +29,12 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const [loading, setLoading] = useState(true)
   const [starting, setStarting] = useState(false)
 
-  const [scope, setScope] = useState<Scope>('subject')
+  const [scope, setScope] = useState<Scope>('combined')
+  const [selectedTopicId, setSelectedTopicId] = useState('')
   const [selectedBookId, setSelectedBookId] = useState('')
-  const [selectedTopics, setSelectedTopics] = useState<string[]>([])
   const [mode, setMode] = useState<Mode>('practice')
   const [difficulty, setDifficulty] = useState<Difficulty>('all')
-  const [questionCount, setQuestionCount] = useState<QuestionCount>(20)
+  const [questionCount, setQuestionCount] = useState<QuestionCount>(50)
 
   useEffect(() => {
     async function load() {
@@ -38,22 +46,17 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       setSubject(sub)
       setTopics(tops || [])
       setBooks(bks || [])
-      setSelectedTopics((tops || []).map(t => t.id))
+      if (tops && tops.length > 0) setSelectedTopicId(tops[0].id)
       if (bks && bks.length > 0) setSelectedBookId(bks[0].id)
       setLoading(false)
     }
     load()
   }, [subjectId])
 
-  function toggleTopic(topicId: string) {
-    setSelectedTopics(prev =>
-      prev.includes(topicId) ? prev.filter(t => t !== topicId) : [...prev, topicId]
-    )
-  }
-
-  const canStart = scope === 'book'
-    ? !!selectedBookId
-    : selectedTopics.length > 0
+  const canStart =
+    scope === 'topic' ? !!selectedTopicId :
+    scope === 'book' ? !!selectedBookId :
+    true
 
   async function startSession() {
     setStarting(true)
@@ -64,8 +67,8 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
         subjectId,
         licenceType: licence.toUpperCase(),
         scope,
+        topicId: scope === 'topic' ? selectedTopicId : null,
         sourceBookId: scope === 'book' ? selectedBookId : null,
-        topicIds: scope === 'subject' ? selectedTopics : [],
         mode,
         difficulty,
         questionCount,
@@ -98,6 +101,27 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
   const licenceLabel = licence.toUpperCase()
 
+  const SCOPE_OPTIONS: { value: Scope; title: string; subtitle: string; example?: string }[] = [
+    {
+      value: 'topic',
+      title: 'By Chapter / Topic',
+      subtitle: 'Questions from all books on one topic',
+      example: 'e.g. "Atmosphere structure"',
+    },
+    {
+      value: 'book',
+      title: 'By Source Book',
+      subtitle: 'Focus on one textbook',
+      example: 'e.g. IC Joshi',
+    },
+    {
+      value: 'combined',
+      title: 'Combined Paper',
+      subtitle: 'All topics, all books',
+      example: `Full ${licenceLabel} exam`,
+    },
+  ]
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-white border-b border-slate-200 px-4 py-3">
@@ -112,50 +136,71 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
       <main className="flex-1 px-4 py-8">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#EBF4FF' }}>
-              <SubjectIcon name={subject.icon_name} size={24} className="text-[#185FA5]" />
-            </div>
-            <div>
+
+          {/* Subject description */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#EBF4FF' }}>
+                <SubjectIcon name={subject.icon_name} size={24} className="text-[#185FA5]" />
+              </div>
               <h1 className="text-2xl font-bold text-slate-900">{subject.name}</h1>
-              {subject.description && (
-                <p className="text-slate-500 text-sm mt-0.5">{subject.description}</p>
-              )}
             </div>
+            {subject.description && (
+              <p className="text-slate-600 text-sm leading-relaxed">{subject.description}</p>
+            )}
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-4">
+
             {/* Step 1 — Scope */}
             <div className="bg-white rounded-xl border border-slate-200 p-5">
-              <h2 className="font-semibold text-slate-700 mb-3">Scope</h2>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setScope('subject')}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
-                    scope === 'subject' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <div className="font-semibold text-slate-800 text-sm">Full Subject</div>
-                  <div className="text-xs text-slate-500 mt-1">Questions from all books</div>
-                </button>
-                <button
-                  onClick={() => setScope('book')}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
-                    scope === 'book' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <div className="font-semibold text-slate-800 text-sm">By Book</div>
-                  <div className="text-xs text-slate-500 mt-1">Focus on one source book</div>
-                </button>
+              <h2 className="font-semibold text-slate-700 mb-1 text-sm uppercase tracking-wider">Step 1 — Scope</h2>
+              <p className="text-xs text-slate-400 mb-4">Choose what to include in this session</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {SCOPE_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setScope(opt.value)}
+                    className={`p-4 rounded-xl border-2 text-left transition-all ${
+                      scope === opt.value
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="font-semibold text-slate-800 text-sm leading-tight mb-1">{opt.title}</div>
+                    <div className="text-xs text-slate-500">{opt.subtitle}</div>
+                    {opt.example && (
+                      <div className="text-xs text-slate-400 mt-1">{opt.example}</div>
+                    )}
+                  </button>
+                ))}
               </div>
 
+              {scope === 'topic' && topics.length > 0 && (
+                <div className="mt-4">
+                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Select topic</label>
+                  <select
+                    value={selectedTopicId}
+                    onChange={e => setSelectedTopicId(e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+                  >
+                    <option value="">Select a topic…</option>
+                    {topics.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {scope === 'book' && books.length > 0 && (
-                <div className="mt-3">
+                <div className="mt-4">
+                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Select source book</label>
                   <select
                     value={selectedBookId}
                     onChange={e => setSelectedBookId(e.target.value)}
                     className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
                   >
+                    <option value="">Select a book…</option>
                     {books.map(b => (
                       <option key={b.id} value={b.id}>
                         {b.title}{b.author ? ` — ${b.author}` : ''}
@@ -168,22 +213,22 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
             {/* Step 2 — Mode */}
             <div className="bg-white rounded-xl border border-slate-200 p-5">
-              <h2 className="font-semibold text-slate-700 mb-3">Session Mode</h2>
+              <h2 className="font-semibold text-slate-700 mb-1 text-sm uppercase tracking-wider">Step 2 — Mode</h2>
+              <p className="text-xs text-slate-400 mb-4">How feedback is delivered</p>
               <div className="grid grid-cols-2 gap-3">
-                {(['practice', 'mock'] as Mode[]).map(m => (
+                {([
+                  { value: 'practice' as Mode, label: 'Practice', desc: 'Immediate feedback after each answer — untimed' },
+                  { value: 'mock' as Mode, label: 'Mock Exam', desc: 'Timed countdown — feedback only at the end' },
+                ]).map(m => (
                   <button
-                    key={m}
-                    onClick={() => setMode(m)}
-                    className={`p-4 rounded-lg border-2 text-left transition-all ${
-                      mode === m ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
+                    key={m.value}
+                    onClick={() => setMode(m.value)}
+                    className={`p-4 rounded-xl border-2 text-left transition-all ${
+                      mode === m.value ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="font-semibold text-slate-800 text-sm capitalize">
-                      {m === 'practice' ? 'Practice' : 'Mock Exam'}
-                    </div>
-                    <div className="text-xs text-slate-500 mt-1">
-                      {m === 'practice' ? 'Immediate feedback after each answer' : 'Timed, feedback only at end'}
-                    </div>
+                    <div className="font-semibold text-slate-800 text-sm">{m.label}</div>
+                    <div className="text-xs text-slate-500 mt-1">{m.desc}</div>
                   </button>
                 ))}
               </div>
@@ -191,93 +236,65 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
             {/* Step 3 — Difficulty */}
             <div className="bg-white rounded-xl border border-slate-200 p-5">
-              <h2 className="font-semibold text-slate-700 mb-3">Difficulty</h2>
+              <h2 className="font-semibold text-slate-700 mb-1 text-sm uppercase tracking-wider">Step 3 — Difficulty</h2>
+              <p className="text-xs text-slate-400 mb-4">Question mix for this session</p>
               <div className="flex flex-wrap gap-2">
-                {(['all', 'easy', 'medium', 'hard'] as Difficulty[]).map(d => (
+                {([
+                  { value: 'all' as Difficulty, label: 'All' },
+                  { value: 'easy' as Difficulty, label: 'Easy' },
+                  { value: 'medium' as Difficulty, label: 'Medium' },
+                  { value: 'hard' as Difficulty, label: 'Hard' },
+                ]).map(d => (
                   <button
-                    key={d}
-                    onClick={() => setDifficulty(d)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition-all capitalize ${
-                      difficulty === d
+                    key={d.value}
+                    onClick={() => setDifficulty(d.value)}
+                    className={`px-5 py-2 rounded-lg text-sm font-medium border-2 transition-all ${
+                      difficulty === d.value
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
-                    {d}
+                    {d.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Step 4 — Question count */}
+            {/* Step 4 — Number of questions */}
             <div className="bg-white rounded-xl border border-slate-200 p-5">
-              <h2 className="font-semibold text-slate-700 mb-3">Number of Questions</h2>
-              <div className="flex gap-2">
-                {([20, 50, 100] as QuestionCount[]).map(n => (
+              <h2 className="font-semibold text-slate-700 mb-1 text-sm uppercase tracking-wider">Step 4 — Number of Questions</h2>
+              <p className="text-xs text-slate-400 mb-4">45 seconds allowed per question</p>
+              <div className="flex gap-3">
+                {([50, 100] as QuestionCount[]).map(n => (
                   <button
                     key={n}
                     onClick={() => setQuestionCount(n)}
-                    className={`px-5 py-2 rounded-lg text-sm font-medium border-2 transition-all ${
+                    className={`px-6 py-2.5 rounded-lg text-sm font-medium border-2 transition-all ${
                       questionCount === n
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
-                    {n}
+                    {n} questions
                   </button>
                 ))}
               </div>
+              <p className="text-xs text-slate-500 mt-3">
+                Time allowed: <span className="font-medium text-slate-700">{formatTimeAllowed(questionCount)}</span>
+                <span className="text-slate-400"> (45 sec per question)</span>
+              </p>
             </div>
-
-            {/* Step 5 — Topics (full subject mode only) */}
-            {scope === 'subject' && topics.length > 0 && (
-              <div className="bg-white rounded-xl border border-slate-200 p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="font-semibold text-slate-700">Topics</h2>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setSelectedTopics(topics.map(t => t.id))}
-                      className="text-xs text-blue-600 hover:underline"
-                    >
-                      All
-                    </button>
-                    <span className="text-slate-300">|</span>
-                    <button
-                      onClick={() => setSelectedTopics([])}
-                      className="text-xs text-blue-600 hover:underline"
-                    >
-                      None
-                    </button>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {topics.map(topic => (
-                    <button
-                      key={topic.id}
-                      onClick={() => toggleTopic(topic.id)}
-                      className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
-                        selectedTopics.includes(topic.id)
-                          ? 'border-blue-400 text-blue-700 font-medium'
-                          : 'border-slate-200 text-slate-500'
-                      }`}
-                      style={selectedTopics.includes(topic.id) ? { backgroundColor: '#EBF4FF' } : {}}
-                    >
-                      {topic.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Start */}
             <button
               onClick={startSession}
               disabled={starting || !canStart}
-              className="w-full py-3.5 rounded-xl font-semibold text-white text-base transition-all disabled:opacity-50"
+              className="w-full py-4 rounded-xl font-bold text-white text-base transition-all disabled:opacity-50"
               style={{ backgroundColor: '#185FA5' }}
             >
-              {starting ? 'Starting…' : `Start ${mode === 'practice' ? 'Practice' : 'Mock Exam'}`}
+              {starting ? 'Starting…' : `Start ${mode === 'practice' ? 'Practice' : 'Mock Exam'} →`}
             </button>
+
           </div>
         </div>
       </main>

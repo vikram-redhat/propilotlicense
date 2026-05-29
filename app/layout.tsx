@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'ProPilotLicense — DGCA CPL Exam Prep',
-  description: 'Practice questions and mock exams for DGCA CPL pilot theory tests',
+  title: 'ProPilotLicense — DGCA Pilot Licence Exam Prep',
+  description: 'Practice questions and mock exams for DGCA CPL and ATPL pilot licence theory tests',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

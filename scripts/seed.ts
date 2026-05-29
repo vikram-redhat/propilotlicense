@@ -14,7 +14,7 @@ const subjects = [
     name: 'Meteorology',
     code: 'MET',
     icon_name: 'wind',
-    description: 'Weather patterns, atmosphere, METAR/TAF, and aviation weather hazards.',
+    description: `Meteorology is the study of the Earth's atmosphere and the weather phenomena that affect aviation. For pilots, a thorough understanding of meteorology is essential for safe flight operations. This subject covers the structure and composition of the atmosphere, pressure systems, temperature and humidity, clouds, precipitation, thunderstorms, icing, visibility, fronts, and the interpretation of aviation weather reports and forecasts including METAR, TAF, SIGMET, and AIRMET. Pilots must be able to anticipate and respond to weather hazards including windshear, microbursts, clear air turbulence, and in-flight icing conditions.`,
     licence_types: ['CPL', 'ATPL'],
     sort_order: 1,
     active: true,
@@ -23,7 +23,7 @@ const subjects = [
     name: 'Air Regulations',
     code: 'REG',
     icon_name: 'gavel',
-    description: 'ICAO annexes, DGCA requirements, air law, and ATC procedures.',
+    description: `Air Regulations covers the legal and procedural framework governing civil aviation in India and internationally. This subject includes the Aircraft Act 1934, Aircraft Rules, DGCA Civil Aviation Requirements (CARs), ICAO Annexes and associated documentation, the Aeronautical Information Publication (AIP) India, airspace classification, flight rules (VFR and IFR), ATC procedures, pilot licensing requirements, flight and duty time limitations, accident and incident reporting, and human performance and limitations. A sound knowledge of air regulations is a legal requirement for all licensed pilots operating in Indian and international airspace.`,
     licence_types: ['CPL', 'ATPL'],
     sort_order: 2,
     active: true,
@@ -56,14 +56,14 @@ const topicsByCode: Record<string, string[]> = {
   MET: [
     'Atmosphere structure', 'Pressure and altimetry', 'Temperature',
     'Winds and circulation', 'Clouds and precipitation', 'Thunderstorms',
-    'Icing', 'Visibility and fog', 'Fronts', 'ITCZ', 'METAR/TAF decode',
-    'SIGMET and AIRMET', 'Turbulence', 'Wind shear',
+    'Icing', 'Visibility and fog', 'Fronts', 'ITCZ',
+    'METAR and TAF decode', 'SIGMET and AIRMET', 'Turbulence', 'Wind shear',
   ],
   REG: [
     'ICAO annexes', 'DGCA CAR series', 'Aircraft Act and Rules',
     'Flight rules – VFR', 'Flight rules – IFR', 'ATC procedures',
     'Airspace classification', 'Licensing requirements',
-    'Flight time limitations', 'Accident and incident reporting',
+    'Flight and duty time limitations', 'Accident and incident reporting',
     'Human performance and limitations', 'AIP India',
   ],
 }
@@ -82,7 +82,7 @@ const sampleQuestions: Record<string, {
     {
       question_text: 'The standard lapse rate of temperature in the troposphere is approximately:',
       difficulty: 'easy',
-      explanation: 'The International Standard Atmosphere (ISA) defines a lapse rate of 2°C per 1,000 ft (6.5°C per 1,000 m) in the troposphere.',
+      explanation: 'The International Standard Atmosphere (ISA) defines the standard temperature lapse rate in the troposphere as 2°C per 1,000 feet (6.5°C per 1,000 metres). This rate represents the average decrease in temperature with altitude under standard conditions. In practice, the actual lapse rate varies considerably depending on local meteorological conditions, moisture content, and time of day. When the lapse rate exceeds 3°C per 1,000 feet, the atmosphere is considered superadiabatic and highly unstable. Pilots must account for temperature deviations from ISA when calculating aircraft performance, as a warmer-than-standard atmosphere reduces air density, adversely affecting engine output and lift generation.',
       options: { A: '1°C per 1,000 ft', B: '2°C per 1,000 ft', C: '3°C per 1,000 ft', D: '4°C per 1,000 ft' },
       correct: 'B',
       bookTitle: 'Aviation Meteorology',
@@ -92,7 +92,7 @@ const sampleQuestions: Record<string, {
     {
       question_text: 'A METAR observation of "TS" indicates:',
       difficulty: 'easy',
-      explanation: 'In a METAR, "TS" is the present weather code for thunderstorm.',
+      explanation: 'In METAR weather observations, the present weather group uses two-letter codes standardised by ICAO to describe significant weather phenomena. The code "TS" denotes thunderstorm, defined as a discharge of atmospheric electricity accompanied by thunder and lightning. A thunderstorm is one of the most hazardous meteorological phenomena in aviation, associated with severe turbulence, heavy precipitation, icing, strong wind shear, and lightning. When "TS" appears without a precipitation qualifier, it indicates a thunderstorm is occurring at the aerodrome without precipitation reaching the surface. Pilots must treat any thunderstorm observation in a METAR as a significant operational hazard requiring careful route and approach planning.',
       options: { A: 'Turbulent conditions only', B: 'Thunderstorm', C: 'Transient shower', D: 'Towering cumulus' },
       correct: 'B',
       bookTitle: 'Aviation Meteorology',
@@ -102,7 +102,7 @@ const sampleQuestions: Record<string, {
     {
       question_text: 'In the Northern Hemisphere, wind flows around a low pressure system:',
       difficulty: 'medium',
-      explanation: 'Coriolis force deflects air to the right in the Northern Hemisphere, resulting in counter-clockwise (cyclonic) flow around a low.',
+      explanation: 'In the Northern Hemisphere, the Coriolis force deflects moving air parcels to the right of their direction of motion. As surface pressure gradients drive air inward toward a low pressure centre, this rightward Coriolis deflection causes the converging air to spiral counter-clockwise around the low — a circulation pattern known as cyclonic flow. The combination of the pressure gradient force, the Coriolis force, and surface friction produces the characteristic inward and counter-clockwise flow associated with Northern Hemisphere surface lows. At higher altitudes, friction diminishes and the flow becomes nearly geostrophic — parallel to the isobars. In the Southern Hemisphere, Coriolis deflection is to the left, reversing the pattern so that air circulates clockwise around a low.',
       options: { A: 'Clockwise and outward', B: 'Clockwise and inward', C: 'Counter-clockwise and inward', D: 'Counter-clockwise and outward' },
       correct: 'C',
       bookTitle: 'Aviation Meteorology',
@@ -112,7 +112,7 @@ const sampleQuestions: Record<string, {
     {
       question_text: 'Structural icing is most likely to occur in which cloud type?',
       difficulty: 'medium',
-      explanation: 'Cumulonimbus clouds contain large supercooled water droplets and strong updrafts, making them the most hazardous for airframe icing.',
+      explanation: 'Structural icing — the accretion of ice on exposed aircraft surfaces — requires two conditions: air temperature at or below 0°C, and the presence of supercooled liquid water droplets. Cumulonimbus clouds present the greatest icing hazard because they contain dense concentrations of large supercooled water droplets throughout a deep vertical column, often extending from near the freezing level to well above −20°C. The strong updrafts within cumulonimbus maintain supercooled droplets in suspension far below the temperature at which spontaneous freezing would otherwise occur. When an aircraft surface contacts these droplets, rapid freezing produces clear or mixed ice — the most structurally disruptive forms. Flight into or near cumulonimbus should be avoided for this reason, in addition to the hazards of severe turbulence and lightning.',
       options: { A: 'Cirrus', B: 'Cumulonimbus', C: 'Altostratus', D: 'Stratocumulus' },
       correct: 'B',
       bookTitle: 'Aviation Meteorology',
@@ -122,7 +122,7 @@ const sampleQuestions: Record<string, {
     {
       question_text: 'Mountain wave turbulence is most intense:',
       difficulty: 'hard',
-      explanation: 'Mountain wave turbulence is most severe in the rotor zone beneath the wave crests on the leeward side, and can extend to altitudes well above the mountain top.',
+      explanation: 'Mountain waves form when stable air flows over a terrain barrier and the displaced air oscillates in standing waves on the lee side. The most severe turbulence occurs in the rotor zone — a region of closed, eddying circulation below the wave crests on the leeward side of the mountain. Rotor turbulence can be extreme and is particularly hazardous because it frequently occurs beneath the visible wave clouds, in clear air, and at altitudes well below the mountain peaks. The rotor zone is characterised by violent, irregular updrafts and downdrafts that can overwhelm the aircraft\'s structural limits. Pilots should maintain a substantial horizontal and vertical clearance from known rotor zones, and remain alert for the characteristic lenticular (lens-shaped) clouds that mark the wave crests above.',
       options: {
         A: 'On the windward side at mountain level',
         B: 'In the rotor zone beneath the wave crests on the leeward side',
@@ -139,7 +139,7 @@ const sampleQuestions: Record<string, {
     {
       question_text: 'ICAO Annex 2 covers:',
       difficulty: 'easy',
-      explanation: 'ICAO Annex 2 contains the Rules of the Air — international standards for VFR and IFR flight.',
+      explanation: 'ICAO Annex 2 — Rules of the Air — contains the international standards and recommended practices that govern how aircraft shall be operated in international airspace. The annex prescribes the general rules applicable to all aircraft, the visual flight rules (VFR), and the instrument flight rules (IFR), together with the signals used in air traffic communications. Annex 2 is one of nineteen technical annexes to the Convention on International Civil Aviation (Chicago Convention 1944) and has been adopted by all ICAO Contracting States as the basis for their national air law. Compliance with the Rules of the Air is a fundamental legal obligation for all pilots operating in controlled and uncontrolled airspace worldwide.',
       options: { A: 'Personnel licensing', B: 'Rules of the Air', C: 'Aerodromes', D: 'Air traffic services' },
       correct: 'B',
       bookTitle: 'ICAO Annexes',
@@ -149,7 +149,7 @@ const sampleQuestions: Record<string, {
     {
       question_text: 'Under DGCA regulations, the minimum visibility for VFR flight in Class G airspace below 3,000 ft AMSL is:',
       difficulty: 'easy',
-      explanation: 'In Class G airspace at and below 3,000 ft AMSL (or 1,000 ft AGL, whichever is higher), DGCA requires a minimum flight visibility of 5 km for VFR.',
+      explanation: 'DGCA regulations, consistent with ICAO Annex 2 provisions, prescribe a minimum flight visibility of 5 km for VFR flight in Class G uncontrolled airspace at and below 3,000 feet above mean sea level (AMSL) or 1,000 feet above ground level (AGL), whichever is the higher altitude. Below this level, pilots are additionally required to remain clear of cloud, maintain sight of the surface, and maintain a minimum of 500 feet vertical distance from cloud when operating outside controlled airspace. These visibility requirements ensure that VFR pilots at low altitudes have sufficient forward visibility to detect and avoid other traffic, terrain, and obstacles. Non-compliance constitutes a serious airworthiness and safety violation under the Aircraft Rules.',
       options: { A: '1.5 km', B: '3 km', C: '5 km', D: '8 km' },
       correct: 'C',
       bookTitle: 'DGCA Civil Aviation Requirements (CAR)',
@@ -159,7 +159,7 @@ const sampleQuestions: Record<string, {
     {
       question_text: 'An aircraft operating IFR must maintain a minimum altitude of ___ above the highest obstacle within ___ nm of track:',
       difficulty: 'medium',
-      explanation: 'ICAO IFR minimum obstacle clearance altitude (MOCA) requires 1,000 ft above the highest obstacle within 5 nm in non-mountainous terrain.',
+      explanation: 'Under ICAO Annex 2 and supporting procedures, aircraft operating in IFR conditions must maintain a minimum obstacle clearance altitude (MOCA) that ensures safe vertical separation from terrain and obstacles along the route of flight. In non-mountainous areas, the prescribed minimum altitude is 1,000 feet above the highest obstacle within 5 nautical miles either side of the intended track. In mountainous or designated high-terrain areas, this buffer is increased to 2,000 feet within the same lateral distance. These minima are designed to provide adequate clearance during normal instrument flight, taking into account altimetry errors, turbulence effects, and navigation system tolerances. Operators must verify the selected altitude for each segment provides the required obstacle clearance throughout.',
       options: { A: '500 ft within 5 nm', B: '1,000 ft within 5 nm', C: '2,000 ft within 10 nm', D: '1,500 ft within 8 nm' },
       correct: 'B',
       bookTitle: 'Air Regulations',
@@ -169,7 +169,7 @@ const sampleQuestions: Record<string, {
     {
       question_text: 'Class B airspace requires all of the following EXCEPT:',
       difficulty: 'medium',
-      explanation: 'Class B requires ATC clearance, a Mode C/ADS-B transponder, and two-way communication. A filed flight plan is NOT a Class B entry requirement.',
+      explanation: 'Class B airspace in the ICAO classification system is typically established around the busiest commercial airports. To enter and operate within Class B airspace, a pilot must obtain an explicit ATC clearance before entry, maintain continuous two-way radio communication with ATC, and carry a functioning Mode C or ADS-B Out transponder that transmits altitude information. A filed flight plan, while standard practice for IFR operations, is not a statutory requirement for entry into Class B airspace under ICAO Annex 11. All traffic within Class B receives an ATC separation service. Pilots who penetrate Class B without a clearance commit a serious regulatory infringement and may face enforcement action by the relevant civil aviation authority.',
       options: {
         A: 'ATC clearance',
         B: 'Mode C or ADS-B Out transponder',
@@ -184,7 +184,7 @@ const sampleQuestions: Record<string, {
     {
       question_text: 'Under ICAO Annex 1, an ATPL holder acting as P1 on a multi-crew aircraft must have performed within the preceding 90 days at least:',
       difficulty: 'hard',
-      explanation: 'ICAO Annex 1 requires 3 take-offs and 3 landings as pilot flying within 90 days to maintain recency for pilot-in-command privileges.',
+      explanation: 'ICAO Annex 1 — Personnel Licensing — establishes the recency requirements that a pilot must maintain to exercise the privileges of a pilot licence on a specific aircraft type. For a pilot to act as pilot-in-command (P1) on a multi-crew aircraft, Annex 1 requires that within the preceding 90 days the pilot has completed at least 3 take-offs and 3 landings as the pilot flying (PF) on that aircraft type or on an approved simulator. These take-offs and landings must be performed in the capacity of pilot flying — passive observation or performing as pilot monitoring does not satisfy the requirement. The 90-day recency window runs continuously and must be maintained at all times while the pilot is exercising P1 privileges. Failure to maintain recency renders the licence privileges non-current until a check flight or simulator session is completed.',
       options: {
         A: '3 take-offs and 3 landings as pilot flying',
         B: '5 take-offs and 5 landings in any capacity',
@@ -214,7 +214,7 @@ async function seed() {
 
   console.log('Seeding source books…')
   let bookCount = 0
-  const bookMap: Record<string, Record<string, string>> = {} // code → title → id
+  const bookMap: Record<string, Record<string, string>> = {}
 
   for (const book of sourceBooks) {
     const subId = subjectMap[book.subjectCode]

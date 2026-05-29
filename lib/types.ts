@@ -61,10 +61,13 @@ export interface Session {
   id: string
   subject_id: string
   licence_type: string
-  scope: 'subject' | 'book'
+  scope: 'topic' | 'book' | 'combined'
+  topic_id: string | null
   source_book_id: string | null
   mode: 'practice' | 'mock'
   difficulty: 'all' | 'easy' | 'medium' | 'hard'
+  question_count: number
+  time_limit_secs: number
   question_ids: string[]
   created_at: string
 }
@@ -72,7 +75,7 @@ export interface Session {
 export interface SessionState {
   sessionId: string
   currentIndex: number
-  answers: Record<string, { selected: string; isCorrect: boolean }>
+  answers: Record<string, { selected: string; isCorrect: boolean; timeTaken?: number }>
   startedAt: string
   submittedAt?: string
 }

@@ -8,10 +8,14 @@ const weights = {
 }
 
 export async function POST(req: Request) {
-  const { subjectId, licenceType, scope, sourceBookId, topicIds, mode, difficulty, questionCount } = await req.json()
+  const { subjectId, licenceType, scope, topicId, sourceBookId, mode, difficulty, questionCount } = await req.json()
 
   if (!subjectId || !mode || !difficulty || !questionCount || !scope) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+
+  if (![50, 100].includes(questionCount)) {
+    return Response.json({ error: 'Question count must be 50 or 100' }, { status: 400 })
   }
 
   const supabase = createServiceClient()
@@ -22,11 +26,12 @@ export async function POST(req: Request) {
     .eq('subject_id', subjectId)
     .eq('active', true)
 
-  if (scope === 'book' && sourceBookId) {
+  if (scope === 'topic' && topicId) {
+    query = query.eq('topic_id', topicId)
+  } else if (scope === 'book' && sourceBookId) {
     query = query.eq('source_book_id', sourceBookId)
-  } else if (scope === 'subject' && topicIds && topicIds.length > 0) {
-    query = query.or(`topic_id.in.(${topicIds.join(',')}),topic_id.is.null`)
   }
+  // scope === 'combined': no additional filter
 
   const { data: questions, error } = await query
 
@@ -61,9 +66,12 @@ export async function POST(req: Request) {
       subject_id: subjectId,
       licence_type: (licenceType || 'CPL').toUpperCase(),
       scope,
-      source_book_id: scope === 'book' ? sourceBookId : null,
+      topic_id: scope === 'topic' ? (topicId ?? null) : null,
+      source_book_id: scope === 'book' ? (sourceBookId ?? null) : null,
       mode,
       difficulty,
+      question_count: questionCount,
+      time_limit_secs: questionCount * 45,
       question_ids: shuffled,
     })
     .select('id')
