@@ -2,20 +2,20 @@ import Link from 'next/link'
 
 const PILOT_PHOTOS = [
   {
-    id: '1436491865332-7a61a109cc05',
-    alt: 'Pilot at aircraft controls in cockpit',
+    id: 'UsoijQy4aLU',
+    alt: 'Pilot wearing headset smiles while flying',
   },
   {
-    id: '1474302770737-173ee21bab63',
-    alt: 'Commercial airline pilot in uniform',
+    id: '2uuFTSt61OM',
+    alt: 'Female co-pilot with pre-flight checklist',
   },
   {
-    id: '1551244072-5d12893278bc',
-    alt: 'Flight crew preparing for departure',
+    id: 'QtXNsDcOrd4',
+    alt: 'Two pilots in the cockpit of a commercial aircraft',
   },
   {
-    id: '1540575467063-178a50c2df87',
-    alt: 'Pilot conducting pre-flight checks',
+    id: 'xQ2yEBzGrOE',
+    alt: 'Female first officer at the flight deck controls',
   },
 ]
 
