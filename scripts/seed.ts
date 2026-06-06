@@ -28,6 +28,33 @@ const subjects = [
     sort_order: 2,
     active: true,
   },
+  {
+    name: 'Air Navigation',
+    code: 'NAV',
+    icon_name: 'route',
+    description: `Air Navigation is the science and practice of determining an aircraft's position and directing its flight path from one location to another. For CPL and ATPL candidates, this subject encompasses the theoretical foundations of dead reckoning, the wind triangle, and flight planning, as well as practical navigation systems including VOR, NDB, DME, ILS, and GPS/GNSS. Candidates must understand chart projections, great circle and rhumb line tracks, time zones, magnetic variation, and the calculation of headings, groundspeed, and estimated times of arrival. Mass and balance, flight performance, and operational procedures are also examined under this subject, requiring an understanding of aircraft loading, centre of gravity limits, and performance charts.`,
+    licence_types: ['CPL', 'ATPL'],
+    sort_order: 3,
+    active: true,
+  },
+  {
+    name: 'Radio Aids & Instruments',
+    code: 'RAI',
+    icon_name: 'radio',
+    description: `Radio Aids and Instruments covers the operating principles, capabilities, and limitations of the navigation and communication systems installed in modern commercial aircraft, as well as the flight instruments used to monitor and control flight parameters. The subject includes VHF and HF communications, transponders and secondary surveillance radar, ADF and NDB operations, VOR, DME, ILS and MLS, GPS and GNSS, TCAS, EGPWS, and the Flight Management System. Candidates are also examined on pitot-static instruments (altimeter, ASI, VSI), gyroscopic instruments (artificial horizon, directional gyro, turn coordinator), the magnetic compass, EFIS displays, and automatic flight control systems including autopilot and autothrottle.`,
+    licence_types: ['CPL', 'ATPL'],
+    sort_order: 4,
+    active: true,
+  },
+  {
+    name: 'Technical General',
+    code: 'TECH',
+    icon_name: 'engine',
+    description: `Technical General covers the theoretical principles and practical knowledge of aircraft structures, systems, and powerplants required for CPL and ATPL examinations. The subject encompasses the principles of flight including lift, drag, thrust, and stability; airframe structures and materials; flight control systems; hydraulic and pneumatic systems; landing gear systems; piston and gas turbine engine theory and operation; aircraft fuel systems; electrical systems and avionics power supply; pressurisation and air conditioning; ice and rain protection; and fire detection and suppression systems. A thorough understanding of this subject enables pilots to operate aircraft systems correctly and respond appropriately to abnormal and emergency situations.`,
+    licence_types: ['CPL', 'ATPL'],
+    sort_order: 5,
+    active: true,
+  },
 ]
 
 const sourceBooks: { subjectCode: string; title: string; author: string; licence_types: string[]; sort_order: number }[] = [
@@ -50,6 +77,37 @@ const sourceBooks: { subjectCode: string; title: string; author: string; licence
   { subjectCode: 'REG', title: 'ICAO Annexes',                            author: 'ICAO',                   licence_types: ['CPL', 'ATPL'], sort_order: 10 },
   { subjectCode: 'REG', title: 'ICAO Docs',                               author: 'ICAO',                   licence_types: ['CPL', 'ATPL'], sort_order: 11 },
   { subjectCode: 'REG', title: 'AIP India',                               author: 'India',                  licence_types: ['CPL', 'ATPL'], sort_order: 12 },
+  // Air Navigation
+  { subjectCode: 'NAV', title: 'Air Navigation',                                    author: 'Trevor Thom',        licence_types: ['CPL', 'ATPL'], sort_order: 1 },
+  { subjectCode: 'NAV', title: 'JAR ATPL & CPL General Navigation',                 author: 'Keith Williams',     licence_types: ['CPL', 'ATPL'], sort_order: 2 },
+  { subjectCode: 'NAV', title: 'Ground Studies for Pilots – Navigation',             author: 'Underdown & Palmer', licence_types: ['CPL', 'ATPL'], sort_order: 3 },
+  { subjectCode: 'NAV', title: 'General Navigation – Navigation',                    author: 'Nordian',            licence_types: ['CPL', 'ATPL'], sort_order: 4 },
+  { subjectCode: 'NAV', title: 'Navigation for Pilot',                               author: 'JE Hitchcock',       licence_types: ['CPL', 'ATPL'], sort_order: 5 },
+  { subjectCode: 'NAV', title: 'Flight Performance & Planning 1',                    author: 'Oxford',             licence_types: ['CPL', 'ATPL'], sort_order: 6 },
+  { subjectCode: 'NAV', title: 'Flight Performance & Planning 2 (FP & M)',           author: 'Oxford',             licence_types: ['CPL', 'ATPL'], sort_order: 7 },
+  { subjectCode: 'NAV', title: 'Mass & Balance Flight Performance and Planning',     author: 'Nordian',            licence_types: ['CPL', 'ATPL'], sort_order: 8 },
+  { subjectCode: 'NAV', title: 'Radio Navigation and Instrument Flying',             author: 'Trevor Thom',        licence_types: ['CPL', 'ATPL'], sort_order: 9 },
+  { subjectCode: 'NAV', title: 'Operational Procedures',                             author: 'Nordian',            licence_types: ['CPL', 'ATPL'], sort_order: 10 },
+  // Radio Aids & Instruments
+  { subjectCode: 'RAI', title: 'JAR ATPL(A) and CPL(A) Instruments',                author: 'Keith Williams',         licence_types: ['CPL', 'ATPL'], sort_order: 1 },
+  { subjectCode: 'RAI', title: 'Ground Studies for Pilots – Radio Aids',             author: 'Underdown & Cockburn',   licence_types: ['CPL', 'ATPL'], sort_order: 2 },
+  { subjectCode: 'RAI', title: 'Radio Navigation and Instrument Flying',             author: 'Trevor Thom',            licence_types: ['CPL', 'ATPL'], sort_order: 3 },
+  { subjectCode: 'RAI', title: 'Navigation – 2 Radio Navigation',                   author: 'Oxford',                 licence_types: ['CPL', 'ATPL'], sort_order: 4 },
+  { subjectCode: 'RAI', title: 'Instrumentation Aircraft General Knowledge',         author: 'Nordian',                licence_types: ['CPL', 'ATPL'], sort_order: 5 },
+  { subjectCode: 'RAI', title: 'Aircraft General Knowledge 4',                       author: 'Oxford',                 licence_types: ['CPL', 'ATPL'], sort_order: 6 },
+  { subjectCode: 'RAI', title: 'Ground Studies for Pilots – Flight Instruments and Automatic Flight Control Systems', author: 'David Harris', licence_types: ['CPL', 'ATPL'], sort_order: 7 },
+  { subjectCode: 'RAI', title: 'Avionics and Flight Management for the Professional Pilot', author: 'David Robson',   licence_types: ['ATPL'],        sort_order: 8 },
+  // Technical General
+  { subjectCode: 'TECH', title: 'JAR ATPL & CPL Principles of Flight',              author: 'Keith Williams', licence_types: ['CPL', 'ATPL'], sort_order: 1 },
+  { subjectCode: 'TECH', title: 'Aircraft General Knowledge 1',                     author: 'Oxford',         licence_types: ['CPL', 'ATPL'], sort_order: 2 },
+  { subjectCode: 'TECH', title: 'Aircraft General Knowledge 2',                     author: 'Oxford',         licence_types: ['CPL', 'ATPL'], sort_order: 3 },
+  { subjectCode: 'TECH', title: 'Aircraft General Knowledge 3',                     author: 'Oxford',         licence_types: ['CPL', 'ATPL'], sort_order: 4 },
+  { subjectCode: 'TECH', title: 'Airframe and Systems',                             author: 'Nordian',        licence_types: ['CPL', 'ATPL'], sort_order: 5 },
+  { subjectCode: 'TECH', title: 'Airframes and Systems Aircraft General Knowledge', author: 'Nordian',        licence_types: ['CPL', 'ATPL'], sort_order: 6 },
+  { subjectCode: 'TECH', title: 'Powerplant Aircraft General Knowledge',            author: 'Nordian',        licence_types: ['CPL', 'ATPL'], sort_order: 7 },
+  { subjectCode: 'TECH', title: 'Electrics Aircraft General Knowledge',             author: 'Nordian',        licence_types: ['CPL', 'ATPL'], sort_order: 8 },
+  { subjectCode: 'TECH', title: 'Principle of Flight',                              author: 'Nordian',        licence_types: ['CPL', 'ATPL'], sort_order: 9 },
+  { subjectCode: 'TECH', title: 'Principle of Flight',                              author: 'Oxford',         licence_types: ['CPL', 'ATPL'], sort_order: 10 },
 ]
 
 const topicsByCode: Record<string, string[]> = {
@@ -65,6 +123,27 @@ const topicsByCode: Record<string, string[]> = {
     'Airspace classification', 'Licensing requirements',
     'Flight and duty time limitations', 'Accident and incident reporting',
     'Human performance and limitations', 'AIP India',
+  ],
+  NAV: [
+    'Dead reckoning', 'Wind triangle calculations', 'VOR navigation',
+    'NDB and ADF', 'DME operations', 'ILS approach',
+    'GPS and GNSS', 'Celestial navigation', 'Chart projections',
+    'Time zones and date line', 'Great circle and rhumb line',
+    'Flight planning', 'Mass and balance', 'Performance planning',
+  ],
+  RAI: [
+    'VHF communications', 'HF communications', 'Transponder and SSR',
+    'ADF and NDB', 'VOR principles', 'DME',
+    'ILS and MLS', 'GPS and GNSS', 'TCAS',
+    'EGPWS and GPWS', 'Pitot-static instruments', 'Gyroscopic instruments',
+    'Magnetic compass', 'Autopilot and AFCS', 'EFIS and FMS',
+  ],
+  TECH: [
+    'Principles of flight', 'Lift and drag', 'Stability and control',
+    'Airframe structures', 'Flight control systems', 'Hydraulic systems',
+    'Landing gear', 'Piston engines', 'Gas turbine engines',
+    'Fuel systems', 'Electrical systems', 'Pressurisation',
+    'Ice and rain protection', 'Fire protection',
   ],
 }
 
