@@ -29,7 +29,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const [loading, setLoading] = useState(true)
   const [starting, setStarting] = useState(false)
 
-  const [scope, setScope] = useState<Scope>('combined')
+  const [scope, setScope] = useState<Scope | null>(null)
   const [selectedTopicId, setSelectedTopicId] = useState('')
   const [selectedBookId, setSelectedBookId] = useState('')
   const [mode, setMode] = useState<Mode>('practice')
@@ -54,6 +54,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   }, [subjectId])
 
   const canStart =
+    scope === null ? false :
     scope === 'topic' ? !!selectedTopicId :
     scope === 'book' ? !!selectedBookId :
     true
@@ -157,59 +158,81 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
               <h2 className="font-semibold text-slate-700 mb-1 text-sm uppercase tracking-wider">Step 1 — Scope</h2>
               <p className="text-xs text-slate-400 mb-4">Choose what to include in this session</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {SCOPE_OPTIONS.map(opt => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setScope(opt.value)}
-                    className={`p-4 rounded-xl border-2 text-left transition-all ${
-                      scope === opt.value
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <div className="font-semibold text-slate-800 text-sm leading-tight mb-1">{opt.title}</div>
-                    <div className="text-xs text-slate-500">{opt.subtitle}</div>
-                    {opt.example && (
-                      <div className="text-xs text-slate-400 mt-1">{opt.example}</div>
-                    )}
-                  </button>
-                ))}
+                {SCOPE_OPTIONS.map(opt => {
+                  const selected = scope === opt.value
+                  const hasDropdown = opt.value === 'topic' || opt.value === 'book'
+                  return (
+                    <div
+                      key={opt.value}
+                      onClick={() => setScope(opt.value)}
+                      style={{
+                        border: selected ? '2px solid #185FA5' : '0.5px solid var(--color-border-tertiary, #e2e8f0)',
+                        background: selected ? '#E6F1FB' : 'transparent',
+                        cursor: 'pointer',
+                      }}
+                      className="p-4 rounded-xl transition-all"
+                    >
+                      <div
+                        className="font-semibold text-sm leading-tight mb-1"
+                        style={{ color: selected ? '#185FA5' : '#1e293b' }}
+                      >
+                        {opt.title}
+                      </div>
+                      <div className="text-xs text-slate-500">{opt.subtitle}</div>
+                      {opt.example && (
+                        <div className="text-xs text-slate-400 mt-1">{opt.example}</div>
+                      )}
+
+                      {/* In-card dropdown expander */}
+                      {hasDropdown && (
+                        <div
+                          onClick={e => e.stopPropagation()}
+                          style={{
+                            maxHeight: selected ? '200px' : '0px',
+                            overflow: 'hidden',
+                            transition: 'max-height 0.2s ease',
+                          }}
+                        >
+                          <div style={{ borderTop: '0.5px solid var(--color-border-tertiary, #e2e8f0)', marginTop: 12, paddingTop: 12 }}>
+                            <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                              {opt.value === 'topic' ? 'Select topic' : 'Select source book'}
+                            </label>
+                            {opt.value === 'topic' ? (
+                              <select
+                                value={selectedTopicId}
+                                onChange={e => setSelectedTopicId(e.target.value)}
+                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
+                              >
+                                <option value="">Select a topic…</option>
+                                {topics.map(t => (
+                                  <option key={t.id} value={t.id}>{t.name}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <select
+                                value={selectedBookId}
+                                onChange={e => setSelectedBookId(e.target.value)}
+                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
+                              >
+                                <option value="">Select a book…</option>
+                                {books.map(b => (
+                                  <option key={b.id} value={b.id}>
+                                    {b.title}{b.author ? ` — ${b.author}` : ''}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
-
-              {scope === 'topic' && topics.length > 0 && (
-                <div className="mt-4">
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Select topic</label>
-                  <select
-                    value={selectedTopicId}
-                    onChange={e => setSelectedTopicId(e.target.value)}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
-                  >
-                    <option value="">Select a topic…</option>
-                    {topics.map(t => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {scope === 'book' && books.length > 0 && (
-                <div className="mt-4">
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Select source book</label>
-                  <select
-                    value={selectedBookId}
-                    onChange={e => setSelectedBookId(e.target.value)}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
-                  >
-                    <option value="">Select a book…</option>
-                    {books.map(b => (
-                      <option key={b.id} value={b.id}>
-                        {b.title}{b.author ? ` — ${b.author}` : ''}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
             </div>
+
+            {/* Steps 2–4 and Start — only shown once a scope is selected */}
+            {scope !== null && <>
 
             {/* Step 2 — Mode */}
             <div className="bg-white rounded-xl border border-slate-200 p-5">
@@ -294,6 +317,8 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
             >
               {starting ? 'Starting…' : `Start ${mode === 'practice' ? 'Practice' : 'Mock Exam'} →`}
             </button>
+
+            </>}
 
           </div>
         </div>
