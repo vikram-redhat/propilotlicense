@@ -36,6 +36,10 @@ export default function GeneratePage() {
   const [bookId, setBookId] = useState('')
   const [bookTitle, setBookTitle] = useState('')
   const [bookAuthor, setBookAuthor] = useState('')
+  const [chapterId, setChapterId] = useState('')
+  const [chapterName, setChapterName] = useState('')
+  const [chapterNumber, setChapterNumber] = useState(0)
+  const [chapters, setChapters] = useState<{ id: string; chapter_number: number; chapter_name: string }[]>([])
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
   const [count, setCount] = useState(10)
   const [context, setContext] = useState('')
@@ -57,7 +61,7 @@ export default function GeneratePage() {
   }, [])
 
   useEffect(() => {
-    if (!subjectId) { setTopics([]); setBooks([]); setTopicId(''); setBookId(''); return }
+    if (!subjectId) { setTopics([]); setBooks([]); setTopicId(''); setTopicName(''); setBookId(''); return }
     Promise.all([
       supabase.from('topics').select('*').eq('subject_id', subjectId).order('sort_order'),
       supabase.from('source_books').select('*').eq('subject_id', subjectId).order('sort_order'),
@@ -68,6 +72,16 @@ export default function GeneratePage() {
     const sub = subjects.find(s => s.id === subjectId)
     setSubjectName(sub?.name || '')
   }, [subjectId, subjects])
+
+  useEffect(() => {
+    if (!bookId) { setChapters([]); setChapterId(''); setChapterName(''); setChapterNumber(0); return }
+    supabase
+      .from('chapters')
+      .select('id, chapter_number, chapter_name')
+      .eq('book_id', bookId)
+      .order('sort_order')
+      .then(({ data }) => setChapters(data || []))
+  }, [bookId])
 
   // Live elapsed timer for the running batch
   useEffect(() => {
@@ -126,6 +140,8 @@ export default function GeneratePage() {
                 subject: subjectName,
                 bookTitle,
                 bookAuthor,
+                chapterName: chapterId ? chapterName : null,
+                chapterNumber: chapterId ? chapterNumber : null,
                 topic: topicName || null,
                 difficulty,
                 count: batchCount,
@@ -242,35 +258,17 @@ export default function GeneratePage() {
         <h1 className="text-xl font-bold text-slate-800 mb-6">AI Question Generator</h1>
 
         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5 mb-6">
-          {/* Subject + Topic */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Subject *</label>
-              <select
-                value={subjectId}
-                onChange={e => { setSubjectId(e.target.value); setTopicId(''); setTopicName(''); setBookId('') }}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
-              >
-                <option value="">Select subject…</option>
-                {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Topic / Chapter</label>
-              <select
-                value={topicId}
-                onChange={e => {
-                  setTopicId(e.target.value)
-                  const t = topics.find(t => t.id === e.target.value)
-                  setTopicName(t?.name || '')
-                }}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
-                disabled={!subjectId}
-              >
-                <option value="">All topics</option>
-                {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-            </div>
+          {/* Subject */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Subject *</label>
+            <select
+              value={subjectId}
+              onChange={e => { setSubjectId(e.target.value); setTopicId(''); setTopicName(''); setBookId(''); setChapterId(''); setChapterName('') }}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+            >
+              <option value="">Select subject…</option>
+              {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
           </div>
 
           {/* Source book */}
@@ -283,6 +281,9 @@ export default function GeneratePage() {
                 const b = books.find(b => b.id === e.target.value)
                 setBookTitle(b?.title || '')
                 setBookAuthor(b?.author || '')
+                setChapterId('')
+                setChapterName('')
+                setChapterNumber(0)
               }}
               className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
               disabled={!subjectId}
@@ -294,11 +295,45 @@ export default function GeneratePage() {
                 </option>
               ))}
             </select>
-            {bookId && (
-              <p className="text-xs text-slate-400 mt-1">
-                AI will estimate chapter and page — marked as approximate until verified.
-              </p>
-            )}
+          </div>
+
+          {/* Chapter (filtered by book) */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Chapter (optional)</label>
+            <select
+              value={chapterId}
+              onChange={e => {
+                setChapterId(e.target.value)
+                const c = chapters.find(c => c.id === e.target.value)
+                setChapterName(c?.chapter_name || '')
+                setChapterNumber(c?.chapter_number || 0)
+              }}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+              disabled={!bookId}
+            >
+              <option value="">All chapters</option>
+              {chapters.map(c => (
+                <option key={c.id} value={c.id}>Chapter {c.chapter_number} — {c.chapter_name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Topic (filtered by subject) */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Topic (optional)</label>
+            <select
+              value={topicId}
+              onChange={e => {
+                setTopicId(e.target.value)
+                const t = topics.find(t => t.id === e.target.value)
+                setTopicName(t?.name || '')
+              }}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+              disabled={!subjectId}
+            >
+              <option value="">All topics</option>
+              {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
           </div>
 
           {/* Difficulty */}

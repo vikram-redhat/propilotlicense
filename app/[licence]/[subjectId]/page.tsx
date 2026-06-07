@@ -119,9 +119,9 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const SCOPE_OPTIONS: { value: 'topic' | 'book' | 'combined'; title: string; subtitle: string; hint?: string }[] = [
     {
       value: 'topic',
-      title: 'By Chapter / Topic',
+      title: 'By Topic',
       subtitle: 'Questions from all books on one topic',
-      hint: 'e.g. "Atmosphere structure"',
+      hint: 'e.g. "Thunderstorms · Icing · Fronts"',
     },
     {
       value: 'book',
