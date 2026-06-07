@@ -133,14 +133,14 @@ export default function HomePage() {
                 className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white text-base transition-all hover:opacity-90"
                 style={{ backgroundColor: '#185FA5' }}
               >
-                Start CPL →
+                Start CPL Exam →
               </Link>
               <Link
                 href="/atpl"
                 className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-base border-2 transition-all hover:border-blue-400"
                 style={{ color: '#185FA5', borderColor: '#185FA5' }}
               >
-                Start ATPL →
+                Start ATPL Exam →
               </Link>
             </div>
           </div>
