@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook } from '@/lib/types'
 import SubjectIcon from '@/components/SubjectIcon'
+import SiteFooter from '@/components/SiteFooter'
 
 type Scope = 'topic' | 'book' | 'book_chapter' | 'combined'
 type Mode = 'practice' | 'mock'
@@ -356,6 +357,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
           </div>
         </div>
       </main>
+      <SiteFooter />
     </div>
   )
 }

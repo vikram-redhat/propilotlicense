@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
 import { IconCheck, IconX, IconMinus, IconBook, IconBook2 } from '@tabler/icons-react'
+import SiteFooter from '@/components/SiteFooter'
 
 export default function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -260,6 +261,9 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                               </span>
                             )}
                           </p>
+                          <p className="text-xs text-slate-300 italic mt-1">
+                            Source reference only. Question content is original and does not reproduce text from this publication.
+                          </p>
                         </div>
                       )}
                     </div>
@@ -287,6 +291,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
       </main>
+      <SiteFooter />
     </div>
   )
 }

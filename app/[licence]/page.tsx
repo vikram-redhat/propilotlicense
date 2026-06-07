@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Subject } from '@/lib/types'
 import SubjectIcon from '@/components/SubjectIcon'
+import SiteFooter from '@/components/SiteFooter'
 import { notFound } from 'next/navigation'
 
 const VALID_LICENCES = ['cpl', 'atpl']
@@ -130,11 +131,7 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
         </div>
       </main>
 
-      <footer className="border-t border-slate-200 px-4 py-4 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <span className="text-xs text-slate-400">DGCA {label} Exam Prep</span>
-        </div>
-      </footer>
+      <SiteFooter label={`DGCA ${label} Exam Prep`} />
     </div>
   )
 }

@@ -311,6 +311,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                       </span>
                     )}
                   </p>
+                  <p className="text-xs text-blue-400 italic mt-1">
+                    Source reference only. Question content is original and does not reproduce text from this publication.
+                  </p>
                 </div>
               )}
             </div>

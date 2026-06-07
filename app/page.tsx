@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import SiteFooter from '@/components/SiteFooter'
 
 const PILOT_PHOTOS = [
   { id: '1764547168268-1c8b531bce9f', alt: 'Pilot wearing headset smiles while flying' },
@@ -183,9 +184,24 @@ export default function HomePage() {
       {/* Source Books */}
       <section className="px-4 py-14 bg-slate-50 border-b border-slate-100">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-10">
+          <h2 className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-8">
             Questions sourced from these textbooks
           </h2>
+
+          {/* Books disclaimer */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 mb-10 space-y-3">
+            <p className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Reference Materials</p>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              The following textbooks and publications are prescribed by the Directorate General of Civil Aviation (DGCA), India, as reference material for CPL and ATPL theory examinations. They are listed here for the benefit of students preparing for these examinations.
+            </p>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              ProPilotLicence.com is an independent examination preparation service. We are not affiliated with, endorsed by, or in partnership with any of the authors, publishers, or organisations listed below. All titles, author names, and trademarks remain the property of their respective owners.
+            </p>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              The practice questions on this platform are original content created for examination preparation purposes. They are informed by the subject matter covered in the prescribed syllabus and reference materials but do not reproduce text, diagrams, tables, or any other content from the publications listed below.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {SOURCE_BOOKS.map(group => (
               <div key={group.subject}>
@@ -244,11 +260,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-200 px-4 py-4 bg-white mt-auto">
-        <div className="max-w-5xl mx-auto">
-          <span className="text-xs text-slate-400">DGCA Pilot Exam Prep</span>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }
