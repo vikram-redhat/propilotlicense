@@ -51,7 +51,7 @@ export default function HomePage() {
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
             </div>
-            <span className="font-bold text-slate-800 text-lg">ProPilotLicense</span>
+            <span className="font-bold text-slate-800 text-lg">ProPilotLicence</span>
           </div>
           <Link href="/admin" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
             Admin

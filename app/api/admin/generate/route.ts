@@ -1,52 +1,50 @@
 import Anthropic from '@anthropic-ai/sdk'
 
+export const maxDuration = 60
+
 const client = new Anthropic()
 
 export async function POST(req: Request) {
   const { subject, bookTitle, bookAuthor, topic, difficulty, count, context } = await req.json()
 
-  if (!subject || !topic || !difficulty || !count) {
+  if (!subject || !difficulty || !count) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
+  const topicLine = topic
+    ? `Topic: ${topic}`
+    : `Topic: General — cover a range of topics within the subject`
+
   const prompt = `You are an expert aviation examiner creating questions for the DGCA (India) pilot licence exams.
 
-Generate exactly ${count} multiple choice questions.
+Generate exactly ${count} multiple choice question${count > 1 ? 's' : ''}.
 
 Subject: ${subject}
-Topic: ${topic}
+${topicLine}
 Source book: "${bookTitle}"${bookAuthor ? ` by ${bookAuthor}` : ''}
 Difficulty: ${difficulty}
 ${context ? `Additional context: ${context}` : ''}
 
 Difficulty guide:
 - easy: factual recall, definitions, simple identification
-- medium: application of a concept, a standard calculation, interpreting data
+- medium: application of a concept, standard calculation, interpreting data
 - hard: multi-step problems, nuanced regulatory edge cases, combined concepts
 
-EXPLANATION REQUIREMENT — this is critical:
-Write the explanation as a full paragraph of 5–6 lines, in the style and voice of "${bookTitle}".
-It should read like an excerpt from the textbook itself — authoritative, educational, and covering
-the surrounding concept, not just the answer. A student reading it should feel they understand
-the topic more deeply, not just why option B was correct.
+EXPLANATION: Write a full paragraph of 5–6 lines in the authoritative voice of "${bookTitle}".
+It should read like a textbook excerpt — educational, covering the broader concept, not just the answer.
+A student reading it should understand the topic more deeply, not just why the correct answer is right.
 
-Also estimate the chapter and page in "${bookTitle}" where this topic is covered.
-Your estimates will be marked as approximate and verified by a human editor.
-Format: "Chapter N" and "Page N". Make a genuine best estimate — do not write "unknown".
+CITATION: Estimate the chapter and page in "${bookTitle}" where this content is covered.
+Always provide a genuine estimate — never write "unknown". These will be marked as approximate.
 
-IMPORTANT: Return ONLY a valid JSON array. No markdown fences, no preamble.
+CRITICAL: Return ONLY a valid JSON array. No markdown fences, no preamble, no trailing text.
 
-Each element must follow this exact shape:
+Each element:
 {
-  "question_text": "Full question text here",
-  "options": {
-    "A": "First option",
-    "B": "Second option",
-    "C": "Third option",
-    "D": "Fourth option"
-  },
+  "question_text": "Full question text here?",
+  "options": { "A": "First option", "B": "Second option", "C": "Third option", "D": "Fourth option" },
   "correct_option": "B",
-  "explanation": "Full 5-6 line paragraph explanation in the style of the textbook...",
+  "explanation": "5–6 line textbook-style paragraph...",
   "source_chapter": "Chapter 4",
   "source_page": "Page 67",
   "difficulty": "${difficulty}"
@@ -54,8 +52,8 @@ Each element must follow this exact shape:
 
   try {
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 6000,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4000,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -64,7 +62,7 @@ Each element must follow this exact shape:
     return Response.json({ questions })
   } catch (err) {
     return Response.json(
-      { error: 'Failed to generate or parse questions', details: String(err) },
+      { error: 'Failed to parse AI response', details: String(err) },
       { status: 500 }
     )
   }

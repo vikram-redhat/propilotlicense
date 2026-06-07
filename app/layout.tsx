@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'ProPilotLicense — DGCA Pilot Licence Exam Prep',
+  title: 'ProPilotLicence — DGCA Pilot Licence Exam Prep',
   description: 'Practice questions and mock exams for DGCA CPL and ATPL pilot licence theory tests',
 }
 

@@ -1,11 +1,27 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook, GeneratedQuestion } from '@/lib/types'
 import { IconSparkles, IconCheck, IconTrash, IconEdit, IconBook2 } from '@tabler/icons-react'
 
+const BATCH_SIZE = 5
+
+interface BatchStatus {
+  index: number
+  total: number
+  status: 'waiting' | 'running' | 'done' | 'error'
+  startTime?: number
+  elapsedMs?: number
+  errorMsg?: string
+}
+
 interface EditableQuestion extends GeneratedQuestion {
   editing?: boolean
+}
+
+function formatElapsed(ms: number) {
+  const s = Math.floor(ms / 1000)
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
 export default function GeneratePage() {
@@ -21,14 +37,20 @@ export default function GeneratePage() {
   const [bookTitle, setBookTitle] = useState('')
   const [bookAuthor, setBookAuthor] = useState('')
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
-  const [count, setCount] = useState(5)
+  const [count, setCount] = useState(10)
   const [context, setContext] = useState('')
 
   const [generating, setGenerating] = useState(false)
+  const [batches, setBatches] = useState<BatchStatus[]>([])
+  const [currentElapsed, setCurrentElapsed] = useState(0)
   const [generated, setGenerated] = useState<EditableQuestion[]>([])
+  const [generatedCount, setGeneratedCount] = useState(0)
+  const [requestedCount, setRequestedCount] = useState(0)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState<Record<number, boolean>>({})
   const [saved, setSaved] = useState<Record<number, boolean>>({})
+
+  const runningBatchStartRef = useRef<number | null>(null)
 
   useEffect(() => {
     supabase.from('subjects').select('*').order('sort_order').then(({ data }) => setSubjects(data || []))
@@ -47,26 +69,113 @@ export default function GeneratePage() {
     setSubjectName(sub?.name || '')
   }, [subjectId, subjects])
 
+  // Live elapsed timer for the running batch
+  useEffect(() => {
+    const running = batches.find(b => b.status === 'running')
+    if (!running?.startTime) { runningBatchStartRef.current = null; return }
+    runningBatchStartRef.current = running.startTime
+    const timer = setInterval(() => {
+      if (runningBatchStartRef.current) {
+        setCurrentElapsed(Date.now() - runningBatchStartRef.current)
+      }
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [batches])
+
   async function generate() {
-    if (!subjectId || !topicId) {
-      setError('Please select a subject and topic')
-      return
-    }
+    if (!subjectId) { setError('Please select a subject'); return }
     setGenerating(true)
     setError('')
     setGenerated([])
+    setGeneratedCount(0)
+    setRequestedCount(count)
+    setSaved({})
+    setSaving({})
 
-    const res = await fetch('/api/admin/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ subject: subjectName, bookTitle, bookAuthor, topic: topicName, difficulty, count, context }),
-    })
-    const data = await res.json()
-    if (data.error) {
-      setError(data.error)
-    } else {
-      setGenerated(data.questions)
+    const numBatches = Math.ceil(count / BATCH_SIZE)
+    const initialBatches: BatchStatus[] = Array.from({ length: numBatches }, (_, i) => ({
+      index: i,
+      total: i < numBatches - 1 ? BATCH_SIZE : count - i * BATCH_SIZE,
+      status: 'waiting',
+    }))
+    setBatches(initialBatches)
+
+    let totalGenerated = 0
+
+    for (let i = 0; i < numBatches; i++) {
+      const batchCount = initialBatches[i].total
+      const startTime = Date.now()
+      setCurrentElapsed(0)
+
+      setBatches(prev => prev.map((b, idx) =>
+        idx === i ? { ...b, status: 'running', startTime } : b
+      ))
+
+      let success = false
+      let attempts = 0
+
+      while (attempts < 2 && !success) {
+        attempts++
+        try {
+          const TIMEOUT_MS = 50000
+          const res = await Promise.race([
+            fetch('/api/admin/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                subject: subjectName,
+                bookTitle,
+                bookAuthor,
+                topic: topicName || null,
+                difficulty,
+                count: batchCount,
+                context,
+              }),
+            }),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS)
+            ),
+          ])
+
+          const data = await (res as Response).json()
+          if (data.error) throw new Error(data.error)
+
+          const questions: GeneratedQuestion[] = Array.isArray(data.questions) ? data.questions : []
+          setGenerated(prev => [...prev, ...questions])
+          totalGenerated += questions.length
+          setGeneratedCount(totalGenerated)
+          setBatches(prev => prev.map((b, idx) =>
+            idx === i ? { ...b, status: 'done', elapsedMs: Date.now() - startTime } : b
+          ))
+          success = true
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err)
+          const isTimeout = msg === 'timeout'
+
+          if (attempts < 2) {
+            setBatches(prev => prev.map((b, idx) =>
+              idx === i ? {
+                ...b,
+                errorMsg: isTimeout
+                  ? `Batch ${i + 1} timed out — retrying once…`
+                  : `Network error on batch ${i + 1} — retrying…`,
+              } : b
+            ))
+            await new Promise(r => setTimeout(r, 1500))
+          } else {
+            const errMsg = isTimeout
+              ? `Batch ${i + 1} timed out after retry — skipped.`
+              : msg.includes('parse') || msg.includes('JSON')
+              ? `Batch ${i + 1} returned an unexpected format — skipped. Other batches will continue.`
+              : `Batch ${i + 1} failed: ${msg.slice(0, 80)}`
+            setBatches(prev => prev.map((b, idx) =>
+              idx === i ? { ...b, status: 'error', elapsedMs: Date.now() - startTime, errorMsg: errMsg } : b
+            ))
+          }
+        }
+      }
     }
+
     setGenerating(false)
   }
 
@@ -124,6 +233,9 @@ export default function GeneratePage() {
     ))
   }
 
+  const doneBatches = batches.filter(b => b.status === 'done').length
+  const errorBatches = batches.filter(b => b.status === 'error').length
+
   return (
     <div className="px-4 py-6">
       <div className="max-w-3xl mx-auto">
@@ -136,7 +248,7 @@ export default function GeneratePage() {
               <label className="block text-sm font-medium text-slate-700 mb-1">Subject *</label>
               <select
                 value={subjectId}
-                onChange={e => { setSubjectId(e.target.value); setTopicId(''); setBookId('') }}
+                onChange={e => { setSubjectId(e.target.value); setTopicId(''); setTopicName(''); setBookId('') }}
                 className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
               >
                 <option value="">Select subject…</option>
@@ -144,7 +256,7 @@ export default function GeneratePage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Topic *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Topic / Chapter</label>
               <select
                 value={topicId}
                 onChange={e => {
@@ -155,7 +267,7 @@ export default function GeneratePage() {
                 className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
                 disabled={!subjectId}
               >
-                <option value="">Select topic…</option>
+                <option value="">All topics</option>
                 {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
             </div>
@@ -184,7 +296,7 @@ export default function GeneratePage() {
             </select>
             {bookId && (
               <p className="text-xs text-slate-400 mt-1">
-                AI will estimate chapter and page numbers in this book — marked as approximate until verified.
+                AI will estimate chapter and page — marked as approximate until verified.
               </p>
             )}
           </div>
@@ -223,6 +335,11 @@ export default function GeneratePage() {
                 </button>
               ))}
             </div>
+            {count > BATCH_SIZE && (
+              <p className="text-xs text-slate-400 mt-1.5">
+                Generated in {Math.ceil(count / BATCH_SIZE)} batches of {BATCH_SIZE}. This may take up to 30 seconds per batch.
+              </p>
+            )}
           </div>
 
           {/* Context */}
@@ -238,14 +355,12 @@ export default function GeneratePage() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
-              {error}
-            </div>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">{error}</div>
           )}
 
           <button
             onClick={generate}
-            disabled={generating}
+            disabled={generating || !subjectId}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-50 transition-all"
             style={{ backgroundColor: '#185FA5' }}
           >
@@ -253,6 +368,55 @@ export default function GeneratePage() {
             {generating ? 'Generating…' : 'Generate Questions'}
           </button>
         </div>
+
+        {/* Batch progress */}
+        {batches.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 p-5 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold text-slate-700 text-sm">Generating questions…</h2>
+              {!generating && (
+                <span className="text-xs text-slate-500">
+                  {generatedCount} of {requestedCount} generated
+                  {errorBatches > 0 ? ` (${errorBatches} batch${errorBatches > 1 ? 'es' : ''} failed)` : ''}
+                </span>
+              )}
+            </div>
+            <div className="space-y-2">
+              {batches.map(b => {
+                const start = b.index * BATCH_SIZE + 1
+                const end = start + b.total - 1
+                return (
+                  <div key={b.index} className="flex items-center gap-3 text-sm">
+                    <span className="w-3 flex-shrink-0">
+                      {b.status === 'done' ? '●' : b.status === 'running' ? '◌' : b.status === 'error' ? '✕' : '○'}
+                    </span>
+                    <span className={`flex-1 ${b.status === 'done' ? 'text-slate-700' : b.status === 'running' ? 'text-slate-800 font-medium' : b.status === 'error' ? 'text-red-600' : 'text-slate-400'}`}>
+                      Batch {b.index + 1} of {batches.length} — Questions {start}–{end}
+                    </span>
+                    <span className="text-xs text-slate-400 flex-shrink-0">
+                      {b.status === 'done' && b.elapsedMs !== undefined && `✓ Done (${formatElapsed(b.elapsedMs)})`}
+                      {b.status === 'running' && `Generating… ${formatElapsed(currentElapsed)}`}
+                      {b.status === 'error' && 'Failed'}
+                      {b.status === 'waiting' && 'Waiting'}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+            {batches.some(b => b.errorMsg) && (
+              <div className="mt-3 space-y-1">
+                {batches.filter(b => b.errorMsg).map(b => (
+                  <p key={b.index} className="text-xs text-red-600">{b.errorMsg}</p>
+                ))}
+              </div>
+            )}
+            {!generating && doneBatches === batches.length && (
+              <p className="text-xs text-green-600 mt-3 font-medium">
+                ✓ All {batches.length} batches complete — {generatedCount} questions generated
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Generated questions */}
         {generated.length > 0 && (

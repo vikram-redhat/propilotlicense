@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook } from '@/lib/types'
 import SubjectIcon from '@/components/SubjectIcon'
 
-type Scope = 'topic' | 'book' | 'combined'
+type Scope = 'topic' | 'book' | 'book_topic' | 'combined'
 type Mode = 'practice' | 'mock'
 type Difficulty = 'all' | 'easy' | 'medium' | 'hard'
 type QuestionCount = 50 | 100
@@ -32,6 +32,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const [scope, setScope] = useState<Scope | null>(null)
   const [selectedTopicId, setSelectedTopicId] = useState('')
   const [selectedBookId, setSelectedBookId] = useState('')
+  const [selectedBookTopicId, setSelectedBookTopicId] = useState('')
   const [mode, setMode] = useState<Mode>('practice')
   const [difficulty, setDifficulty] = useState<Difficulty>('all')
   const [questionCount, setQuestionCount] = useState<QuestionCount>(50)
@@ -53,6 +54,9 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
     load()
   }, [subjectId])
 
+  const effectiveScope: Scope | null =
+    scope === 'book' && selectedBookTopicId ? 'book_topic' : scope
+
   const canStart =
     scope === null ? false :
     scope === 'topic' ? !!selectedTopicId :
@@ -67,8 +71,8 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       body: JSON.stringify({
         subjectId,
         licenceType: licence.toUpperCase(),
-        scope,
-        topicId: scope === 'topic' ? selectedTopicId : null,
+        scope: effectiveScope,
+        topicId: scope === 'topic' ? selectedTopicId : effectiveScope === 'book_topic' ? selectedBookTopicId : null,
         sourceBookId: scope === 'book' ? selectedBookId : null,
         mode,
         difficulty,
@@ -102,24 +106,24 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
   const licenceLabel = licence.toUpperCase()
 
-  const SCOPE_OPTIONS: { value: Scope; title: string; subtitle: string; example?: string }[] = [
+  const SCOPE_OPTIONS: { value: 'topic' | 'book' | 'combined'; title: string; subtitle: string; hint?: string }[] = [
     {
       value: 'topic',
       title: 'By Chapter / Topic',
       subtitle: 'Questions from all books on one topic',
-      example: 'e.g. "Atmosphere structure"',
+      hint: 'e.g. "Atmosphere structure"',
     },
     {
       value: 'book',
       title: 'By Source Book',
-      subtitle: 'Focus on one textbook',
-      example: 'e.g. IC Joshi',
+      subtitle: 'Focus on one textbook — then optionally drill into a specific chapter',
+      hint: 'e.g. IC Joshi · Oxford · Keith Williams · RK Bali',
     },
     {
       value: 'combined',
       title: 'Combined Paper',
       subtitle: 'All topics, all books',
-      example: `Full ${licenceLabel} exam`,
+      hint: `Full ${licenceLabel} exam`,
     },
   ]
 
@@ -179,8 +183,8 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                         {opt.title}
                       </div>
                       <div className="text-xs text-slate-500">{opt.subtitle}</div>
-                      {opt.example && (
-                        <div className="text-xs text-slate-400 mt-1">{opt.example}</div>
+                      {opt.hint && (
+                        <div className="text-xs text-slate-400 mt-1">{opt.hint}</div>
                       )}
 
                       {/* In-card dropdown expander */}
@@ -188,39 +192,57 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                         <div
                           onClick={e => e.stopPropagation()}
                           style={{
-                            maxHeight: selected ? '200px' : '0px',
+                            maxHeight: selected ? '300px' : '0px',
                             overflow: 'hidden',
                             transition: 'max-height 0.2s ease',
                           }}
                         >
                           <div style={{ borderTop: '0.5px solid var(--color-border-tertiary, #e2e8f0)', marginTop: 12, paddingTop: 12 }}>
-                            <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                              {opt.value === 'topic' ? 'Select topic' : 'Select source book'}
-                            </label>
                             {opt.value === 'topic' ? (
-                              <select
-                                value={selectedTopicId}
-                                onChange={e => setSelectedTopicId(e.target.value)}
-                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
-                              >
-                                <option value="">Select a topic…</option>
-                                {topics.map(t => (
-                                  <option key={t.id} value={t.id}>{t.name}</option>
-                                ))}
-                              </select>
+                              <>
+                                <label className="block text-xs font-medium text-slate-600 mb-1.5">Select topic</label>
+                                <select
+                                  value={selectedTopicId}
+                                  onChange={e => setSelectedTopicId(e.target.value)}
+                                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
+                                >
+                                  <option value="">Select a topic…</option>
+                                  {topics.map(t => (
+                                    <option key={t.id} value={t.id}>{t.name}</option>
+                                  ))}
+                                </select>
+                              </>
                             ) : (
-                              <select
-                                value={selectedBookId}
-                                onChange={e => setSelectedBookId(e.target.value)}
-                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
-                              >
-                                <option value="">Select a book…</option>
-                                {books.map(b => (
-                                  <option key={b.id} value={b.id}>
-                                    {b.title}{b.author ? ` — ${b.author}` : ''}
-                                  </option>
-                                ))}
-                              </select>
+                              <>
+                                <label className="block text-xs font-medium text-slate-600 mb-1.5">Select source book</label>
+                                <select
+                                  value={selectedBookId}
+                                  onChange={e => { setSelectedBookId(e.target.value); setSelectedBookTopicId('') }}
+                                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
+                                >
+                                  <option value="">Select a book…</option>
+                                  {books.map(b => (
+                                    <option key={b.id} value={b.id}>
+                                      {b.title}{b.author ? ` — ${b.author}` : ''}
+                                    </option>
+                                  ))}
+                                </select>
+                                {selectedBookId && (
+                                  <div className="mt-2">
+                                    <label className="block text-xs font-medium text-slate-600 mb-1.5">Chapter / Topic (optional)</label>
+                                    <select
+                                      value={selectedBookTopicId}
+                                      onChange={e => setSelectedBookTopicId(e.target.value)}
+                                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
+                                    >
+                                      <option value="">All chapters</option>
+                                      {topics.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>

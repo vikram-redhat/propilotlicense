@@ -61,7 +61,7 @@ export interface Session {
   id: string
   subject_id: string
   licence_type: string
-  scope: 'topic' | 'book' | 'combined'
+  scope: 'topic' | 'book' | 'book_topic' | 'combined'
   topic_id: string | null
   source_book_id: string | null
   mode: 'practice' | 'mock'

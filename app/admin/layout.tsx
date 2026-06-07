@@ -7,11 +7,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/admin" className="font-bold text-white text-base">
-              ProPilotLicense Admin
+              ProPilotLicence Admin
             </Link>
             <nav className="hidden sm:flex items-center gap-4 text-sm text-slate-300">
               <Link href="/admin" className="hover:text-white transition-colors">Questions</Link>
               <Link href="/admin/generate" className="hover:text-white transition-colors">AI Generate</Link>
+              <Link href="/admin/books" className="hover:text-white transition-colors">Books</Link>
+              <Link href="/admin/topics" className="hover:text-white transition-colors">Topics</Link>
             </nav>
           </div>
           <Link href="/" className="text-xs text-slate-400 hover:text-white transition-colors">

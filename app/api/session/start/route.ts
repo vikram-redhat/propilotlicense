@@ -30,6 +30,8 @@ export async function POST(req: Request) {
     query = query.eq('topic_id', topicId)
   } else if (scope === 'book' && sourceBookId) {
     query = query.eq('source_book_id', sourceBookId)
+  } else if (scope === 'book_topic' && sourceBookId && topicId) {
+    query = query.eq('source_book_id', sourceBookId).eq('topic_id', topicId)
   }
   // scope === 'combined': no additional filter
 
@@ -66,8 +68,8 @@ export async function POST(req: Request) {
       subject_id: subjectId,
       licence_type: (licenceType || 'CPL').toUpperCase(),
       scope,
-      topic_id: scope === 'topic' ? (topicId ?? null) : null,
-      source_book_id: scope === 'book' ? (sourceBookId ?? null) : null,
+      topic_id: (scope === 'topic' || scope === 'book_topic') ? (topicId ?? null) : null,
+      source_book_id: (scope === 'book' || scope === 'book_topic') ? (sourceBookId ?? null) : null,
       mode,
       difficulty,
       question_count: questionCount,
