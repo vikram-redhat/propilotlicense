@@ -29,10 +29,11 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const [loading, setLoading] = useState(true)
   const [starting, setStarting] = useState(false)
 
+  const [chapters, setChapters] = useState<{ id: string; chapter_number: number; chapter_name: string }[]>([])
   const [scope, setScope] = useState<Scope | null>(null)
   const [selectedTopicId, setSelectedTopicId] = useState('')
   const [selectedBookId, setSelectedBookId] = useState('')
-  const [selectedBookTopicId, setSelectedBookTopicId] = useState('')
+  const [selectedChapterId, setSelectedChapterId] = useState('')
   const [mode, setMode] = useState<Mode>('practice')
   const [difficulty, setDifficulty] = useState<Difficulty>('all')
   const [questionCount, setQuestionCount] = useState<QuestionCount>(50)
@@ -48,14 +49,23 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       setTopics(tops || [])
       setBooks(bks || [])
       if (tops && tops.length > 0) setSelectedTopicId(tops[0].id)
-      if (bks && bks.length > 0) setSelectedBookId(bks[0].id)
       setLoading(false)
     }
     load()
   }, [subjectId])
 
+  useEffect(() => {
+    if (!selectedBookId) { setChapters([]); setSelectedChapterId(''); return }
+    supabase
+      .from('chapters')
+      .select('id, chapter_number, chapter_name')
+      .eq('book_id', selectedBookId)
+      .order('sort_order')
+      .then(({ data }) => setChapters(data || []))
+  }, [selectedBookId])
+
   const effectiveScope: Scope | null =
-    scope === 'book' && selectedBookTopicId ? 'book_topic' : scope
+    scope === 'book' && selectedChapterId ? 'book_topic' : scope
 
   const canStart =
     scope === null ? false :
@@ -72,7 +82,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
         subjectId,
         licenceType: licence.toUpperCase(),
         scope: effectiveScope,
-        topicId: scope === 'topic' ? selectedTopicId : effectiveScope === 'book_topic' ? selectedBookTopicId : null,
+        topicId: scope === 'topic' ? selectedTopicId : effectiveScope === 'book_topic' ? selectedChapterId : null,
         sourceBookId: scope === 'book' ? selectedBookId : null,
         mode,
         difficulty,
@@ -217,7 +227,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                                 <label className="block text-xs font-medium text-slate-600 mb-1.5">Select source book</label>
                                 <select
                                   value={selectedBookId}
-                                  onChange={e => { setSelectedBookId(e.target.value); setSelectedBookTopicId('') }}
+                                  onChange={e => { setSelectedBookId(e.target.value); setSelectedChapterId('') }}
                                   className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
                                 >
                                   <option value="">Select a book…</option>
@@ -229,15 +239,15 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                                 </select>
                                 {selectedBookId && (
                                   <div className="mt-2">
-                                    <label className="block text-xs font-medium text-slate-600 mb-1.5">Chapter / Topic (optional)</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1.5">Chapter (optional)</label>
                                     <select
-                                      value={selectedBookTopicId}
-                                      onChange={e => setSelectedBookTopicId(e.target.value)}
+                                      value={selectedChapterId}
+                                      onChange={e => setSelectedChapterId(e.target.value)}
                                       className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
                                     >
                                       <option value="">All chapters</option>
-                                      {topics.map(t => (
-                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                      {chapters.map(c => (
+                                        <option key={c.id} value={c.id}>Ch. {c.chapter_number} — {c.chapter_name}</option>
                                       ))}
                                     </select>
                                   </div>
