@@ -238,7 +238,7 @@ export default function GeneratePage() {
     setGenerating(false)
   }
 
-  async function approve(index: number) {
+  async function approve(index: number, citationVerified = false) {
     const q = generated[index]
     setSaving(prev => ({ ...prev, [index]: true }))
 
@@ -253,7 +253,7 @@ export default function GeneratePage() {
         explanation: q.explanation,
         source_chapter: q.source_chapter || null,
         source_page: q.source_page || null,
-        citation_verified: false,
+        citation_verified: citationVerified,
         source_type: 'ai',
         active: true,
       })
@@ -636,12 +636,22 @@ export default function GeneratePage() {
                   ) : (
                     <>
                       <button
-                        onClick={() => approve(index)}
+                        onClick={() => approve(index, false)}
                         disabled={saving[index]}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-medium hover:bg-green-600 disabled:opacity-50"
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-medium hover:border-slate-400 disabled:opacity-50"
                       >
                         <IconCheck size={13} />
                         {saving[index] ? 'Saving…' : 'Approve'}
+                      </button>
+                      <button
+                        onClick={() => approve(index, true)}
+                        disabled={saving[index]}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50"
+                        style={{ backgroundColor: '#185FA5' }}
+                      >
+                        <IconCheck size={13} />
+                        <IconCheck size={13} className="-ml-2" />
+                        {saving[index] ? 'Saving…' : 'Approve & Verify'}
                       </button>
                       <button
                         onClick={() => toggleEdit(index)}

@@ -53,8 +53,11 @@ export default function AdminPage() {
 
   useEffect(() => { load() }, [load])
 
-  async function approve(id: string) {
-    await supabase.from('questions').update({ active: true }).eq('id', id)
+  const [approveDropdown, setApproveDropdown] = useState<string | null>(null)
+
+  async function approve(id: string, citationVerified = false) {
+    await supabase.from('questions').update({ active: true, citation_verified: citationVerified }).eq('id', id)
+    setApproveDropdown(null)
     load()
   }
 
@@ -221,13 +224,33 @@ export default function AdminPage() {
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       {!q.active && (
-                        <button
-                          onClick={() => approve(q.id)}
-                          className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition-colors"
-                          title="Approve"
-                        >
-                          <IconCheck size={16} />
-                        </button>
+                        <div className="relative">
+                          <button
+                            onClick={() => setApproveDropdown(approveDropdown === q.id ? null : q.id)}
+                            className="flex items-center gap-0.5 px-2 py-1 rounded-lg text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 transition-colors"
+                          >
+                            <IconCheck size={13} />
+                            Approve ▾
+                          </button>
+                          {approveDropdown === q.id && (
+                            <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-slate-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                              <button
+                                onClick={() => approve(q.id, false)}
+                                className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                              >
+                                <IconCheck size={13} className="text-green-600" />
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => approve(q.id, true)}
+                                className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 border-t border-slate-100"
+                              >
+                                <IconCheck size={13} className="text-blue-600" />
+                                Approve & Verify
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       )}
                       <Link
                         href={`/admin/questions/${q.id}/edit`}
