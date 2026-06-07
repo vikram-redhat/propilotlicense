@@ -45,6 +45,9 @@ export default function GeneratePage() {
   const [context, setContext] = useState('')
 
   const [generating, setGenerating] = useState(false)
+  const [checking, setChecking] = useState(false)
+  const [checkState, setCheckState] = useState<'idle' | 'blocked' | 'advisory'>('idle')
+  const [familiarity, setFamiliarity] = useState<'WELL' | 'PARTIALLY' | 'NOT WELL' | null>(null)
   const [batches, setBatches] = useState<BatchStatus[]>([])
   const [currentElapsed, setCurrentElapsed] = useState(0)
   const [generated, setGenerated] = useState<EditableQuestion[]>([])
@@ -98,8 +101,44 @@ export default function GeneratePage() {
 
   async function generate() {
     if (!subjectId) { setError('Please select a subject'); return }
-    setGenerating(true)
     setError('')
+    setCheckState('idle')
+    setFamiliarity(null)
+
+    // If a book is selected, run the pre-flight check first
+    if (bookId && bookTitle) {
+      setChecking(true)
+      try {
+        const res = await fetch('/api/admin/check-book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bookTitle, bookAuthor, subject: subjectName }),
+        })
+        const data = await res.json()
+        setChecking(false)
+
+        if (!data.relevant) {
+          setCheckState('blocked')
+          return
+        }
+
+        if (data.familiarity === 'NOT WELL') {
+          setFamiliarity('NOT WELL')
+          setCheckState('advisory')
+          return // wait for user to click "Continue anyway"
+        }
+      } catch {
+        setChecking(false)
+        // On network error, proceed anyway — don't block generation
+      }
+    }
+
+    await startGeneration()
+  }
+
+  async function startGeneration() {
+    setCheckState('idle')
+    setGenerating(true)
     setGenerated([])
     setGeneratedCount(0)
     setRequestedCount(count)
@@ -407,15 +446,54 @@ export default function GeneratePage() {
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">{error}</div>
           )}
 
-          <button
-            onClick={generate}
-            disabled={generating || !subjectId}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-50 transition-all"
-            style={{ backgroundColor: '#185FA5' }}
-          >
-            <IconSparkles size={16} />
-            {generating ? 'Generating…' : 'Generate Questions'}
-          </button>
+          {/* Blocked — non-aviation book */}
+          {checkState === 'blocked' && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-2">
+              <p className="text-sm font-semibold text-red-700">✗ &ldquo;{bookTitle}&rdquo;{bookAuthor ? ` by ${bookAuthor}` : ''} does not appear to be a recognised aviation training textbook for {subjectName}.</p>
+              <p className="text-sm text-red-600">AI generation is only available for aviation training books.</p>
+              <ul className="text-sm text-red-600 space-y-1 pl-3">
+                <li>• Select a different book</li>
+                <li>• Generate without a book — questions will use general aviation knowledge for this subject</li>
+                <li>• Add questions manually via the question editor</li>
+              </ul>
+            </div>
+          )}
+
+          {/* Advisory — aviation book but limited Claude knowledge */}
+          {checkState === 'advisory' && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-amber-800">⚠ Claude has limited knowledge of this specific book.</p>
+              <p className="text-sm text-amber-700">Questions will be aviation-accurate but may not reflect this book&rsquo;s exact content, examples, or structure. Chapter and page references will be approximate. Review carefully before approving.</p>
+              <p className="text-xs text-amber-600 italic">Coming soon: upload this book as a PDF to improve question accuracy.</p>
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => startGeneration()}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+                  style={{ backgroundColor: '#185FA5' }}
+                >
+                  Continue anyway
+                </button>
+                <button
+                  onClick={() => setCheckState('idle')}
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 border border-slate-200 hover:border-slate-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {checkState !== 'advisory' && checkState !== 'blocked' && (
+            <button
+              onClick={generate}
+              disabled={generating || checking || !subjectId}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-50 transition-all"
+              style={{ backgroundColor: '#185FA5' }}
+            >
+              <IconSparkles size={16} />
+              {checking ? 'Checking book relevance…' : generating ? 'Generating…' : 'Generate Questions'}
+            </button>
+          )}
         </div>
 
         {/* Batch progress */}

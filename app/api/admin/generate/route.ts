@@ -13,13 +13,17 @@ export async function POST(req: Request) {
 
   const topicLine = focusLine ?? `General — cover a range of topics across all books for this subject`
 
+  const bookLine = bookTitle
+    ? `Source book: "${bookTitle}"${bookAuthor ? ` by ${bookAuthor}` : ''}`
+    : `No specific book — generate from general DGCA ${subject} knowledge. Do not attribute questions to any specific book.`
+
   const prompt = `You are an expert aviation examiner creating questions for the DGCA (India) pilot licence exams.
 
 Generate exactly ${count} multiple choice question${count > 1 ? 's' : ''}.
 
 Subject: ${subject}
 ${topicLine}
-Source book: "${bookTitle}"${bookAuthor ? ` by ${bookAuthor}` : ''}
+${bookLine}
 Difficulty: ${difficulty}
 ${context ? `Additional context: ${context}` : ''}
 

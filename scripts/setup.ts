@@ -764,7 +764,7 @@ async function callClaude(
   topic: string, difficulty: string, count: number
 ): Promise<GeneratedQ[]> {
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-6',
     max_tokens: 4000,
     messages: [{
       role: 'user', content:
