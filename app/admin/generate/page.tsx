@@ -140,9 +140,13 @@ export default function GeneratePage() {
                 subject: subjectName,
                 bookTitle,
                 bookAuthor,
-                chapterName: chapterId ? chapterName : null,
-                chapterNumber: chapterId ? chapterNumber : null,
-                topic: topicName || null,
+                focusLine: bookId
+                  ? chapterId
+                    ? `Chapter: ${chapterNumber} — ${chapterName} (from "${bookTitle}")`
+                    : `Book: "${bookTitle}" — cover all chapters`
+                  : topicId
+                    ? `Topic: ${topicName} — draw from all books`
+                    : `General — cover a range of topics across all books for this subject`,
                 difficulty,
                 count: batchCount,
                 context,
@@ -203,7 +207,7 @@ export default function GeneratePage() {
       .from('questions')
       .insert({
         subject_id: subjectId,
-        topic_id: topicId || null,
+        topic_id: bookId ? null : (topicId || null),
         source_book_id: bookId || null,
         question_text: q.question_text,
         difficulty,
@@ -297,44 +301,54 @@ export default function GeneratePage() {
             </select>
           </div>
 
-          {/* Chapter (filtered by book) */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Chapter (optional)</label>
-            <select
-              value={chapterId}
-              onChange={e => {
-                setChapterId(e.target.value)
-                const c = chapters.find(c => c.id === e.target.value)
-                setChapterName(c?.chapter_name || '')
-                setChapterNumber(c?.chapter_number || 0)
-              }}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
-              disabled={!bookId}
-            >
-              <option value="">All chapters</option>
-              {chapters.map(c => (
-                <option key={c.id} value={c.id}>Chapter {c.chapter_number} — {c.chapter_name}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Topic (filtered by subject) */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Topic (optional)</label>
-            <select
-              value={topicId}
-              onChange={e => {
-                setTopicId(e.target.value)
-                const t = topics.find(t => t.id === e.target.value)
-                setTopicName(t?.name || '')
-              }}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
-              disabled={!subjectId}
-            >
-              <option value="">All topics</option>
-              {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-          </div>
+          {/* Chapter (when book selected) or Topic (when no book) */}
+          {bookId ? (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Chapter (optional)</label>
+              <select
+                value={chapterId}
+                onChange={e => {
+                  setChapterId(e.target.value)
+                  const c = chapters.find(c => c.id === e.target.value)
+                  setChapterName(c?.chapter_name || '')
+                  setChapterNumber(c?.chapter_number || 0)
+                }}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+              >
+                <option value="">All chapters</option>
+                {chapters.map(c => (
+                  <option key={c.id} value={c.id}>Chapter {c.chapter_number} — {c.chapter_name}</option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-400 mt-1.5">
+                {chapterId
+                  ? `Questions will focus on Chapter ${chapterNumber} of ${bookTitle}`
+                  : `Questions will draw from all chapters of ${bookTitle}`}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Topic (optional)</label>
+              <select
+                value={topicId}
+                onChange={e => {
+                  setTopicId(e.target.value)
+                  const t = topics.find(t => t.id === e.target.value)
+                  setTopicName(t?.name || '')
+                }}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+                disabled={!subjectId}
+              >
+                <option value="">All topics</option>
+                {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+              <p className="text-xs text-slate-400 mt-1.5">
+                {topicId
+                  ? `Questions on this topic drawn from all books`
+                  : `Questions drawn from all topics and all books for this subject`}
+              </p>
+            </div>
+          )}
 
           {/* Difficulty */}
           <div>

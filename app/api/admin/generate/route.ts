@@ -5,17 +5,13 @@ export const maxDuration = 60
 const client = new Anthropic()
 
 export async function POST(req: Request) {
-  const { subject, bookTitle, bookAuthor, chapterName, chapterNumber, topic, difficulty, count, context } = await req.json()
+  const { subject, bookTitle, bookAuthor, focusLine, difficulty, count, context } = await req.json()
 
   if (!subject || !difficulty || !count) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const topicLine = chapterName
-    ? `Chapter: ${chapterName} (Chapter ${chapterNumber})`
-    : topic
-    ? `Topic: ${topic}`
-    : `Topic: General — cover a range of topics within the subject`
+  const topicLine = focusLine ?? `General — cover a range of topics across all books for this subject`
 
   const prompt = `You are an expert aviation examiner creating questions for the DGCA (India) pilot licence exams.
 

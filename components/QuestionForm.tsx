@@ -77,7 +77,7 @@ export default function QuestionForm({ question }: QuestionFormProps) {
 
     const payload = {
       subject_id: subjectId,
-      topic_id: topicId || null,
+      topic_id: sourceBookId ? null : (topicId || null),
       source_book_id: sourceBookId || null,
       question_text: questionText.trim(),
       difficulty,
@@ -147,38 +147,35 @@ export default function QuestionForm({ question }: QuestionFormProps) {
         </select>
       </div>
 
-      {/* 3. Chapter (filtered by book) */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Chapter</label>
-        <select
-          value={chapterId}
-          onChange={e => setChapterId(e.target.value)}
-          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
-          disabled={!sourceBookId}
-        >
-          <option value="">No specific chapter</option>
-          {chapters.map(c => (
-            <option key={c.id} value={c.id}>Chapter {c.chapter_number} — {c.chapter_name}</option>
-          ))}
-        </select>
-        {sourceBookId && chapters.length === 0 && (
-          <p className="text-xs text-slate-400 mt-1">No chapters found for this book</p>
-        )}
-      </div>
-
-      {/* 4. Topic */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Topic</label>
-        <select
-          value={topicId}
-          onChange={e => setTopicId(e.target.value)}
-          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
-          disabled={!subjectId}
-        >
-          <option value="">No specific topic</option>
-          {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-        </select>
-      </div>
+      {/* 3+4. Chapter (when book selected) or Topic (when no book) */}
+      {sourceBookId ? (
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Chapter</label>
+          <select
+            value={chapterId}
+            onChange={e => setChapterId(e.target.value)}
+            className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+          >
+            <option value="">No specific chapter</option>
+            {chapters.map(c => (
+              <option key={c.id} value={c.id}>Chapter {c.chapter_number} — {c.chapter_name}</option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Topic</label>
+          <select
+            value={topicId}
+            onChange={e => setTopicId(e.target.value)}
+            className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
+            disabled={!subjectId}
+          >
+            <option value="">No specific topic</option>
+            {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
+        </div>
+      )}
 
       {/* 5. Difficulty */}
       <div>
