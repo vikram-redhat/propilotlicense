@@ -125,7 +125,7 @@ export default function HomePage() {
               Pass your pilot exams.<br />First attempt.
             </h1>
             <p className="text-slate-600 text-lg mb-8 max-w-xl">
-              AI-powered practice tests for DGCA CPL and ATPL — by topic, by textbook, or full combined papers.
+              Practice and build your question papers by topic, by textbook, or full combined papers — for DGCA CPL and ATPL.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <Link
