@@ -103,7 +103,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <header className="bg-white border-b border-slate-200 px-4 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <div className="max-w-5xl mx-auto flex items-center">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#185FA5' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
@@ -112,7 +112,6 @@ export default function HomePage() {
             </div>
             <span className="font-bold text-slate-800 text-lg">ProPilotLicence</span>
           </div>
-          <Link href="/admin" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Admin</Link>
         </div>
       </header>
 
@@ -231,9 +230,8 @@ export default function HomePage() {
       </section>
 
       <footer className="border-t border-slate-200 px-4 py-4 bg-white mt-auto">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <div className="max-w-5xl mx-auto">
           <span className="text-xs text-slate-400">DGCA Pilot Exam Prep</span>
-          <Link href="/admin" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Admin ↗</Link>
         </div>
       </footer>
     </div>

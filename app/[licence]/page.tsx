@@ -64,9 +64,6 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
             <span className="text-slate-300">/</span>
             <span className="text-sm font-medium text-slate-700">{label}</span>
           </div>
-          <Link href="/admin" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
-            Admin
-          </Link>
         </div>
       </header>
 
@@ -134,11 +131,8 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
       </main>
 
       <footer className="border-t border-slate-200 px-4 py-4 bg-white">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <div className="max-w-5xl mx-auto">
           <span className="text-xs text-slate-400">DGCA {label} Exam Prep</span>
-          <Link href="/admin" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
-            Admin ↗
-          </Link>
         </div>
       </footer>
     </div>
