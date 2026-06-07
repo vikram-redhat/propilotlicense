@@ -1,28 +1,23 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { Subject } from '@/lib/types'
 
 const LICENCE_OPTIONS = ['CPL', 'ATPL']
 
-export default function NewBookPage() {
+export default function NewSubjectPage() {
   const router = useRouter()
-  const [subjects, setSubjects] = useState<Subject[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const [subjectId, setSubjectId] = useState('')
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [edition, setEdition] = useState('')
+  const [name, setName] = useState('')
+  const [code, setCode] = useState('')
+  const [description, setDescription] = useState('')
+  const [iconName, setIconName] = useState('')
   const [licenceTypes, setLicenceTypes] = useState<string[]>([])
   const [sortOrder, setSortOrder] = useState(0)
-
-  useEffect(() => {
-    supabase.from('subjects').select('*').order('sort_order').then(({ data }) => setSubjects(data || []))
-  }, [])
+  const [active, setActive] = useState(true)
 
   function toggleLicence(lt: string) {
     setLicenceTypes(prev =>
@@ -32,35 +27,37 @@ export default function NewBookPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!title.trim()) { setError('Title is required.'); return }
+    if (!name.trim()) { setError('Name is required.'); return }
+    if (!code.trim()) { setError('Code is required.'); return }
     setSaving(true)
     setError('')
-    const { error: err } = await supabase.from('source_books').insert({
-      subject_id: subjectId || null,
-      title: title.trim(),
-      author: author.trim() || null,
-      edition: edition.trim() || null,
+    const { error: err } = await supabase.from('subjects').insert({
+      name: name.trim(),
+      code: code.trim().toUpperCase(),
+      description: description.trim() || null,
+      icon_name: iconName.trim() || null,
       licence_types: licenceTypes,
       sort_order: sortOrder,
+      active,
     })
     if (err) {
       setError(err.message)
       setSaving(false)
       return
     }
-    router.push('/admin/books')
+    router.push('/admin/subjects')
   }
 
   return (
     <div className="px-4 py-6">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-slate-800">New Book</h1>
+          <h1 className="text-xl font-bold text-slate-800">New Subject</h1>
           <Link
-            href="/admin/books"
+            href="/admin/subjects"
             className="text-sm text-slate-500 hover:text-slate-700 transition-colors"
           >
-            ← Back to Books
+            ← Back to Subjects
           </Link>
         </div>
 
@@ -71,56 +68,60 @@ export default function NewBookPage() {
             </div>
           )}
 
-          {/* Subject */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Subject</label>
-            <select
-              value={subjectId}
-              onChange={e => setSubjectId(e.target.value)}
-              className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">— None —</option>
-              {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </div>
-
-          {/* Title */}
+          {/* Name */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Title <span className="text-red-500">*</span>
+              Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="e.g. Air Navigation"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="e.g. Meteorology"
               required
               className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* Author */}
+          {/* Code */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Author</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              Code <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
-              value={author}
-              onChange={e => setAuthor(e.target.value)}
-              placeholder="e.g. IC Joshi"
-              className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={code}
+              onChange={e => setCode(e.target.value.toUpperCase().replace(/\s/g, ''))}
+              placeholder="e.g. MET"
+              required
+              className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+            />
+            <p className="text-xs text-slate-400 mt-1">Used internally, e.g. MET, NAV</p>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={3}
+              placeholder="Brief description of the subject"
+              className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
 
-          {/* Edition */}
+          {/* Icon name */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Edition</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Icon Name</label>
             <input
               type="text"
-              value={edition}
-              onChange={e => setEdition(e.target.value)}
-              placeholder="e.g. 3rd Edition or 2006"
+              value={iconName}
+              onChange={e => setIconName(e.target.value)}
+              placeholder="e.g. wind"
               className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <p className="text-xs text-slate-400 mt-1">Tabler icon name, e.g. &apos;wind&apos;. Browse at tabler-icons.io</p>
           </div>
 
           {/* Licence types */}
@@ -152,6 +153,27 @@ export default function NewBookPage() {
             />
           </div>
 
+          {/* Active */}
+          <div>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={active}
+                  onChange={e => setActive(e.target.checked)}
+                  className="sr-only"
+                />
+                <div
+                  onClick={() => setActive(prev => !prev)}
+                  className={`w-10 h-6 rounded-full transition-colors cursor-pointer ${active ? 'bg-blue-500' : 'bg-slate-300'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${active ? 'translate-x-5' : 'translate-x-1'}`} />
+                </div>
+              </div>
+              <span className="text-sm font-medium text-slate-700">Active</span>
+            </label>
+          </div>
+
           {/* Actions */}
           <div className="flex items-center gap-3 pt-2">
             <button
@@ -160,10 +182,10 @@ export default function NewBookPage() {
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-all"
               style={{ backgroundColor: '#185FA5' }}
             >
-              {saving ? 'Saving…' : 'Save Book'}
+              {saving ? 'Saving…' : 'Save Subject'}
             </button>
             <Link
-              href="/admin/books"
+              href="/admin/subjects"
               className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 border border-slate-200 hover:border-slate-300 transition-all"
             >
               Cancel

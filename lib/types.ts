@@ -24,6 +24,7 @@ export interface SourceBook {
   subject_id: string
   title: string
   author: string | null
+  edition: string | null
   licence_types: string[]
   sort_order: number
 }
@@ -33,6 +34,7 @@ export interface Question {
   subject_id: string
   topic_id: string | null
   source_book_id: string | null
+  chapter_id: string | null
   question_text: string
   difficulty: 'easy' | 'medium' | 'hard'
   explanation: string | null
@@ -61,9 +63,10 @@ export interface Session {
   id: string
   subject_id: string
   licence_type: string
-  scope: 'topic' | 'book' | 'book_topic' | 'combined'
+  scope: 'topic' | 'book' | 'book_chapter' | 'combined'
   topic_id: string | null
   source_book_id: string | null
+  chapter_id: string | null
   mode: 'practice' | 'mock'
   difficulty: 'all' | 'easy' | 'medium' | 'hard'
   question_count: number

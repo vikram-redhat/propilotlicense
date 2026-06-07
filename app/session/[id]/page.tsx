@@ -12,6 +12,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const [questions, setQuestions] = useState<Question[]>([])
   const [sessionState, setSessionState] = useState<SessionState | null>(null)
   const [books, setBooks] = useState<Record<string, SourceBook>>({})
+  const [chapters, setChapters] = useState<Record<string, { chapter_number: number; chapter_name: string }>>({})
   const [loading, setLoading] = useState(true)
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
   const [showNavigator, setShowNavigator] = useState(false)
@@ -52,6 +53,17 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
         const bkMap: Record<string, SourceBook> = {}
         bks?.forEach(b => { bkMap[b.id] = b })
         setBooks(bkMap)
+      }
+
+      const chapterIds = [...new Set(ordered.map(q => q.chapter_id).filter(Boolean))] as string[]
+      if (chapterIds.length > 0) {
+        const { data: chs } = await supabase
+          .from('chapters')
+          .select('id, chapter_number, chapter_name')
+          .in('id', chapterIds)
+        const chMap: Record<string, { chapter_number: number; chapter_name: string }> = {}
+        chs?.forEach(c => { chMap[c.id] = c })
+        setChapters(chMap)
       }
 
       const stored = localStorage.getItem(`session_${id}`)
@@ -139,6 +151,10 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const isLastQuestion = sessionState.currentIndex === questions.length - 1
   const answeredCount = Object.keys(sessionState.answers).length
   const currentBook = currentQ?.source_book_id ? books[currentQ.source_book_id] : null
+  const currentChapter = currentQ?.chapter_id ? chapters[currentQ.chapter_id] : null
+  const chapterDisplay = currentChapter
+    ? `Chapter ${currentChapter.chapter_number} — ${currentChapter.chapter_name}`
+    : currentQ?.source_chapter ?? null
 
   const optionLetters: Array<'A' | 'B' | 'C' | 'D'> = ['A', 'B', 'C', 'D']
 
@@ -279,10 +295,13 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                   <p className="text-xs text-blue-700 leading-relaxed">
                     <span className="font-medium">{currentBook.title}</span>
                     {currentBook.author && <span> — {currentBook.author}</span>}
-                    {currentQ.source_chapter && (
+                    {(currentBook as SourceBook & { edition?: string | null }).edition && (
+                      <span> · {(currentBook as SourceBook & { edition?: string | null }).edition}</span>
+                    )}
+                    {chapterDisplay && (
                       <span>
                         {' · '}
-                        {currentQ.citation_verified ? currentQ.source_chapter : `${currentQ.source_chapter} (approx.)`}
+                        {currentQ.citation_verified ? chapterDisplay : `${chapterDisplay} (approx.)`}
                       </span>
                     )}
                     {currentQ.source_page && (

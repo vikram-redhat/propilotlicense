@@ -786,11 +786,34 @@ Return ONLY a valid JSON array, no markdown, no preamble:
   return JSON.parse(text.trim())
 }
 
+async function buildChapterMap(bookId: string): Promise<Map<string, string>> {
+  const { data: chapters } = await supabase
+    .from('chapters').select('id, chapter_name, chapter_number').eq('book_id', bookId)
+  const map = new Map<string, string>()
+  chapters?.forEach(ch => {
+    map.set(ch.chapter_name.toLowerCase(), ch.id)
+    map.set(`chapter ${ch.chapter_number}`, ch.id)
+  })
+  return map
+}
+
+function resolveChapterId(sourceChapter: string, chapterMap: Map<string, string>): string | null {
+  if (!sourceChapter) return null
+  const norm = sourceChapter.toLowerCase()
+  for (const [key, id] of chapterMap.entries()) {
+    if (norm.includes(key)) return id
+  }
+  return null
+}
+
 async function insertQuestion(
-  subjectId: string, topicId: string | null, bookId: string | null, q: GeneratedQ
+  subjectId: string, topicId: string | null, bookId: string | null,
+  chapterMap: Map<string, string>, q: GeneratedQ
 ): Promise<boolean> {
+  const chapterId = bookId ? resolveChapterId(q.source_chapter ?? '', chapterMap) : null
   const { data: inserted, error: qErr } = await supabase.from('questions').insert({
     subject_id: subjectId, topic_id: topicId, source_book_id: bookId,
+    chapter_id: chapterId,
     question_text: q.question_text, difficulty: q.difficulty,
     explanation: q.explanation, source_chapter: q.source_chapter,
     source_page: q.source_page, citation_verified: false,
@@ -821,6 +844,7 @@ async function generateForSubject(subjectCode: string, subjectMap: Record<string
   const { data: bookRow } = await supabase.from('source_books').select('id')
     .eq('subject_id', subjectId).eq('title', book.title).eq('author', book.author).single()
   const bookId = bookRow?.id ?? null
+  const chapterMap = bookId ? await buildChapterMap(bookId) : new Map<string,string>()
 
   const qPerTopic = Math.max(1, Math.ceil(TARGET_PER_SUBJECT / topics.length))
   let total = 0
@@ -852,7 +876,7 @@ async function generateForSubject(subjectCode: string, subjectMap: Record<string
 
     if (!questions.length) continue
     for (const q of questions) {
-      if (await insertQuestion(subjectId, topic.id, bookId, q)) total++
+      if (await insertQuestion(subjectId, topic.id, bookId, chapterMap, q)) total++
     }
     console.log(`✓ ${total} total (${elapsed(t0)})`)
     await sleep(400)

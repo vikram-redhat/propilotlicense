@@ -11,7 +11,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
             <nav className="hidden sm:flex items-center gap-4 text-sm text-slate-300">
               <Link href="/admin" className="hover:text-white transition-colors">Questions</Link>
-              <Link href="/admin/generate" className="hover:text-white transition-colors">AI Generate</Link>
+              <Link href="/admin/generate" className="hover:text-white transition-colors">Generate</Link>
+              <Link href="/admin/subjects" className="hover:text-white transition-colors">Subjects</Link>
               <Link href="/admin/books" className="hover:text-white transition-colors">Books</Link>
               <Link href="/admin/topics" className="hover:text-white transition-colors">Topics</Link>
             </nav>

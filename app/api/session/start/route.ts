@@ -8,7 +8,7 @@ const weights = {
 }
 
 export async function POST(req: Request) {
-  const { subjectId, licenceType, scope, topicId, sourceBookId, mode, difficulty, questionCount } = await req.json()
+  const { subjectId, licenceType, scope, topicId, sourceBookId, chapterId, mode, difficulty, questionCount } = await req.json()
 
   if (!subjectId || !mode || !difficulty || !questionCount || !scope) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
@@ -26,14 +26,19 @@ export async function POST(req: Request) {
     .eq('subject_id', subjectId)
     .eq('active', true)
 
-  if (scope === 'topic' && topicId) {
-    query = query.eq('topic_id', topicId)
-  } else if (scope === 'book' && sourceBookId) {
-    query = query.eq('source_book_id', sourceBookId)
-  } else if (scope === 'book_topic' && sourceBookId && topicId) {
-    query = query.eq('source_book_id', sourceBookId).eq('topic_id', topicId)
+  switch (scope) {
+    case 'topic':
+      if (topicId) query = query.eq('topic_id', topicId)
+      break
+    case 'book':
+      if (sourceBookId) query = query.eq('source_book_id', sourceBookId)
+      break
+    case 'book_chapter':
+      if (sourceBookId) query = query.eq('source_book_id', sourceBookId)
+      if (chapterId) query = query.eq('chapter_id', chapterId)
+      break
+    // 'combined': no additional filter
   }
-  // scope === 'combined': no additional filter
 
   const { data: questions, error } = await query
 
@@ -68,8 +73,9 @@ export async function POST(req: Request) {
       subject_id: subjectId,
       licence_type: (licenceType || 'CPL').toUpperCase(),
       scope,
-      topic_id: (scope === 'topic' || scope === 'book_topic') ? (topicId ?? null) : null,
-      source_book_id: (scope === 'book' || scope === 'book_topic') ? (sourceBookId ?? null) : null,
+      topic_id: scope === 'topic' ? (topicId ?? null) : null,
+      source_book_id: (scope === 'book' || scope === 'book_chapter') ? (sourceBookId ?? null) : null,
+      chapter_id: scope === 'book_chapter' ? (chapterId ?? null) : null,
       mode,
       difficulty,
       question_count: questionCount,

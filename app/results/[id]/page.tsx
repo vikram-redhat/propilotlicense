@@ -13,6 +13,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const [questions, setQuestions] = useState<Question[]>([])
   const [sessionState, setSessionState] = useState<SessionState | null>(null)
   const [books, setBooks] = useState<Record<string, SourceBook>>({})
+  const [chapters, setChapters] = useState<Record<string, { chapter_number: number; chapter_name: string }>>({})
   const [subjectName, setSubjectName] = useState('')
   const [topicName, setTopicName] = useState('')
   const [loading, setLoading] = useState(true)
@@ -51,6 +52,17 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           const bkMap: Record<string, SourceBook> = {}
           bks?.forEach(b => { bkMap[b.id] = b })
           setBooks(bkMap)
+        }
+
+        const chapterIds = [...new Set(ordered.map(q => q.chapter_id).filter(Boolean))] as string[]
+        if (chapterIds.length > 0) {
+          const { data: chs } = await supabase
+            .from('chapters')
+            .select('id, chapter_number, chapter_name')
+            .in('id', chapterIds)
+          const chMap: Record<string, { chapter_number: number; chapter_name: string }> = {}
+          chs?.forEach(c => { chMap[c.id] = c })
+          setChapters(chMap)
         }
       }
 
@@ -183,6 +195,10 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                   const correctOpt = q.options?.find(o => o.is_correct)
                   const userOpt = userAnswer ? q.options?.find(o => o.option_letter === userAnswer.selected) : null
                   const book = q.source_book_id ? books[q.source_book_id] : null
+                  const chapter = q.chapter_id ? chapters[q.chapter_id] : null
+                  const chapterDisplay = chapter
+                    ? `Chapter ${chapter.chapter_number} — ${chapter.chapter_name}`
+                    : q.source_chapter ?? null
                   const isWrong = userAnswer && !userAnswer.isCorrect
 
                   return (
@@ -230,10 +246,11 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                           <p className="text-xs text-slate-400 leading-relaxed">
                             <span className="font-medium">{book.title}</span>
                             {book.author && <span> — {book.author}</span>}
-                            {q.source_chapter && (
+                            {book.edition && <span> · {book.edition}</span>}
+                            {chapterDisplay && (
                               <span>
                                 {' · '}
-                                {q.citation_verified ? q.source_chapter : `${q.source_chapter} (approx.)`}
+                                {q.citation_verified ? chapterDisplay : `${chapterDisplay} (approx.)`}
                               </span>
                             )}
                             {q.source_page && (

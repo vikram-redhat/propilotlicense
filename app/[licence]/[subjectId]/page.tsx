@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook } from '@/lib/types'
 import SubjectIcon from '@/components/SubjectIcon'
 
-type Scope = 'topic' | 'book' | 'book_topic' | 'combined'
+type Scope = 'topic' | 'book' | 'book_chapter' | 'combined'
 type Mode = 'practice' | 'mock'
 type Difficulty = 'all' | 'easy' | 'medium' | 'hard'
 type QuestionCount = 50 | 100
@@ -65,7 +65,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   }, [selectedBookId])
 
   const effectiveScope: Scope | null =
-    scope === 'book' && selectedChapterId ? 'book_topic' : scope
+    scope === 'book' && selectedChapterId ? 'book_chapter' : scope
 
   const canStart =
     scope === null ? false :
@@ -82,8 +82,9 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
         subjectId,
         licenceType: licence.toUpperCase(),
         scope: effectiveScope,
-        topicId: scope === 'topic' ? selectedTopicId : effectiveScope === 'book_topic' ? selectedChapterId : null,
+        topicId: scope === 'topic' ? selectedTopicId : null,
         sourceBookId: scope === 'book' ? selectedBookId : null,
+        chapterId: effectiveScope === 'book_chapter' ? selectedChapterId : null,
         mode,
         difficulty,
         questionCount,
