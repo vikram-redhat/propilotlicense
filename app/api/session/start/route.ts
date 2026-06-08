@@ -28,16 +28,21 @@ export async function POST(req: Request) {
 
   switch (scope) {
     case 'topic':
+      // Common pool only — no book tag
+      query = query.is('source_book_id', null)
       if (topicId) query = query.eq('topic_id', topicId)
       break
     case 'book':
-      if (sourceBookId) query = query.eq('source_book_id', sourceBookId)
+      query = query.eq('source_book_id', sourceBookId)
       break
     case 'book_chapter':
-      if (sourceBookId) query = query.eq('source_book_id', sourceBookId)
+      query = query.eq('source_book_id', sourceBookId)
       if (chapterId) query = query.eq('chapter_id', chapterId)
       break
-    // 'combined': no additional filter
+    case 'combined':
+      // Common pool only — no book tag, no duplicates
+      query = query.is('source_book_id', null)
+      break
   }
 
   const { data: questions, error } = await query
