@@ -5,7 +5,7 @@ export const maxDuration = 60
 const client = new Anthropic()
 
 export async function POST(req: Request) {
-  const { subject, bookTitle, bookAuthor, focusLine, difficulty, count, context } = await req.json()
+  const { subject, bookTitle, bookAuthor, focusLine, difficulty, count, context, previousQuestions = [] } = await req.json()
 
   if (!subject || !difficulty || !count) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
@@ -39,6 +39,10 @@ A student reading it should understand the topic more deeply, not just why the c
 CITATION: Estimate the chapter and page in "${bookTitle}" where this content is covered.
 Always provide a genuine estimate — never write "unknown". These will be marked as approximate.
 
+${previousQuestions.length > 0
+  ? `\nIMPORTANT — do not repeat or closely paraphrase any of these already-generated questions:\n` +
+    (previousQuestions as string[]).map((q, i) => `${i + 1}. ${q}`).join('\n') + '\n'
+  : ''}
 CRITICAL: Return ONLY a valid JSON array. No markdown fences, no preamble, no trailing text.
 
 Each element:

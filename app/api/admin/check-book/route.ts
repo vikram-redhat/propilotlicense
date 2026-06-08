@@ -17,7 +17,12 @@ export async function POST(req: Request) {
     max_tokens: 10,
     messages: [{
       role: 'user',
-      content: `Is "${bookTitle}" by ${bookAuthor} a recognised aviation training textbook relevant to ${subject}? Reply with only YES or NO.`,
+      content:
+        `The following book is listed as a reference textbook in the official DGCA (India) prescribed study material for pilot licence examinations:\n\n` +
+        `Title: "${bookTitle}"\n` +
+        `Author/Publisher: ${bookAuthor}\n` +
+        `Subject: ${subject}\n\n` +
+        `Is this a legitimate aviation training publication relevant to ${subject}? Reply with only YES or NO.`,
     }],
   })
 
@@ -35,7 +40,10 @@ export async function POST(req: Request) {
     max_tokens: 10,
     messages: [{
       role: 'user',
-      content: `How well do you know the contents of "${bookTitle}" by ${bookAuthor}? Reply with only: WELL / PARTIALLY / NOT WELL`,
+      content:
+        `The book "${bookTitle}" by ${bookAuthor} is a DGCA-prescribed aviation training textbook for ${subject}. ` +
+        `How well do you know the specific contents, chapter structure, and page layout of this edition? ` +
+        `Reply with only: WELL, PARTIALLY, or NOT WELL.`,
     }],
   })
 

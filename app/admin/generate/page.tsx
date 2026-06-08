@@ -154,6 +154,7 @@ export default function GeneratePage() {
     setBatches(initialBatches)
 
     let totalGenerated = 0
+    const allGenerated: GeneratedQuestion[] = []
 
     for (let i = 0; i < numBatches; i++) {
       const batchCount = initialBatches[i].total
@@ -189,6 +190,7 @@ export default function GeneratePage() {
                 difficulty,
                 count: batchCount,
                 context,
+                previousQuestions: allGenerated.map(q => q.question_text),
               }),
             }),
             new Promise<never>((_, reject) =>
@@ -200,6 +202,7 @@ export default function GeneratePage() {
           if (data.error) throw new Error(data.error)
 
           const questions: GeneratedQuestion[] = Array.isArray(data.questions) ? data.questions : []
+          allGenerated.push(...questions)
           setGenerated(prev => [...prev, ...questions])
           totalGenerated += questions.length
           setGeneratedCount(totalGenerated)
