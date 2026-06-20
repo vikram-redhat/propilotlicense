@@ -70,18 +70,22 @@ export default function AdminPage() {
   const [stats, setStats] = useState({ total: 0, pending: 0, published: 0, ai: 0, citVerified: 0, citTotal: 0 })
   useEffect(() => {
     async function loadStats() {
-      const { data } = await supabase
-        .from('questions')
-        .select('active, source_type, citation_verified, source_book_id')
-      if (!data) return
-      const withBook = data.filter(q => q.source_book_id)
+      const opts = { count: 'exact' as const, head: true }
+      const [total, pending, published, ai, citVerified, citTotal] = await Promise.all([
+        supabase.from('questions').select('*', opts),
+        supabase.from('questions').select('*', opts).eq('active', false).eq('flagged', false),
+        supabase.from('questions').select('*', opts).eq('active', true),
+        supabase.from('questions').select('*', opts).eq('source_type', 'ai'),
+        supabase.from('questions').select('*', opts).eq('citation_verified', true).not('source_book_id', 'is', null),
+        supabase.from('questions').select('*', opts).not('source_book_id', 'is', null),
+      ])
       setStats({
-        total: data.length,
-        pending: data.filter(q => !q.active).length,
-        published: data.filter(q => q.active).length,
-        ai: data.filter(q => q.source_type === 'ai').length,
-        citVerified: withBook.filter(q => q.citation_verified).length,
-        citTotal: withBook.length,
+        total: total.count ?? 0,
+        pending: pending.count ?? 0,
+        published: published.count ?? 0,
+        ai: ai.count ?? 0,
+        citVerified: citVerified.count ?? 0,
+        citTotal: citTotal.count ?? 0,
       })
     }
     loadStats()
