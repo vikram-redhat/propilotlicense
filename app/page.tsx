@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import SiteFooter from '@/components/SiteFooter'
+import LandingHeader from '@/components/LandingHeader'
+import { createAuthClient } from '@/lib/supabase-server'
 
 const PILOT_PHOTOS = [
   { id: '1764547168268-1c8b531bce9f', alt: 'Pilot wearing headset smiles while flying' },
@@ -100,21 +102,14 @@ const HOW_IT_WORKS = [
   },
 ]
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createAuthClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const name = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? null
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <header className="bg-white border-b border-slate-200 px-4 py-3">
-        <div className="max-w-5xl mx-auto flex items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#185FA5' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <span className="font-bold text-slate-800 text-lg">ProPilotLicence</span>
-          </div>
-        </div>
-      </header>
+      <LandingHeader isLoggedIn={!!user} name={name} />
 
       {/* Hero — text left, photos right */}
       <section className="px-4 py-12 sm:py-16" style={{ backgroundColor: '#F0F6FF' }}>
@@ -129,18 +124,18 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <Link
-                href="/cpl"
+                href={user ? '/cpl' : '/login?next=/cpl'}
                 className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white text-base transition-all hover:opacity-90"
                 style={{ backgroundColor: '#185FA5' }}
               >
-                Start CPL Exam →
+                {user ? 'Continue CPL →' : 'Start CPL Exam →'}
               </Link>
               <Link
-                href="/atpl"
+                href={user ? '/atpl' : '/login?next=/atpl'}
                 className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-base border-2 transition-all hover:border-blue-400"
                 style={{ color: '#185FA5', borderColor: '#185FA5' }}
               >
-                Start ATPL Exam →
+                {user ? 'Continue ATPL →' : 'Start ATPL Exam →'}
               </Link>
             </div>
           </div>

@@ -43,13 +43,15 @@ export async function proxy(request: NextRequest) {
   }
 
   const isAuthRoute = pathname === '/login' || pathname === '/verify' || pathname.startsWith('/auth/')
-  const isPublicRoute = pathname === '/terms'
+  const isPublicRoute = pathname === '/' || pathname === '/terms'
 
   const bypassCookie = request.cookies.get('admin_bypass')?.value
   const hasBypass = !!bypassSecret && bypassCookie === bypassSecret
 
   if (!user && !isAuthRoute && !isPublicRoute && !hasBypass) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('next', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
   if (user && isAuthRoute) {
