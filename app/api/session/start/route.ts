@@ -1,4 +1,5 @@
-import { createServiceClient, createAuthClient } from '@/lib/supabase'
+import { createServiceClient } from '@/lib/supabase'
+import { createAuthClient } from '@/lib/supabase-server'
 
 const weights = {
   all:    { easy: 1,   medium: 1,   hard: 1   },
