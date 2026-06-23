@@ -78,20 +78,12 @@ export default function LoginPage() {
             <p className="text-xs text-slate-400 mb-6 leading-relaxed">
               Click the link in the email to sign in. It may take a minute to arrive — check your spam folder if you don&apos;t see it.
             </p>
-            <div className="space-y-2">
-              <Link
-                href="/verify"
-                className="block w-full py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 hover:border-slate-300 transition-colors"
-              >
-                Enter a code instead
-              </Link>
-              <button
-                onClick={() => { setSent(false); setEmail('') }}
-                className="block w-full py-2.5 text-sm text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                ← Use a different email
-              </button>
-            </div>
+            <button
+              onClick={() => { setSent(false); setEmail('') }}
+              className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              ← Use a different email
+            </button>
           </div>
         </div>
       </div>
