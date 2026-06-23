@@ -6,9 +6,8 @@ import { Question, Subject } from '@/lib/types'
 import { IconPlus, IconSparkles, IconEdit, IconTrash, IconCheck, IconBook, IconBook2 } from '@tabler/icons-react'
 
 const DIFFICULTY_COLORS = {
-  easy: 'bg-green-100 text-green-700',
-  medium: 'bg-amber-100 text-amber-700',
-  hard: 'bg-red-100 text-red-700',
+  basic: 'bg-green-100 text-green-700',
+  advanced: 'bg-amber-100 text-amber-700',
 }
 
 export default function AdminPage() {

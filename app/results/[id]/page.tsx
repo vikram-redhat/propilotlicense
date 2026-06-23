@@ -182,9 +182,8 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
             </span>
             <span className={`text-xs px-3 py-1.5 rounded-full font-medium capitalize ${
               session.difficulty === 'all' ? 'bg-slate-100 text-slate-600' :
-              session.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
-              session.difficulty === 'medium' ? 'bg-amber-100 text-amber-700' :
-              'bg-red-100 text-red-700'
+              session.difficulty === 'basic' ? 'bg-green-100 text-green-700' :
+              'bg-amber-100 text-amber-700'
             }`}>
               {session.difficulty === 'all' ? 'All difficulties' : session.difficulty}
             </span>

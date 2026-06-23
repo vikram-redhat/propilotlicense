@@ -2,10 +2,9 @@ import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
 
 const weights = {
-  all:    { easy: 1,   medium: 1,   hard: 1   },
-  easy:   { easy: 0.7, medium: 0.3, hard: 0   },
-  medium: { easy: 0.2, medium: 0.6, hard: 0.2 },
-  hard:   { easy: 0.1, medium: 0.3, hard: 0.6 },
+  all:      { basic: 1,   advanced: 1   },
+  basic:    { basic: 0.8, advanced: 0.2 },
+  advanced: { basic: 0.2, advanced: 0.8 },
 }
 
 export async function POST(req: Request) {
@@ -65,7 +64,7 @@ export async function POST(req: Request) {
   const weighted: string[] = []
 
   for (const q of questions) {
-    const qDiff = q.difficulty as 'easy' | 'medium' | 'hard'
+    const qDiff = q.difficulty as 'basic' | 'advanced'
     const weight = w[qDiff] ?? 1
     if (weight > 0 && Math.random() < weight) {
       weighted.push(q.id)

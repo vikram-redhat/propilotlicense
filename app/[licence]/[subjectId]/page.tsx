@@ -9,7 +9,7 @@ import SiteFooter from '@/components/SiteFooter'
 
 type Scope = 'topic' | 'book' | 'book_chapter' | 'combined'
 type Mode = 'practice' | 'mock'
-type Difficulty = 'all' | 'easy' | 'medium' | 'hard'
+type Difficulty = 'all' | 'basic' | 'advanced'
 type QuestionCount = 50 | 100
 
 function formatTimeAllowed(questionCount: QuestionCount): string {
@@ -298,9 +298,8 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
               <div className="flex flex-wrap gap-2">
                 {([
                   { value: 'all' as Difficulty, label: 'All' },
-                  { value: 'easy' as Difficulty, label: 'Easy' },
-                  { value: 'medium' as Difficulty, label: 'Medium' },
-                  { value: 'hard' as Difficulty, label: 'Hard' },
+                  { value: 'basic' as Difficulty, label: 'Basic' },
+                  { value: 'advanced' as Difficulty, label: 'Advanced' },
                 ]).map(d => (
                   <button
                     key={d.value}

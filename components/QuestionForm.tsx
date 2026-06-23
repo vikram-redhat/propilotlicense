@@ -22,7 +22,7 @@ export default function QuestionForm({ question }: QuestionFormProps) {
   const [topicId, setTopicId] = useState(question?.topic_id || '')
   const [sourceBookId, setSourceBookId] = useState(question?.source_book_id || '')
   const [chapterId, setChapterId] = useState('')
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>(question?.difficulty || 'medium')
+  const [difficulty, setDifficulty] = useState<'basic' | 'advanced'>(question?.difficulty || 'basic')
   const [questionText, setQuestionText] = useState(question?.question_text || '')
   const [options, setOptions] = useState<Record<'A' | 'B' | 'C' | 'D', string>>({
     A: question?.options?.find(o => o.option_letter === 'A')?.option_text || '',
@@ -181,7 +181,7 @@ export default function QuestionForm({ question }: QuestionFormProps) {
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">Difficulty *</label>
         <div className="flex gap-2">
-          {(['easy', 'medium', 'hard'] as const).map(d => (
+          {(['basic', 'advanced'] as const).map(d => (
             <button
               key={d}
               onClick={() => setDifficulty(d)}

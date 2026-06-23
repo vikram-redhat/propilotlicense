@@ -40,7 +40,7 @@ export default function GeneratePage() {
   const [chapterName, setChapterName] = useState('')
   const [chapterNumber, setChapterNumber] = useState(0)
   const [chapters, setChapters] = useState<{ id: string; chapter_number: number; chapter_name: string }[]>([])
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
+  const [difficulty, setDifficulty] = useState<'basic' | 'advanced'>('basic')
   const [count, setCount] = useState(10)
   const [context, setContext] = useState('')
 
@@ -396,7 +396,7 @@ export default function GeneratePage() {
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Difficulty</label>
             <div className="flex gap-2">
-              {(['easy', 'medium', 'hard'] as const).map(d => (
+              {(['basic', 'advanced'] as const).map(d => (
                 <button
                   key={d}
                   onClick={() => setDifficulty(d)}

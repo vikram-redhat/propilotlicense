@@ -36,7 +36,7 @@ export interface Question {
   source_book_id: string | null
   chapter_id: string | null
   question_text: string
-  difficulty: 'easy' | 'medium' | 'hard'
+  difficulty: 'basic' | 'advanced'
   explanation: string | null
   source_chapter: string | null
   source_page: string | null
@@ -68,7 +68,7 @@ export interface Session {
   source_book_id: string | null
   chapter_id: string | null
   mode: 'practice' | 'mock'
-  difficulty: 'all' | 'easy' | 'medium' | 'hard'
+  difficulty: 'all' | 'basic' | 'advanced'
   question_count: number
   time_limit_secs: number
   question_ids: string[]
