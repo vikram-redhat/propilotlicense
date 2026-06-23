@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 function Logo() {
   return (
@@ -20,6 +21,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [sent, setSent] = useState(false)
   const router = useRouter()
 
   const supabase = createBrowserClient(
@@ -32,18 +34,18 @@ export default function LoginPage() {
     setLoading(true)
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true },
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     })
     if (error) {
-      const msg = error.message && error.message !== '{}'
-        ? error.message
-        : 'Could not send code — make sure Email OTP is enabled in the Supabase dashboard (Authentication → Providers → Email).'
-      alert(msg)
+      alert(error.message || 'Failed to send link. Check that your Supabase Site URL is set in Authentication → URL Configuration.')
       setLoading(false)
       return
     }
-    sessionStorage.setItem('otp_email', email)
-    router.push('/verify')
+    setSent(true)
+    setLoading(false)
   }
 
   async function handleGoogle() {
@@ -52,6 +54,48 @@ export default function LoginPage() {
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
+  }
+
+  if (sent) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
+        <div className="w-full max-w-sm">
+          <Logo />
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center">
+            <div
+              className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: '#EBF4FF' }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="2">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h1 className="text-xl font-bold text-slate-900 mb-2">Check your email</h1>
+            <p className="text-sm text-slate-500 mb-1">
+              We sent a sign-in link to
+            </p>
+            <p className="text-sm font-semibold text-slate-800 mb-6">{email}</p>
+            <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+              Click the link in the email to sign in. It may take a minute to arrive — check your spam folder if you don&apos;t see it.
+            </p>
+            <div className="space-y-2">
+              <Link
+                href="/verify"
+                className="block w-full py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 hover:border-slate-300 transition-colors"
+              >
+                Enter a code instead
+              </Link>
+              <button
+                onClick={() => { setSent(false); setEmail('') }}
+                className="block w-full py-2.5 text-sm text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                ← Use a different email
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -81,7 +125,7 @@ export default function LoginPage() {
               className="w-full py-3 rounded-xl font-semibold text-white text-sm transition-all disabled:opacity-50"
               style={{ backgroundColor: '#185FA5' }}
             >
-              {loading ? 'Sending code…' : 'Continue with email →'}
+              {loading ? 'Sending link…' : 'Continue with email →'}
             </button>
           </form>
 
