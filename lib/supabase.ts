@@ -1,28 +1,45 @@
+import { createBrowserClient, createServerClient } from '@supabase/ssr'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
 
-let _client: SupabaseClient | null = null
+// Browser singleton — cookie-based, for 'use client' components
+let _browserClient: SupabaseClient | null = null
 
-function getClient(): SupabaseClient {
-  if (!_client) {
-    _client = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
-    )
-  }
-  return _client
-}
-
-// Proxy that defers client instantiation until first use
 export const supabase: SupabaseClient = new Proxy({} as SupabaseClient, {
   get(_target, prop) {
-    return (getClient() as unknown as Record<string | symbol, unknown>)[prop]
+    if (!_browserClient) {
+      _browserClient = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+    }
+    return (_browserClient as unknown as Record<string | symbol, unknown>)[prop]
   },
 })
 
-// Server-side client with service role (for admin operations and API routes)
+// Server-side client with service role — bypasses RLS, for API routes and server components
 export function createServiceClient(): SupabaseClient {
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
+
+// Server-side client with user auth from cookies — respects RLS, for auth-aware API routes
+export async function createAuthClient(): Promise<SupabaseClient> {
+  const cookieStore = await cookies()
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          )
+        },
+      },
+    }
   )
 }

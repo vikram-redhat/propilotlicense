@@ -17,14 +17,13 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
   const [showNavigator, setShowNavigator] = useState(false)
   const [flagged, setFlagged] = useState<Set<string>>(new Set())
-
-  const saveState = useCallback((state: SessionState) => {
-    localStorage.setItem(`session_${id}`, JSON.stringify(state))
-    setSessionState(state)
-  }, [id])
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUserId(user?.id ?? null)
+
       const { data: sess } = await supabase
         .from('sessions')
         .select('*')
@@ -66,16 +65,35 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
         setChapters(chMap)
       }
 
-      const stored = localStorage.getItem(`session_${id}`)
-      const state: SessionState = stored
-        ? JSON.parse(stored)
-        : { sessionId: id, currentIndex: 0, answers: {}, startedAt: new Date().toISOString() }
+      // Restore answers from DB
+      const { data: dbAnswers } = await supabase
+        .from('session_answers')
+        .select('question_id, selected_option_id, is_correct')
+        .eq('session_id', id)
+
+      const answersMap: SessionState['answers'] = {}
+      for (const ans of dbAnswers ?? []) {
+        const q = ordered.find(q => q.id === ans.question_id)
+        const opt = q?.options?.find(o => o.id === ans.selected_option_id)
+        if (opt) {
+          answersMap[ans.question_id] = { selected: opt.option_letter, isCorrect: ans.is_correct }
+        }
+      }
+
+      const answeredCount = Object.keys(answersMap).length
+      const firstUnanswered = ordered.findIndex(q => !answersMap[q.id])
+      const startIndex = answeredCount === ordered.length ? ordered.length - 1 : Math.max(0, firstUnanswered)
+
+      const state: SessionState = {
+        sessionId: id,
+        currentIndex: startIndex,
+        answers: answersMap,
+        startedAt: sess.created_at,
+      }
       setSessionState(state)
 
       if (sess.mode === 'mock') {
-        const elapsed = stored
-          ? Math.floor((Date.now() - new Date(JSON.parse(stored).startedAt).getTime()) / 1000)
-          : 0
+        const elapsed = Math.floor((Date.now() - new Date(sess.created_at).getTime()) / 1000)
         const totalSeconds = sess.time_limit_secs ?? (sess.question_ids.length * 45)
         setTimeLeft(Math.max(0, totalSeconds - elapsed))
       }
@@ -93,38 +111,52 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   })
 
   const submitExam = useCallback(() => {
-    if (!sessionState) return
-    const updated = { ...sessionState, submittedAt: new Date().toISOString() }
-    localStorage.setItem(`session_${id}`, JSON.stringify(updated))
     router.push(`/results/${id}`)
-  }, [sessionState, id, router])
+  }, [id, router])
 
-  function handleAnswer(letter: string) {
+  async function handleAnswer(letter: string) {
     if (!sessionState || !questions.length) return
     const q = questions[sessionState.currentIndex]
     if (sessionState.answers[q.id]) return
+
     const correctOption = q.options?.find(o => o.is_correct)
     const isCorrect = correctOption?.option_letter === letter
-    saveState({ ...sessionState, answers: { ...sessionState.answers, [q.id]: { selected: letter, isCorrect } } })
+    const selectedOption = q.options?.find(o => o.option_letter === letter)
+
+    // Save to DB
+    await supabase.from('session_answers').insert({
+      session_id: id,
+      question_id: q.id,
+      selected_option_id: selectedOption?.id ?? null,
+      is_correct: isCorrect,
+    })
+
+    setSessionState(prev => prev ? {
+      ...prev,
+      answers: { ...prev.answers, [q.id]: { selected: letter, isCorrect } },
+    } : prev)
   }
 
   function goNext() {
     if (!sessionState || !questions.length) return
     const nextIndex = sessionState.currentIndex + 1
     if (nextIndex >= questions.length) { submitExam(); return }
-    saveState({ ...sessionState, currentIndex: nextIndex })
+    setSessionState(prev => prev ? { ...prev, currentIndex: nextIndex } : prev)
   }
 
   function jumpTo(index: number) {
-    if (!sessionState) return
-    saveState({ ...sessionState, currentIndex: index })
+    setSessionState(prev => prev ? { ...prev, currentIndex: index } : prev)
     setShowNavigator(false)
   }
 
   async function flagQuestion() {
-    if (!sessionState || !questions.length) return
+    if (!sessionState || !questions.length || !userId) return
     const q = questions[sessionState.currentIndex]
-    await supabase.from('questions').update({ flagged: true }).eq('id', q.id)
+    await supabase.from('question_flags').insert({
+      question_id: q.id,
+      user_id: userId,
+      reason: null,
+    })
     setFlagged(prev => new Set([...prev, q.id]))
   }
 
@@ -322,7 +354,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           <div className="flex items-center justify-between">
             <button
               onClick={flagQuestion}
-              disabled={flagged.has(currentQ?.id)}
+              disabled={flagged.has(currentQ?.id) || !userId}
               className={`flex items-center gap-1.5 text-xs transition-colors ${
                 flagged.has(currentQ?.id) ? 'text-amber-500' : 'text-slate-400 hover:text-amber-500'
               }`}

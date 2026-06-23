@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import SignOutButton from './SignOutButton'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,9 +18,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link href="/admin/topics" className="hover:text-white transition-colors">Topics</Link>
             </nav>
           </div>
-          <Link href="/" className="text-xs text-slate-400 hover:text-white transition-colors">
-            ← Student view
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-xs text-slate-400 hover:text-white transition-colors">
+              ← Student view
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
       </header>
       <div className="flex-1 bg-slate-50">

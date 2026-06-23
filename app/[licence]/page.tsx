@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+import { createServiceClient } from '@/lib/supabase'
 import { Subject } from '@/lib/types'
 import SubjectIcon from '@/components/SubjectIcon'
 import SiteFooter from '@/components/SiteFooter'
@@ -13,6 +13,7 @@ const LICENCE_LABELS: Record<string, string> = {
 }
 
 async function getSubjectsForLicence(licence: string): Promise<(Subject & { book_count: number })[]> {
+  const supabase = createServiceClient()
   const licenceUpper = licence.toUpperCase()
 
   const { data: subjects } = await supabase

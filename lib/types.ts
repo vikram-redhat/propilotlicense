@@ -83,6 +83,35 @@ export interface SessionState {
   submittedAt?: string
 }
 
+export interface Profile {
+  id: string
+  full_name: string | null
+  email: string | null
+  subscription_tier: 'free' | 'pro'
+  subscription_expires_at: string | null
+  exam_preference: 'CPL' | 'ATPL'
+  created_at: string
+  updated_at: string
+}
+
+export interface SessionAnswer {
+  id: string
+  session_id: string
+  question_id: string
+  selected_option_id: string | null
+  is_correct: boolean
+  answered_at: string
+}
+
+export interface QuestionFlag {
+  id: string
+  question_id: string
+  user_id: string
+  reason: string | null
+  resolved: boolean
+  created_at: string
+}
+
 export interface GeneratedQuestion {
   question_text: string
   options: { A: string; B: string; C: string; D: string }

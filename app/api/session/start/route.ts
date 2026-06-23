@@ -1,4 +1,4 @@
-import { createServiceClient } from '@/lib/supabase'
+import { createServiceClient, createAuthClient } from '@/lib/supabase'
 
 const weights = {
   all:    { easy: 1,   medium: 1,   hard: 1   },
@@ -18,6 +18,13 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Question count must be 50 or 100' }, { status: 400 })
   }
 
+  // Get current user from auth cookies
+  const authClient = await createAuthClient()
+  const { data: { user } } = await authClient.auth.getUser()
+  if (!user) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const supabase = createServiceClient()
 
   let query = supabase
@@ -28,7 +35,6 @@ export async function POST(req: Request) {
 
   switch (scope) {
     case 'topic':
-      // Common pool only — no book tag
       query = query.is('source_book_id', null)
       if (topicId) query = query.eq('topic_id', topicId)
       break
@@ -40,7 +46,6 @@ export async function POST(req: Request) {
       if (chapterId) query = query.eq('chapter_id', chapterId)
       break
     case 'combined':
-      // Common pool only — no book tag, no duplicates
       query = query.is('source_book_id', null)
       break
   }
@@ -75,6 +80,7 @@ export async function POST(req: Request) {
   const { data: session, error: sessionError } = await supabase
     .from('sessions')
     .insert({
+      user_id: user.id,
       subject_id: subjectId,
       licence_type: (licenceType || 'CPL').toUpperCase(),
       scope,

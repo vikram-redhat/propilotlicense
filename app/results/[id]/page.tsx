@@ -21,24 +21,25 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
 
   useEffect(() => {
     async function load() {
-      const stored = localStorage.getItem(`session_${id}`)
-      if (!stored) { router.push('/'); return }
-      const state: SessionState = JSON.parse(stored)
-      setSessionState(state)
-
       const { data: sess } = await supabase.from('sessions').select('*').eq('id', id).single()
       if (!sess) { router.push('/'); return }
       setSession(sess)
+
+      // Fetch saved answers from DB
+      const { data: dbAnswers } = await supabase
+        .from('session_answers')
+        .select('question_id, selected_option_id, is_correct')
+        .eq('session_id', id)
 
       const [{ data: qs }, { data: sub }] = await Promise.all([
         supabase.from('questions').select('*, options:question_options(*)').in('id', sess.question_ids),
         supabase.from('subjects').select('name').eq('id', sess.subject_id).single(),
       ])
 
-      let topicName = ''
+      let topicDisplayName = ''
       if (sess.scope === 'topic' && sess.topic_id) {
         const { data: topic } = await supabase.from('topics').select('name').eq('id', sess.topic_id).single()
-        topicName = topic?.name || ''
+        topicDisplayName = topic?.name || ''
       }
 
       if (qs) {
@@ -46,6 +47,17 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           .map((qid: string) => qs.find((q: Question) => q.id === qid))
           .filter(Boolean) as Question[]
         setQuestions(ordered)
+
+        // Reconstruct answers map from DB answers + loaded question options
+        const answersMap: SessionState['answers'] = {}
+        for (const ans of dbAnswers ?? []) {
+          const q = ordered.find(q => q.id === ans.question_id)
+          const opt = q?.options?.find(o => o.id === ans.selected_option_id)
+          if (opt) {
+            answersMap[ans.question_id] = { selected: opt.option_letter, isCorrect: ans.is_correct }
+          }
+        }
+        setSessionState({ sessionId: id, currentIndex: 0, answers: answersMap, startedAt: sess.created_at })
 
         const bookIds = [...new Set(ordered.map(q => q.source_book_id).filter(Boolean))] as string[]
         if (bookIds.length > 0) {
@@ -68,7 +80,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
       }
 
       setSubjectName(sub?.name || '')
-      setTopicName(topicName)
+      setTopicName(topicDisplayName)
       setLoading(false)
     }
     load()
