@@ -35,7 +35,10 @@ export default function LoginPage() {
       options: { shouldCreateUser: true },
     })
     if (error) {
-      alert(error.message)
+      const msg = error.message && error.message !== '{}'
+        ? error.message
+        : 'Could not send code — make sure Email OTP is enabled in the Supabase dashboard (Authentication → Providers → Email).'
+      alert(msg)
       setLoading(false)
       return
     }
