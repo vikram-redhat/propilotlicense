@@ -1,14 +1,15 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 import { Question, Subject } from '@/lib/types'
 import { IconPlus, IconSparkles, IconEdit, IconTrash, IconCheck, IconBook, IconBook2 } from '@tabler/icons-react'
 
-const DIFFICULTY_COLORS = {
+const DIFFICULTY_COLORS: Record<string, string> = {
   basic: 'bg-green-100 text-green-700',
   advanced: 'bg-amber-100 text-amber-700',
 }
+
+const PAGE_SIZE = 20
 
 export default function AdminPage() {
   const [questions, setQuestions] = useState<Question[]>([])
@@ -20,75 +21,48 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(0)
   const [total, setTotal] = useState(0)
-
-  const PAGE_SIZE = 20
+  const [approveDropdown, setApproveDropdown] = useState<string | null>(null)
+  const [stats, setStats] = useState({ total: 0, pending: 0, published: 0, ai: 0, citVerified: 0, citTotal: 0 })
 
   const load = useCallback(async () => {
     setLoading(true)
-    let query = supabase
-      .from('questions')
-      .select('*, subject:subjects(name,code), topic:topics(name), source_book:source_books(title,author)', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
-
-    if (filterSubject) query = query.eq('subject_id', filterSubject)
-    if (filterStatus === 'published') query = query.eq('active', true)
-    if (filterStatus === 'pending') query = query.eq('active', false).eq('flagged', false)
-    if (filterStatus === 'flagged') query = query.eq('flagged', true)
-    if (filterSource === 'manual') query = query.eq('source_type', 'manual')
-    if (filterSource === 'ai') query = query.eq('source_type', 'ai')
-    if (filterCitation === 'verified') query = query.eq('citation_verified', true)
-    if (filterCitation === 'approx') query = query.eq('citation_verified', false).not('source_book_id', 'is', null)
-
-    const { data, count } = await query
-    setQuestions(data || [])
-    setTotal(count || 0)
+    const params = new URLSearchParams({
+      subject: filterSubject,
+      status: filterStatus,
+      source: filterSource,
+      citation: filterCitation,
+      page: String(page),
+    })
+    const res = await fetch(`/api/admin/questions?${params}`)
+    const data = await res.json()
+    setQuestions(data.questions || [])
+    setTotal(data.total || 0)
+    setStats(data.stats || stats)
+    setSubjects(prev => data.subjects?.length ? data.subjects : prev)
     setLoading(false)
-  }, [filterSubject, filterStatus, filterSource, filterCitation, page])
-
-  useEffect(() => {
-    supabase.from('subjects').select('*').order('sort_order').then(({ data }) => setSubjects(data || []))
-  }, [])
+  }, [filterSubject, filterStatus, filterSource, filterCitation, page]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { load() }, [load])
 
-  const [approveDropdown, setApproveDropdown] = useState<string | null>(null)
-
   async function approve(id: string, citationVerified = false) {
-    await supabase.from('questions').update({ active: true, citation_verified: citationVerified }).eq('id', id)
+    await fetch(`/api/admin/questions/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active: true, citation_verified: citationVerified }),
+    })
     setApproveDropdown(null)
     load()
   }
 
   async function softDelete(id: string) {
     if (!confirm('Deactivate this question?')) return
-    await supabase.from('questions').update({ active: false }).eq('id', id)
+    await fetch(`/api/admin/questions/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active: false }),
+    })
     load()
   }
-
-  const [stats, setStats] = useState({ total: 0, pending: 0, published: 0, ai: 0, citVerified: 0, citTotal: 0 })
-  useEffect(() => {
-    async function loadStats() {
-      const opts = { count: 'exact' as const, head: true }
-      const [total, pending, published, ai, citVerified, citTotal] = await Promise.all([
-        supabase.from('questions').select('*', opts),
-        supabase.from('questions').select('*', opts).eq('active', false).eq('flagged', false),
-        supabase.from('questions').select('*', opts).eq('active', true),
-        supabase.from('questions').select('*', opts).eq('source_type', 'ai'),
-        supabase.from('questions').select('*', opts).eq('citation_verified', true).not('source_book_id', 'is', null),
-        supabase.from('questions').select('*', opts).not('source_book_id', 'is', null),
-      ])
-      setStats({
-        total: total.count ?? 0,
-        pending: pending.count ?? 0,
-        published: published.count ?? 0,
-        ai: ai.count ?? 0,
-        citVerified: citVerified.count ?? 0,
-        citTotal: citTotal.count ?? 0,
-      })
-    }
-    loadStats()
-  }, [questions])
 
   return (
     <div className="px-4 py-6">
@@ -196,7 +170,7 @@ export default function AdminPage() {
                             {(q.subject as { name: string }).name}
                           </span>
                         )}
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${DIFFICULTY_COLORS[q.difficulty]}`}>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${DIFFICULTY_COLORS[q.difficulty] ?? ''}`}>
                           {q.difficulty}
                         </span>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
