@@ -24,13 +24,29 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
+  const bypassSecret = process.env.ADMIN_BYPASS_SECRET
+
+  // Handle bypass URL directly in proxy — avoids route handler timing issues
+  if (pathname === '/auth/bypass') {
+    const secret = request.nextUrl.searchParams.get('secret')
+    if (bypassSecret && secret === bypassSecret) {
+      const response = NextResponse.redirect(new URL('/admin', request.url))
+      response.cookies.set('admin_bypass', bypassSecret, {
+        httpOnly: true,
+        path: '/',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 8,
+      })
+      return response
+    }
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
   const isAuthRoute = pathname === '/login' || pathname === '/verify' || pathname.startsWith('/auth/')
   const isPublicRoute = pathname === '/terms'
 
-  // Dev bypass: secret cookie grants admin access without Supabase auth
-  const bypassSecret = process.env.ADMIN_BYPASS_SECRET
   const bypassCookie = request.cookies.get('admin_bypass')?.value
-  const hasBypass = bypassSecret && bypassCookie === bypassSecret
+  const hasBypass = !!bypassSecret && bypassCookie === bypassSecret
 
   if (!user && !isAuthRoute && !isPublicRoute && !hasBypass) {
     return NextResponse.redirect(new URL('/login', request.url))
