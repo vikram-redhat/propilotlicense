@@ -2,87 +2,7 @@ import Link from 'next/link'
 import SiteFooter from '@/components/SiteFooter'
 import LandingHeader from '@/components/LandingHeader'
 import { createAuthClient } from '@/lib/supabase-server'
-
-const PILOT_PHOTOS = [
-  { id: '1764547168268-1c8b531bce9f', alt: 'Pilot wearing headset smiles while flying' },
-  { id: '1775486766610-18b17c5fd297', alt: 'Young woman pilot wearing headset in cockpit' },
-  { id: '1713327023682-d327a6961012', alt: 'Two pilots in the cockpit of a commercial aircraft' },
-  { id: '1713327023704-c31f941219fc', alt: 'Two pilots at the flight deck controls' },
-]
-
-const SOURCE_BOOKS: { subject: string; books: string[] }[] = [
-  {
-    subject: 'Meteorology',
-    books: [
-      'Aviation Meteorology — IC Joshi',
-      'Ground Studies for Pilots – Meteorology — Underdown & Standen',
-      'Meteorology — Nordian',
-      'Meteorology — Oxford',
-      'Meteorology for Pilot — Mike Wickson',
-      'Aviation Law and Meteorology — Trevor Thom',
-    ],
-  },
-  {
-    subject: 'Air Regulations',
-    books: [
-      'Air Law — Oxford',
-      'Air Regulations — RK Bali',
-      'Air Law and ATC Procedures — Nordian',
-      'Air Regulations for Pilots — V Krishnan & AK Chopra',
-      'Aircraft Act 1934 — India',
-      'Aircraft Rules 1920, 1937, 1954 & 2003 — India',
-      'DGCA Civil Aviation Requirements (CAR) — DGCA',
-      'Human Performance & Limitations — Nordian',
-      'Human Performance & Limitations — Oxford',
-      'ICAO Annexes — ICAO',
-      'ICAO Docs — ICAO',
-      'AIP India — India',
-    ],
-  },
-  {
-    subject: 'Air Navigation',
-    books: [
-      'Air Navigation — Trevor Thom',
-      'JAR ATPL & CPL General Navigation — Keith Williams',
-      'Ground Studies for Pilots – Navigation — Underdown & Palmer',
-      'General Navigation – Navigation — Nordian',
-      'Navigation for Pilot — JE Hitchcock',
-      'Flight Performance & Planning 1 — Oxford',
-      'Flight Performance & Planning 2 (FP & M) — Oxford',
-      'Mass & Balance Flight Performance and Planning — Nordian',
-      'Radio Navigation and Instrument Flying — Trevor Thom',
-      'Operational Procedures — Nordian',
-    ],
-  },
-  {
-    subject: 'Radio Aids & Instruments',
-    books: [
-      'JAR ATPL(A) and CPL(A) Instruments — Keith Williams',
-      'Ground Studies for Pilots – Radio Aids — Underdown & Cockburn',
-      'Radio Navigation and Instrument Flying — Trevor Thom',
-      'Navigation – 2 Radio Navigation — Oxford',
-      'Instrumentation Aircraft General Knowledge — Nordian',
-      'Aircraft General Knowledge 4 — Oxford',
-      'Ground Studies for Pilots – Flight Instruments and AFCS — David Harris',
-      'Avionics and Flight Management for the Professional Pilot — David Robson',
-    ],
-  },
-  {
-    subject: 'Technical General',
-    books: [
-      'JAR ATPL & CPL Principles of Flight — Keith Williams',
-      'Aircraft General Knowledge 1 — Oxford',
-      'Aircraft General Knowledge 2 — Oxford',
-      'Aircraft General Knowledge 3 — Oxford',
-      'Airframe and Systems — Nordian',
-      'Airframes and Systems Aircraft General Knowledge — Nordian',
-      'Powerplant Aircraft General Knowledge — Nordian',
-      'Electrics Aircraft General Knowledge — Nordian',
-      'Principle of Flight — Nordian',
-      'Principle of Flight — Oxford',
-    ],
-  },
-]
+import { createServiceClient } from '@/lib/supabase'
 
 const HOW_IT_WORKS = [
   {
@@ -107,57 +27,87 @@ export default async function HomePage() {
   const { data: { user } } = await supabase.auth.getUser()
   const name = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? null
 
+  const svc = createServiceClient()
+  const [subjectsRes, bookCountRes, subjectCountRes] = await Promise.all([
+    svc.from('subjects')
+      .select('id, name, sort_order, source_books(id, title, author, sort_order)')
+      .eq('active', true)
+      .order('sort_order'),
+    svc.from('source_books').select('*', { count: 'exact', head: true }),
+    svc.from('subjects').select('*', { count: 'exact', head: true }).eq('active', true),
+  ])
+
+  const subjects = (subjectsRes.data || []).map(s => ({
+    ...s,
+    source_books: [...((s.source_books as { id: string; title: string; author: string | null; sort_order: number }[]) || [])].sort((a, b) => a.sort_order - b.sort_order),
+  }))
+
+  const bookCount = bookCountRes.count ?? 0
+  const subjectCount = subjectCountRes.count ?? 0
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <LandingHeader isLoggedIn={!!user} name={name} />
 
-      {/* Hero — text left, photos right */}
-      <section className="px-4 py-12 sm:py-16" style={{ backgroundColor: '#F0F6FF' }}>
-        <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-10">
-          {/* Text */}
-          <div className="flex-1 text-center lg:text-left">
-            <h1 className="text-4xl sm:text-5xl font-black text-slate-900 mb-4 leading-tight">
-              Pass your pilot exams.<br />First attempt.
+      {/* Hero — dimmed aircraft background + two-column content */}
+      <section className="relative overflow-hidden min-h-[520px]">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1600&q=80')` }}
+        />
+        <div className="absolute inset-0 bg-slate-900/75" />
+
+        <div className="relative z-10 max-w-5xl mx-auto px-6 py-16 flex flex-col md:flex-row items-center gap-10">
+
+          {/* Mobile: portrait as banner */}
+          <div className="md:hidden w-full h-48 rounded-xl overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://images.unsplash.com/photo-1764547168268-1c8b531bce9f?auto=format&fit=crop&w=800&h=400"
+              alt="Licensed commercial pilot"
+              className="w-full h-full object-cover object-top"
+            />
+          </div>
+
+          {/* Desktop: portrait */}
+          <div className="hidden md:block flex-shrink-0 w-64 h-80 rounded-2xl overflow-hidden shadow-2xl ring-2 ring-white/20">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://images.unsplash.com/photo-1764547168268-1c8b531bce9f?auto=format&fit=crop&w=400&h=500"
+              alt="Licensed commercial pilot"
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Headline + CTAs */}
+          <div className="flex-1 text-white">
+            <div className="inline-flex items-center gap-2 text-xs font-medium bg-white/10 text-white/80 px-3 py-1 rounded-full mb-4 backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              DGCA CPL &amp; ATPL Exam Preparation
+            </div>
+
+            <h1 className="text-4xl md:text-5xl font-semibold leading-tight mb-4">
+              Pass your pilot exams.<br />
+              <span className="text-blue-400">First attempt.</span>
             </h1>
-            <p className="text-slate-600 text-lg mb-8 max-w-xl">
-              AI-powered practice tests for DGCA CPL and ATPL — build and practice your question papers by topic, by textbook, or full combined papers.
+
+            <p className="text-white/70 text-base leading-relaxed mb-8 max-w-md">
+              Practice tests for DGCA CPL and ATPL — by topic, by textbook, or full combined papers. Questions verified by licensed pilots.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+
+            <div className="flex gap-3 flex-wrap">
               <Link
                 href={user ? '/cpl' : '/login?next=/cpl'}
-                className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white text-base transition-all hover:opacity-90"
-                style={{ backgroundColor: '#185FA5' }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-sm transition-colors"
               >
-                {user ? 'Continue CPL →' : 'Start CPL Exam →'}
+                {user ? 'Continue CPL →' : 'Start CPL →'}
               </Link>
               <Link
                 href={user ? '/atpl' : '/login?next=/atpl'}
-                className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-base border-2 transition-all hover:border-blue-400"
-                style={{ color: '#185FA5', borderColor: '#185FA5' }}
+                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-3 rounded-lg font-medium text-sm backdrop-blur-sm transition-colors"
               >
-                {user ? 'Continue ATPL →' : 'Start ATPL Exam →'}
+                {user ? 'Continue ATPL →' : 'Start ATPL →'}
               </Link>
-            </div>
-          </div>
-
-          {/* Photos 2×2 */}
-          <div className="flex-shrink-0 w-full lg:w-auto">
-            <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto lg:mx-0" style={{ width: '360px' }}>
-              {PILOT_PHOTOS.map(photo => (
-                <div
-                  key={photo.id}
-                  className="relative rounded-xl overflow-hidden"
-                  style={{ height: '160px', backgroundColor: '#D6E8F7' }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`https://images.unsplash.com/photo-${photo.id}?auto=format&fit=crop&w=400&h=320`}
-                    alt={photo.alt}
-                    className="w-full h-full object-cover"
-                    loading="eager"
-                  />
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -166,9 +116,9 @@ export default async function HomePage() {
       {/* Stats strip */}
       <section className="px-4 py-4 border-b border-slate-100 bg-white">
         <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-6 text-sm text-slate-500 font-medium">
-          <span>5 subjects</span>
+          <span>{subjectCount} subjects</span>
           <span className="text-slate-200">·</span>
-          <span>46 source books</span>
+          <span>{bookCount} source books</span>
           <span className="text-slate-200">·</span>
           <span>CPL &amp; ATPL</span>
           <span className="text-slate-200">·</span>
@@ -176,14 +126,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Source Books */}
+      {/* Source Books — dynamic */}
       <section className="px-4 py-14 bg-slate-50 border-b border-slate-100">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-8">
             Questions sourced from these textbooks
           </h2>
 
-          {/* Books disclaimer */}
           <div className="bg-white border border-slate-200 rounded-xl p-5 mb-10 space-y-3">
             <p className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Reference Materials</p>
             <p className="text-xs text-slate-500 leading-relaxed">
@@ -198,16 +147,16 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {SOURCE_BOOKS.map(group => (
-              <div key={group.subject}>
+            {subjects.map(subject => (
+              <div key={subject.id}>
                 <h3 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#185FA5' }}>
-                  {group.subject}
+                  {subject.name}
                 </h3>
                 <ul className="space-y-1.5">
-                  {group.books.map(book => (
-                    <li key={book} className="text-sm text-slate-600 leading-snug flex items-start gap-2">
+                  {subject.source_books.map(book => (
+                    <li key={book.id} className="text-sm text-slate-600 leading-snug flex items-start gap-2">
                       <span className="mt-1.5 w-1 h-1 rounded-full bg-slate-300 flex-shrink-0" />
-                      {book}
+                      {book.title}{book.author ? ` — ${book.author}` : ''}
                     </li>
                   ))}
                 </ul>
@@ -240,17 +189,20 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Pilot-reviewed trust section */}
+      {/* Trust section */}
       <section className="px-4 py-14 border-t border-slate-100" style={{ backgroundColor: '#F0F6FF' }}>
         <div className="max-w-2xl mx-auto text-center">
           <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#185FA5' }}>
-            Pilot-reviewed content
+            ✓ Human verified
           </p>
           <h2 className="text-2xl font-black text-slate-900 mb-4 leading-snug">
-            AI writes the questions.<br />Pilots check every one.
+            Created and verified by licensed pilots
           </h2>
+          <p className="text-slate-600 leading-relaxed mb-4">
+            Every question in our bank has been written and reviewed by licensed commercial pilots holding DGCA CPL and ATPL qualifications. Questions are cross-referenced against the prescribed DGCA syllabus and the source textbooks listed above, with chapter and page citations verified against the actual books.
+          </p>
           <p className="text-slate-600 leading-relaxed">
-            Our question bank is generated by AI and reviewed by licensed commercial pilots who completed their training across India, the United States, Europe, Canada and Australia. They verify that explanations are technically accurate, that source citations match the actual books, and that difficulty levels reflect what DGCA truly tests — so you can trust what you're practising.
+            We use AI as a tool to assist question drafting — but every question is checked, edited, and approved by a licensed pilot before it reaches you. No question goes live without human sign-off.
           </p>
         </div>
       </section>
