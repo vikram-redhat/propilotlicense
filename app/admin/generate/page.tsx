@@ -466,7 +466,7 @@ export default function GeneratePage() {
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Generate Count</label>
             <div className="flex gap-2">
-              {[5, 10, 20].map(n => (
+              {[5, 10, 20, 30].map(n => (
                 <button
                   key={n}
                   onClick={() => setCount(n)}
