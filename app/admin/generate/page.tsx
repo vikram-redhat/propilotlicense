@@ -43,6 +43,9 @@ export default function GeneratePage() {
   const [difficulty, setDifficulty] = useState<'basic' | 'advanced'>('basic')
   const [count, setCount] = useState(10)
   const [context, setContext] = useState('')
+  const [bookPdfFilename, setBookPdfFilename] = useState<string | null>(null)
+  const [pageRangeStart, setPageRangeStart] = useState('')
+  const [pageRangeEnd, setPageRangeEnd] = useState('')
 
   const [generating, setGenerating] = useState(false)
   const [checking, setChecking] = useState(false)
@@ -105,8 +108,8 @@ export default function GeneratePage() {
     setCheckState('idle')
     setFamiliarity(null)
 
-    // If a book is selected, run the pre-flight check first
-    if (bookId && bookTitle) {
+    // Skip pre-flight check when book has a PDF attached — content is right there
+    if (bookId && bookTitle && !bookPdfFilename) {
       setChecking(true)
       try {
         const res = await fetch('/api/admin/check-book', {
@@ -180,6 +183,9 @@ export default function GeneratePage() {
                 subject: subjectName,
                 bookTitle,
                 bookAuthor,
+                bookId: bookId || null,
+                chapterName: chapterId ? chapterName : null,
+                topicName: topicId ? topicName : null,
                 focusLine: bookId
                   ? chapterId
                     ? `Chapter: ${chapterNumber} — ${chapterName} (from "${bookTitle}")`
@@ -191,6 +197,8 @@ export default function GeneratePage() {
                 count: batchCount,
                 context,
                 previousQuestions: allGenerated.map(q => q.question_text),
+                pageRangeStart: pageRangeStart ? parseInt(pageRangeStart) : null,
+                pageRangeEnd: pageRangeEnd ? parseInt(pageRangeEnd) : null,
               }),
             }),
             new Promise<never>((_, reject) =>
@@ -327,9 +335,12 @@ export default function GeneratePage() {
                 const b = books.find(b => b.id === e.target.value)
                 setBookTitle(b?.title || '')
                 setBookAuthor(b?.author || '')
+                setBookPdfFilename(b?.pdf_filename || null)
                 setChapterId('')
                 setChapterName('')
                 setChapterNumber(0)
+                setPageRangeStart('')
+                setPageRangeEnd('')
               }}
               className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
               disabled={!subjectId}
@@ -342,6 +353,47 @@ export default function GeneratePage() {
               ))}
             </select>
           </div>
+
+          {/* PDF indicator */}
+          {bookId && (
+            <div className={`rounded-xl border px-4 py-3 text-sm ${bookPdfFilename ? 'border-green-200 bg-green-50' : 'border-slate-200 bg-slate-50'}`}>
+              {bookPdfFilename ? (
+                <>
+                  <p className="text-green-800 font-medium mb-1">✓ PDF available — questions will be generated directly from the document. Citations will be exact.</p>
+                  <p className="text-green-700 text-xs mb-3 flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
+                    {bookPdfFilename}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500 font-medium">Page range (optional):</span>
+                    <input
+                      type="number"
+                      value={pageRangeStart}
+                      onChange={e => setPageRangeStart(e.target.value)}
+                      placeholder="From"
+                      min={1}
+                      className="w-20 text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    />
+                    <span className="text-xs text-slate-400">to</span>
+                    <input
+                      type="number"
+                      value={pageRangeEnd}
+                      onChange={e => setPageRangeEnd(e.target.value)}
+                      placeholder="To"
+                      min={1}
+                      className="w-20 text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    />
+                    <span className="text-xs text-slate-400">Leave blank for full document</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-slate-600 mb-1">ℹ No PDF uploaded — questions will be generated from Claude&apos;s training knowledge of this book. Citations will be approximate.</p>
+                  <a href={`/admin/books/${bookId}/edit`} className="text-xs text-blue-600 hover:underline">Upload PDF →</a>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Chapter (when book selected) or Topic (when no book) */}
           {bookId ? (
@@ -619,12 +671,13 @@ export default function GeneratePage() {
                     )}
                     {bookTitle && (q.source_chapter || q.source_page) && (
                       <div className="flex items-start gap-1.5 pt-2 border-t border-slate-100">
-                        <IconBook2 size={13} className="text-slate-400 flex-shrink-0 mt-0.5" />
+                        <IconBook2 size={13} className={`flex-shrink-0 mt-0.5 ${q.citation_verified ? 'text-green-500' : 'text-slate-400'}`} />
                         <p className="text-xs text-slate-400">
                           <span className="font-medium">{bookTitle}</span>
                           {bookAuthor && <span> — {bookAuthor}</span>}
-                          {q.source_chapter && <span> · {q.source_chapter} (approx.)</span>}
-                          {q.source_page && <span> · {q.source_page} (approx.)</span>}
+                          {q.source_chapter && <span> · {q.source_chapter}{q.citation_verified ? '' : ' (approx.)'}</span>}
+                          {q.source_page && <span> · {q.source_page}{q.citation_verified ? '' : ' (approx.)'}</span>}
+                          {q.citation_verified && <span className="text-green-600 font-medium"> · exact from PDF</span>}
                         </p>
                       </div>
                     )}
@@ -638,24 +691,38 @@ export default function GeneratePage() {
                     </span>
                   ) : (
                     <>
-                      <button
-                        onClick={() => approve(index, false)}
-                        disabled={saving[index]}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-medium hover:border-slate-400 disabled:opacity-50"
-                      >
-                        <IconCheck size={13} />
-                        {saving[index] ? 'Saving…' : 'Approve'}
-                      </button>
-                      <button
-                        onClick={() => approve(index, true)}
-                        disabled={saving[index]}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50"
-                        style={{ backgroundColor: '#185FA5' }}
-                      >
-                        <IconCheck size={13} />
-                        <IconCheck size={13} className="-ml-2" />
-                        {saving[index] ? 'Saving…' : 'Approve & Verify'}
-                      </button>
+                      {q.citation_verified ? (
+                        <button
+                          onClick={() => approve(index, true)}
+                          disabled={saving[index]}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50"
+                          style={{ backgroundColor: '#185FA5' }}
+                        >
+                          <IconCheck size={13} />
+                          {saving[index] ? 'Saving…' : 'Approve'}
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => approve(index, false)}
+                            disabled={saving[index]}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-medium hover:border-slate-400 disabled:opacity-50"
+                          >
+                            <IconCheck size={13} />
+                            {saving[index] ? 'Saving…' : 'Approve'}
+                          </button>
+                          <button
+                            onClick={() => approve(index, true)}
+                            disabled={saving[index]}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50"
+                            style={{ backgroundColor: '#185FA5' }}
+                          >
+                            <IconCheck size={13} />
+                            <IconCheck size={13} className="-ml-2" />
+                            {saving[index] ? 'Saving…' : 'Approve & Verify'}
+                          </button>
+                        </>
+                      )}
                       <button
                         onClick={() => toggleEdit(index)}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-medium hover:border-slate-300"

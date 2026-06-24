@@ -27,6 +27,10 @@ export interface SourceBook {
   edition: string | null
   licence_types: string[]
   sort_order: number
+  pdf_storage_path: string | null
+  pdf_filename: string | null
+  pdf_uploaded_at: string | null
+  pdf_page_count: number | null
 }
 
 export interface Question {
@@ -120,4 +124,5 @@ export interface GeneratedQuestion {
   source_chapter: string
   source_page: string
   difficulty: string
+  citation_verified?: boolean
 }
