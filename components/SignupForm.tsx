@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 function Logo() {
@@ -17,35 +16,65 @@ function Logo() {
   )
 }
 
-export default function LoginForm({ next }: { next: string }) {
+export default function SignupForm({ next }: { next: string }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
+  const [done, setDone] = useState(false)
 
-  async function handleSignIn(e: React.FormEvent) {
+  async function handleSignUp(e: React.FormEvent) {
     e.preventDefault()
+    if (password.length < 8) { setError('Password must be at least 8 characters.'); return }
+    if (password !== confirm) { setError('Passwords do not match.'); return }
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next || '/')}`
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: callbackUrl },
+    })
     if (error) {
-      setError('Incorrect email or password.')
+      setError(error.message)
       setLoading(false)
       return
     }
-    router.push(next || '/')
-    router.refresh()
+    setDone(true)
   }
 
   async function handleGoogle() {
     setGoogleLoading(true)
-    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next || '/')}`
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: callbackUrl },
     })
+  }
+
+  if (done) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
+        <div className="w-full max-w-sm">
+          <Logo />
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#EBF4FF' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="2">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h1 className="text-xl font-bold text-slate-900 mb-2">Check your email</h1>
+            <p className="text-sm text-slate-500 mb-1">We sent a confirmation link to</p>
+            <p className="text-sm font-semibold text-slate-800 mb-6">{email}</p>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Click the link to activate your account. Check your spam folder if it doesn&apos;t arrive within a minute.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -53,8 +82,8 @@ export default function LoginForm({ next }: { next: string }) {
       <div className="w-full max-w-sm">
         <Logo />
         <div className="bg-white rounded-2xl border border-slate-200 p-8">
-          <h1 className="text-xl font-bold text-slate-900 mb-1 text-center">Sign in</h1>
-          <p className="text-sm text-slate-500 mb-6 text-center">Welcome back to ProPilotLicence</p>
+          <h1 className="text-xl font-bold text-slate-900 mb-1 text-center">Create your account</h1>
+          <p className="text-sm text-slate-500 mb-6 text-center">Start preparing for your DGCA exams</p>
 
           {error && (
             <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
@@ -62,7 +91,7 @@ export default function LoginForm({ next }: { next: string }) {
             </div>
           )}
 
-          <form onSubmit={handleSignIn} className="space-y-3 mb-6">
+          <form onSubmit={handleSignUp} className="space-y-3 mb-6">
             <input
               type="email"
               value={email}
@@ -72,28 +101,29 @@ export default function LoginForm({ next }: { next: string }) {
               autoFocus
               className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
-            <div>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="Password"
-                required
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              />
-              <div className="text-right mt-1.5">
-                <Link href="/forgot-password" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
-                  Forgot password?
-                </Link>
-              </div>
-            </div>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Password (min 8 characters)"
+              required
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+            />
+            <input
+              type="password"
+              value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              placeholder="Confirm password"
+              required
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+            />
             <button
               type="submit"
-              disabled={loading || !email || !password}
+              disabled={loading || !email || !password || !confirm}
               className="w-full py-3 rounded-xl font-semibold text-white text-sm transition-all disabled:opacity-50"
               style={{ backgroundColor: '#185FA5' }}
             >
-              {loading ? 'Signing in…' : 'Sign in →'}
+              {loading ? 'Creating account…' : 'Create account →'}
             </button>
           </form>
 
@@ -121,17 +151,14 @@ export default function LoginForm({ next }: { next: string }) {
           </button>
 
           <p className="text-sm text-slate-500 text-center mt-6">
-            Don&apos;t have an account?{' '}
-            <Link
-              href={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}
-              className="font-medium text-blue-600 hover:underline"
-            >
-              Sign up
+            Already have an account?{' '}
+            <Link href={`/login${next ? `?next=${encodeURIComponent(next)}` : ''}`} className="font-medium text-blue-600 hover:underline">
+              Sign in
             </Link>
           </p>
 
           <p className="text-xs text-slate-400 text-center mt-4 leading-relaxed">
-            By continuing, you agree to our{' '}
+            By signing up, you agree to our{' '}
             <Link href="/terms" className="underline hover:text-slate-600">Terms of Use</Link>
             {' '}and Privacy Policy.
           </p>

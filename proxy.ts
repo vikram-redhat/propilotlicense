@@ -42,8 +42,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  const isAuthRoute = pathname === '/login' || pathname === '/verify' || pathname.startsWith('/auth/')
-  const isPublicRoute = pathname === '/' || pathname === '/terms'
+  const isAuthRoute = pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/verify' || pathname.startsWith('/auth/')
+  const isPublicRoute = pathname === '/' || pathname === '/terms' || pathname === '/reset-password'
 
   const bypassCookie = request.cookies.get('admin_bypass')?.value
   const hasBypass = !!bypassSecret && bypassCookie === bypassSecret
