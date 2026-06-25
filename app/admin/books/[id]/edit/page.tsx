@@ -120,8 +120,8 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
     if (!file) return
     e.target.value = ''
     if (file.type !== 'application/pdf') { setPdfError('PDF files only'); return }
-    const MAX_MB = 5
-    if (file.size > MAX_MB * 1024 * 1024) { setPdfError(`PDF must be under ${MAX_MB}MB. Upload individual chapters rather than full textbooks.`); return }
+    const MAX_MB = 20
+    if (file.size > MAX_MB * 1024 * 1024) { setPdfError(`PDF must be under ${MAX_MB}MB.`); return }
 
     setPdfError('')
     setUploading(true)
@@ -358,7 +358,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
                       Upload PDF
                       <input type="file" accept="application/pdf" onChange={handlePdfUpload} className="hidden" disabled={uploading} />
                     </label>
-                    <p className="text-xs text-slate-400 mt-2">PDF only · Max 5MB · Upload chapters individually</p>
+                    <p className="text-xs text-slate-400 mt-2">PDF only · Max 20MB</p>
                   </>
                 )}
               </div>
