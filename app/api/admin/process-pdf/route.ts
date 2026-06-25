@@ -35,14 +35,12 @@ export async function POST(req: Request) {
 
     if (fileError || !fileData) throw new Error(fileError?.message ?? 'Failed to download PDF')
 
-    const buffer = Buffer.from(await fileData.arrayBuffer())
+    const uint8Array = new Uint8Array(await fileData.arrayBuffer())
 
-    // pdf-parse is a CommonJS module — require to avoid webpack bundling issues
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParse = require('pdf-parse')
-    const parsed = await pdfParse(buffer)
-    const fullText: string = parsed.text
-    const pageCount: number = parsed.numpages
+    const { extractText } = await import('unpdf')
+    const { text: pages, totalPages } = await extractText(uint8Array, { mergePages: false })
+    const fullText: string = (pages as string[]).join('\n\n')
+    const pageCount: number = totalPages
 
     const chunks = splitIntoChunks(fullText, pageCount)
 
