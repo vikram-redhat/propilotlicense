@@ -26,7 +26,13 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
   const [pdfStoragePath, setPdfStoragePath] = useState<string | null>(null)
   const [pdfFilename, setPdfFilename] = useState<string | null>(null)
   const [pdfUploadedAt, setPdfUploadedAt] = useState<string | null>(null)
+  const [pdfProcessed, setPdfProcessed] = useState(false)
+  const [pdfProcessedAt, setPdfProcessedAt] = useState<string | null>(null)
+  const [pdfProcessingError, setPdfProcessingError] = useState<string | null>(null)
+  const [pdfPageCount, setPdfPageCount] = useState<number | null>(null)
+  const [chunkCount, setChunkCount] = useState<number>(0)
   const [uploading, setUploading] = useState(false)
+  const [processing, setProcessing] = useState(false)
   const [pdfError, setPdfError] = useState('')
 
   useEffect(() => {
@@ -46,6 +52,12 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
         setPdfStoragePath(data.pdf_storage_path || null)
         setPdfFilename(data.pdf_filename || null)
         setPdfUploadedAt(data.pdf_uploaded_at || null)
+        setPdfProcessed(data.pdf_processed ?? false)
+        setPdfProcessedAt(data.pdf_processed_at || null)
+        setPdfProcessingError(data.pdf_processing_error || null)
+        setPdfPageCount(data.pdf_page_count || null)
+        const { count } = await supabase.from('pdf_chunks').select('*', { count: 'exact', head: true }).eq('book_id', id)
+        setChunkCount(count ?? 0)
       }
       setLoading(false)
     }
@@ -80,12 +92,36 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
     router.push('/admin/books')
   }
 
+  async function processPdf() {
+    setProcessing(true)
+    setPdfError('')
+    try {
+      const res = await fetch('/api/admin/process-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookId: id }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setPdfError(data.error || 'Processing failed'); return }
+      setPdfProcessed(true)
+      setPdfProcessedAt(new Date().toISOString())
+      setPdfProcessingError(null)
+      setPdfPageCount(data.pageCount)
+      setChunkCount(data.chunksCreated)
+    } catch (err) {
+      setPdfError(err instanceof Error ? err.message : 'Processing failed')
+    } finally {
+      setProcessing(false)
+    }
+  }
+
   async function handlePdfUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
     if (file.type !== 'application/pdf') { setPdfError('PDF files only'); return }
-    if (file.size > 20 * 1024 * 1024) { setPdfError('File must be under 20MB'); return }
+    const MAX_MB = 5
+    if (file.size > MAX_MB * 1024 * 1024) { setPdfError(`PDF must be under ${MAX_MB}MB. Upload individual chapters rather than full textbooks.`); return }
 
     setPdfError('')
     setUploading(true)
@@ -114,6 +150,14 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
     setPdfStoragePath(path)
     setPdfFilename(file.name)
     setPdfUploadedAt(new Date().toISOString())
+    // Reset processed state — new PDF needs processing
+    setPdfProcessed(false)
+    setPdfProcessedAt(null)
+    setPdfProcessingError(null)
+    setPdfPageCount(null)
+    setChunkCount(0)
+    await supabase.from('pdf_chunks').delete().eq('book_id', id)
+    await supabase.from('source_books').update({ pdf_processed: false, pdf_processed_at: null, pdf_processing_error: null, pdf_page_count: null }).eq('id', id)
     setUploading(false)
   }
 
@@ -121,15 +165,19 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
     if (!pdfStoragePath) return
     if (!confirm('Remove the PDF from this book?')) return
     await supabase.storage.from('reference-documents').remove([pdfStoragePath])
+    await supabase.from('pdf_chunks').delete().eq('book_id', id)
     await supabase.from('source_books').update({
-      pdf_storage_path: null,
-      pdf_filename: null,
-      pdf_uploaded_at: null,
-      pdf_page_count: null,
+      pdf_storage_path: null, pdf_filename: null, pdf_uploaded_at: null,
+      pdf_page_count: null, pdf_processed: false, pdf_processed_at: null, pdf_processing_error: null,
     }).eq('id', id)
     setPdfStoragePath(null)
     setPdfFilename(null)
     setPdfUploadedAt(null)
+    setPdfProcessed(false)
+    setPdfProcessedAt(null)
+    setPdfProcessingError(null)
+    setPdfPageCount(null)
+    setChunkCount(0)
   }
 
   async function downloadPdf() {
@@ -224,7 +272,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                     <path d="M14 2v6h6M9 15l2 2 4-4" />
                   </svg>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-slate-800 truncate">{pdfFilename}</p>
                     {pdfUploadedAt && (
                       <p className="text-xs text-slate-500">
@@ -233,7 +281,51 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2">
+
+                {/* Processing status */}
+                {pdfProcessed ? (
+                  <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                    <span className="font-medium">✓ Processed</span>
+                    <span className="text-green-600">
+                      {pdfPageCount ? `${pdfPageCount} pages` : ''}
+                      {pdfPageCount && chunkCount ? ' · ' : ''}
+                      {chunkCount ? `${chunkCount} chunks` : ''}
+                    </span>
+                    {pdfProcessedAt && (
+                      <span className="text-green-500 ml-auto">
+                        {new Date(pdfProcessedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                      </span>
+                    )}
+                  </div>
+                ) : pdfProcessingError ? (
+                  <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                    <span className="font-medium">Processing error:</span> {pdfProcessingError}
+                  </div>
+                ) : (
+                  <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    Not yet processed — click &quot;Process PDF&quot; to extract text and enable chunk-based generation.
+                  </div>
+                )}
+
+                <div className="flex gap-2 flex-wrap">
+                  {!pdfProcessed && (
+                    <button type="button" onClick={processPdf} disabled={processing}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white disabled:opacity-50 transition-colors"
+                      style={{ backgroundColor: '#185FA5' }}>
+                      {processing ? (
+                        <>
+                          <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full" />
+                          Processing…
+                        </>
+                      ) : '⚡ Process PDF'}
+                    </button>
+                  )}
+                  {pdfProcessed && (
+                    <button type="button" onClick={processPdf} disabled={processing}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:border-slate-300 disabled:opacity-50 transition-colors">
+                      {processing ? 'Reprocessing…' : '↺ Reprocess'}
+                    </button>
+                  )}
                   <button type="button" onClick={downloadPdf}
                     className="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 hover:border-slate-300 transition-colors">
                     ↓ Download
@@ -266,7 +358,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
                       Upload PDF
                       <input type="file" accept="application/pdf" onChange={handlePdfUpload} className="hidden" disabled={uploading} />
                     </label>
-                    <p className="text-xs text-slate-400 mt-2">PDF only · Max 20MB</p>
+                    <p className="text-xs text-slate-400 mt-2">PDF only · Max 5MB · Upload chapters individually</p>
                   </>
                 )}
               </div>

@@ -31,6 +31,22 @@ export interface SourceBook {
   pdf_filename: string | null
   pdf_uploaded_at: string | null
   pdf_page_count: number | null
+  pdf_processed: boolean
+  pdf_processed_at: string | null
+  pdf_processing_error: string | null
+}
+
+export interface PdfChunk {
+  id: string
+  book_id: string
+  chapter_id: string | null
+  chunk_index: number
+  heading: string | null
+  page_start: number | null
+  page_end: number | null
+  content: string
+  token_estimate: number | null
+  created_at: string
 }
 
 export interface Question {

@@ -145,12 +145,23 @@ export default function BooksPage() {
                   <div className="hidden sm:block flex-shrink-0 w-8 text-center text-xs text-slate-500">
                     {book.sort_order}
                   </div>
-                  <div className="hidden sm:block flex-shrink-0">
+                  <div className="hidden sm:flex flex-shrink-0 items-center gap-1.5">
                     {book.pdf_filename ? (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 font-medium flex items-center gap-1">
-                        <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
-                        PDF
-                      </span>
+                      book.pdf_processed ? (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 font-medium">
+                          ✓ Processed
+                        </span>
+                      ) : book.pdf_processing_error ? (
+                        <Link href={`/admin/books/${book.id}/edit`}
+                          className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors">
+                          Error — retry
+                        </Link>
+                      ) : (
+                        <Link href={`/admin/books/${book.id}/edit`}
+                          className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-medium hover:bg-amber-100 transition-colors">
+                          ⚡ Process
+                        </Link>
+                      )
                     ) : (
                       <Link href={`/admin/books/${book.id}/edit`}
                         className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 font-medium hover:text-slate-600 transition-colors">

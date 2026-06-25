@@ -44,8 +44,7 @@ export default function GeneratePage() {
   const [count, setCount] = useState(10)
   const [context, setContext] = useState('')
   const [bookPdfFilename, setBookPdfFilename] = useState<string | null>(null)
-  const [pageRangeStart, setPageRangeStart] = useState('')
-  const [pageRangeEnd, setPageRangeEnd] = useState('')
+  const [bookPdfProcessed, setBookPdfProcessed] = useState(false)
 
   const [generating, setGenerating] = useState(false)
   const [checking, setChecking] = useState(false)
@@ -108,8 +107,8 @@ export default function GeneratePage() {
     setCheckState('idle')
     setFamiliarity(null)
 
-    // Skip pre-flight check when book has a PDF attached — content is right there
-    if (bookId && bookTitle && !bookPdfFilename) {
+    // Skip pre-flight check when PDF is processed — chunk-based generation doesn't need it
+    if (bookId && bookTitle && !bookPdfProcessed) {
       setChecking(true)
       try {
         const res = await fetch('/api/admin/check-book', {
@@ -197,8 +196,7 @@ export default function GeneratePage() {
                 count: batchCount,
                 context,
                 previousQuestions: allGenerated.map(q => q.question_text),
-                pageRangeStart: pageRangeStart ? parseInt(pageRangeStart) : null,
-                pageRangeEnd: pageRangeEnd ? parseInt(pageRangeEnd) : null,
+
               }),
             }),
             new Promise<never>((_, reject) =>
@@ -336,11 +334,10 @@ export default function GeneratePage() {
                 setBookTitle(b?.title || '')
                 setBookAuthor(b?.author || '')
                 setBookPdfFilename(b?.pdf_filename || null)
+                setBookPdfProcessed(b?.pdf_processed ?? false)
                 setChapterId('')
                 setChapterName('')
                 setChapterNumber(0)
-                setPageRangeStart('')
-                setPageRangeEnd('')
               }}
               className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white"
               disabled={!subjectId}
@@ -356,39 +353,21 @@ export default function GeneratePage() {
 
           {/* PDF indicator */}
           {bookId && (
-            <div className={`rounded-xl border px-4 py-3 text-sm ${bookPdfFilename ? 'border-green-200 bg-green-50' : 'border-slate-200 bg-slate-50'}`}>
-              {bookPdfFilename ? (
+            <div className={`rounded-xl border px-4 py-3 text-sm ${
+              bookPdfProcessed ? 'border-green-200 bg-green-50' :
+              bookPdfFilename ? 'border-amber-200 bg-amber-50' :
+              'border-slate-200 bg-slate-50'
+            }`}>
+              {bookPdfProcessed ? (
+                <p className="text-green-800 font-medium">✓ PDF processed — chunk-based generation active. Citations will be exact.</p>
+              ) : bookPdfFilename ? (
                 <>
-                  <p className="text-green-800 font-medium mb-1">✓ PDF available — questions will be generated directly from the document. Citations will be exact.</p>
-                  <p className="text-green-700 text-xs mb-3 flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
-                    {bookPdfFilename}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500 font-medium">Page range (optional):</span>
-                    <input
-                      type="number"
-                      value={pageRangeStart}
-                      onChange={e => setPageRangeStart(e.target.value)}
-                      placeholder="From"
-                      min={1}
-                      className="w-20 text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                    />
-                    <span className="text-xs text-slate-400">to</span>
-                    <input
-                      type="number"
-                      value={pageRangeEnd}
-                      onChange={e => setPageRangeEnd(e.target.value)}
-                      placeholder="To"
-                      min={1}
-                      className="w-20 text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                    />
-                    <span className="text-xs text-slate-400">Leave blank for full document</span>
-                  </div>
+                  <p className="text-amber-800 font-medium mb-1">PDF not yet processed — questions will use Claude&apos;s training knowledge until processed.</p>
+                  <a href={`/admin/books/${bookId}/edit`} className="text-xs text-amber-700 hover:underline font-medium">⚡ Process PDF →</a>
                 </>
               ) : (
                 <>
-                  <p className="text-slate-600 mb-1">ℹ No PDF uploaded — questions will be generated from Claude&apos;s training knowledge of this book. Citations will be approximate.</p>
+                  <p className="text-slate-600 mb-1">No PDF — questions generated from Claude&apos;s training knowledge. Citations will be approximate.</p>
                   <a href={`/admin/books/${bookId}/edit`} className="text-xs text-blue-600 hover:underline">Upload PDF →</a>
                 </>
               )}
