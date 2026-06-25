@@ -26,7 +26,7 @@ export default function ForgotPasswordForm() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const resetUrl = `${window.location.origin}/auth/callback?next=/reset-password`
+    const resetUrl = `${window.location.origin}/auth/reset-callback`
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: resetUrl,
     })
