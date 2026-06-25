@@ -35,40 +35,16 @@ export async function POST(req: Request) {
 
     if (fileError || !fileData) throw new Error(fileError?.message ?? 'Failed to download PDF')
 
-    const uint8Array = new Uint8Array(await fileData.arrayBuffer())
+    const buffer = Buffer.from(await fileData.arrayBuffer())
 
-    // Use pdfjs directly so we can pass isEvalSupported: false, which bypasses
-    // the PostScript font parser (ps_parser.js) that throws on certain PDF fonts:
-    //   "Unsupported Unicode escape sequence"
-    const { getResolvedPDFJS } = await import('unpdf')
-    const pdfjs = await getResolvedPDFJS()
-    const loadingTask = pdfjs.getDocument({
-      data: uint8Array,
-      isEvalSupported: false,
-      disableAutoFetch: true,
-      disableStream: true,
-      verbosity: 0,
-    })
-    const pdf = await loadingTask.promise
-    const pageCount: number = pdf.numPages
-    const pageParts: string[] = []
-
-    for (let p = 1; p <= pageCount; p++) {
-      try {
-        const page = await pdf.getPage(p)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const content = await (page as any).getTextContent()
-        const text = (content.items as Array<{ str?: string }>)
-          .filter(item => typeof item.str === 'string')
-          .map(item => item.str as string)
-          .join(' ')
-        pageParts.push(text)
-      } catch {
-        pageParts.push('') // skip pages with encoding errors
-      }
-    }
-
-    const fullText = pageParts.join('\n\n')
+    // pdf-parse@1.1.1 bundles pdfjs 2.x internally — no browser API dependencies,
+    // no Unicode strictness issues. Import from lib path to skip the test-file
+    // initialisation that breaks webpack bundling.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdfParse = require('pdf-parse/lib/pdf-parse')
+    const parsed = await pdfParse(buffer)
+    const fullText: string = parsed.text
+    const pageCount: number = parsed.numpages
 
     const chunks = splitIntoChunks(fullText, pageCount)
 
