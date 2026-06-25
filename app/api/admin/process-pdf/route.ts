@@ -37,10 +37,26 @@ export async function POST(req: Request) {
 
     const uint8Array = new Uint8Array(await fileData.arrayBuffer())
 
-    const { extractText } = await import('unpdf')
-    const { text: pages, totalPages } = await extractText(uint8Array, { mergePages: false })
-    const fullText: string = (pages as string[]).join('\n\n')
-    const pageCount: number = totalPages
+    const { getDocumentProxy } = await import('unpdf')
+    const pdf = await getDocumentProxy(uint8Array)
+    const pageCount: number = pdf.numPages
+    const pageParts: string[] = []
+
+    for (let p = 1; p <= pageCount; p++) {
+      try {
+        const page = await pdf.getPage(p)
+        const content = await page.getTextContent()
+        const text = (content.items as Array<{ str?: string }>)
+          .filter(item => typeof item.str === 'string')
+          .map(item => item.str as string)
+          .join(' ')
+        pageParts.push(text)
+      } catch {
+        pageParts.push('') // skip pages with encoding errors
+      }
+    }
+
+    const fullText = pageParts.join('\n\n')
 
     const chunks = splitIntoChunks(fullText, pageCount)
 
