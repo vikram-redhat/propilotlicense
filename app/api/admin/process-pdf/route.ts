@@ -37,15 +37,27 @@ export async function POST(req: Request) {
 
     const uint8Array = new Uint8Array(await fileData.arrayBuffer())
 
-    const { getDocumentProxy } = await import('unpdf')
-    const pdf = await getDocumentProxy(uint8Array)
+    // Use pdfjs directly so we can pass isEvalSupported: false, which bypasses
+    // the PostScript font parser (ps_parser.js) that throws on certain PDF fonts:
+    //   "Unsupported Unicode escape sequence"
+    const { getResolvedPDFJS } = await import('unpdf')
+    const pdfjs = await getResolvedPDFJS()
+    const loadingTask = pdfjs.getDocument({
+      data: uint8Array,
+      isEvalSupported: false,
+      disableAutoFetch: true,
+      disableStream: true,
+      verbosity: 0,
+    })
+    const pdf = await loadingTask.promise
     const pageCount: number = pdf.numPages
     const pageParts: string[] = []
 
     for (let p = 1; p <= pageCount; p++) {
       try {
         const page = await pdf.getPage(p)
-        const content = await page.getTextContent()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const content = await (page as any).getTextContent()
         const text = (content.items as Array<{ str?: string }>)
           .filter(item => typeof item.str === 'string')
           .map(item => item.str as string)
