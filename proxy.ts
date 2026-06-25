@@ -42,7 +42,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  const isAuthRoute = pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/verify' || pathname.startsWith('/auth/')
+  // Auth pages: redirect logged-in users away. Auth handlers (/auth/*): always pass through.
+  const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/verify'
+  const isAuthRoute = isAuthPage || pathname.startsWith('/auth/')
   const isPublicRoute = pathname === '/' || pathname === '/terms' || pathname === '/reset-password'
 
   const bypassCookie = request.cookies.get('admin_bypass')?.value
@@ -54,7 +56,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  if (user && isAuthRoute) {
+  if (user && isAuthPage) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 

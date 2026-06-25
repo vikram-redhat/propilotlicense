@@ -26,9 +26,11 @@ export default function ForgotPasswordForm() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const resetUrl = `${window.location.origin}/auth/reset-callback`
+    // Set a cookie so /auth/callback knows to redirect to /reset-password
+    document.cookie = 'password_reset_pending=1; path=/; max-age=3600; samesite=lax'
+    const callbackUrl = `${window.location.origin}/auth/callback`
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: resetUrl,
+      redirectTo: callbackUrl,
     })
     if (error) {
       setError(error.message)
