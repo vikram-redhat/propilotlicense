@@ -1,8 +1,12 @@
 import { createServiceClient } from '@/lib/supabase'
+import { isAdminRequest } from '@/lib/admin-auth'
 
 const PAGE_SIZE = 20
 
 export async function GET(request: Request) {
+  if (!await isAdminRequest(request)) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   const { searchParams } = new URL(request.url)
   const subject = searchParams.get('subject') || ''
   const status = searchParams.get('status') || 'all'

@@ -1,11 +1,15 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createServiceClient } from '@/lib/supabase'
+import { isAdminRequest } from '@/lib/admin-auth'
 
 export const maxDuration = 60
 
 const client = new Anthropic()
 
 export async function POST(req: Request) {
+  if (!await isAdminRequest(req)) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   const {
     subject, bookTitle, bookAuthor, bookId,
     focusLine, chapterName, topicName,
