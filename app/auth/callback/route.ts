@@ -5,7 +5,8 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const next = searchParams.get('next')
-  const isReset = request.cookies.get('password_reset_pending')?.value === '1'
+  const type = searchParams.get('type')
+  const isReset = type === 'recovery' || request.cookies.get('password_reset_pending')?.value === '1'
   const redirectTo = isReset ? '/reset-password' : (next?.startsWith('/') ? next : '/')
 
   const response = NextResponse.redirect(new URL(redirectTo, origin))

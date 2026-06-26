@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import SiteFooter from '@/components/SiteFooter'
 import LandingHeader from '@/components/LandingHeader'
 import { createAuthClient } from '@/lib/supabase-server'
@@ -22,7 +23,15 @@ const HOW_IT_WORKS = [
   },
 ]
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
+  // Supabase always redirects to site URL; forward auth codes to the callback handler
+  const params = await searchParams
+  if (params.code) {
+    const qs = new URLSearchParams({ code: params.code })
+    if (params.type) qs.set('type', params.type)
+    redirect(`/auth/callback?${qs.toString()}`)
+  }
+
   const supabase = await createAuthClient()
   const { data: { user } } = await supabase.auth.getUser()
   const name = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? null

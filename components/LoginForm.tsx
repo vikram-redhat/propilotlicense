@@ -29,13 +29,14 @@ export default function LoginForm({ next }: { next: string }) {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       setError('Incorrect email or password.')
       setLoading(false)
       return
     }
-    router.push(next || '/')
+    const isAdmin = data.user?.user_metadata?.is_admin === true
+    router.push(next || (isAdmin ? '/admin' : '/'))
     router.refresh()
   }
 
