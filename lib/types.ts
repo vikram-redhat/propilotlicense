@@ -19,6 +19,14 @@ export interface Topic {
   sort_order: number
 }
 
+export interface Chapter {
+  id: string
+  book_id: string
+  chapter_number: number
+  chapter_name: string
+  sort_order: number
+}
+
 export interface SourceBook {
   id: string
   subject_id: string
@@ -69,6 +77,7 @@ export interface Question {
   subject?: Subject
   topic?: Topic
   source_book?: SourceBook
+  chapter?: Chapter
 }
 
 export interface QuestionOption {
