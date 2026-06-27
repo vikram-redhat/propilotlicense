@@ -215,7 +215,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             Every question in our bank has been written and reviewed by licensed commercial pilots holding DGCA CPL and ATPL qualifications. Questions are cross-referenced against the prescribed DGCA syllabus and the source textbooks listed above, with chapter and page citations verified against the actual books.
           </p>
           <p className="text-slate-600 leading-relaxed">
-            We use AI as a tool to assist question drafting — but every question is checked, edited, and approved by a licensed pilot before it reaches you. No question goes live without human sign-off.
+            Every question is checked, edited, and approved by a licensed pilot before it reaches you. No question goes live without human sign-off.
           </p>
         </div>
       </section>

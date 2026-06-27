@@ -60,9 +60,9 @@ export default function TermsPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-base font-bold text-slate-800 mb-3">4. AI-Generated Content</h2>
+            <h2 className="text-base font-bold text-slate-800 mb-3">4. Question Content</h2>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Practice questions on this platform are generated using artificial intelligence and reviewed by licensed commercial pilots. While we make every effort to ensure accuracy, questions are intended for study purposes only and should not be relied upon as the sole source of examination preparation. Always consult prescribed textbooks and official DGCA syllabi.
+              Practice questions on this platform are written and reviewed by licensed commercial pilots. While we make every effort to ensure accuracy, questions are intended for study purposes only and should not be relied upon as the sole source of examination preparation. Always consult prescribed textbooks and official DGCA syllabi.
             </p>
           </section>
 
