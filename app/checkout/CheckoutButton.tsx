@@ -68,7 +68,8 @@ export default function CheckoutButton({
     if (res.ok) {
       router.push('/checkout/success')
     } else {
-      alert('Something went wrong. Please try again.')
+      const body = await res.json().catch(() => ({}))
+      alert(`Error ${res.status}: ${body.error || 'unknown'}`)
       setLoading(false)
     }
   }
