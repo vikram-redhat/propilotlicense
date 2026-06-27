@@ -83,15 +83,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <LandingHeader isLoggedIn={!!user} name={name} subscribed={subscribed} />
 
       {/* ── Full-bleed hero ── */}
-      <section
-        className="flex flex-col lg:flex-row"
-        style={{ background: '#042C53', minHeight: 0 }}
-      >
+      <style>{`.hero-section { background:#042C53 } @media(min-width:1024px){.hero-section{height:500px;overflow:hidden}}`}</style>
+      <section className="hero-section flex flex-col lg:flex-row">
         {/* Left: text panel */}
         <style>{`
           .hero-text-panel { padding: 40px 20px 44px; }
           @media (min-width: 640px)  { .hero-text-panel { padding: 48px 36px; } }
-          @media (min-width: 1024px) { .hero-text-panel { padding: 64px 60px; } }
+          @media (min-width: 1024px) { .hero-text-panel { padding: 48px 60px; overflow: hidden; } }
         `}</style>
         <div className="hero-text-panel flex flex-col justify-center lg:w-[52%]">
 
@@ -151,7 +149,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             .hero-mosaic {
               display: grid;
               grid-template-columns: 1fr 1fr 1fr;
-              grid-template-rows: 300px;
+              grid-template-rows: 260px;
               gap: 3px;
               overflow: hidden;
             }
@@ -161,7 +159,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               flex: 0 0 48%;
               grid-template-columns: 1fr 1fr;
               grid-template-rows: 1fr 1fr;
-              height: auto;
+              height: 100%;
             }
             .hero-mosaic-main { grid-row: 1 / 3; }
           }
