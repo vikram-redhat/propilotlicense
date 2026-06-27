@@ -72,9 +72,10 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const [subject, setSubject]       = useState<Subject | null>(null)
   const [topics, setTopics]         = useState<Topic[]>([])
   const [books, setBooks]           = useState<SourceBook[]>([])
-  const [profile, setProfile]       = useState<Profile | null>(null)
-  const [loading, setLoading]       = useState(true)
-  const [starting, setStarting]     = useState(false)
+  const [profile, setProfile]         = useState<Profile | null>(null)
+  const [isAdmin, setIsAdmin]         = useState(false)
+  const [loading, setLoading]         = useState(true)
+  const [starting, setStarting]       = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
 
   const [chapters, setChapters]         = useState<{ id: string; chapter_number: number; chapter_name: string }[]>([])
@@ -86,11 +87,13 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const [difficulty, setDifficulty]     = useState<Difficulty>('all')
   const [questionCount, setQuestionCount] = useState<QuestionCount>(10)
 
-  const subscribed = isSubscribed(profile)
+  const subscribed = isAdmin || isSubscribed(profile)
 
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
+      const adminUser = user?.user_metadata?.is_admin === true
+      setIsAdmin(adminUser)
       const [{ data: sub }, { data: tops }, { data: bks }, profileRes] = await Promise.all([
         supabase.from('subjects').select('*').eq('id', subjectId).single(),
         supabase.from('topics').select('*').eq('subject_id', subjectId).order('sort_order'),
@@ -102,7 +105,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       setBooks(bks || [])
       setProfile(profileRes.data)
 
-      const userSubscribed = isSubscribed(profileRes.data)
+      const userSubscribed = adminUser || isSubscribed(profileRes.data)
       if (!userSubscribed) {
         // Force free-tier defaults
         setScope('combined')

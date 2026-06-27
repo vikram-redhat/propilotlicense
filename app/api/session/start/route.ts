@@ -35,7 +35,8 @@ export async function POST(req: Request) {
     .eq('id', user.id)
     .single()
 
-  const subscribed = isSubscribed(profile as Parameters<typeof isSubscribed>[0])
+  const isAdmin    = user.user_metadata?.is_admin === true
+  const subscribed = isAdmin || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
 
   if (!subscribed) {
     if (scope !== 'combined') return Response.json({ error: 'free_tier_scope' }, { status: 403 })
