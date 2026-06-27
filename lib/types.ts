@@ -116,7 +116,8 @@ export interface Profile {
   id: string
   full_name: string | null
   email: string | null
-  subscription_tier: 'free' | 'pro'
+  subscription_tier: 'free' | 'paid'
+  subscription_plan: '30days' | '90days' | null
   subscription_expires_at: string | null
   exam_preference: 'CPL' | 'ATPL'
   created_at: string

@@ -7,9 +7,10 @@ import { createBrowserClient } from '@supabase/ssr'
 interface Props {
   name: string | null
   isLoggedIn: boolean
+  subscribed?: boolean
 }
 
-export default function LandingHeader({ name, isLoggedIn }: Props) {
+export default function LandingHeader({ name, isLoggedIn, subscribed }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -50,6 +51,15 @@ export default function LandingHeader({ name, isLoggedIn }: Props) {
         </div>
 
         {isLoggedIn ? (
+          <div className="flex items-center gap-3">
+            {!subscribed && (
+              <Link
+                href="/pricing"
+                className="text-sm font-semibold px-3 py-1.5 rounded-lg text-amber-800 bg-amber-100 hover:bg-amber-200 transition-colors"
+              >
+                Upgrade →
+              </Link>
+            )}
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen(o => !o)}
@@ -61,7 +71,7 @@ export default function LandingHeader({ name, isLoggedIn }: Props) {
               </svg>
             </button>
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden z-50">
+              <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden z-50">
                 <Link
                   href="/profile"
                   onClick={() => setMenuOpen(false)}
@@ -77,6 +87,7 @@ export default function LandingHeader({ name, isLoggedIn }: Props) {
                 </button>
               </div>
             )}
+          </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">

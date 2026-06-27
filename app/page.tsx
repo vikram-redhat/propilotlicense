@@ -4,6 +4,7 @@ import SiteFooter from '@/components/SiteFooter'
 import LandingHeader from '@/components/LandingHeader'
 import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
+import { isSubscribed } from '@/lib/subscription'
 
 const HOW_IT_WORKS = [
   {
@@ -37,14 +38,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const name = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? null
 
   const svc = createServiceClient()
-  const [subjectsRes, bookCountRes, subjectCountRes] = await Promise.all([
+  const [subjectsRes, bookCountRes, subjectCountRes, profileRes] = await Promise.all([
     svc.from('subjects')
       .select('id, name, sort_order, source_books(id, title, author, sort_order)')
       .eq('active', true)
       .order('sort_order'),
     svc.from('source_books').select('*', { count: 'exact', head: true }),
     svc.from('subjects').select('*', { count: 'exact', head: true }).eq('active', true),
+    user ? svc.from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single() : Promise.resolve({ data: null }),
   ])
+
+  const subscribed = isSubscribed(profileRes?.data as Parameters<typeof isSubscribed>[0])
 
   const subjects = (subjectsRes.data || []).map(s => ({
     ...s,
@@ -56,7 +60,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <LandingHeader isLoggedIn={!!user} name={name} />
+      <LandingHeader isLoggedIn={!!user} name={name} subscribed={subscribed} />
 
       {/* Hero — dimmed aircraft background + two-column content */}
       <section className="relative overflow-hidden min-h-[520px]">

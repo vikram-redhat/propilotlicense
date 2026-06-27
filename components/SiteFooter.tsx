@@ -9,9 +9,14 @@ export default function SiteFooter({ label }: { label?: string }) {
         </p>
         <div className="flex items-center justify-between">
           <span className="text-xs text-slate-400">{label || 'DGCA Pilot Exam Prep'}</span>
-          <Link href="/terms" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
-            Terms of Use
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/pricing" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
+              Pricing
+            </Link>
+            <Link href="/terms" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
+              Terms of Use
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

@@ -1,5 +1,6 @@
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
+import { isSubscribed } from '@/lib/subscription'
 
 const weights = {
   all:      { basic: 1,   advanced: 1   },
@@ -14,8 +15,8 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  if (![50, 100].includes(questionCount)) {
-    return Response.json({ error: 'Question count must be 50 or 100' }, { status: 400 })
+  if (![10, 50, 100].includes(questionCount)) {
+    return Response.json({ error: 'Invalid question count' }, { status: 400 })
   }
 
   // Get current user from auth cookies
@@ -26,6 +27,21 @@ export async function POST(req: Request) {
   }
 
   const supabase = createServiceClient()
+
+  // Server-side subscription enforcement
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('subscription_tier, subscription_expires_at')
+    .eq('id', user.id)
+    .single()
+
+  const subscribed = isSubscribed(profile as Parameters<typeof isSubscribed>[0])
+
+  if (!subscribed) {
+    if (scope !== 'combined') return Response.json({ error: 'free_tier_scope' }, { status: 403 })
+    if (questionCount > 10)   return Response.json({ error: 'free_tier_count' }, { status: 403 })
+    if (mode === 'mock')      return Response.json({ error: 'free_tier_mode' },  { status: 403 })
+  }
 
   let query = supabase
     .from('questions')
