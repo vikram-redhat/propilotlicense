@@ -7,6 +7,7 @@ import { Subject, Topic, SourceBook, Profile } from '@/lib/types'
 import { isSubscribed } from '@/lib/subscription'
 import SubjectIcon from '@/components/SubjectIcon'
 import SiteFooter from '@/components/SiteFooter'
+import UserMenu from '@/components/UserMenu'
 
 type Scope = 'topic' | 'book' | 'book_chapter' | 'combined'
 type Mode = 'practice' | 'mock'
@@ -229,11 +230,14 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
           <Link href={`/${licence}`} className="text-slate-400 hover:text-slate-600 transition-colors">{licenceLabel}</Link>
           <span className="text-slate-300">/</span>
           <span className="text-slate-700 font-medium">{subject.name}</span>
-          {!subscribed && (
-            <Link href="/pricing" className="ml-auto text-xs font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full hover:bg-amber-200 transition-colors">
-              Upgrade →
-            </Link>
-          )}
+          <div className="ml-auto flex items-center gap-3">
+            {!subscribed && (
+              <Link href="/pricing" className="text-xs font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full hover:bg-amber-200 transition-colors">
+                Upgrade →
+              </Link>
+            )}
+            <UserMenu />
+          </div>
         </div>
       </header>
 

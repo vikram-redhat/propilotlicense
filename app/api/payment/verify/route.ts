@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     })
     .eq('id', user.id)
 
-  if (error) return Response.json({ error: error.message }, { status: 500 })
+  if (error) return Response.json({ error: 'Failed to activate subscription' }, { status: 500 })
 
   return Response.json({ success: true, expiresAt: expiresAt.toISOString() })
 }

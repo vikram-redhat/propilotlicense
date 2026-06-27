@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
 import { IconCheck, IconX, IconMinus, IconBook, IconBook2 } from '@tabler/icons-react'
 import SiteFooter from '@/components/SiteFooter'
+import UserMenu from '@/components/UserMenu'
 
 export default function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -130,7 +131,10 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           <Link href={backHref} className="text-sm text-slate-400 hover:text-slate-600 transition-colors">
             ← {subjectName || 'Back'}
           </Link>
-          <span className="text-sm font-medium text-slate-700">Results</span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium text-slate-700">Results</span>
+            <UserMenu />
+          </div>
         </div>
       </header>
 

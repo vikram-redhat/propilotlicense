@@ -3,6 +3,7 @@ import { createServiceClient } from '@/lib/supabase'
 import { Subject } from '@/lib/types'
 import SubjectIcon from '@/components/SubjectIcon'
 import SiteFooter from '@/components/SiteFooter'
+import UserMenu from '@/components/UserMenu'
 import { notFound } from 'next/navigation'
 
 const VALID_LICENCES = ['cpl', 'atpl']
@@ -66,6 +67,7 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
             <span className="text-slate-300">/</span>
             <span className="text-sm font-medium text-slate-700">{label}</span>
           </div>
+          <UserMenu />
         </div>
       </header>
 
