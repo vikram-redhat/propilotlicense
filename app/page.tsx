@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
@@ -81,70 +82,129 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <div style={{ minHeight: '100vh', background: '#F8FAFF', color: '#0D1B2E' }}>
       <LandingHeader isLoggedIn={!!user} name={name} subscribed={subscribed} />
 
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px 16px 88px' }}>
+      {/* ── Full-bleed hero ── */}
+      <section
+        className="flex flex-col lg:flex-row"
+        style={{ background: '#042C53', minHeight: 0 }}
+      >
+        {/* Left: text panel */}
+        <style>{`
+          .hero-text-panel { padding: 40px 20px 44px; }
+          @media (min-width: 640px)  { .hero-text-panel { padding: 48px 36px; } }
+          @media (min-width: 1024px) { .hero-text-panel { padding: 64px 60px; } }
+        `}</style>
+        <div className="hero-text-panel flex flex-col justify-center lg:w-[52%]">
 
-        {/* ── Hero card ── */}
-        <div style={{ background: '#042C53', borderRadius: 22, padding: '28px 24px 24px', position: 'relative', overflow: 'hidden', marginBottom: 16 }}>
-          {/* Concentric circles decoration */}
-          <svg style={{ position: 'absolute', right: -55, top: -55, pointerEvents: 'none' }} width="340" height="340" viewBox="0 0 340 340" overflow="visible" aria-hidden="true">
-            <g fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5">
-              <circle cx="340" cy="0" r="70"/><circle cx="340" cy="0" r="115"/>
-              <circle cx="340" cy="0" r="160"/><circle cx="340" cy="0" r="205"/><circle cx="340" cy="0" r="250"/>
-            </g>
-          </svg>
+            {/* Badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.09)', borderRadius: 20, padding: '4px 12px', marginBottom: 20, width: 'fit-content' }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF9F27', flexShrink: 0, display: 'block' }}/>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.78)', letterSpacing: '0.9px', textTransform: 'uppercase' }}>DGCA Exam Prep</span>
+            </div>
 
-          {/* Badge */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.09)', borderRadius: 20, padding: '4px 12px', marginBottom: 16 }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF9F27', flexShrink: 0, display: 'block' }}/>
-            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.78)', letterSpacing: '0.9px', textTransform: 'uppercase' }}>DGCA Exam Prep</span>
-          </div>
+            {/* Headline */}
+            <h1
+              className="text-[30px] sm:text-[38px] lg:text-[50px]"
+              style={{ fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 700, color: '#ffffff', marginBottom: 14, lineHeight: 1.1, letterSpacing: '-0.6px' }}
+            >
+              Pass your pilot exams.<br/>
+              <em style={{ fontStyle: 'normal', color: '#EF9F27' }}>First attempt.</em>
+            </h1>
 
-          {/* Headline */}
-          <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 700, color: '#ffffff', marginBottom: 10 }} className="text-[30px] sm:text-[38px] lg:text-[50px] leading-tight tracking-tight">
-            Pass your pilot exams.<br/>
-            <em style={{ fontStyle: 'normal', color: '#EF9F27' }}>First attempt.</em>
-          </h1>
+            <p style={{ fontSize: 15, lineHeight: 1.65, color: 'rgba(255,255,255,0.6)', marginBottom: 28, maxWidth: 460 }}>
+              India&apos;s most complete CPL / ATPL question bank — mapped to DGCA syllabus and source books.
+            </p>
 
-          <p style={{ fontSize: 14, lineHeight: 1.65, color: 'rgba(255,255,255,0.58)', marginBottom: 24, maxWidth: 520 }}>
-            India&apos;s most complete CPL / ATPL question bank — mapped to DGCA syllabus and source books.
-          </p>
+            {/* CTA */}
+            <Link
+              href={configHref}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#EF9F27', color: '#fff', border: 'none', borderRadius: 11, padding: '14px 26px', fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, textDecoration: 'none', letterSpacing: '0.1px', boxShadow: '0 4px 24px rgba(239,159,39,0.32)', marginBottom: 40, width: 'fit-content' }}
+            >
+              Get Started
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M8.5 3.5L12 7l-3.5 3.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </Link>
 
-          <Link
-            href={configHref}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#EF9F27', color: '#fff', border: 'none', borderRadius: 11, padding: '13px 22px', fontFamily: 'var(--font-outfit),sans-serif', fontSize: 14, fontWeight: 700, textDecoration: 'none', letterSpacing: '0.1px', boxShadow: '0 4px 20px rgba(239,159,39,0.32)' }}
-          >
-            {user ? 'Continue practising' : 'Start practising free'}
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M8.5 3.5L12 7l-3.5 3.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </Link>
-
-          {/* Stats row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.11)' }}>
-            <div>
-              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 22, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>
-                {totalQuestions > 0 ? `${(totalQuestions / 1000).toFixed(1).replace(/\.0$/, '')}k+` : '—'}
+            {/* Stats row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>
+                  {totalQuestions > 0 ? `${(totalQuestions / 1000).toFixed(1).replace(/\.0$/, '')}k+` : '4,100+'}
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.48)', marginTop: 3 }}>questions</div>
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.48)', marginTop: 2 }}>questions</div>
+              <div>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>{subjects.length || 5}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.48)', marginTop: 3 }}>subjects</div>
+              </div>
+              <div>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>{bookCount || 46}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.48)', marginTop: 3 }}>source books</div>
+              </div>
             </div>
-            <div>
-              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 22, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>{subjects.length}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.48)', marginTop: 2 }}>subjects</div>
-            </div>
-            <div>
-              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 22, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>{bookCount}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.48)', marginTop: 2 }}>source books</div>
-            </div>
-          </div>
         </div>
 
-        {/* ── Subjects grid ── */}
+        {/* Right: photo mosaic — hidden on mobile, strip on tablet, 2×2 grid on desktop */}
+        <style>{`
+          .hero-mosaic {
+            display: none;
+          }
+          @media (min-width: 640px) {
+            .hero-mosaic {
+              display: grid;
+              grid-template-columns: 1fr 1fr 1fr;
+              grid-template-rows: 300px;
+              gap: 3px;
+              overflow: hidden;
+            }
+          }
+          @media (min-width: 1024px) {
+            .hero-mosaic {
+              flex: 0 0 48%;
+              grid-template-columns: 1fr 1fr;
+              grid-template-rows: 1fr 1fr;
+              height: auto;
+            }
+            .hero-mosaic-main { grid-row: 1 / 3; }
+          }
+        `}</style>
+        <div className="hero-mosaic">
+          <Image
+            src="/hero/img-2.png"
+            alt=""
+            width={600}
+            height={800}
+            className="hero-mosaic-main"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+            priority
+          />
+          <Image
+            src="/hero/172100.jpg"
+            alt=""
+            width={400}
+            height={400}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+          />
+          <Image
+            src="/hero/172451.jpg"
+            alt=""
+            width={400}
+            height={400}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+          />
+        </div>
+      </section>
+
+      {/* ── Content section (full-bleed, padding-based) ── */}
+      <div className="px-5 sm:px-9 lg:px-[60px] pt-7 sm:pt-8 lg:pt-[44px] pb-[88px] sm:pb-20 lg:pb-[88px]">
+
+        {/* Subjects grid */}
         <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: '#4A5E78', marginBottom: 10 }}>Subjects covered</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
-          {subjects.map(s => (
+          {subjects.map((s, i) => (
             <Link
               key={s.id}
               href={s.href}
+              className={`hover:border-[#185FA5] ${i === subjects.length - 1 ? 'col-span-2 sm:col-span-1' : ''}`}
               style={{ background: '#EEF3FA', border: '1px solid #D4E1F0', borderRadius: 13, padding: 14, display: 'flex', flexDirection: 'column', gap: 8, textDecoration: 'none', transition: 'border-color 0.2s' }}
-              className="hover:border-[#185FA5]"
             >
               <SubjectIcon name={s.icon_name} size={22} className="text-[#185FA5]" />
               <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 13, fontWeight: 600, color: '#0D1B2E' }}>{s.name}</div>
@@ -153,7 +213,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           ))}
         </div>
 
-        {/* ── Features ── */}
+        {/* Features row */}
         <div style={{ background: '#EEF3FA', border: '1px solid #D4E1F0', borderRadius: 16, padding: '20px 18px', marginBottom: 16 }} className="flex flex-col sm:flex-row gap-4">
           {FEATURES.map(f => (
             <div key={f.title} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
@@ -168,12 +228,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           ))}
         </div>
 
-        {/* ── Bottom CTA ── */}
+        {/* Bottom CTA */}
         <Link
           href={configHref}
           style={{ display: 'block', width: '100%', padding: 15, background: '#042C53', color: '#fff', border: 'none', borderRadius: 13, fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 600, textDecoration: 'none', textAlign: 'center', letterSpacing: '0.1px' }}
         >
-          Configure a session →
+          Get Started →
         </Link>
       </div>
 

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
 
-const LIGHTS = 20
+const LIGHTS = 15
 
 function formatTime(seconds: number) {
   const m = Math.floor(seconds / 60).toString().padStart(2, '0')
@@ -214,7 +214,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
               <div
                 key={i}
                 style={{
-                  flex: 1, height: 4, borderRadius: 1,
+                  width: 18, height: 4, borderRadius: 1, flexShrink: 0,
                   background: i < filledLights ? '#EF9F27' : '#D4E1F0',
                   transition: 'background 0.35s ease',
                 }}
