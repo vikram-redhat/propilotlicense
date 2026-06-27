@@ -52,7 +52,6 @@ export async function POST(req: Request) {
 
   switch (scope) {
     case 'topic':
-      query = query.is('source_book_id', null)
       if (topicId) query = query.eq('topic_id', topicId)
       break
     case 'book':
@@ -63,7 +62,7 @@ export async function POST(req: Request) {
       if (chapterId) query = query.eq('chapter_id', chapterId)
       break
     case 'combined':
-      query = query.is('source_book_id', null)
+      // All active questions for the subject — no source_book_id filter
       break
   }
 
