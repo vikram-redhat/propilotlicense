@@ -4,7 +4,7 @@ import CheckoutButton from './CheckoutButton'
 
 const PLANS = {
   '30days': { label: '30 Day Access', amount: 250, days: 30 },
-  '90days': { label: '90 Day Access', amount: 600, days: 90 },
+  '90days': { label: '90 Day Access', amount: 599, days: 90 },
 }
 
 export default async function CheckoutPage({

@@ -1,22 +1,23 @@
+import crypto from 'crypto'
 import { createServiceClient } from '@/lib/supabase'
 
 export async function POST(req: Request) {
   const body = await req.text()
   const signature = req.headers.get('x-razorpay-signature')
 
-  // ── STUB ─────────────────────────────────────────────────────────────────
-  // Sash: verify webhook signature before processing:
-  //
-  // import crypto from 'crypto'
-  // const expected = crypto
-  //   .createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET!)
-  //   .update(body).digest('hex')
-  // if (expected !== signature) {
-  //   return new Response('Invalid signature', { status: 400 })
-  // }
-  // ─────────────────────────────────────────────────────────────────────────
+  // Verify webhook signature
+  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET
+  if (webhookSecret && webhookSecret !== 'your_webhook_secret') {
+    const expectedSignature = crypto
+      .createHmac('sha256', webhookSecret)
+      .update(body)
+      .digest('hex')
 
-  void signature
+    if (expectedSignature !== signature) {
+      console.error('Webhook signature verification failed')
+      return new Response('Invalid signature', { status: 400 })
+    }
+  }
 
   let event: { event: string; payload: { payment: { entity: { notes?: { plan?: string; userId?: string } } } } }
   try {
