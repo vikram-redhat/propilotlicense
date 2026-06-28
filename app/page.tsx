@@ -1,31 +1,50 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
-import SiteFooter from '@/components/SiteFooter'
 import LandingHeader from '@/components/LandingHeader'
+import SiteFooter from '@/components/SiteFooter'
+import SubjectIcon from '@/components/SubjectIcon'
 import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 import { isSubscribed } from '@/lib/subscription'
 
-const HOW_IT_WORKS = [
+const FEATURES = [
   {
-    step: '1',
-    title: 'Pick your scope',
-    description: 'Study by topic, by source textbook and chapter, or take a full combined paper across all content.',
+    icon: (
+      <svg width="20" height="8" viewBox="0 0 20 8" fill="none">
+        <rect x="0" y="2" width="3.5" height="4" rx="0.6" fill="#EF9F27"/>
+        <rect x="5.5" y="2" width="3.5" height="4" rx="0.6" fill="#EF9F27"/>
+        <rect x="11" y="2" width="3.5" height="4" rx="0.6" fill="#EF9F27"/>
+        <rect x="16.5" y="2" width="3.5" height="4" rx="0.6" fill="#D4E1F0"/>
+      </svg>
+    ),
+    title: 'Runway progress bar',
+    desc: 'Amber centreline lights fill as you answer — mirrors the real runway.',
   },
   {
-    step: '2',
-    title: 'Configure your exam',
-    description: 'Select practice or mock mode, difficulty level, and number of questions — 50 or 100.',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="2" width="14" height="14" rx="2" stroke="#EF9F27" strokeWidth="1.4"/>
+        <path d="M5 7h8M5 10.5h5" stroke="#EF9F27" strokeWidth="1.3" strokeLinecap="round"/>
+      </svg>
+    ),
+    title: 'Book-cited explanations',
+    desc: 'Every answer cites the exact DGCA source book and chapter.',
   },
   {
-    step: '3',
-    title: 'Review and improve',
-    description: 'Detailed textbook-style explanations with chapter and page citations after every question.',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M3.5 13.5l4-4.5 3 3 4-5.5" stroke="#EF9F27" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    title: 'Adaptive difficulty',
+    desc: 'Sessions adapt to your revision stage — start easy, ramp up.',
   },
 ]
 
 export default async function HomePage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
-  // Supabase always redirects to site URL; forward auth codes to the callback handler
   const params = await searchParams
   if (params.code) {
     const qs = new URLSearchParams({ code: params.code })
@@ -38,187 +57,191 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const name = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? null
 
   const svc = createServiceClient()
-  const [subjectsRes, bookCountRes, subjectCountRes, profileRes] = await Promise.all([
-    svc.from('subjects')
-      .select('id, name, sort_order, source_books(id, title, author, sort_order)')
-      .eq('active', true)
-      .order('sort_order'),
+  type SubjectRow = { id: string; name: string; icon_name: string; sort_order: number; licence_types: string[] }
+
+  const [subjectsRes, bookCountRes, profileRes] = await Promise.all([
+    svc.from('subjects').select('id, name, icon_name, sort_order, licence_types').eq('active', true).order('sort_order'),
     svc.from('source_books').select('*', { count: 'exact', head: true }),
-    svc.from('subjects').select('*', { count: 'exact', head: true }).eq('active', true),
     user ? svc.from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single() : Promise.resolve({ data: null }),
   ])
 
-  const subscribed = isSubscribed(profileRes?.data as Parameters<typeof isSubscribed>[0])
+  const subjectRows = (subjectsRes.data as SubjectRow[] || [])
 
-  const subjects = (subjectsRes.data || []).map(s => ({
+  // Count per subject using individual count queries (avoids the 1000-row default limit on bulk selects)
+  const countResults = await Promise.all(
+    subjectRows.map(s =>
+      svc.from('questions').select('*', { count: 'exact', head: true }).eq('active', true).eq('subject_id', s.id)
+    )
+  )
+
+  const subjects = subjectRows.map((s, i) => ({
     ...s,
-    source_books: [...((s.source_books as { id: string; title: string; author: string | null; sort_order: number }[]) || [])].sort((a, b) => a.sort_order - b.sort_order),
+    questionCount: countResults[i].count ?? 0,
+    href: (s.licence_types?.includes('CPL') ? '/cpl/' : '/atpl/') + s.id,
   }))
 
+  const totalQuestions = subjects.reduce((a, s) => a + s.questionCount, 0)
   const bookCount = bookCountRes.count ?? 0
-  const subjectCount = subjectCountRes.count ?? 0
+  const subscribed = isSubscribed(profileRes?.data as Parameters<typeof isSubscribed>[0])
+
+  const configHref = user ? '/cpl' : '/login?next=/cpl'
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div style={{ minHeight: '100vh', background: '#F8FAFF', color: '#0D1B2E' }}>
       <LandingHeader isLoggedIn={!!user} name={name} subscribed={subscribed} />
 
-      {/* Hero — dimmed aircraft background + two-column content */}
-      <section className="relative overflow-hidden min-h-[520px]">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1600&q=80')` }}
-        />
-        <div className="absolute inset-0 bg-slate-900/75" />
+      {/* ── Full-bleed hero ── */}
+      <style>{`.hero-section { background:#042C53 } @media(min-width:1024px){.hero-section{height:500px;overflow:hidden}}`}</style>
+      <section className="hero-section flex flex-col lg:flex-row">
+        {/* Left: text panel */}
+        <style>{`
+          .hero-text-panel { padding: 40px 20px 44px; }
+          @media (min-width: 640px)  { .hero-text-panel { padding: 48px 36px; } }
+          @media (min-width: 1024px) { .hero-text-panel { padding: 48px 60px; overflow: hidden; } }
+        `}</style>
+        <div className="hero-text-panel flex flex-col justify-center lg:w-[52%]">
 
-        <div className="relative z-10 max-w-5xl mx-auto px-6 py-16 flex flex-col md:flex-row items-center gap-10">
-
-          {/* Mobile: portrait as banner */}
-          <div className="md:hidden w-full h-48 rounded-xl overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://images.unsplash.com/photo-1764547168268-1c8b531bce9f?auto=format&fit=crop&w=800&h=400"
-              alt="Licensed commercial pilot"
-              className="w-full h-full object-cover object-top"
-            />
-          </div>
-
-          {/* Desktop: portrait */}
-          <div className="hidden md:block flex-shrink-0 w-64 h-80 rounded-2xl overflow-hidden shadow-2xl ring-2 ring-white/20">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://images.unsplash.com/photo-1764547168268-1c8b531bce9f?auto=format&fit=crop&w=400&h=500"
-              alt="Licensed commercial pilot"
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Headline + CTAs */}
-          <div className="flex-1 text-white">
-            <div className="inline-flex items-center gap-2 text-xs font-medium bg-white/10 text-white/80 px-3 py-1 rounded-full mb-4 backdrop-blur-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-              DGCA CPL &amp; ATPL Exam Preparation
+            {/* Badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.09)', borderRadius: 20, padding: '4px 12px', marginBottom: 20, width: 'fit-content' }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF9F27', flexShrink: 0, display: 'block' }}/>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.78)', letterSpacing: '0.9px', textTransform: 'uppercase' }}>DGCA Exam Prep</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-semibold leading-tight mb-4">
-              Pass your pilot exams.<br />
-              <span className="text-blue-400">First attempt.</span>
+            {/* Headline */}
+            <h1
+              className="text-[30px] sm:text-[38px] lg:text-[50px]"
+              style={{ fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 700, color: '#ffffff', marginBottom: 14, lineHeight: 1.1, letterSpacing: '-0.6px' }}
+            >
+              Pass your pilot exams.<br/>
+              <em style={{ fontStyle: 'normal', color: '#EF9F27' }}>First attempt.</em>
             </h1>
 
-            <p className="text-white/70 text-base leading-relaxed mb-8 max-w-md">
-              Practice tests for DGCA CPL and ATPL — by topic, by textbook, or full combined papers. Questions verified by licensed pilots.
+            <p style={{ fontSize: 15, lineHeight: 1.65, color: 'rgba(255,255,255,0.6)', marginBottom: 28, maxWidth: 460 }}>
+              India&apos;s most complete CPL / ATPL question bank — mapped to DGCA syllabus and source books.
             </p>
 
-            <div className="flex gap-3 flex-wrap">
-              <Link
-                href={user ? '/cpl' : '/login?next=/cpl'}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-sm transition-colors"
-              >
-                {user ? 'Continue CPL →' : 'Start CPL →'}
-              </Link>
-              <Link
-                href={user ? '/atpl' : '/login?next=/atpl'}
-                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-3 rounded-lg font-medium text-sm backdrop-blur-sm transition-colors"
-              >
-                {user ? 'Continue ATPL →' : 'Start ATPL →'}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+            {/* CTA */}
+            <Link
+              href={configHref}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#EF9F27', color: '#fff', border: 'none', borderRadius: 11, padding: '14px 26px', fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, textDecoration: 'none', letterSpacing: '0.1px', boxShadow: '0 4px 24px rgba(239,159,39,0.32)', marginBottom: 40, width: 'fit-content' }}
+            >
+              Get Started
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M8.5 3.5L12 7l-3.5 3.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </Link>
 
-      {/* Stats strip */}
-      <section className="px-4 py-4 border-b border-slate-100 bg-white">
-        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-6 text-sm text-slate-500 font-medium">
-          <span>{subjectCount} subjects</span>
-          <span className="text-slate-200">·</span>
-          <span>{bookCount} source books</span>
-          <span className="text-slate-200">·</span>
-          <span>CPL &amp; ATPL</span>
-          <span className="text-slate-200">·</span>
-          <span>DGCA official syllabus</span>
-        </div>
-      </section>
-
-      {/* Source Books — dynamic */}
-      <section className="px-4 py-14 bg-slate-50 border-b border-slate-100">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-8">
-            Questions sourced from these textbooks
-          </h2>
-
-          <div className="bg-white border border-slate-200 rounded-xl p-5 mb-10 space-y-3">
-            <p className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Reference Materials</p>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              The following textbooks and publications are prescribed by the Directorate General of Civil Aviation (DGCA), India, as reference material for CPL and ATPL theory examinations. They are listed here for the benefit of students preparing for these examinations.
-            </p>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              ProPilotLicence.com is an independent examination preparation service. We are not affiliated with, endorsed by, or in partnership with any of the authors, publishers, or organisations listed below. All titles, author names, and trademarks remain the property of their respective owners.
-            </p>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              The practice questions on this platform are original content created for examination preparation purposes. They are informed by the subject matter covered in the prescribed syllabus and reference materials but do not reproduce text, diagrams, tables, or any other content from the publications listed below.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {subjects.map(subject => (
-              <div key={subject.id}>
-                <h3 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#185FA5' }}>
-                  {subject.name}
-                </h3>
-                <ul className="space-y-1.5">
-                  {subject.source_books.map(book => (
-                    <li key={book.id} className="text-sm text-slate-600 leading-snug flex items-start gap-2">
-                      <span className="mt-1.5 w-1 h-1 rounded-full bg-slate-300 flex-shrink-0" />
-                      {book.title}{book.author ? ` — ${book.author}` : ''}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="px-4 py-14">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-10">
-            How it works
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {HOW_IT_WORKS.map(item => (
-              <div key={item.step} className="text-center">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm mx-auto mb-4"
-                  style={{ backgroundColor: '#185FA5' }}
-                >
-                  {item.step}
+            {/* Stats row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>
+                  {totalQuestions > 0 ? `${(totalQuestions / 1000).toFixed(1).replace(/\.0$/, '')}k+` : '4,100+'}
                 </div>
-                <h3 className="font-semibold text-slate-800 mb-2">{item.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{item.description}</p>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.48)', marginTop: 3 }}>questions</div>
               </div>
-            ))}
-          </div>
+              <div>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>{subjects.length || 5}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.48)', marginTop: 3 }}>subjects</div>
+              </div>
+              <div>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>{bookCount || 46}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.48)', marginTop: 3 }}>source books</div>
+              </div>
+            </div>
+        </div>
+
+        {/* Right: photo mosaic — hidden on mobile, strip on tablet, 2×2 grid on desktop */}
+        <style>{`
+          .hero-mosaic {
+            display: none;
+          }
+          @media (min-width: 640px) {
+            .hero-mosaic {
+              display: grid;
+              grid-template-columns: 1fr 1fr 1fr;
+              grid-template-rows: 260px;
+              gap: 3px;
+              overflow: hidden;
+            }
+          }
+          @media (min-width: 1024px) {
+            .hero-mosaic {
+              flex: 0 0 48%;
+              grid-template-columns: 1fr 1fr;
+              grid-template-rows: 1fr 1fr;
+              height: 100%;
+            }
+            .hero-mosaic-main { grid-row: 1 / 3; }
+          }
+        `}</style>
+        <div className="hero-mosaic">
+          <Image
+            src="/hero/img-2.png"
+            alt=""
+            width={600}
+            height={800}
+            className="hero-mosaic-main"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+            priority
+          />
+          <Image
+            src="/hero/172100.jpg"
+            alt=""
+            width={400}
+            height={400}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+          />
+          <Image
+            src="/hero/172451.jpg"
+            alt=""
+            width={400}
+            height={400}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+          />
         </div>
       </section>
 
-      {/* Trust section */}
-      <section className="px-4 py-14 border-t border-slate-100" style={{ backgroundColor: '#F0F6FF' }}>
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#185FA5' }}>
-            ✓ Human verified
-          </p>
-          <h2 className="text-2xl font-black text-slate-900 mb-4 leading-snug">
-            Created and verified by licensed pilots
-          </h2>
-          <p className="text-slate-600 leading-relaxed mb-4">
-            Every question in our bank has been written and reviewed by licensed commercial pilots holding DGCA CPL and ATPL qualifications. Questions are cross-referenced against the prescribed DGCA syllabus and the source textbooks listed above, with chapter and page citations verified against the actual books.
-          </p>
-          <p className="text-slate-600 leading-relaxed">
-            Every question is checked, edited, and approved by a licensed pilot before it reaches you. No question goes live without human sign-off.
-          </p>
+      {/* ── Content section (full-bleed, padding-based) ── */}
+      <div className="px-5 sm:px-9 lg:px-[60px] pt-7 sm:pt-8 lg:pt-[44px] pb-[88px] sm:pb-20 lg:pb-[88px]">
+
+        {/* Subjects grid */}
+        <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: '#4A5E78', marginBottom: 10 }}>Subjects covered</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
+          {subjects.map((s, i) => (
+            <Link
+              key={s.id}
+              href={s.href}
+              className={`hover:border-[#185FA5] ${i === subjects.length - 1 ? 'col-span-2 sm:col-span-1' : ''}`}
+              style={{ background: '#EEF3FA', border: '1px solid #D4E1F0', borderRadius: 13, padding: 14, display: 'flex', flexDirection: 'column', gap: 8, textDecoration: 'none', transition: 'border-color 0.2s' }}
+            >
+              <SubjectIcon name={s.icon_name} size={22} className="text-[#185FA5]" />
+              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 13, fontWeight: 600, color: '#0D1B2E' }}>{s.name}</div>
+              <div style={{ fontSize: 11, color: '#4A5E78' }}>{s.questionCount > 0 ? `${s.questionCount.toLocaleString()} questions` : 'Coming soon'}</div>
+            </Link>
+          ))}
         </div>
-      </section>
+
+        {/* Features row */}
+        <div style={{ background: '#EEF3FA', border: '1px solid #D4E1F0', borderRadius: 16, padding: '20px 18px', marginBottom: 16 }} className="flex flex-col sm:flex-row gap-4">
+          {FEATURES.map(f => (
+            <div key={f.title} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: '#FEF4DC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {f.icon}
+              </div>
+              <div>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 13, fontWeight: 600, color: '#0D1B2E', marginBottom: 3 }}>{f.title}</div>
+                <div style={{ fontSize: 12, color: '#4A5E78', lineHeight: 1.55 }}>{f.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <Link
+          href={configHref}
+          style={{ display: 'block', width: '100%', padding: 15, background: '#042C53', color: '#fff', border: 'none', borderRadius: 13, fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 600, textDecoration: 'none', textAlign: 'center', letterSpacing: '0.1px' }}
+        >
+          Get Started →
+        </Link>
+      </div>
 
       <SiteFooter />
     </div>

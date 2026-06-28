@@ -3,48 +3,49 @@ import { useEffect, useState, useCallback, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
-import { IconFlag, IconChevronRight, IconBook, IconBook2 } from '@tabler/icons-react'
+
+const LIGHTS = 15
+
+function formatTime(seconds: number) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0')
+  const s = (seconds % 60).toString().padStart(2, '0')
+  return `${m}:${s}`
+}
 
 export default function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
-  const [session, setSession] = useState<Session | null>(null)
-  const [questions, setQuestions] = useState<Question[]>([])
+  const [session, setSession]         = useState<Session | null>(null)
+  const [questions, setQuestions]     = useState<Question[]>([])
   const [sessionState, setSessionState] = useState<SessionState | null>(null)
-  const [books, setBooks] = useState<Record<string, SourceBook>>({})
-  const [chapters, setChapters] = useState<Record<string, { chapter_number: number; chapter_name: string }>>({})
-  const [loading, setLoading] = useState(true)
-  const [timeLeft, setTimeLeft] = useState<number | null>(null)
+  const [books, setBooks]             = useState<Record<string, SourceBook>>({})
+  const [chapters, setChapters]       = useState<Record<string, { chapter_number: number; chapter_name: string }>>({})
+  const [subjectName, setSubjectName] = useState('')
+  const [loading, setLoading]         = useState(true)
+  const [timeLeft, setTimeLeft]       = useState<number | null>(null)
   const [showNavigator, setShowNavigator] = useState(false)
-  const [flagged, setFlagged] = useState<Set<string>>(new Set())
-  const [userId, setUserId] = useState<string | null>(null)
+  const [flagged, setFlagged]         = useState<Set<string>>(new Set())
+  const [userId, setUserId]           = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
       setUserId(user?.id ?? null)
 
-      const { data: sess } = await supabase
-        .from('sessions')
-        .select('*')
-        .eq('id', id)
-        .single()
-
+      const { data: sess } = await supabase.from('sessions').select('*').eq('id', id).single()
       if (!sess) { router.push('/'); return }
       setSession(sess)
 
-      const { data: qs } = await supabase
-        .from('questions')
-        .select('*, options:question_options(*)')
-        .in('id', sess.question_ids)
-
+      const { data: qs } = await supabase.from('questions').select('*, options:question_options(*)').in('id', sess.question_ids)
       if (!qs) { setLoading(false); return }
 
-      const ordered = sess.question_ids
-        .map((qid: string) => qs.find((q: Question) => q.id === qid))
-        .filter(Boolean) as Question[]
-
+      const ordered = sess.question_ids.map((qid: string) => qs.find((q: Question) => q.id === qid)).filter(Boolean) as Question[]
       setQuestions(ordered)
+
+      const [subRes] = await Promise.all([
+        supabase.from('subjects').select('name').eq('id', sess.subject_id).single(),
+      ])
+      setSubjectName(subRes.data?.name ?? '')
 
       const bookIds = [...new Set(ordered.map(q => q.source_book_id).filter(Boolean))] as string[]
       if (bookIds.length > 0) {
@@ -56,46 +57,29 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
       const chapterIds = [...new Set(ordered.map(q => q.chapter_id).filter(Boolean))] as string[]
       if (chapterIds.length > 0) {
-        const { data: chs } = await supabase
-          .from('chapters')
-          .select('id, chapter_number, chapter_name')
-          .in('id', chapterIds)
+        const { data: chs } = await supabase.from('chapters').select('id, chapter_number, chapter_name').in('id', chapterIds)
         const chMap: Record<string, { chapter_number: number; chapter_name: string }> = {}
         chs?.forEach(c => { chMap[c.id] = c })
         setChapters(chMap)
       }
 
-      // Restore answers from DB
-      const { data: dbAnswers } = await supabase
-        .from('session_answers')
-        .select('question_id, selected_option_id, is_correct')
-        .eq('session_id', id)
-
+      const { data: dbAnswers } = await supabase.from('session_answers').select('question_id, selected_option_id, is_correct').eq('session_id', id)
       const answersMap: SessionState['answers'] = {}
       for (const ans of dbAnswers ?? []) {
         const q = ordered.find(q => q.id === ans.question_id)
         const opt = q?.options?.find(o => o.id === ans.selected_option_id)
-        if (opt) {
-          answersMap[ans.question_id] = { selected: opt.option_letter, isCorrect: ans.is_correct }
-        }
+        if (opt) answersMap[ans.question_id] = { selected: opt.option_letter, isCorrect: ans.is_correct }
       }
 
-      const answeredCount = Object.keys(answersMap).length
       const firstUnanswered = ordered.findIndex(q => !answersMap[q.id])
+      const answeredCount = Object.keys(answersMap).length
       const startIndex = answeredCount === ordered.length ? ordered.length - 1 : Math.max(0, firstUnanswered)
 
-      const state: SessionState = {
-        sessionId: id,
-        currentIndex: startIndex,
-        answers: answersMap,
-        startedAt: sess.created_at,
-      }
-      setSessionState(state)
+      setSessionState({ sessionId: id, currentIndex: startIndex, answers: answersMap, startedAt: sess.created_at })
 
       if (sess.mode === 'mock') {
         const elapsed = Math.floor((Date.now() - new Date(sess.created_at).getTime()) / 1000)
-        const totalSeconds = sess.time_limit_secs ?? (sess.question_ids.length * 45)
-        setTimeLeft(Math.max(0, totalSeconds - elapsed))
+        setTimeLeft(Math.max(0, (sess.time_limit_secs ?? sess.question_ids.length * 45) - elapsed))
       }
 
       setLoading(false)
@@ -103,16 +87,14 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     load()
   }, [id, router])
 
+  const submitExam = useCallback(() => { router.push(`/results/${id}`) }, [id, router])
+
   useEffect(() => {
     if (session?.mode !== 'mock' || timeLeft === null) return
     if (timeLeft <= 0) { submitExam(); return }
     const t = setTimeout(() => setTimeLeft(t => (t ?? 1) - 1), 1000)
     return () => clearTimeout(t)
   })
-
-  const submitExam = useCallback(() => {
-    router.push(`/results/${id}`)
-  }, [id, router])
 
   async function handleAnswer(letter: string) {
     if (!sessionState || !questions.length) return
@@ -123,18 +105,12 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     const isCorrect = correctOption?.option_letter === letter
     const selectedOption = q.options?.find(o => o.option_letter === letter)
 
-    // Save to DB
     await supabase.from('session_answers').insert({
-      session_id: id,
-      question_id: q.id,
-      selected_option_id: selectedOption?.id ?? null,
-      is_correct: isCorrect,
+      session_id: id, question_id: q.id,
+      selected_option_id: selectedOption?.id ?? null, is_correct: isCorrect,
     })
 
-    setSessionState(prev => prev ? {
-      ...prev,
-      answers: { ...prev.answers, [q.id]: { selected: letter, isCorrect } },
-    } : prev)
+    setSessionState(prev => prev ? { ...prev, answers: { ...prev.answers, [q.id]: { selected: letter, isCorrect } } } : prev)
   }
 
   function goNext() {
@@ -142,6 +118,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     const nextIndex = sessionState.currentIndex + 1
     if (nextIndex >= questions.length) { submitExam(); return }
     setSessionState(prev => prev ? { ...prev, currentIndex: nextIndex } : prev)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function jumpTo(index: number) {
@@ -152,230 +129,231 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   async function flagQuestion() {
     if (!sessionState || !questions.length || !userId) return
     const q = questions[sessionState.currentIndex]
-    await supabase.from('question_flags').insert({
-      question_id: q.id,
-      user_id: userId,
-      reason: null,
-    })
+    await supabase.from('question_flags').insert({ question_id: q.id, user_id: userId, reason: null })
     setFlagged(prev => new Set([...prev, q.id]))
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8FAFF' }}>
+        <div className="animate-spin w-8 h-8 border-4 border-t-transparent rounded-full" style={{ borderColor: '#185FA5', borderTopColor: 'transparent' }}/>
       </div>
     )
   }
 
   if (!session || !sessionState || questions.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-slate-400">
-        Session not found.
-      </div>
-    )
+    return <div className="min-h-screen flex items-center justify-center" style={{ color: '#4A5E78' }}>Session not found.</div>
   }
 
-  const currentQ = questions[sessionState.currentIndex]
-  const answered = sessionState.answers[currentQ?.id]
-  const correctOption = currentQ?.options?.find(o => o.is_correct)
-  const isMock = session.mode === 'mock'
-  const isLastQuestion = sessionState.currentIndex === questions.length - 1
+  const currentQ    = questions[sessionState.currentIndex]
+  const answered    = sessionState.answers[currentQ?.id]
+  const correctOpt  = currentQ?.options?.find(o => o.is_correct)
+  const isMock      = session.mode === 'mock'
+  const isLastQ     = sessionState.currentIndex === questions.length - 1
   const answeredCount = Object.keys(sessionState.answers).length
   const currentBook = currentQ?.source_book_id ? books[currentQ.source_book_id] : null
   const currentChapter = currentQ?.chapter_id ? chapters[currentQ.chapter_id] : null
-  const chapterDisplay = currentChapter
+  const chapterLabel = currentChapter
     ? `Chapter ${currentChapter.chapter_number} — ${currentChapter.chapter_name}`
     : currentQ?.source_chapter ?? null
 
-  const optionLetters: Array<'A' | 'B' | 'C' | 'D'> = ['A', 'B', 'C', 'D']
+  const filledLights = Math.min(LIGHTS, Math.round((answeredCount / questions.length) * LIGHTS))
 
-  function formatTime(seconds: number) {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0')
-    const s = (seconds % 60).toString().padStart(2, '0')
-    return `${m}:${s}`
+  const diffStyles: Record<string, { bg: string; color: string }> = {
+    basic:    { bg: '#E5F7ED', color: '#1A7A4A' },
+    advanced: { bg: '#FDEAEA', color: '#B83232' },
+    all:      { bg: '#FEF4DC', color: '#9A6000' },
   }
+  const diffStyle = diffStyles[currentQ?.difficulty ?? 'all'] ?? diffStyles.all
+  const diffLabel = currentQ?.difficulty === 'basic' ? 'Basic' : currentQ?.difficulty === 'advanced' ? 'Advanced' : 'Mixed'
 
-  function getOptionStyle(letter: string) {
-    if (!answered) return 'border-slate-200 bg-white hover:border-blue-300 cursor-pointer'
-    if (isMock) {
-      return answered.selected === letter
-        ? 'border-blue-400 bg-blue-50 cursor-default'
-        : 'border-slate-200 bg-white cursor-default opacity-70'
-    }
-    if (letter === correctOption?.option_letter) return 'border-green-400 bg-green-50 cursor-default'
-    if (answered.selected === letter && !answered.isCorrect) return 'border-red-400 bg-red-50 cursor-default'
-    return 'border-slate-200 bg-white cursor-default opacity-70'
-  }
+  const isCorrect = answered && answered.isCorrect
+  const explBg          = isCorrect ? '#E5F7ED' : '#FDEAEA'
+  const explBorderColor = isCorrect ? '#1A7A4A' : '#B83232'
+  const explLabelColor  = isCorrect ? '#1A7A4A' : '#B83232'
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <header className="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <span className="text-sm text-slate-500 font-medium">
-            Q {sessionState.currentIndex + 1} of {questions.length}
-          </span>
-          {isMock ? (
-            <div className="flex items-center gap-3">
-              <span
-                className={`text-sm font-mono font-semibold px-3 py-1 rounded-lg ${
-                  (timeLeft ?? 0) <= 60 ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                {formatTime(timeLeft ?? 0)}
-              </span>
+    <div style={{ minHeight: '100vh', background: '#F8FAFF', color: '#0D1B2E' }}>
+
+      {/* ── Sticky sub-nav ── */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 150, background: '#F8FAFF', borderBottom: '1px solid #D4E1F0' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', padding: '12px 16px' }}>
+          {/* Top row: breadcrumb + Q counter */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <button
-                onClick={() => setShowNavigator(!showNavigator)}
-                className="text-xs text-blue-600 hover:underline"
+                onClick={() => router.back()}
+                style={{ fontSize: 12, color: '#4A5E78', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 3 }}
               >
-                Navigator
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2.5L4 6l4 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                Session
               </button>
-              <button
-                onClick={submitExam}
-                className="text-xs bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 font-medium"
-              >
-                Submit
-              </button>
+              <span style={{ color: '#D4E1F0', fontSize: 14 }}>›</span>
+              <span style={{ fontSize: 12, color: '#0D1B2E', fontWeight: 500 }}>{subjectName}</span>
             </div>
-          ) : (
-            <span className="text-sm text-slate-400">Practice Mode</span>
-          )}
-        </div>
-        <div className="max-w-3xl mx-auto mt-2">
-          <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all"
-              style={{
-                width: `${((sessionState.currentIndex + 1) / questions.length) * 100}%`,
-                backgroundColor: '#185FA5',
-              }}
-            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {isMock && (
+                <>
+                  <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 12, fontWeight: 600, color: (timeLeft ?? 0) <= 60 ? '#B83232' : '#4A5E78', background: (timeLeft ?? 0) <= 60 ? '#FDEAEA' : '#EEF3FA', padding: '3px 8px', borderRadius: 6 }}>
+                    {formatTime(timeLeft ?? 0)}
+                  </span>
+                  <button onClick={() => setShowNavigator(!showNavigator)} style={{ fontSize: 11, color: '#185FA5', background: 'transparent', border: 'none', cursor: 'pointer' }}>Navigator</button>
+                  <button onClick={submitExam} style={{ fontSize: 11, background: '#B83232', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 7, cursor: 'pointer', fontWeight: 600 }}>Submit</button>
+                </>
+              )}
+              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 12, fontWeight: 600, color: '#4A5E78' }}>
+                <span style={{ color: '#0D1B2E', fontSize: 15, fontWeight: 700 }}>{sessionState.currentIndex + 1}</span>
+                {' '}/ {questions.length}
+              </div>
+            </div>
+          </div>
+
+          {/* Runway centreline lights */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            {Array.from({ length: LIGHTS }, (_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: 18, height: 4, borderRadius: 1, flexShrink: 0,
+                  background: i < filledLights ? '#EF9F27' : '#D4E1F0',
+                  transition: 'background 0.35s ease',
+                }}
+              />
+            ))}
           </div>
         </div>
-      </header>
+      </div>
 
+      {/* Mock navigator drawer */}
       {isMock && showNavigator && (
         <div className="fixed inset-0 bg-black/40 z-20 flex items-start justify-end" onClick={() => setShowNavigator(false)}>
           <div className="bg-white w-72 h-full p-4 overflow-y-auto shadow-xl" onClick={e => e.stopPropagation()}>
-            <h3 className="font-semibold text-slate-700 mb-3">Question Navigator</h3>
+            <h3 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 600, color: '#0D1B2E', marginBottom: 12 }}>Question Navigator</h3>
             <div className="grid grid-cols-5 gap-2">
               {questions.map((q, i) => {
-                const isAnswered = !!sessionState.answers[q.id]
-                const isCurrent = i === sessionState.currentIndex
+                const isAns = !!sessionState.answers[q.id]
+                const isCur = i === sessionState.currentIndex
                 return (
                   <button
                     key={q.id}
                     onClick={() => jumpTo(i)}
-                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
-                      isCurrent ? 'ring-2 ring-blue-500' : ''
-                    } ${isAnswered ? 'text-white' : 'bg-slate-100 text-slate-500'}`}
-                    style={isAnswered ? { backgroundColor: '#185FA5' } : {}}
+                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${isCur ? 'ring-2' : ''}`}
+                    style={{ background: isAns ? '#185FA5' : '#EEF3FA', color: isAns ? '#fff' : '#4A5E78' }}
                   >
                     {i + 1}
                   </button>
                 )
               })}
             </div>
-            <div className="mt-4 text-xs text-slate-500">{answeredCount} / {questions.length} answered</div>
+            <div style={{ marginTop: 16, fontSize: 12, color: '#4A5E78' }}>{answeredCount} / {questions.length} answered</div>
           </div>
         </div>
       )}
 
-      <main className="flex-1 px-4 py-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-white rounded-xl border border-slate-200 p-6 mb-4">
-            <p className="text-slate-900 text-base leading-relaxed font-medium">{currentQ?.question_text}</p>
-          </div>
+      {/* ── Question body ── */}
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '18px 16px 48px' }}>
 
-          <div className="space-y-3 mb-4">
-            {optionLetters.map(letter => {
-              const opt = currentQ?.options?.find(o => o.option_letter === letter)
-              if (!opt) return null
-              return (
-                <button
-                  key={letter}
-                  onClick={() => !answered && handleAnswer(letter)}
-                  className={`w-full text-left p-4 rounded-xl border-2 transition-all ${getOptionStyle(letter)}`}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="flex-shrink-0 w-7 h-7 rounded-full border-2 border-current flex items-center justify-center text-xs font-bold">
-                      {letter}
-                    </span>
-                    <span className="text-slate-700 text-sm leading-relaxed">{opt.option_text}</span>
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Explanation + citation (practice mode, after answering) */}
-          {!isMock && answered && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-4 space-y-3">
-              {currentQ?.explanation && (
-                <div>
-                  <h4 className="font-semibold text-blue-800 text-sm mb-2">Explanation</h4>
-                  <p className="text-blue-800 text-sm leading-relaxed">{currentQ.explanation}</p>
-                </div>
-              )}
-              {currentBook && (
-                <div className="flex items-start gap-2 pt-3 border-t border-blue-200">
-                  {currentQ.citation_verified ? (
-                    <IconBook size={15} className="text-blue-500 flex-shrink-0 mt-0.5" />
-                  ) : (
-                    <IconBook2 size={15} className="text-blue-400 flex-shrink-0 mt-0.5" />
-                  )}
-                  <p className="text-xs text-blue-700 leading-relaxed">
-                    <span className="font-medium">{currentBook.title}</span>
-                    {currentBook.author && <span> — {currentBook.author}</span>}
-                    {(currentBook as SourceBook & { edition?: string | null }).edition && (
-                      <span> · {(currentBook as SourceBook & { edition?: string | null }).edition}</span>
-                    )}
-                    {chapterDisplay && (
-                      <span>
-                        {' · '}
-                        {currentQ.citation_verified ? chapterDisplay : `${chapterDisplay} (approx.)`}
-                      </span>
-                    )}
-                    {currentQ.source_page && (
-                      <span>
-                        {' · '}
-                        {currentQ.citation_verified ? currentQ.source_page : `${currentQ.source_page} (approx.)`}
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-blue-400 italic mt-1">
-                    Source reference only. Question content is original and does not reproduce text from this publication.
-                  </p>
-                </div>
-              )}
-            </div>
+        {/* Tags */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>{subjectName}</span>
+          {chapterLabel && (
+            <span style={{ fontSize: 11, fontWeight: 500, padding: '4px 10px', borderRadius: 20, background: '#EEF3FA', color: '#4A5E78', border: '1px solid #D4E1F0' }}>{chapterLabel}</span>
           )}
+          <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: diffStyle.bg, color: diffStyle.color }}>{diffLabel}</span>
+        </div>
 
-          <div className="flex items-center justify-between">
-            <button
-              onClick={flagQuestion}
-              disabled={flagged.has(currentQ?.id) || !userId}
-              className={`flex items-center gap-1.5 text-xs transition-colors ${
-                flagged.has(currentQ?.id) ? 'text-amber-500' : 'text-slate-400 hover:text-amber-500'
-              }`}
-            >
-              <IconFlag size={14} />
-              {flagged.has(currentQ?.id) ? 'Flagged' : 'Flag this question'}
-            </button>
+        {/* Question text */}
+        <h2 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 600, lineHeight: 1.5, color: '#0D1B2E', letterSpacing: '-0.2px', marginBottom: 20, maxWidth: 660 }}>
+          {currentQ?.question_text}
+        </h2>
 
-            {(isMock || answered) && (
-              <button
-                onClick={goNext}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white text-sm transition-all"
-                style={{ backgroundColor: '#185FA5' }}
+        {/* Options */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 18, maxWidth: 660 }}>
+          {(['A', 'B', 'C', 'D'] as const).map(letter => {
+            const opt = currentQ?.options?.find(o => o.option_letter === letter)
+            if (!opt) return null
+
+            let borderColor = '#D4E1F0', bg = '#F8FAFF', labelBg = '#EEF3FA', labelColor = '#4A5E78', textColor = '#0D1B2E'
+            if (answered) {
+              if (isMock) {
+                if (answered.selected === letter) { borderColor = '#185FA5'; bg = '#E8F0FB'; labelBg = '#185FA5'; labelColor = '#fff' }
+                else { textColor = '#4A5E78' }
+              } else {
+                if (letter === correctOpt?.option_letter) { bg = '#E5F7ED'; borderColor = '#1A7A4A'; labelBg = '#1A7A4A'; labelColor = '#fff'; textColor = '#1A7A4A' }
+                else if (answered.selected === letter && !answered.isCorrect) { bg = '#FDEAEA'; borderColor = '#B83232'; labelBg = '#B83232'; labelColor = '#fff'; textColor = '#B83232' }
+                else { textColor = '#4A5E78' }
+              }
+            }
+
+            return (
+              <div
+                key={letter}
+                onClick={() => !answered && handleAnswer(letter)}
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 11, padding: 14, borderRadius: 13, border: `1.5px solid ${borderColor}`, background: bg, cursor: answered ? 'default' : 'pointer', transition: 'border-color 0.25s, background 0.25s' }}
               >
-                {isLastQuestion ? (isMock ? 'Review & Submit' : 'See Results') : 'Next question →'}
-                <IconChevronRight size={16} />
-              </button>
+                <div style={{ width: 28, height: 28, borderRadius: 7, background: labelBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 12, fontWeight: 700, color: labelColor }}>{letter}</span>
+                </div>
+                <span style={{ fontSize: 14, color: textColor, lineHeight: 1.52, paddingTop: 5, flex: 1 }}>{opt.option_text}</span>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Explanation (practice mode, after answer) */}
+        {!isMock && answered && (
+          <div style={{ animation: 'slideUp 0.36s cubic-bezier(0.16,1,0.3,1) both', background: explBg, border: `1px solid ${explBorderColor}`, borderRadius: 14, padding: 16, marginBottom: 14, maxWidth: 660 }}>
+            <style>{`@keyframes slideUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }`}</style>
+            <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 13, fontWeight: 700, color: explLabelColor, marginBottom: 9 }}>
+              {isCorrect ? 'Correct!' : 'Incorrect — review this'}
+            </div>
+            {currentQ?.explanation && (
+              <p style={{ fontSize: 13, color: '#0D1B2E', lineHeight: 1.66, marginBottom: 11 }}>{currentQ.explanation}</p>
+            )}
+            {currentBook && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7, padding: '9px 11px', background: '#F8FAFF', borderRadius: 8 }}>
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <rect x="1" y="1" width="11" height="11" rx="1.5" stroke="#4A5E78" strokeWidth="1.1"/>
+                  <path d="M3 4.5h7M3 7h5" stroke="#4A5E78" strokeWidth="1" strokeLinecap="round"/>
+                </svg>
+                <span style={{ fontSize: 11, color: '#4A5E78', fontStyle: 'italic', lineHeight: 1.5 }}>
+                  {currentBook.title}{currentBook.author ? ` — ${currentBook.author}` : ''}
+                  {chapterLabel ? ` · ${chapterLabel}` : ''}
+                  {currentQ.source_page ? ` · ${currentQ.source_page}` : ''}
+                  {!currentQ.citation_verified && ' (approx.)'}
+                </span>
+              </div>
             )}
           </div>
+        )}
+
+        {/* Next button (after answer, or always in mock) */}
+        {(isMock || answered) && (
+          <button
+            onClick={goNext}
+            style={{ width: '100%', maxWidth: 660, padding: 14, background: '#EF9F27', color: '#fff', border: 'none', borderRadius: 13, fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(239,159,39,0.32)', marginBottom: 14, display: 'block' }}
+          >
+            {isLastQ ? (isMock ? 'Submit exam →' : 'See results →') : 'Next question →'}
+          </button>
+        )}
+
+        {/* Skip + Flag row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 4 }}>
+          {!answered && (
+            <button onClick={goNext} style={{ fontSize: 12.5, color: '#4A5E78', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3, padding: '8px 0' }}>
+              Skip question
+            </button>
+          )}
+          <button
+            onClick={flagQuestion}
+            disabled={flagged.has(currentQ?.id) || !userId}
+            style={{ fontSize: 12, color: flagged.has(currentQ?.id) ? '#EF9F27' : '#4A5E78', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' }}
+          >
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 2v9M2.5 2h7.5l-2 3.5 2 3.5H2.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            {flagged.has(currentQ?.id) ? 'Flagged' : 'Flag this question'}
+          </button>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

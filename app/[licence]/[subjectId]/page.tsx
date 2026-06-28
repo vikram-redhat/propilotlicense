@@ -5,8 +5,6 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook, Profile } from '@/lib/types'
 import { isSubscribed } from '@/lib/subscription'
-import SubjectIcon from '@/components/SubjectIcon'
-import SiteFooter from '@/components/SiteFooter'
 import UserMenu from '@/components/UserMenu'
 
 type Scope = 'topic' | 'book' | 'book_chapter' | 'combined'
@@ -14,50 +12,21 @@ type Mode = 'practice' | 'mock'
 type Difficulty = 'all' | 'basic' | 'advanced'
 type QuestionCount = 10 | 50 | 100
 
-function formatTimeAllowed(questionCount: QuestionCount): string {
-  const totalSecs = questionCount * 45
-  const mins = Math.floor(totalSecs / 60)
-  const secs = totalSecs % 60
-  if (secs === 0) return `${mins} minutes`
-  return `${mins} minutes ${secs} seconds`
-}
-
-function ProBadge() {
-  return (
-    <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium">
-      🔒 Pro
-    </span>
-  )
-}
-
 function UpgradeModal({ onClose }: { onClose: () => void }) {
   return (
-    <div
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-2xl p-7 max-w-sm w-full shadow-xl"
-        onClick={e => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl p-7 max-w-sm w-full shadow-xl" onClick={e => e.stopPropagation()}>
         <div className="text-3xl mb-3">🔒</div>
-        <h3 className="font-bold text-lg text-slate-900 mb-1">Unlock full access</h3>
-        <p className="text-slate-500 text-sm mb-5 leading-relaxed">
+        <h3 className="font-bold text-lg mb-1" style={{ color: '#0D1B2E' }}>Unlock full access</h3>
+        <p className="text-sm mb-5 leading-relaxed" style={{ color: '#4A5E78' }}>
           This feature requires a paid plan. Get unlimited questions, mock exams,
           book/chapter sessions, and difficulty selection.
         </p>
         <div className="flex gap-2">
-          <Link
-            href="/pricing"
-            className="flex-1 text-center rounded-xl py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90"
-            style={{ backgroundColor: '#185FA5' }}
-          >
+          <Link href="/pricing" className="flex-1 text-center rounded-xl py-2.5 text-sm font-semibold text-white" style={{ backgroundColor: '#185FA5', textDecoration: 'none' }}>
             View plans from ₹250 →
           </Link>
-          <button
-            onClick={onClose}
-            className="px-4 py-2.5 rounded-xl text-sm text-slate-500 border border-slate-200 hover:bg-slate-50 transition-colors"
-          >
+          <button onClick={onClose} className="px-4 py-2.5 rounded-xl text-sm border" style={{ color: '#4A5E78', borderColor: '#D4E1F0' }}>
             Cancel
           </button>
         </div>
@@ -66,26 +35,62 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
   )
 }
 
+function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        flex: 1, padding: '10px 0', borderRadius: 10,
+        border: `1.5px solid ${active ? '#185FA5' : '#D4E1F0'}`,
+        background: active ? '#E8F0FB' : '#F8FAFF',
+        fontFamily: 'var(--font-outfit),sans-serif', fontSize: 13, fontWeight: 600,
+        color: active ? '#185FA5' : '#4A5E78', cursor: 'pointer',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
+function Pill({ active, onClick, locked, children }: { active: boolean; onClick: () => void; locked?: boolean; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '8px 15px', borderRadius: 20,
+        border: `1.5px solid ${active ? '#185FA5' : '#D4E1F0'}`,
+        background: active ? '#E8F0FB' : '#F8FAFF',
+        fontSize: 13, fontWeight: 500,
+        color: active ? '#185FA5' : locked ? '#D4E1F0' : '#4A5E78',
+        cursor: locked ? 'default' : 'pointer',
+        opacity: locked ? 0.5 : 1,
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
 export default function SessionConfigPage({ params }: { params: Promise<{ licence: string; subjectId: string }> }) {
   const { licence, subjectId } = use(params)
   const router = useRouter()
 
-  const [subject, setSubject]       = useState<Subject | null>(null)
-  const [topics, setTopics]         = useState<Topic[]>([])
-  const [books, setBooks]           = useState<SourceBook[]>([])
-  const [profile, setProfile]         = useState<Profile | null>(null)
-  const [isAdmin, setIsAdmin]         = useState(false)
-  const [loading, setLoading]         = useState(true)
-  const [starting, setStarting]       = useState(false)
+  const [subject, setSubject]     = useState<Subject | null>(null)
+  const [topics, setTopics]       = useState<Topic[]>([])
+  const [books, setBooks]         = useState<SourceBook[]>([])
+  const [profile, setProfile]     = useState<Profile | null>(null)
+  const [isAdmin, setIsAdmin]     = useState(false)
+  const [loading, setLoading]     = useState(true)
+  const [starting, setStarting]   = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
 
-  const [chapters, setChapters]         = useState<{ id: string; chapter_number: number; chapter_name: string }[]>([])
-  const [scope, setScope]               = useState<Scope>('combined')
-  const [selectedTopicId, setSelectedTopicId]   = useState('')
-  const [selectedBookId, setSelectedBookId]     = useState('')
+  const [chapters, setChapters]               = useState<{ id: string; chapter_number: number; chapter_name: string }[]>([])
+  const [scope, setScope]                     = useState<Scope>('combined')
+  const [selectedTopicId, setSelectedTopicId] = useState('')
+  const [selectedBookId, setSelectedBookId]   = useState('')
   const [selectedChapterId, setSelectedChapterId] = useState('')
-  const [mode, setMode]                 = useState<Mode>('practice')
-  const [difficulty, setDifficulty]     = useState<Difficulty>('all')
+  const [mode, setMode]           = useState<Mode>('practice')
+  const [difficulty, setDifficulty] = useState<Difficulty>('all')
   const [questionCount, setQuestionCount] = useState<QuestionCount>(10)
 
   const subscribed = isAdmin || isSubscribed(profile)
@@ -108,13 +113,8 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
       const userSubscribed = adminUser || isSubscribed(profileRes.data)
       if (!userSubscribed) {
-        // Force free-tier defaults
-        setScope('combined')
-        setMode('practice')
-        setDifficulty('all')
-        setQuestionCount(10)
+        setScope('combined'); setMode('practice'); setDifficulty('all'); setQuestionCount(10)
       } else {
-        // Subscribed defaults
         setQuestionCount(50)
         if (tops && tops.length > 0) setSelectedTopicId(tops[0].id)
       }
@@ -125,25 +125,18 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
   useEffect(() => {
     if (!selectedBookId) { setChapters([]); setSelectedChapterId(''); return }
-    supabase
-      .from('chapters')
-      .select('id, chapter_number, chapter_name')
-      .eq('book_id', selectedBookId)
-      .order('sort_order')
+    supabase.from('chapters').select('id, chapter_number, chapter_name').eq('book_id', selectedBookId).order('sort_order')
       .then(({ data }) => setChapters(data || []))
   }, [selectedBookId])
 
-  const effectiveScope: Scope =
-    scope === 'book' && selectedChapterId ? 'book_chapter' : scope
+  const effectiveScope: Scope = scope === 'book' && selectedChapterId ? 'book_chapter' : scope
+  const canStart = scope === 'topic' ? !!selectedTopicId : scope === 'book' ? !!selectedBookId : true
 
-  const canStart =
-    scope === 'topic' ? !!selectedTopicId :
-    scope === 'book'  ? !!selectedBookId :
-    true
+  function locked() { setShowUpgrade(true) }
 
-  function locked(feature: string) {
-    setShowUpgrade(true)
-    void feature
+  function selectScope(s: 'topic' | 'book' | 'combined') {
+    if ((s === 'topic' || s === 'book') && !subscribed) { locked(); return }
+    setScope(prev => prev === s ? 'combined' : s)
   }
 
   async function startSession() {
@@ -152,15 +145,12 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        subjectId,
-        licenceType: licence.toUpperCase(),
+        subjectId, licenceType: licence.toUpperCase(),
         scope: effectiveScope,
         topicId: scope === 'topic' ? selectedTopicId : null,
         sourceBookId: scope === 'book' ? selectedBookId : null,
         chapterId: effectiveScope === 'book_chapter' ? selectedChapterId : null,
-        mode,
-        difficulty,
-        questionCount,
+        mode, difficulty, questionCount,
       }),
     })
     const data = await res.json()
@@ -179,309 +169,231 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8FAFF' }}>
+        <div className="animate-spin w-8 h-8 border-4 border-t-transparent rounded-full" style={{ borderColor: '#185FA5', borderTopColor: 'transparent' }}/>
       </div>
     )
   }
 
-  if (!subject) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-slate-500">Subject not found.</p>
-      </div>
-    )
-  }
+  if (!subject) return <div className="min-h-screen flex items-center justify-center" style={{ color: '#4A5E78' }}>Subject not found.</div>
 
-  const licenceLabel = licence.toUpperCase()
-
-  const SCOPE_OPTIONS: { value: 'topic' | 'book' | 'combined'; title: string; subtitle: string; hint?: string; requiresPro: boolean }[] = [
-    {
-      value: 'topic',
-      title: 'By Topic',
-      subtitle: 'Questions from all books on one topic',
-      hint: 'e.g. "Thunderstorms · Icing · Fronts"',
-      requiresPro: true,
-    },
-    {
-      value: 'book',
-      title: 'By Source Book',
-      subtitle: 'Focus on one textbook — then optionally drill into a specific chapter',
-      hint: 'e.g. IC Joshi · Oxford · Keith Williams · RK Bali',
-      requiresPro: true,
-    },
-    {
-      value: 'combined',
-      title: 'Combined Paper',
-      subtitle: 'All topics, all books',
-      hint: `Full ${licenceLabel} exam`,
-      requiresPro: false,
-    },
+  const scopeCards: { key: 'topic' | 'book' | 'combined'; title: string; subtitle: string; requiresPro: boolean }[] = [
+    { key: 'topic', title: 'By topic', subtitle: 'Target specific subject areas', requiresPro: true },
+    { key: 'book', title: 'By book', subtitle: 'Practice from a specific source', requiresPro: true },
+    { key: 'combined', title: 'Combined paper', subtitle: 'All topics, all books', requiresPro: false },
   ]
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div style={{ minHeight: '100vh', background: '#F8FAFF', color: '#0D1B2E' }}>
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
 
-      <header className="bg-white border-b border-slate-200 px-4 py-3">
-        <div className="max-w-3xl mx-auto flex items-center gap-2 text-sm">
-          <Link href="/" className="text-slate-400 hover:text-slate-600 transition-colors">Home</Link>
-          <span className="text-slate-300">/</span>
-          <Link href={`/${licence}`} className="text-slate-400 hover:text-slate-600 transition-colors">{licenceLabel}</Link>
-          <span className="text-slate-300">/</span>
-          <span className="text-slate-700 font-medium">{subject.name}</span>
-          <div className="ml-auto flex items-center gap-3">
+      {/* Nav */}
+      <nav style={{ position: 'sticky', top: 0, zIndex: 200, background: '#F8FAFF', borderBottom: '1px solid #D4E1F0' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 16px', height: 54, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              onClick={() => router.back()}
+              style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid #D4E1F0', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0D1B2E', flexShrink: 0 }}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9.5 3L5.5 7l4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+            <div>
+              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 16, fontWeight: 700, color: '#0D1B2E', letterSpacing: '-0.3px', lineHeight: 1.2 }}>Configure session</div>
+              <div style={{ fontSize: 12, color: '#4A5E78', marginTop: 1 }}>{subject.name} · {licence.toUpperCase()}</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {!subscribed && (
-              <Link href="/pricing" className="text-xs font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full hover:bg-amber-200 transition-colors">
-                Upgrade →
-              </Link>
+              <Link href="/pricing" style={{ fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 20, border: '1px solid #D4E1F0', color: '#EF9F27', textDecoration: 'none' }}>Upgrade</Link>
             )}
             <UserMenu />
           </div>
         </div>
-      </header>
+      </nav>
 
-      <main className="flex-1 px-4 py-8">
-        <div className="max-w-3xl mx-auto">
-
-          {/* Subject description */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#EBF4FF' }}>
-                <SubjectIcon name={subject.icon_name} size={24} className="text-[#185FA5]" />
-              </div>
-              <h1 className="text-2xl font-bold text-slate-900">{subject.name}</h1>
-            </div>
-            {subject.description && (
-              <p className="text-slate-600 text-sm leading-relaxed">{subject.description}</p>
-            )}
+      {/* Two-panel layout */}
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px 100px' }}>
+        {!subscribed && (
+          <div style={{ marginBottom: 20, padding: '10px 14px', background: '#FEF4DC', border: '1px solid #EF9F27', borderRadius: 10, fontSize: 13, color: '#9A6000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <span><strong>Free plan:</strong> Combined paper · 10 questions · Practice only</span>
+            <Link href="/pricing" style={{ fontSize: 12, fontWeight: 700, color: '#185FA5', textDecoration: 'none', whiteSpace: 'nowrap' }}>Upgrade →</Link>
           </div>
+        )}
 
-          {!subscribed && (
-            <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between gap-4">
-              <p className="text-sm text-amber-800">
-                <span className="font-semibold">Free plan:</span> Combined paper · 10 questions · Practice only
-              </p>
-              <Link href="/pricing" className="text-sm font-semibold text-white px-3 py-1.5 rounded-lg whitespace-nowrap" style={{ backgroundColor: '#185FA5' }}>
-                Upgrade →
-              </Link>
-            </div>
-          )}
+        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-[52px]">
 
-          <div className="space-y-4">
+          {/* LEFT — Scope */}
+          <div className="flex-1">
+            <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: '#4A5E78', marginBottom: 10 }}>Scope</p>
 
-            {/* Step 1 — Scope */}
-            <div className="bg-white rounded-xl border border-slate-200 p-5">
-              <h2 className="font-semibold text-slate-700 mb-1 text-sm uppercase tracking-wider">Step 1 — Scope</h2>
-              <p className="text-xs text-slate-400 mb-4">Choose what to include in this session</p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {SCOPE_OPTIONS.map(opt => {
-                  const isLocked = opt.requiresPro && !subscribed
-                  const selected = scope === opt.value
-                  const hasDropdown = opt.value === 'topic' || opt.value === 'book'
-                  return (
-                    <div
-                      key={opt.value}
-                      onClick={() => isLocked ? locked(opt.value) : setScope(opt.value)}
-                      style={{
-                        border: selected ? '2px solid #185FA5' : '0.5px solid var(--color-border-tertiary, #e2e8f0)',
-                        background: selected ? '#E6F1FB' : isLocked ? '#f8fafc' : 'transparent',
-                        cursor: isLocked ? 'not-allowed' : 'pointer',
-                        opacity: isLocked ? 0.65 : 1,
-                        position: 'relative',
-                      }}
-                      className="p-4 rounded-xl transition-all"
-                    >
-                      {isLocked && (
-                        <div className="absolute top-2 right-2">
-                          <ProBadge />
-                        </div>
-                      )}
-                      <div
-                        className="font-semibold text-sm leading-tight mb-1"
-                        style={{ color: selected ? '#185FA5' : '#1e293b' }}
-                      >
-                        {opt.title}
+            {scopeCards.map(({ key, title, subtitle, requiresPro }) => {
+              const isLocked = requiresPro && !subscribed
+              const isSelected = scope === key
+              const isOpen = isSelected && key !== 'combined'
+              return (
+                <div
+                  key={key}
+                  onClick={() => selectScope(key)}
+                  style={{
+                    border: `1.5px solid ${isSelected ? '#185FA5' : '#D4E1F0'}`,
+                    background: isSelected ? '#E8F0FB' : '#F8FAFF',
+                    borderRadius: 13, padding: 14, marginBottom: 8, cursor: 'pointer',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: isSelected ? '#185FA5' : '#EEF3FA', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {key === 'topic' && (
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <circle cx="8" cy="8" r="5.5" stroke={isSelected ? '#fff' : '#4A5E78'} strokeWidth="1.5"/>
+                            <circle cx="8" cy="8" r="2.5" fill={isSelected ? '#fff' : '#4A5E78'}/>
+                          </svg>
+                        )}
+                        {key === 'book' && (
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <rect x="2.5" y="1.5" width="11" height="13" rx="1.5" stroke={isSelected ? '#fff' : '#4A5E78'} strokeWidth="1.5"/>
+                            <path d="M5 5.5h6M5 8.5h6M5 11.5h3.5" stroke={isSelected ? '#fff' : '#4A5E78'} strokeWidth="1.2" strokeLinecap="round"/>
+                          </svg>
+                        )}
+                        {key === 'combined' && (
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M2 8h12M8 2v12" stroke={isSelected ? '#fff' : '#4A5E78'} strokeWidth="1.6" strokeLinecap="round"/>
+                            <rect x="1.5" y="1.5" width="13" height="13" rx="2" stroke={isSelected ? '#fff' : '#4A5E78'} strokeWidth="1.2" opacity="0.4"/>
+                          </svg>
+                        )}
                       </div>
-                      <div className="text-xs text-slate-500">{opt.subtitle}</div>
-                      {opt.hint && (
-                        <div className="text-xs text-slate-400 mt-1">{opt.hint}</div>
-                      )}
-
-                      {hasDropdown && !isLocked && (
-                        <div
-                          onClick={e => e.stopPropagation()}
-                          style={{
-                            maxHeight: selected ? '300px' : '0px',
-                            overflow: 'hidden',
-                            transition: 'max-height 0.2s ease',
-                          }}
-                        >
-                          <div style={{ borderTop: '0.5px solid var(--color-border-tertiary, #e2e8f0)', marginTop: 12, paddingTop: 12 }}>
-                            {opt.value === 'topic' ? (
-                              <>
-                                <label className="block text-xs font-medium text-slate-600 mb-1.5">Select topic</label>
-                                <select
-                                  value={selectedTopicId}
-                                  onChange={e => setSelectedTopicId(e.target.value)}
-                                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
-                                >
-                                  <option value="">Select a topic…</option>
-                                  {topics.map(t => (
-                                    <option key={t.id} value={t.id}>{t.name}</option>
-                                  ))}
-                                </select>
-                              </>
-                            ) : (
-                              <>
-                                <label className="block text-xs font-medium text-slate-600 mb-1.5">Select source book</label>
-                                <select
-                                  value={selectedBookId}
-                                  onChange={e => { setSelectedBookId(e.target.value); setSelectedChapterId('') }}
-                                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
-                                >
-                                  <option value="">Select a book…</option>
-                                  {books.map(b => (
-                                    <option key={b.id} value={b.id}>
-                                      {b.title}{b.author ? ` — ${b.author}` : ''}
-                                    </option>
-                                  ))}
-                                </select>
-                                {selectedBookId && (
-                                  <div className="mt-2">
-                                    <label className="block text-xs font-medium text-slate-600 mb-1.5">Chapter (optional)</label>
-                                    <select
-                                      value={selectedChapterId}
-                                      onChange={e => setSelectedChapterId(e.target.value)}
-                                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white"
-                                    >
-                                      <option value="">All chapters</option>
-                                      {chapters.map(c => (
-                                        <option key={c.id} value={c.id}>Ch. {c.chapter_number} — {c.chapter_name}</option>
-                                      ))}
-                                    </select>
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </div>
+                      <div>
+                        <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 14, fontWeight: 600, color: isSelected ? '#185FA5' : '#0D1B2E' }}>
+                          {title}{isLocked && <span style={{ marginLeft: 6, fontSize: 11, color: '#EF9F27' }}>🔒 Pro</span>}
                         </div>
+                        <div style={{ fontSize: 12, color: '#4A5E78', marginTop: 1 }}>{subtitle}</div>
+                      </div>
+                    </div>
+                    <div style={{ width: 18, height: 18, borderRadius: '50%', border: `1.5px solid ${isSelected ? '#185FA5' : '#D4E1F0'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {isSelected && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#185FA5' }}/>}
+                    </div>
+                  </div>
+
+                  {/* Expand dropdown */}
+                  {isOpen && (
+                    <div onClick={e => e.stopPropagation()} style={{ marginTop: 13, paddingTop: 13, borderTop: '1px solid #D4E1F0' }}>
+                      {key === 'topic' ? (
+                        <>
+                          <p style={{ fontSize: 10, fontWeight: 700, color: '#4A5E78', marginBottom: 7, letterSpacing: '0.6px', textTransform: 'uppercase' }}>Select subject area</p>
+                          <div style={{ position: 'relative' }}>
+                            <select
+                              value={selectedTopicId}
+                              onChange={e => setSelectedTopicId(e.target.value)}
+                              style={{ width: '100%', padding: '10px 36px 10px 12px', borderRadius: 9, border: '1px solid #D4E1F0', background: '#F8FAFF', fontSize: 13.5, color: '#0D1B2E', cursor: 'pointer', outline: 'none', appearance: 'none' }}
+                            >
+                              <option value="">Select a topic…</option>
+                              {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                            </select>
+                            <svg style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#4A5E78" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          </div>
+                        </>
+                      ) : key === 'book' ? (
+                        <>
+                          <p style={{ fontSize: 10, fontWeight: 700, color: '#4A5E78', marginBottom: 7, letterSpacing: '0.6px', textTransform: 'uppercase' }}>Select book</p>
+                          <div style={{ position: 'relative' }}>
+                            <select
+                              value={selectedBookId}
+                              onChange={e => { setSelectedBookId(e.target.value); setSelectedChapterId('') }}
+                              style={{ width: '100%', padding: '10px 36px 10px 12px', borderRadius: 9, border: '1px solid #D4E1F0', background: '#F8FAFF', fontSize: 13.5, color: '#0D1B2E', cursor: 'pointer', outline: 'none', appearance: 'none' }}
+                            >
+                              <option value="">Select a book…</option>
+                              {books.map(b => <option key={b.id} value={b.id}>{b.title}{b.author ? ` — ${b.author}` : ''}</option>)}
+                            </select>
+                            <svg style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#4A5E78" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          </div>
+                          {selectedBookId && chapters.length > 0 && (
+                            <div style={{ marginTop: 8, position: 'relative' }}>
+                              <select
+                                value={selectedChapterId}
+                                onChange={e => setSelectedChapterId(e.target.value)}
+                                style={{ width: '100%', padding: '10px 36px 10px 12px', borderRadius: 9, border: '1px solid #D4E1F0', background: '#F8FAFF', fontSize: 13.5, color: '#0D1B2E', cursor: 'pointer', outline: 'none', appearance: 'none' }}
+                              >
+                                <option value="">All chapters</option>
+                                {chapters.map(c => <option key={c.id} value={c.id}>Ch. {c.chapter_number} — {c.chapter_name}</option>)}
+                              </select>
+                              <svg style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#4A5E78" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <p style={{ fontSize: 12.5, color: '#4A5E78', lineHeight: 1.6 }}>
+                          Draws from all topics and books for this subject — ideal for a full-paper exam simulation.
+                        </p>
                       )}
                     </div>
-                  )
-                })}
-              </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* RIGHT — Options + Start (sticky on desktop) */}
+          <div className="mt-6 lg:mt-0 lg:w-[310px] lg:shrink-0 lg:sticky lg:top-[90px]">
+
+            <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: '#4A5E78', marginBottom: 10 }}>Mode</p>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 22 }}>
+              <Chip active={mode === 'practice'} onClick={() => setMode('practice')}>Practice</Chip>
+              <Chip active={mode === 'mock'} onClick={() => subscribed ? setMode('mock') : locked()}>
+                Mock exam{!subscribed && ' 🔒'}
+              </Chip>
             </div>
 
-            {/* Step 2 — Mode */}
-            <div className="bg-white rounded-xl border border-slate-200 p-5">
-              <h2 className="font-semibold text-slate-700 mb-1 text-sm uppercase tracking-wider">Step 2 — Mode</h2>
-              <p className="text-xs text-slate-400 mb-4">How feedback is delivered</p>
-              <div className="grid grid-cols-2 gap-3">
-                {([
-                  { value: 'practice' as Mode, label: 'Practice', desc: 'Immediate feedback after each answer — untimed', requiresPro: false },
-                  { value: 'mock' as Mode, label: 'Mock Exam', desc: 'Timed countdown — feedback only at the end', requiresPro: true },
-                ]).map(m => {
-                  const isLocked = m.requiresPro && !subscribed
-                  return (
-                    <button
-                      key={m.value}
-                      onClick={() => isLocked ? locked(m.value) : setMode(m.value)}
-                      className={`p-4 rounded-xl border-2 text-left transition-all relative ${
-                        mode === m.value ? 'border-blue-500 bg-blue-50' :
-                        isLocked ? 'border-slate-100 bg-slate-50 cursor-not-allowed opacity-60' :
-                        'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      {isLocked && <div className="absolute top-2 right-2"><ProBadge /></div>}
-                      <div className="font-semibold text-slate-800 text-sm">{m.label}</div>
-                      <div className="text-xs text-slate-500 mt-1">{m.desc}</div>
-                    </button>
-                  )
-                })}
-              </div>
+            <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: '#4A5E78', marginBottom: 10 }}>Difficulty</p>
+            <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 22 }}>
+              <Pill active={difficulty === 'all'} onClick={() => setDifficulty('all')}>All</Pill>
+              <Pill active={difficulty === 'basic'} locked={!subscribed} onClick={() => subscribed ? setDifficulty('basic') : locked()}>Basic</Pill>
+              <Pill active={difficulty === 'advanced'} locked={!subscribed} onClick={() => subscribed ? setDifficulty('advanced') : locked()}>Advanced</Pill>
             </div>
 
-            {/* Step 3 — Difficulty */}
-            <div className="bg-white rounded-xl border border-slate-200 p-5">
-              <h2 className="font-semibold text-slate-700 mb-1 text-sm uppercase tracking-wider">Step 3 — Difficulty</h2>
-              <p className="text-xs text-slate-400 mb-4">Question mix for this session</p>
-              <div className="flex flex-wrap gap-2">
-                {([
-                  { value: 'all' as Difficulty, label: 'All', requiresPro: false },
-                  { value: 'basic' as Difficulty, label: 'Basic', requiresPro: true },
-                  { value: 'advanced' as Difficulty, label: 'Advanced', requiresPro: true },
-                ]).map(d => {
-                  const isLocked = d.requiresPro && !subscribed
-                  return (
-                    <button
-                      key={d.value}
-                      onClick={() => isLocked ? locked(d.value) : setDifficulty(d.value)}
-                      className={`relative px-5 py-2 rounded-lg text-sm font-medium border-2 transition-all ${
-                        difficulty === d.value
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : isLocked
-                            ? 'border-slate-100 text-slate-400 cursor-not-allowed opacity-60'
-                            : 'border-slate-200 text-slate-600 hover:border-slate-300'
-                      }`}
-                    >
-                      {d.label}
-                      {isLocked && <span className="ml-1 text-amber-600">🔒</span>}
-                    </button>
-                  )
-                })}
-              </div>
+            <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: '#4A5E78', marginBottom: 10 }}>Questions</p>
+            <div style={{ display: 'flex', gap: 7, marginBottom: 28 }}>
+              {([
+                { val: 10 as QuestionCount, pro: false },
+                { val: 50 as QuestionCount, pro: true },
+                { val: 100 as QuestionCount, pro: true },
+              ]).map(({ val, pro }) => {
+                const isLocked = pro && !subscribed
+                return (
+                  <button
+                    key={val}
+                    onClick={() => isLocked ? locked() : setQuestionCount(val)}
+                    style={{
+                      flex: 1, padding: '9px 0', borderRadius: 10,
+                      border: `1.5px solid ${questionCount === val ? '#185FA5' : '#D4E1F0'}`,
+                      background: questionCount === val ? '#E8F0FB' : '#F8FAFF',
+                      fontFamily: 'var(--font-outfit),sans-serif', fontSize: 14, fontWeight: 600,
+                      color: questionCount === val ? '#185FA5' : isLocked ? '#D4E1F0' : '#4A5E78',
+                      cursor: isLocked ? 'default' : 'pointer',
+                      opacity: isLocked ? 0.5 : 1,
+                    }}
+                  >
+                    {val}
+                  </button>
+                )
+              })}
             </div>
 
-            {/* Step 4 — Number of questions */}
-            <div className="bg-white rounded-xl border border-slate-200 p-5">
-              <h2 className="font-semibold text-slate-700 mb-1 text-sm uppercase tracking-wider">Step 4 — Number of Questions</h2>
-              <p className="text-xs text-slate-400 mb-4">45 seconds allowed per question</p>
-              <div className="flex flex-wrap gap-3">
-                {([
-                  { value: 10  as QuestionCount, requiresPro: false },
-                  { value: 50  as QuestionCount, requiresPro: true },
-                  { value: 100 as QuestionCount, requiresPro: true },
-                ]).map(opt => {
-                  const isLocked = opt.requiresPro && !subscribed
-                  return (
-                    <button
-                      key={opt.value}
-                      onClick={() => isLocked ? locked(String(opt.value)) : setQuestionCount(opt.value)}
-                      className={`relative px-6 py-2.5 rounded-lg text-sm font-medium border-2 transition-all ${
-                        questionCount === opt.value
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : isLocked
-                            ? 'border-slate-100 text-slate-400 cursor-not-allowed opacity-60'
-                            : 'border-slate-200 text-slate-600 hover:border-slate-300'
-                      }`}
-                    >
-                      {opt.value} questions
-                      {isLocked && <span className="ml-1 text-amber-600">🔒</span>}
-                    </button>
-                  )
-                })}
-              </div>
-              <p className="text-xs text-slate-500 mt-3">
-                Time allowed: <span className="font-medium text-slate-700">{formatTimeAllowed(questionCount)}</span>
-                <span className="text-slate-400"> (45 sec per question)</span>
-              </p>
-            </div>
-
-            {/* Start */}
             <button
               onClick={startSession}
               disabled={starting || !canStart}
-              className="w-full py-4 rounded-xl font-bold text-white text-base transition-all disabled:opacity-50"
-              style={{ backgroundColor: '#185FA5' }}
+              style={{
+                width: '100%', padding: 15, background: '#EF9F27', color: '#fff', border: 'none',
+                borderRadius: 13, fontFamily: 'var(--font-outfit),sans-serif', fontSize: 16, fontWeight: 700,
+                cursor: starting || !canStart ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 20px rgba(239,159,39,0.32)', letterSpacing: '0.1px',
+                opacity: starting || !canStart ? 0.6 : 1,
+              }}
             >
-              {starting ? 'Starting…' : `Start ${mode === 'practice' ? 'Practice' : 'Mock Exam'} →`}
+              {starting ? 'Starting…' : 'Start session →'}
             </button>
-
           </div>
         </div>
-      </main>
-      <SiteFooter />
+      </div>
     </div>
   )
 }
