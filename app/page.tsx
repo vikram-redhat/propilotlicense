@@ -57,24 +57,30 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const name = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? null
 
   const svc = createServiceClient()
-  const [subjectsRes, qCountRes, bookCountRes, profileRes] = await Promise.all([
+  type SubjectRow = { id: string; name: string; icon_name: string; sort_order: number; licence_types: string[] }
+
+  const [subjectsRes, bookCountRes, profileRes] = await Promise.all([
     svc.from('subjects').select('id, name, icon_name, sort_order, licence_types').eq('active', true).order('sort_order'),
-    svc.from('questions').select('subject_id').eq('active', true),
     svc.from('source_books').select('*', { count: 'exact', head: true }),
     user ? svc.from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single() : Promise.resolve({ data: null }),
   ])
 
-  const qMap: Record<string, number> = {}
-  qCountRes.data?.forEach((q: { subject_id: string }) => { qMap[q.subject_id] = (qMap[q.subject_id] || 0) + 1 })
+  const subjectRows = (subjectsRes.data as SubjectRow[] || [])
 
-  type SubjectRow = { id: string; name: string; icon_name: string; sort_order: number; licence_types: string[] }
-  const subjects = (subjectsRes.data as SubjectRow[] || []).map(s => ({
+  // Count per subject using individual count queries (avoids the 1000-row default limit on bulk selects)
+  const countResults = await Promise.all(
+    subjectRows.map(s =>
+      svc.from('questions').select('*', { count: 'exact', head: true }).eq('active', true).eq('subject_id', s.id)
+    )
+  )
+
+  const subjects = subjectRows.map((s, i) => ({
     ...s,
-    questionCount: qMap[s.id] || 0,
+    questionCount: countResults[i].count ?? 0,
     href: (s.licence_types?.includes('CPL') ? '/cpl/' : '/atpl/') + s.id,
   }))
 
-  const totalQuestions = Object.values(qMap).reduce((a, b) => a + b, 0)
+  const totalQuestions = subjects.reduce((a, s) => a + s.questionCount, 0)
   const bookCount = bookCountRes.count ?? 0
   const subscribed = isSubscribed(profileRes?.data as Parameters<typeof isSubscribed>[0])
 
