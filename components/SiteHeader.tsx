@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import UserMenu from './UserMenu'
+import HeaderAuth from './HeaderAuth'
 
 interface Props {
   right?: React.ReactNode
@@ -13,7 +13,7 @@ export default function SiteHeader({ right }: Props) {
           ProPilot<span style={{ color: '#EF9F27' }}>Licence</span>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {right !== undefined ? right : <UserMenu />}
+          {right !== undefined ? right : <HeaderAuth />}
         </div>
       </div>
     </nav>

@@ -81,7 +81,10 @@ export default function LandingHeader({ name, isLoggedIn, subscribed }: Props) {
                   )}
                 </div>
               ) : (
-                <Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: '#185FA5', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
+                <>
+                  <Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
+                  <Link href="/signup" style={{ fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: '#185FA5', color: '#fff', textDecoration: 'none' }}>Sign up</Link>
+                </>
               )}
             </div>
 
@@ -120,7 +123,10 @@ export default function LandingHeader({ name, isLoggedIn, subscribed }: Props) {
               {isLoggedIn ? (
                 <button onClick={signOut} style={{ fontSize: 14, fontWeight: 500, color: '#185FA5', background: 'transparent', border: 'none', cursor: 'pointer' }}>Sign out</button>
               ) : (
-                <Link href="/login" onClick={() => setDrawerOpen(false)} style={{ fontSize: 14, fontWeight: 500, color: '#185FA5', textDecoration: 'none' }}>Log in</Link>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <Link href="/login" onClick={() => setDrawerOpen(false)} style={{ fontSize: 14, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Log in</Link>
+                  <Link href="/signup" onClick={() => setDrawerOpen(false)} style={{ fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: '#185FA5', color: '#fff', textDecoration: 'none' }}>Sign up</Link>
+                </div>
               )}
             </div>
           </div>
