@@ -192,7 +192,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
           />
           <Image
-            src="/hero/epaulettes.png"
+            src="/hero/epaulettes.jpg"
             alt=""
             width={400}
             height={400}
