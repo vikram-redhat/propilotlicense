@@ -1,24 +1,13 @@
 import Link from 'next/link'
+import SiteHeader from '@/components/SiteHeader'
 import SiteFooter from '@/components/SiteFooter'
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <header className="bg-white border-b border-slate-200 px-4 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#185FA5' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <span className="font-bold text-slate-800 text-lg">ProPilotLicence</span>
-          </Link>
-          <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-            Sign in →
-          </Link>
-        </div>
-      </header>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F8FAFF' }}>
+      <SiteHeader right={
+        <Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: '#185FA5', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
+      } />
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-16">
         <div className="text-center mb-12">

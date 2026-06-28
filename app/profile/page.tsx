@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import SiteHeader from '@/components/SiteHeader'
 import type { User } from '@supabase/supabase-js'
 import type { Profile } from '@/lib/types'
 import { getSubscriptionStatus, daysRemaining } from '@/lib/subscription'
@@ -65,20 +66,8 @@ export default function ProfilePage() {
     : null
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#185FA5' }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <span className="font-bold text-slate-800">ProPilotLicence</span>
-          </Link>
-          <Link href="/" className="text-sm text-slate-400 hover:text-slate-600">← Back</Link>
-        </div>
-      </header>
+    <div style={{ minHeight: '100vh', background: '#F8FAFF', color: '#0D1B2E' }}>
+      <SiteHeader />
 
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-4">
         {/* Identity */}

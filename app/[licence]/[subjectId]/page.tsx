@@ -189,7 +189,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
       {/* Nav */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 200, background: '#F8FAFF', borderBottom: '1px solid #D4E1F0' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 16px', height: 54, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="px-5 sm:px-9 lg:px-[60px]" style={{ height: 54, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <button
               onClick={() => router.back()}

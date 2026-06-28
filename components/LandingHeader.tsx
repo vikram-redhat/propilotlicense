@@ -57,13 +57,8 @@ export default function LandingHeader({ name, isLoggedIn, subscribed }: Props) {
           {/* Right side */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
 
-            {/* Desktop: palette + auth (sm+) */}
+            {/* Desktop: auth (sm+) */}
             <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 8 }}>
-              <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 20, border: '1px solid #D4E1F0', background: 'transparent', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: '#4A5E78', letterSpacing: '0.3px' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF9F27', flexShrink: 0, display: 'block' }}/>
-                Runway Blue
-              </button>
-
               {isLoggedIn && !subscribed && (
                 <Link href="/pricing" style={{ fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 20, border: '1px solid #D4E1F0', color: '#EF9F27', textDecoration: 'none', letterSpacing: '0.2px' }}>Upgrade</Link>
               )}
@@ -121,11 +116,7 @@ export default function LandingHeader({ name, isLoggedIn, subscribed }: Props) {
               <Link href="/profile" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', borderBottom: '1px solid #D4E1F0', display: 'block' }}>My Progress</Link>
               <Link href="/cpl" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', display: 'block' }}>Mock Exams</Link>
             </div>
-            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #D4E1F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 13px', borderRadius: 20, border: '1px solid #D4E1F0', background: 'transparent', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: '#4A5E78' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF9F27', flexShrink: 0, display: 'block' }}/>
-                Runway Blue
-              </button>
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #D4E1F0', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
               {isLoggedIn ? (
                 <button onClick={signOut} style={{ fontSize: 14, fontWeight: 500, color: '#185FA5', background: 'transparent', border: 'none', cursor: 'pointer' }}>Sign out</button>
               ) : (

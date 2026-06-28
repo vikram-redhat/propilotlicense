@@ -177,7 +177,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
       {/* ── Sticky sub-nav ── */}
       <div style={{ position: 'sticky', top: 0, zIndex: 150, background: '#F8FAFF', borderBottom: '1px solid #D4E1F0' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '12px 16px' }}>
+        <div className="px-5 sm:px-9 lg:px-[60px]" style={{ paddingTop: 12, paddingBottom: 12 }}>
           {/* Top row: breadcrumb + Q counter */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

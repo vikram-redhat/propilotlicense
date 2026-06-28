@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
 import { IconCheck, IconX, IconMinus, IconBook, IconBook2 } from '@tabler/icons-react'
 import SiteFooter from '@/components/SiteFooter'
-import UserMenu from '@/components/UserMenu'
+import SiteHeader from '@/components/SiteHeader'
 
 export default function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -125,18 +125,8 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const backHref = `/${session.licence_type.toLowerCase()}/${session.subject_id}`
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <header className="bg-white border-b border-slate-200 px-4 py-3">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link href={backHref} className="text-sm text-slate-400 hover:text-slate-600 transition-colors">
-            ← {subjectName || 'Back'}
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-slate-700">Results</span>
-            <UserMenu />
-          </div>
-        </div>
-      </header>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F8FAFF', color: '#0D1B2E' }}>
+      <SiteHeader />
 
       <main className="flex-1 px-4 py-8">
         <div className="max-w-3xl mx-auto space-y-6">
