@@ -56,7 +56,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/subjects') ||
     pathname.startsWith('/books') ||
     pathname.startsWith('/blog') ||
-    pathname === '/sitemap.xml'
+    pathname === '/sitemap.xml' ||
+    pathname === '/robots.txt'
 
   const bypassCookie = request.cookies.get('admin_bypass')?.value
   const hasBypass = !!bypassSecret && bypassCookie === bypassSecret
