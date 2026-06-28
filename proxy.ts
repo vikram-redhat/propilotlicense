@@ -45,7 +45,17 @@ export async function proxy(request: NextRequest) {
   // Auth pages: redirect logged-in users away. Auth handlers (/auth/*): always pass through.
   const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/verify'
   const isAuthRoute = isAuthPage || pathname.startsWith('/auth/')
-  const isPublicRoute = pathname === '/' || pathname === '/terms' || pathname === '/reset-password' || pathname === '/pricing' || pathname.startsWith('/checkout')
+  const isPublicRoute =
+    pathname === '/' ||
+    pathname === '/terms' ||
+    pathname === '/privacy' ||
+    pathname === '/about' ||
+    pathname === '/reset-password' ||
+    pathname === '/pricing' ||
+    pathname.startsWith('/checkout') ||
+    pathname.startsWith('/subjects') ||
+    pathname.startsWith('/books') ||
+    pathname.startsWith('/blog')
 
   const bypassCookie = request.cookies.get('admin_bypass')?.value
   const hasBypass = !!bypassSecret && bypassCookie === bypassSecret
