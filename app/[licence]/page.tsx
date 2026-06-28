@@ -24,11 +24,24 @@ async function getSubjectsForLicence(licence: string): Promise<(Subject & { book
 
   if (!subjects) return []
 
-  const bookCountRes = await supabase.from('source_books').select('subject_id')
+  // Per-subject count queries to avoid the 1000-row Supabase default limit
+  const [countResults, bookCountRes] = await Promise.all([
+    Promise.all(
+      subjects.map(s =>
+        supabase.from('questions').select('*', { count: 'exact', head: true }).eq('active', true).eq('subject_id', s.id)
+      )
+    ),
+    supabase.from('source_books').select('subject_id'),
+  ])
+
   const bMap: Record<string, number> = {}
   bookCountRes.data?.forEach(b => { bMap[b.subject_id] = (bMap[b.subject_id] || 0) + 1 })
 
-  return subjects.map(s => ({ ...s, book_count: bMap[s.id] || 0 }))
+  return subjects.map((s, i) => ({
+    ...s,
+    question_count: countResults[i].count ?? 0,
+    book_count: bMap[s.id] || 0,
+  }))
 }
 
 export default async function LicencePage({ params }: { params: Promise<{ licence: string }> }) {
