@@ -181,14 +181,16 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 72%', display: 'block' }}
             priority
           />
-          <Image
-            src="/hero/epaulettes.jpg"
-            alt=""
-            width={400}
-            height={400}
-            priority
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', display: 'block' }}
-          />
+          <div style={{ width: '100%', height: '100%', background: '#DCDCDC', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+            <Image
+              src="/hero/epaulettes.jpg"
+              alt=""
+              width={400}
+              height={400}
+              priority
+              style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+            />
+          </div>
         </div>
       </section>
 
