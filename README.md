@@ -81,3 +81,4 @@ Set the four environment variables in Vercel project settings before deploying.
 - No auth, no login, no registration
 - Student session state in `localStorage`
 - Mobile-first, 375px minimum width
+
