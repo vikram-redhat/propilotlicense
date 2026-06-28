@@ -149,7 +149,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             </div>
         </div>
 
-        {/* Right: photo mosaic — hidden on mobile, strip on tablet, 2×2 grid on desktop */}
+        {/* Right: two-image panel — hidden on mobile, side-by-side on sm+, 48% wide on desktop */}
         <style>{`
           .hero-mosaic {
             display: none;
@@ -157,7 +157,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           @media (min-width: 640px) {
             .hero-mosaic {
               display: grid;
-              grid-template-columns: 1fr 1fr 1fr;
+              grid-template-columns: 1fr 1fr;
               grid-template-rows: 260px;
               gap: 3px;
               overflow: hidden;
@@ -167,10 +167,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             .hero-mosaic {
               flex: 0 0 48%;
               grid-template-columns: 1fr 1fr;
-              grid-template-rows: 1fr 1fr;
+              grid-template-rows: 1fr;
               height: 100%;
             }
-            .hero-mosaic-main { grid-row: 1 / 3; }
           }
         `}</style>
         <div className="hero-mosaic">
@@ -179,17 +178,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             alt=""
             width={600}
             height={800}
-            className="hero-mosaic-main"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 72%', display: 'block' }}
             priority
-          />
-          <Image
-            src="/hero/172100.jpg"
-            alt=""
-            width={400}
-            height={400}
-            priority
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
           />
           <Image
             src="/hero/epaulettes.jpg"
@@ -197,7 +187,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             width={400}
             height={400}
             priority
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', display: 'block' }}
           />
         </div>
       </section>
