@@ -83,12 +83,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const totalQuestions = subjects.reduce((a, s) => a + s.questionCount, 0)
   const bookCount = bookCountRes.count ?? 0
   const subscribed = isSubscribed(profileRes?.data as Parameters<typeof isSubscribed>[0])
+  const examType = user?.user_metadata?.exam_type ?? null
 
   const configHref = user ? '/cpl' : '/login?next=/cpl'
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8FAFF', color: '#0D1B2E' }}>
-      <LandingHeader isLoggedIn={!!user} name={name} subscribed={subscribed} />
+      <LandingHeader isLoggedIn={!!user} name={name} subscribed={subscribed} examType={examType} />
 
       {/* ── Full-bleed hero ── */}
       <style>{`.hero-section { background:#042C53 } @media(min-width:1024px){.hero-section{height:500px;overflow:hidden}}`}</style>
@@ -187,6 +188,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             alt=""
             width={400}
             height={400}
+            priority
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
           />
           <Image
@@ -194,6 +196,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             alt=""
             width={400}
             height={400}
+            priority
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
           />
         </div>

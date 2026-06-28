@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
@@ -8,18 +8,19 @@ interface Props {
   name: string | null
   isLoggedIn: boolean
   subscribed?: boolean
+  examType?: string | null
 }
 
-export default function LandingHeader({ name, isLoggedIn, subscribed }: Props) {
+export default function LandingHeader({ name, isLoggedIn, subscribed, examType }: Props) {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
-  const supabase = createBrowserClient(
+  const supabase = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  ), [])
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -36,6 +37,7 @@ export default function LandingHeader({ name, isLoggedIn, subscribed }: Props) {
   }
 
   const firstName = (name || 'Account').split(' ')[0]
+  const dashHref = examType === 'ATPL' ? '/atpl' : '/cpl'
 
   return (
     <>
@@ -49,9 +51,9 @@ export default function LandingHeader({ name, isLoggedIn, subscribed }: Props) {
 
           {/* Desktop nav links (sm+) */}
           <div className="hidden sm:flex" style={{ gap: 22, alignItems: 'center' }}>
-            <Link href="/cpl" style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Subjects</Link>
+            <Link href={dashHref} style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Subjects</Link>
             <Link href="/profile" style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>My Progress</Link>
-            <Link href="/cpl" style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Mock Exams</Link>
+            <Link href={dashHref} style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Mock Exams</Link>
           </div>
 
           {/* Right side */}
@@ -75,7 +77,7 @@ export default function LandingHeader({ name, isLoggedIn, subscribed }: Props) {
                   {userMenuOpen && (
                     <div style={{ position: 'absolute', right: 0, marginTop: 8, width: 176, background: '#fff', borderRadius: 12, border: '1px solid #D4E1F0', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
                       <Link href="/profile" onClick={() => setUserMenuOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: '#0D1B2E', textDecoration: 'none' }}>Profile</Link>
-                      <Link href="/cpl" onClick={() => setUserMenuOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: '#0D1B2E', textDecoration: 'none', borderTop: '1px solid #EEF3FA' }}>Subjects</Link>
+                      <Link href={dashHref} onClick={() => setUserMenuOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: '#0D1B2E', textDecoration: 'none', borderTop: '1px solid #EEF3FA' }}>Subjects</Link>
                       <button onClick={signOut} style={{ width: '100%', textAlign: 'left', padding: '10px 16px', fontSize: 14, color: '#0D1B2E', background: 'transparent', border: 'none', borderTop: '1px solid #EEF3FA', cursor: 'pointer' }}>Sign out</button>
                     </div>
                   )}
@@ -115,9 +117,9 @@ export default function LandingHeader({ name, isLoggedIn, subscribed }: Props) {
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <Link href="/cpl" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', borderBottom: '1px solid #D4E1F0', display: 'block' }}>Subjects</Link>
+              <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', borderBottom: '1px solid #D4E1F0', display: 'block' }}>Subjects</Link>
               <Link href="/profile" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', borderBottom: '1px solid #D4E1F0', display: 'block' }}>My Progress</Link>
-              <Link href="/cpl" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', display: 'block' }}>Mock Exams</Link>
+              <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', display: 'block' }}>Mock Exams</Link>
             </div>
             <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #D4E1F0', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
               {isLoggedIn ? (

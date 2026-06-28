@@ -1,10 +1,15 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { createAuthClient } from '@/lib/supabase-server'
 
 export const maxDuration = 30
 
 const client = new Anthropic()
 
 export async function POST(req: Request) {
+  const authClient = await createAuthClient()
+  const { data: { user } } = await authClient.auth.getUser()
+  if (!user?.user_metadata?.is_admin) return Response.json({ error: 'Unauthorized' }, { status: 403 })
+
   const { bookTitle, bookAuthor, subject } = await req.json()
 
   if (!bookTitle || !subject) {

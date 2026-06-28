@@ -6,13 +6,8 @@ import { supabase } from '@/lib/supabase'
 
 function Logo() {
   return (
-    <div className="flex items-center gap-2 justify-center mb-8">
-      <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#185FA5' }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-        </svg>
-      </div>
-      <span className="font-bold text-slate-800 text-xl">ProPilotLicence</span>
+    <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 22, fontWeight: 700, letterSpacing: '-0.3px', color: '#0D1B2E', textAlign: 'center', marginBottom: 32 }}>
+      ProPilot<span style={{ color: '#EF9F27' }}>Licence</span>
     </div>
   )
 }

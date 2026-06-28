@@ -5,18 +5,19 @@ export async function POST(req: Request) {
   const body = await req.text()
   const signature = req.headers.get('x-razorpay-signature')
 
-  // Verify webhook signature
+  // Verify webhook signature — reject if secret is not configured
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET
-  if (webhookSecret && webhookSecret !== 'your_webhook_secret') {
-    const expectedSignature = crypto
-      .createHmac('sha256', webhookSecret)
-      .update(body)
-      .digest('hex')
-
-    if (expectedSignature !== signature) {
-      console.error('Webhook signature verification failed')
-      return new Response('Invalid signature', { status: 400 })
-    }
+  if (!webhookSecret) {
+    console.error('RAZORPAY_WEBHOOK_SECRET is not set')
+    return new Response('Webhook not configured', { status: 500 })
+  }
+  const expectedSignature = crypto
+    .createHmac('sha256', webhookSecret)
+    .update(body)
+    .digest('hex')
+  if (expectedSignature !== signature) {
+    console.error('Webhook signature verification failed')
+    return new Response('Invalid signature', { status: 400 })
   }
 
   let event: { event: string; payload: { payment: { entity: { notes?: { plan?: string; userId?: string } } } } }

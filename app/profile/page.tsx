@@ -21,17 +21,17 @@ export default function ProfilePage() {
       if (!user) { router.push('/login'); return }
       setUser(user)
 
-      const [sessionsRes, answersRes, profileRes] = await Promise.all([
+      const [sessionsRes, totalRes, correctRes, profileRes] = await Promise.all([
         supabase.from('sessions').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase.from('session_answers').select('is_correct, session:sessions!inner(user_id)').eq('session.user_id', user.id),
+        supabase.from('session_answers').select('session:sessions!inner(user_id)', { count: 'exact', head: true }).eq('session.user_id', user.id),
+        supabase.from('session_answers').select('session:sessions!inner(user_id)', { count: 'exact', head: true }).eq('session.user_id', user.id).eq('is_correct', true),
         supabase.from('profiles').select('*').eq('id', user.id).single(),
       ])
 
-      const answers = answersRes.data || []
       setStats({
         sessions: sessionsRes.count ?? 0,
-        totalAnswers: answers.length,
-        correctAnswers: answers.filter(a => a.is_correct).length,
+        totalAnswers: totalRes.count ?? 0,
+        correctAnswers: correctRes.count ?? 0,
       })
       setProfile(profileRes.data)
       setLoading(false)
