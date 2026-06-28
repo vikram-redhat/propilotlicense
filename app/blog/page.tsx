@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import SiteHeader from '@/components/SiteHeader'
+import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { buildMetadata } from '@/lib/metadata'
 import { BLOG_POSTS } from '@/lib/blog-posts'
@@ -14,7 +14,7 @@ export const metadata = buildMetadata({
 export default function BlogIndexPage() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
-      <SiteHeader right={<Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-primary)', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>} />
+      <LandingHeader isLoggedIn={false} name={null} />
 
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
         <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 32, fontWeight: 700, color: 'var(--clr-text)', letterSpacing: '-0.5px', lineHeight: 1.2, marginBottom: 8 }}>

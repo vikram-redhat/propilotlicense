@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import SiteHeader from '@/components/SiteHeader'
+import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { OrganizationSchema } from '@/components/schema/OrganizationSchema'
 import { buildMetadata } from '@/lib/metadata'
@@ -14,7 +14,7 @@ export default function AboutPage() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <OrganizationSchema />
-      <SiteHeader right={<Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-primary)', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>} />
+      <LandingHeader isLoggedIn={false} name={null} />
 
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
 

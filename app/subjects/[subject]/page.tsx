@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import SiteHeader from '@/components/SiteHeader'
+import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { CourseSchema } from '@/components/schema/CourseSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
@@ -33,7 +33,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <CourseSchema name={`DGCA CPL ${subject.title}`} description={subject.description} url={url} />
       <FAQSchema faqs={[...subject.faqs]} />
-      <SiteHeader right={<Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-primary)', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>} />
+      <LandingHeader isLoggedIn={false} name={null} />
 
       <main style={{ maxWidth: 800, margin: '0 auto', padding: '48px 20px 96px' }}>
 
