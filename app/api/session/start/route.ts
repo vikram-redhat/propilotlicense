@@ -9,7 +9,7 @@ const weights = {
 }
 
 export async function POST(req: Request) {
-  const { subjectId, licenceType, scope, topicId, sourceBookId, chapterId, mode, difficulty, questionCount } = await req.json()
+  const { subjectId, licenceType, scope, topicId, sourceBookId, chapterId, mode, difficulty, questionCount, pairedSubjectId } = await req.json()
 
   if (!subjectId || !mode || !difficulty || !questionCount || !scope) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
@@ -42,6 +42,61 @@ export async function POST(req: Request) {
     if (scope !== 'combined') return Response.json({ error: 'free_tier_scope' }, { status: 403 })
     if (questionCount > 10)   return Response.json({ error: 'free_tier_count' }, { status: 403 })
     if (mode === 'mock')      return Response.json({ error: 'free_tier_mode' },  { status: 403 })
+  }
+
+  // nav_rai_combined — 50 NAV + 50 RAI questions interleaved
+  if (scope === 'nav_rai_combined') {
+    if (!subscribed) return Response.json({ error: 'free_tier_mode' }, { status: 403 })
+    if (!pairedSubjectId) return Response.json({ error: 'Missing pairedSubjectId' }, { status: 400 })
+
+    const pickHalf = async (sid: string): Promise<string[]> => {
+      const { data: qs } = await supabase
+        .from('questions')
+        .select('id, difficulty')
+        .eq('subject_id', sid)
+        .eq('active', true)
+      if (!qs || qs.length === 0) return []
+      const w = weights[difficulty as keyof typeof weights] || weights.all
+      const weighted: string[] = []
+      for (const q of qs) {
+        const weight = w[q.difficulty as keyof typeof w] ?? 1
+        if (weight > 0 && Math.random() < weight) weighted.push(q.id)
+      }
+      const pool = weighted.length >= 50 ? weighted : qs.map(q => q.id)
+      return pool.sort(() => Math.random() - 0.5).slice(0, 50)
+    }
+
+    const [navIds, raiIds] = await Promise.all([pickHalf(subjectId), pickHalf(pairedSubjectId)])
+
+    if (navIds.length === 0 || raiIds.length === 0) {
+      return Response.json({ error: 'Not enough questions for combined paper' }, { status: 400 })
+    }
+
+    const interleaved: string[] = []
+    for (let i = 0; i < Math.max(navIds.length, raiIds.length); i++) {
+      if (i < navIds.length) interleaved.push(navIds[i])
+      if (i < raiIds.length) interleaved.push(raiIds[i])
+    }
+
+    const { data: session, error: sessionError } = await supabase
+      .from('sessions')
+      .insert({
+        user_id: user.id,
+        subject_id: null,
+        licence_type: (licenceType || 'CPL').toUpperCase(),
+        scope: 'nav_rai_combined',
+        mode: 'mock',
+        difficulty,
+        question_count: interleaved.length,
+        time_limit_secs: 6000,
+        question_ids: interleaved,
+        composite_subjects: ['NAV', 'RAI'],
+      })
+      .select('id')
+      .single()
+
+    if (sessionError) return Response.json({ error: sessionError.message }, { status: 500 })
+    return Response.json({ sessionId: session.id })
   }
 
   let query = supabase

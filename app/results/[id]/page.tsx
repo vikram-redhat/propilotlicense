@@ -18,6 +18,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const [chapters, setChapters] = useState<Record<string, { chapter_number: number; chapter_name: string }>>({})
   const [subjectName, setSubjectName] = useState('')
   const [topicName, setTopicName] = useState('')
+  const [subjectMap, setSubjectMap] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -34,7 +35,9 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
 
       const [{ data: qs }, { data: sub }] = await Promise.all([
         supabase.from('questions').select('*, options:question_options(*)').in('id', sess.question_ids),
-        supabase.from('subjects').select('name').eq('id', sess.subject_id).single(),
+        sess.scope === 'nav_rai_combined'
+          ? Promise.resolve({ data: { name: 'Air Navigation + Radio Aids' } })
+          : supabase.from('subjects').select('name').eq('id', sess.subject_id).single(),
       ])
 
       let topicDisplayName = ''
@@ -78,6 +81,16 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           chs?.forEach(c => { chMap[c.id] = c })
           setChapters(chMap)
         }
+
+        if (sess.scope === 'nav_rai_combined') {
+          const subjectIds = [...new Set(ordered.map(q => q.subject_id).filter(Boolean))] as string[]
+          if (subjectIds.length > 0) {
+            const { data: subs } = await supabase.from('subjects').select('id, name').in('id', subjectIds)
+            const sMap: Record<string, string> = {}
+            subs?.forEach(s => { sMap[s.id] = s.name })
+            setSubjectMap(sMap)
+          }
+        }
       }
 
       setSubjectName(sub?.name || '')
@@ -116,13 +129,17 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const reviewOrder = [...incorrectQs, ...correctQs]
 
   const scopeLabel =
-    session.scope === 'book' && session.source_book_id && books[session.source_book_id]
+    session.scope === 'nav_rai_combined'
+      ? 'Air Navigation + Radio Aids'
+      : session.scope === 'book' && session.source_book_id && books[session.source_book_id]
       ? books[session.source_book_id].title
       : session.scope === 'topic' && topicName
       ? topicName
       : 'Combined Paper'
 
-  const backHref = `/${session.licence_type.toLowerCase()}/${session.subject_id}`
+  const backHref = session.scope === 'nav_rai_combined'
+    ? `/${session.licence_type.toLowerCase()}`
+    : `/${session.licence_type.toLowerCase()}/${session.subject_id}`
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F8FAFF', color: '#0D1B2E' }}>
@@ -148,6 +165,26 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
               {passed ? 'Well done! You scored above the 70% pass threshold.' : 'Keep practising — you need 70% to pass.'}
             </p>
           </div>
+
+          {/* Per-subject breakdown for nav_rai_combined */}
+          {session.scope === 'nav_rai_combined' && Object.keys(subjectMap).length > 0 && (
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #D4E1F0', padding: '16px 20px' }}>
+              {Object.entries(subjectMap).map(([sid, sName]) => {
+                const subQs = questions.filter(q => q.subject_id === sid)
+                const subCorrect = subQs.filter(q => sessionState.answers[q.id]?.isCorrect).length
+                const subPct = subQs.length > 0 ? Math.round((subCorrect / subQs.length) * 100) : 0
+                return (
+                  <div key={sid} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #EEF3FA' }}>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2E' }}>{sName}</span>
+                    <span style={{ fontSize: 13, color: '#4A5E78' }}>
+                      <span style={{ fontWeight: 700, color: subPct >= 70 ? '#1A7A4A' : '#B83232' }}>{subCorrect}/{subQs.length}</span>
+                      <span style={{ marginLeft: 6, fontSize: 12 }}>({subPct}%)</span>
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
 
           {/* Stat cards */}
           <div className="grid grid-cols-3 gap-3">

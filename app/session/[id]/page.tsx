@@ -42,10 +42,12 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
       const ordered = sess.question_ids.map((qid: string) => qs.find((q: Question) => q.id === qid)).filter(Boolean) as Question[]
       setQuestions(ordered)
 
-      const [subRes] = await Promise.all([
-        supabase.from('subjects').select('name').eq('id', sess.subject_id).single(),
-      ])
-      setSubjectName(subRes.data?.name ?? '')
+      if (sess.scope === 'nav_rai_combined') {
+        setSubjectName('Air Navigation + Radio Aids')
+      } else {
+        const { data: sub } = await supabase.from('subjects').select('name').eq('id', sess.subject_id).single()
+        setSubjectName(sub?.name ?? '')
+      }
 
       const bookIds = [...new Set(ordered.map(q => q.source_book_id).filter(Boolean))] as string[]
       if (bookIds.length > 0) {

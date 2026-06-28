@@ -90,9 +90,9 @@ export interface QuestionOption {
 
 export interface Session {
   id: string
-  subject_id: string
+  subject_id: string | null
   licence_type: string
-  scope: 'topic' | 'book' | 'book_chapter' | 'combined'
+  scope: 'topic' | 'book' | 'book_chapter' | 'combined' | 'nav_rai_combined'
   topic_id: string | null
   source_book_id: string | null
   chapter_id: string | null
@@ -101,6 +101,7 @@ export interface Session {
   question_count: number
   time_limit_secs: number
   question_ids: string[]
+  composite_subjects?: string[] | null
   created_at: string
 }
 

@@ -92,6 +92,8 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const [mode, setMode]           = useState<Mode>('practice')
   const [difficulty, setDifficulty] = useState<Difficulty>('all')
   const [questionCount, setQuestionCount] = useState<QuestionCount>(10)
+  const [pairedSubject, setPairedSubject] = useState<Subject | null>(null)
+  const [combineNavRai, setCombineNavRai] = useState(true)
 
   const subscribed = isAdmin || isSubscribed(profile)
 
@@ -110,6 +112,12 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       setTopics(tops || [])
       setBooks(bks || [])
       setProfile(profileRes.data)
+
+      if ((sub?.code === 'NAV' || sub?.code === 'RAI') && licence.toLowerCase() === 'cpl') {
+        const pairedCode = sub.code === 'NAV' ? 'RAI' : 'NAV'
+        const { data: paired } = await supabase.from('subjects').select('*').eq('code', pairedCode).single()
+        setPairedSubject(paired || null)
+      }
 
       const userSubscribed = adminUser || isSubscribed(profileRes.data)
       if (!userSubscribed) {
@@ -141,17 +149,27 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
   async function startSession() {
     setStarting(true)
+    const isNavOrRai = subscribed && !!pairedSubject && mode === 'mock' && combineNavRai &&
+      !!subject && (subject.code === 'NAV' || subject.code === 'RAI') && licence.toLowerCase() === 'cpl'
+
+    const body = isNavOrRai ? {
+      subjectId, licenceType: licence.toUpperCase(),
+      scope: 'nav_rai_combined',
+      pairedSubjectId: pairedSubject!.id,
+      mode: 'mock', difficulty, questionCount: 100,
+    } : {
+      subjectId, licenceType: licence.toUpperCase(),
+      scope: effectiveScope,
+      topicId: scope === 'topic' ? selectedTopicId : null,
+      sourceBookId: scope === 'book' ? selectedBookId : null,
+      chapterId: effectiveScope === 'book_chapter' ? selectedChapterId : null,
+      mode, difficulty, questionCount,
+    }
+
     const res = await fetch('/api/session/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subjectId, licenceType: licence.toUpperCase(),
-        scope: effectiveScope,
-        topicId: scope === 'topic' ? selectedTopicId : null,
-        sourceBookId: scope === 'book' ? selectedBookId : null,
-        chapterId: effectiveScope === 'book_chapter' ? selectedChapterId : null,
-        mode, difficulty, questionCount,
-      }),
+      body: JSON.stringify(body),
     })
     const data = await res.json()
     if (data.sessionId) {
@@ -336,12 +354,46 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
           <div className="mt-6 lg:mt-0 lg:w-[310px] lg:shrink-0 lg:sticky lg:top-[90px]">
 
             <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: '#4A5E78', marginBottom: 10 }}>Mode</p>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 22 }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
               <Chip active={mode === 'practice'} onClick={() => setMode('practice')}>Practice</Chip>
               <Chip active={mode === 'mock'} onClick={() => subscribed ? setMode('mock') : locked()}>
                 Mock exam{!subscribed && ' 🔒'}
               </Chip>
             </div>
+
+            {/* NAV + RAI combine toggle — CPL mock exam only */}
+            {subscribed && !!pairedSubject && !!subject && (subject.code === 'NAV' || subject.code === 'RAI') && licence.toLowerCase() === 'cpl' && mode === 'mock' && (
+              <div
+                onClick={() => setCombineNavRai(v => !v)}
+                style={{
+                  marginBottom: 22, border: `1.5px solid ${combineNavRai ? '#185FA5' : '#D4E1F0'}`,
+                  background: combineNavRai ? '#E8F0FB' : '#F8FAFF',
+                  borderRadius: 10, padding: '12px 14px',
+                  cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: 10,
+                }}
+              >
+                <div style={{
+                  width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1,
+                  border: `1.5px solid ${combineNavRai ? '#185FA5' : '#D4E1F0'}`,
+                  background: combineNavRai ? '#185FA5' : '#F8FAFF',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {combineNavRai && (
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                      <path d="M1 4l2.5 2.5L9 1" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: combineNavRai ? '#185FA5' : '#0D1B2E', marginBottom: 3 }}>
+                    Combine with {subject.code === 'NAV' ? 'Radio Aids & Instruments' : 'Air Navigation'}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: '#4A5E78', lineHeight: 1.5 }}>
+                    Reflects the real CPL exam format — Navigation and Radio Aids are examined together as one paper.
+                  </div>
+                </div>
+              </div>
+            )}
 
             <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: '#4A5E78', marginBottom: 10 }}>Difficulty</p>
             <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 22 }}>
@@ -351,32 +403,39 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
             </div>
 
             <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: '#4A5E78', marginBottom: 10 }}>Questions</p>
-            <div style={{ display: 'flex', gap: 7, marginBottom: 28 }}>
-              {([
-                { val: 10 as QuestionCount, pro: false },
-                { val: 50 as QuestionCount, pro: true },
-                { val: 100 as QuestionCount, pro: true },
-              ]).map(({ val, pro }) => {
-                const isLocked = pro && !subscribed
-                return (
-                  <button
-                    key={val}
-                    onClick={() => isLocked ? locked() : setQuestionCount(val)}
-                    style={{
-                      flex: 1, padding: '9px 0', borderRadius: 10,
-                      border: `1.5px solid ${questionCount === val ? '#185FA5' : '#D4E1F0'}`,
-                      background: questionCount === val ? '#E8F0FB' : '#F8FAFF',
-                      fontFamily: 'var(--font-outfit),sans-serif', fontSize: 14, fontWeight: 600,
-                      color: questionCount === val ? '#185FA5' : isLocked ? '#D4E1F0' : '#4A5E78',
-                      cursor: isLocked ? 'default' : 'pointer',
-                      opacity: isLocked ? 0.5 : 1,
-                    }}
-                  >
-                    {val}
-                  </button>
-                )
-              })}
-            </div>
+            {subscribed && !!pairedSubject && !!subject && (subject.code === 'NAV' || subject.code === 'RAI') && licence.toLowerCase() === 'cpl' && mode === 'mock' && combineNavRai ? (
+              <div style={{ marginBottom: 28, padding: '9px 14px', background: '#EEF3FA', borderRadius: 10, border: '1px solid #D4E1F0' }}>
+                <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 14, fontWeight: 600, color: '#185FA5' }}>100</span>
+                <span style={{ fontSize: 12, color: '#4A5E78' }}> questions · fixed for combined paper</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 7, marginBottom: 28 }}>
+                {([
+                  { val: 10 as QuestionCount, pro: false },
+                  { val: 50 as QuestionCount, pro: true },
+                  { val: 100 as QuestionCount, pro: true },
+                ]).map(({ val, pro }) => {
+                  const isLocked = pro && !subscribed
+                  return (
+                    <button
+                      key={val}
+                      onClick={() => isLocked ? locked() : setQuestionCount(val)}
+                      style={{
+                        flex: 1, padding: '9px 0', borderRadius: 10,
+                        border: `1.5px solid ${questionCount === val ? '#185FA5' : '#D4E1F0'}`,
+                        background: questionCount === val ? '#E8F0FB' : '#F8FAFF',
+                        fontFamily: 'var(--font-outfit),sans-serif', fontSize: 14, fontWeight: 600,
+                        color: questionCount === val ? '#185FA5' : isLocked ? '#D4E1F0' : '#4A5E78',
+                        cursor: isLocked ? 'default' : 'pointer',
+                        opacity: isLocked ? 0.5 : 1,
+                      }}
+                    >
+                      {val}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
 
             <button
               onClick={startSession}
