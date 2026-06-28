@@ -45,7 +45,7 @@ export default function TermsPage() {
               All practice questions, explanations, and platform content published on ProPilotLicence.com are original works created independently for examination preparation purposes. Reference to third-party publications — including textbook titles, author names, chapter references, and page numbers — is made solely for the purpose of study attribution and does not constitute reproduction, endorsement, or affiliation.
             </p>
             <p className="text-sm text-slate-600 leading-relaxed mb-3">
-              ProPilotLicence.com respects the intellectual property rights of all authors and publishers. If you believe any content on this platform infringes your rights, please contact us at hello@propilotlicence.com and we will respond promptly.
+              ProPilotLicence.com respects the intellectual property rights of all authors and publishers. If you believe any content on this platform infringes your rights, please contact us at help@propilotlicence.com and we will respond promptly.
             </p>
             <p className="text-sm text-slate-600 leading-relaxed">
               Users of this platform may not reproduce, distribute, or republish any question content without express written permission.

@@ -109,8 +109,8 @@ export default function ProfilePage() {
             </div>
             <p className="text-xs text-slate-400">
               This cannot be changed. Contact{' '}
-              <a href="mailto:support@propilotlicence.com" className="underline hover:text-slate-600">
-                support@propilotlicence.com
+              <a href="mailto:help@propilotlicence.com" className="underline hover:text-slate-600">
+                help@propilotlicence.com
               </a>{' '}
               if this is incorrect.
             </p>
