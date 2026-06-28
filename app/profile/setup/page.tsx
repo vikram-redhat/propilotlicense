@@ -1,6 +1,5 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 type ExamType = 'CPL' | 'Composite' | 'ATPL'
@@ -27,25 +26,31 @@ const OPTIONS: { type: ExamType; title: string; subtitle: string; detail: string
 ]
 
 export default function ProfileSetupPage() {
-  const router = useRouter()
   const [selected, setSelected] = useState<ExamType | null>(null)
   const [saving, setSaving] = useState(false)
 
   async function confirm() {
     if (!selected || saving) return
     setSaving(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { window.location.href = '/login'; return }
 
-    await Promise.all([
-      supabase.from('profiles').update({
+      await supabase.from('profiles').update({
         exam_type: selected,
         exam_type_set_at: new Date().toISOString(),
-      }).eq('id', user.id),
-      supabase.auth.updateUser({ data: { exam_type: selected } }),
-    ])
+      }).eq('id', user.id)
 
-    router.push(selected === 'ATPL' ? '/atpl' : '/cpl')
+      // Update user metadata then refresh the session so the proxy
+      // sees the new exam_type in the JWT cookie before we redirect
+      await supabase.auth.updateUser({ data: { exam_type: selected } })
+      await supabase.auth.refreshSession()
+
+      // Full reload — not router.push — so the fresh cookie is sent with the first request
+      window.location.href = selected === 'ATPL' ? '/atpl' : '/cpl'
+    } catch {
+      setSaving(false)
+    }
   }
 
   return (
