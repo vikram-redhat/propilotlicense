@@ -19,6 +19,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const [subjectName, setSubjectName] = useState('')
   const [topicName, setTopicName] = useState('')
   const [subjectMap, setSubjectMap] = useState<Record<string, string>>({})
+  const [codeMap, setCodeMap] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,10 +34,14 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
         .select('question_id, selected_option_id, is_correct')
         .eq('session_id', id)
 
+      const subjectNameForScope =
+        sess.scope === 'nav_rai_combined' ? 'Air Navigation + Radio Aids' :
+        sess.scope === 'composite' ? 'Composite Paper' : null
+
       const [{ data: qs }, { data: sub }] = await Promise.all([
         supabase.from('questions').select('*, options:question_options(*)').in('id', sess.question_ids),
-        sess.scope === 'nav_rai_combined'
-          ? Promise.resolve({ data: { name: 'Air Navigation + Radio Aids' } })
+        subjectNameForScope
+          ? Promise.resolve({ data: { name: subjectNameForScope } })
           : supabase.from('subjects').select('name').eq('id', sess.subject_id).single(),
       ])
 
@@ -82,13 +87,15 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           setChapters(chMap)
         }
 
-        if (sess.scope === 'nav_rai_combined') {
+        if (sess.scope === 'nav_rai_combined' || sess.scope === 'composite') {
           const subjectIds = [...new Set(ordered.map(q => q.subject_id).filter(Boolean))] as string[]
           if (subjectIds.length > 0) {
-            const { data: subs } = await supabase.from('subjects').select('id, name').in('id', subjectIds)
+            const { data: subs } = await supabase.from('subjects').select('id, name, code').in('id', subjectIds)
             const sMap: Record<string, string> = {}
-            subs?.forEach(s => { sMap[s.id] = s.name })
+            const cMap: Record<string, string> = {}
+            subs?.forEach(s => { sMap[s.id] = s.name; cMap[s.id] = s.code })
             setSubjectMap(sMap)
+            setCodeMap(cMap)
           }
         }
       }
@@ -129,17 +136,17 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const reviewOrder = [...incorrectQs, ...correctQs]
 
   const scopeLabel =
-    session.scope === 'nav_rai_combined'
-      ? 'Air Navigation + Radio Aids'
-      : session.scope === 'book' && session.source_book_id && books[session.source_book_id]
-      ? books[session.source_book_id].title
-      : session.scope === 'topic' && topicName
-      ? topicName
-      : 'Combined Paper'
+    session.scope === 'nav_rai_combined' ? 'Air Navigation + Radio Aids' :
+    session.scope === 'composite' ? 'Composite Paper' :
+    session.scope === 'book' && session.source_book_id && books[session.source_book_id]
+      ? books[session.source_book_id].title :
+    session.scope === 'topic' && topicName ? topicName :
+    'Combined Paper'
 
-  const backHref = session.scope === 'nav_rai_combined'
-    ? `/${session.licence_type.toLowerCase()}`
-    : `/${session.licence_type.toLowerCase()}/${session.subject_id}`
+  const backHref =
+    session.scope === 'nav_rai_combined' || session.scope === 'composite'
+      ? `/${session.licence_type.toLowerCase()}`
+      : `/${session.licence_type.toLowerCase()}/${session.subject_id}`
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F8FAFF', color: '#0D1B2E' }}>
@@ -185,6 +192,33 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
               })}
             </div>
           )}
+
+          {/* Per-section breakdown for composite */}
+          {session.scope === 'composite' && Object.keys(codeMap).length > 0 && (() => {
+            const groups = [
+              { label: 'Navigation + Radio Aids', codes: ['NAV', 'RAI'] },
+              { label: 'Meteorology', codes: ['MET'] },
+              { label: 'Air Regulations', codes: ['REG'] },
+            ]
+            return (
+              <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #D4E1F0', padding: '16px 20px' }}>
+                {groups.map((g, i) => {
+                  const gQs = questions.filter(q => g.codes.includes(codeMap[q.subject_id ?? '']))
+                  const gCorrect = gQs.filter(q => sessionState.answers[q.id]?.isCorrect).length
+                  const gPct = gQs.length > 0 ? Math.round((gCorrect / gQs.length) * 100) : 0
+                  return (
+                    <div key={g.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < groups.length - 1 ? '1px solid #EEF3FA' : 'none' }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2E' }}>{g.label}</span>
+                      <span style={{ fontSize: 13, color: '#4A5E78' }}>
+                        <span style={{ fontWeight: 700, color: gPct >= 70 ? '#1A7A4A' : '#B83232' }}>{gCorrect}/{gQs.length}</span>
+                        <span style={{ marginLeft: 6, fontSize: 12 }}>({gPct}%)</span>
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
 
           {/* Stat cards */}
           <div className="grid grid-cols-3 gap-3">

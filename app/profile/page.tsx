@@ -78,13 +78,44 @@ export default function ProfilePage() {
           >
             {initial}
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <p className="font-semibold text-slate-800">{user?.email}</p>
             <p className="text-sm text-slate-500 mt-0.5 capitalize">
               {status === 'active' ? 'Full access' : status === 'expired' ? 'Access expired' : 'Free plan'}
             </p>
+            {profile?.exam_type && (
+              <div className="mt-2 flex items-center gap-2">
+                <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>
+                  {profile.exam_type === 'CPL' ? 'CPL' : profile.exam_type === 'ATPL' ? 'ATPL' : 'Composite'}
+                </span>
+                <span style={{ fontSize: 11, color: '#4A5E78' }}>
+                  Preparing for
+                </span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Exam type — read only */}
+        {profile?.exam_type && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-5">
+            <p className="text-sm font-semibold text-slate-700 mb-1">Preparing for</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 18, fontWeight: 700, color: '#185FA5' }}>
+                {profile.exam_type === 'CPL' ? 'Commercial Pilot Licence (CPL)'
+                  : profile.exam_type === 'ATPL' ? 'Airline Transport Pilot Licence (ATPL)'
+                  : 'Composite — Foreign licence conversion'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400">
+              This cannot be changed. Contact{' '}
+              <a href="mailto:support@propilotlicence.com" className="underline hover:text-slate-600">
+                support@propilotlicence.com
+              </a>{' '}
+              if this is incorrect.
+            </p>
+          </div>
+        )}
 
         {/* Subscription */}
         {status === 'active' && (

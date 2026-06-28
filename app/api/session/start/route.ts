@@ -11,11 +11,16 @@ const weights = {
 export async function POST(req: Request) {
   const { subjectId, licenceType, scope, topicId, sourceBookId, chapterId, mode, difficulty, questionCount, pairedSubjectId } = await req.json()
 
-  if (!subjectId || !mode || !difficulty || !questionCount || !scope) {
+  if (!scope || !mode || !difficulty) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
   }
-
-  if (![10, 50, 100].includes(questionCount)) {
+  if (scope !== 'composite' && !subjectId) {
+    return Response.json({ error: 'Missing subjectId' }, { status: 400 })
+  }
+  if (scope !== 'composite' && !questionCount) {
+    return Response.json({ error: 'Missing questionCount' }, { status: 400 })
+  }
+  if (scope !== 'composite' && ![10, 50, 100].includes(questionCount)) {
     return Response.json({ error: 'Invalid question count' }, { status: 400 })
   }
 
@@ -91,6 +96,74 @@ export async function POST(req: Request) {
         time_limit_secs: 6000,
         question_ids: interleaved,
         composite_subjects: ['NAV', 'RAI'],
+      })
+      .select('id')
+      .single()
+
+    if (sessionError) return Response.json({ error: sessionError.message }, { status: 500 })
+    return Response.json({ sessionId: session.id })
+  }
+
+  // composite — 34 from NAV+RAI, 33 from MET, 33 from REG, three-way interleaved
+  if (scope === 'composite') {
+    if (!subscribed) return Response.json({ error: 'free_tier_scope' }, { status: 403 })
+
+    const { data: subjects } = await supabase
+      .from('subjects')
+      .select('id, code')
+      .in('code', ['MET', 'NAV', 'RAI', 'REG'])
+
+    const byCode: Record<string, string> = {}
+    subjects?.forEach(s => { byCode[s.code] = s.id })
+
+    const pickN = async (subjectIds: string[], n: number): Promise<string[]> => {
+      const { data: qs } = await supabase
+        .from('questions')
+        .select('id, difficulty')
+        .in('subject_id', subjectIds)
+        .eq('active', true)
+      if (!qs || qs.length === 0) return []
+      const w = weights[difficulty as keyof typeof weights] || weights.all
+      const weighted: string[] = []
+      for (const q of qs) {
+        const weight = w[q.difficulty as keyof typeof w] ?? 1
+        if (weight > 0 && Math.random() < weight) weighted.push(q.id)
+      }
+      const pool = weighted.length >= n ? weighted : qs.map(q => q.id)
+      return pool.sort(() => Math.random() - 0.5).slice(0, n)
+    }
+
+    const navRaiIds = [byCode['NAV'], byCode['RAI']].filter(Boolean)
+    const [navRaiQs, metQs, regQs] = await Promise.all([
+      pickN(navRaiIds, 34),
+      pickN([byCode['MET']].filter(Boolean), 33),
+      pickN([byCode['REG']].filter(Boolean), 33),
+    ])
+
+    if (navRaiQs.length === 0 && metQs.length === 0 && regQs.length === 0) {
+      return Response.json({ error: 'No questions available for Composite paper' }, { status: 400 })
+    }
+
+    const interleaved: string[] = []
+    for (let i = 0; i < Math.max(navRaiQs.length, metQs.length, regQs.length); i++) {
+      if (i < navRaiQs.length) interleaved.push(navRaiQs[i])
+      if (i < metQs.length) interleaved.push(metQs[i])
+      if (i < regQs.length) interleaved.push(regQs[i])
+    }
+
+    const { data: session, error: sessionError } = await supabase
+      .from('sessions')
+      .insert({
+        user_id: user.id,
+        subject_id: null,
+        licence_type: (licenceType || 'CPL').toUpperCase(),
+        scope: 'composite',
+        mode,
+        difficulty,
+        question_count: interleaved.length,
+        time_limit_secs: 6000,
+        question_ids: interleaved,
+        composite_subjects: ['NAV', 'RAI', 'MET', 'REG'],
       })
       .select('id')
       .single()

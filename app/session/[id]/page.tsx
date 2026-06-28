@@ -44,6 +44,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
       if (sess.scope === 'nav_rai_combined') {
         setSubjectName('Air Navigation + Radio Aids')
+      } else if (sess.scope === 'composite') {
+        setSubjectName('Composite Paper')
       } else {
         const { data: sub } = await supabase.from('subjects').select('name').eq('id', sess.subject_id).single()
         setSubjectName(sub?.name ?? '')

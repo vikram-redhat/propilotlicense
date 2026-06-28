@@ -92,7 +92,7 @@ export interface Session {
   id: string
   subject_id: string | null
   licence_type: string
-  scope: 'topic' | 'book' | 'book_chapter' | 'combined' | 'nav_rai_combined'
+  scope: 'topic' | 'book' | 'book_chapter' | 'combined' | 'composite' | 'nav_rai_combined'
   topic_id: string | null
   source_book_id: string | null
   chapter_id: string | null
@@ -121,6 +121,8 @@ export interface Profile {
   subscription_plan: '30days' | '90days' | null
   subscription_expires_at: string | null
   exam_preference: 'CPL' | 'ATPL'
+  exam_type: 'CPL' | 'Composite' | 'ATPL' | null
+  exam_type_set_at: string | null
   created_at: string
   updated_at: string
 }
