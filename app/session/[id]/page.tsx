@@ -133,8 +133,12 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   async function flagQuestion() {
     if (!sessionState || !questions.length || !userId) return
     const q = questions[sessionState.currentIndex]
-    await supabase.from('question_flags').insert({ question_id: q.id, user_id: userId, reason: null })
-    setFlagged(prev => new Set([...prev, q.id]))
+    setFlagged(prev => new Set([...prev, q.id])) // optimistic
+    await fetch('/api/session/flag', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ questionId: q.id }),
+    })
   }
 
   if (loading) {
