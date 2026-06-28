@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 
@@ -14,20 +15,17 @@ export async function POST(req: Request) {
       plan: '30days' | '90days'
     }
 
-  // ── STUB ─────────────────────────────────────────────────────────────────
-  // Sash: add signature verification before activating:
-  //
-  // import crypto from 'crypto'
-  // const body = razorpay_order_id + '|' + razorpay_payment_id
-  // const expected = crypto
-  //   .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
-  //   .update(body).digest('hex')
-  // if (expected !== razorpay_signature) {
-  //   return Response.json({ error: 'Invalid signature' }, { status: 400 })
-  // }
-  // ─────────────────────────────────────────────────────────────────────────
+  // Verify payment signature (HMAC SHA256)
+  const body = razorpay_order_id + '|' + razorpay_payment_id
+  const expectedSignature = crypto
+    .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+    .update(body)
+    .digest('hex')
 
-  void razorpay_order_id; void razorpay_payment_id; void razorpay_signature
+  if (expectedSignature !== razorpay_signature) {
+    console.error('Payment signature mismatch:', { razorpay_order_id, razorpay_payment_id })
+    return Response.json({ error: 'Invalid signature' }, { status: 400 })
+  }
 
   if (plan !== '30days' && plan !== '90days') {
     return Response.json({ error: 'Invalid plan' }, { status: 400 })

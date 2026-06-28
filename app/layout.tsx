@@ -14,6 +14,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={outfit.variable}>
       <body className="min-h-screen antialiased" style={{ background: '#F8FAFF', fontFamily: 'system-ui,-apple-system,sans-serif' }}>
         {children}
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="beforeInteractive"
+        />
       </body>
     </html>
   )

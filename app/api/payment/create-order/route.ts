@@ -10,28 +10,38 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Invalid plan' }, { status: 400 })
   }
 
-  const amount = plan === '90days' ? 60000 : 25000 // paise (₹ × 100)
+  const amount = plan === '90days' ? 59900 : 25000 // paise (₹ × 100)
   const days   = plan === '90days' ? 90 : 30
 
-  // ── STUB ─────────────────────────────────────────────────────────────────
-  // Sash: replace this block with Razorpay Orders API:
-  //
-  // const Razorpay = require('razorpay')
-  // const razorpay = new Razorpay({
-  //   key_id: process.env.RAZORPAY_KEY_ID,
-  //   key_secret: process.env.RAZORPAY_KEY_SECRET,
-  // })
-  // const order = await razorpay.orders.create({
-  //   amount,
-  //   currency: 'INR',
-  //   receipt: `order_${Date.now()}`,
-  //   notes: { plan, days: String(days), userId: user.id },
-  // })
-  // return Response.json({ orderId: order.id, amount, currency: 'INR' })
-  // ─────────────────────────────────────────────────────────────────────────
+  // Create order via Razorpay REST API
+  const credentials = Buffer.from(
+    `${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`
+  ).toString('base64')
+
+  const razorpayRes = await fetch('https://api.razorpay.com/v1/orders', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${credentials}`,
+    },
+    body: JSON.stringify({
+      amount,
+      currency: 'INR',
+      receipt: `order_${Date.now()}`,
+      notes: { plan, days: String(days), userId: user.id },
+    }),
+  })
+
+  if (!razorpayRes.ok) {
+    const err = await razorpayRes.json()
+    console.error('Razorpay order creation failed:', err)
+    return Response.json({ error: 'Failed to create order' }, { status: 500 })
+  }
+
+  const order = await razorpayRes.json()
 
   return Response.json({
-    orderId: `stub_order_${Date.now()}`,
+    orderId: order.id,
     amount,
     currency: 'INR',
     plan,

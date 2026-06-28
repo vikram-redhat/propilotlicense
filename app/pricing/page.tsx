@@ -82,9 +82,9 @@ export default function PricingPage() {
               </span>
             </div>
             <p className="text-sm font-medium text-slate-500 mb-1">90 Days</p>
-            <p className="text-3xl font-bold text-slate-900 mb-1">₹600</p>
+            <p className="text-3xl font-bold text-slate-900 mb-1">₹599</p>
             <p className="text-sm text-slate-400 mb-1">one-time · no renewal</p>
-            <p className="text-xs font-medium text-green-600 mb-5">Save ₹150 vs 3× monthly</p>
+            <p className="text-xs font-medium text-green-600 mb-5">Save ₹151 vs 3× monthly</p>
             <ul className="space-y-2.5 text-sm mb-8">
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Everything in 30 Days</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> 90 days full access</li>
