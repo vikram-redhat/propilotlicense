@@ -1,6 +1,21 @@
 export const dynamic = 'force-dynamic'
 
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
+  description: 'India\'s most complete DGCA CPL and ATPL question bank — 7,000+ questions mapped to prescribed textbooks, verified by active airline captains. First 10 questions free.',
+  alternates: { canonical: 'https://propilotlicence.com' },
+  openGraph: {
+    title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
+    description: 'India\'s most complete DGCA CPL and ATPL question bank — 7,000+ questions mapped to prescribed textbooks, verified by active airline captains.',
+    url: 'https://propilotlicence.com',
+    siteName: 'ProPilotLicence',
+    type: 'website',
+    locale: 'en_IN',
+  },
+}
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import LandingHeader from '@/components/LandingHeader'
@@ -225,6 +240,22 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Captain verification section */}
+        <div style={{ border: '1px solid var(--clr-border)', borderRadius: 16, padding: '20px 20px', marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--clr-pri-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, color: 'var(--clr-text)' }}>Every question verified by working captains</div>
+          </div>
+          <p style={{ fontSize: 13, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: 0 }}>
+            Before any question enters the bank, it is reviewed by a panel of four or more active commercial airline captains — currently flying on Indian routes, holding valid DGCA CPL and ATPL licences. They check for technical accuracy, correct answer, distractor quality, and regulatory currency.
+          </p>
+          <Link href="/about" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
+            About the verification process →
+          </Link>
         </div>
 
         {/* Bottom CTA */}

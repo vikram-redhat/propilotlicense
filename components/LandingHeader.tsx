@@ -53,9 +53,18 @@ export default function LandingHeader({ name, isLoggedIn, subscribed, examType }
 
           {/* Desktop nav links (sm+) */}
           <div className="hidden sm:flex" style={{ gap: 22, alignItems: 'center' }}>
-            <Link href={dashHref} style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Subjects</Link>
-            <Link href="/profile" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>My Progress</Link>
-            <Link href={dashHref} style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Mock Exams</Link>
+            {isLoggedIn ? (
+              <>
+                <Link href={dashHref} style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Subjects</Link>
+                <Link href="/profile" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>My Progress</Link>
+                <Link href={dashHref} style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Mock Exams</Link>
+              </>
+            ) : (
+              <>
+                <Link href="/subjects" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Subjects</Link>
+                <Link href="/blog" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Blog</Link>
+              </>
+            )}
           </div>
 
           {/* Right side */}
@@ -129,9 +138,18 @@ export default function LandingHeader({ name, isLoggedIn, subscribed, examType }
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>Subjects</Link>
-              <Link href="/profile" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>My Progress</Link>
-              <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', display: 'block' }}>Mock Exams</Link>
+              {isLoggedIn ? (
+                <>
+                  <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>Subjects</Link>
+                  <Link href="/profile" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>My Progress</Link>
+                  <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', display: 'block' }}>Mock Exams</Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/subjects" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>Subjects</Link>
+                  <Link href="/blog" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', display: 'block' }}>Blog</Link>
+                </>
+              )}
             </div>
             <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--clr-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               {/* Palette toggle — mobile */}

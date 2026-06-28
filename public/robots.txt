@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Private app routes — not for indexing
+Disallow: /cpl
+Disallow: /atpl
+Disallow: /session
+Disallow: /results
+Disallow: /profile
+Disallow: /api/
+
+Sitemap: https://propilotlicence.com/sitemap.xml

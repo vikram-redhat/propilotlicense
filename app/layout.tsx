@@ -2,13 +2,15 @@ import type { Metadata } from 'next'
 import { Outfit } from 'next/font/google'
 import Script from 'next/script'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { OrganizationSchema } from '@/components/schema/OrganizationSchema'
 import './globals.css'
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit', display: 'swap' })
 
 export const metadata: Metadata = {
-  title: 'ProPilotLicence — DGCA Pilot Licence Exam Prep',
-  description: 'Practice questions and mock exams for DGCA CPL and ATPL pilot licence theory tests',
+  title: { default: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep', template: '%s' },
+  description: 'Practice questions for DGCA CPL and ATPL theory exams — sourced from prescribed textbooks, verified by active airline captains.',
+  metadataBase: new URL('https://propilotlicence.com'),
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -19,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: `(function(){var p=localStorage.getItem('palette');if(p==='B')document.documentElement.dataset.palette='B'})()` }} />
       </head>
       <body className="min-h-screen antialiased" style={{ fontFamily: 'system-ui,-apple-system,sans-serif' }}>
+        <OrganizationSchema />
         <ThemeProvider>
           {children}
         </ThemeProvider>

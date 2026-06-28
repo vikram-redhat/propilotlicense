@@ -1,9 +1,13 @@
 import Link from 'next/link'
 import SiteFooter from '@/components/SiteFooter'
 
-export const metadata = {
+import { buildMetadata } from '@/lib/metadata'
+
+export const metadata = buildMetadata({
   title: 'Terms of Use — ProPilotLicence',
-}
+  description: 'Terms of use for ProPilotLicence.com — the DGCA CPL and ATPL theory examination preparation platform.',
+  path: '/terms',
+})
 
 export default function TermsPage() {
   return (
@@ -75,8 +79,11 @@ export default function TermsPage() {
 
           <section className="mb-8">
             <h2 className="text-base font-bold text-slate-800 mb-3">6. Privacy</h2>
+            <p className="text-sm text-slate-600 leading-relaxed mb-3">
+              When you create an account, we collect and store your email address and session history to provide the service. We do not sell your personal data. Payment processing is handled by Razorpay; we do not store card details.
+            </p>
             <p className="text-sm text-slate-600 leading-relaxed">
-              This platform does not require registration or collect personal data beyond anonymous session state stored in your browser. No personal information is transmitted to or stored on our servers in connection with student use.
+              For full details, see our <Link href="/privacy" className="font-medium hover:underline" style={{ color: 'var(--clr-primary)' }}>Privacy Policy</Link>.
             </p>
           </section>
 

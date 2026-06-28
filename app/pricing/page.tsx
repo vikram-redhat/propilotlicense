@@ -1,6 +1,13 @@
 import Link from 'next/link'
 import SiteHeader from '@/components/SiteHeader'
 import SiteFooter from '@/components/SiteFooter'
+import { buildMetadata } from '@/lib/metadata'
+
+export const metadata = buildMetadata({
+  title: 'Pricing — ProPilotLicence DGCA Exam Prep',
+  description: 'Simple pricing for DGCA CPL and ATPL theory exam preparation. ₹250 for 30 days, ₹599 for 90 days. No subscription, no auto-renewal.',
+  path: '/pricing',
+})
 
 export default function PricingPage() {
   return (
@@ -92,6 +99,10 @@ export default function PricingPage() {
         <p className="text-center text-xs text-slate-400 mt-8">
           Payments processed securely via Razorpay · UPI · Cards · Net banking.
           Access activates immediately after payment. No subscriptions — no auto-renewal.
+        </p>
+        <p className="text-center text-xs mt-6" style={{ color: 'var(--clr-text-med)' }}>
+          Every question on ProPilotLicence is verified by a panel of four or more active commercial airline captains before entering the question bank.{' '}
+          <Link href="/about" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'none' }}>Learn more →</Link>
         </p>
       </main>
 
