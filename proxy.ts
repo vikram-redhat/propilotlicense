@@ -55,7 +55,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/checkout') ||
     pathname.startsWith('/subjects') ||
     pathname.startsWith('/books') ||
-    pathname.startsWith('/blog')
+    pathname.startsWith('/blog') ||
+    pathname === '/sitemap.xml'
 
   const bypassCookie = request.cookies.get('admin_bypass')?.value
   const hasBypass = !!bypassSecret && bypassCookie === bypassSecret
