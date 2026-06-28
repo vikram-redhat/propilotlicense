@@ -51,9 +51,9 @@ export default function LandingHeader({ name, isLoggedIn, subscribed, examType }
 
           {/* Desktop nav links (sm+) */}
           <div className="hidden sm:flex" style={{ gap: 22, alignItems: 'center' }}>
-            <Link href={dashHref} style={{ fontSize: 20, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Subjects</Link>
-            <Link href="/profile" style={{ fontSize: 20, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>My Progress</Link>
-            <Link href={dashHref} style={{ fontSize: 20, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Mock Exams</Link>
+            <Link href={dashHref} style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Subjects</Link>
+            <Link href="/profile" style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>My Progress</Link>
+            <Link href={dashHref} style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Mock Exams</Link>
           </div>
 
           {/* Right side */}
@@ -62,30 +62,30 @@ export default function LandingHeader({ name, isLoggedIn, subscribed, examType }
             {/* Desktop: auth (sm+) */}
             <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 8 }}>
               {isLoggedIn && !subscribed && (
-                <Link href="/pricing" style={{ fontSize: 18, fontWeight: 600, padding: '5px 12px', borderRadius: 20, border: '1px solid #D4E1F0', color: '#EF9F27', textDecoration: 'none', letterSpacing: '0.2px' }}>Upgrade</Link>
+                <Link href="/pricing" style={{ fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 20, border: '1px solid #D4E1F0', color: '#EF9F27', textDecoration: 'none', letterSpacing: '0.2px' }}>Upgrade</Link>
               )}
 
               {isLoggedIn ? (
                 <div className="relative" ref={menuRef}>
                   <button
                     onClick={() => setUserMenuOpen(o => !o)}
-                    style={{ fontSize: 20, fontWeight: 500, color: '#185FA5', background: 'transparent', border: 'none', cursor: 'pointer', padding: '5px 4px', display: 'flex', alignItems: 'center', gap: 4 }}
+                    style={{ fontSize: 13, fontWeight: 500, color: '#185FA5', background: 'transparent', border: 'none', cursor: 'pointer', padding: '5px 4px', display: 'flex', alignItems: 'center', gap: 4 }}
                   >
                     Hi, {firstName}
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
                   </button>
                   {userMenuOpen && (
                     <div style={{ position: 'absolute', right: 0, marginTop: 8, width: 176, background: '#fff', borderRadius: 12, border: '1px solid #D4E1F0', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
-                      <Link href="/profile" onClick={() => setUserMenuOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 21, color: '#0D1B2E', textDecoration: 'none' }}>Profile</Link>
-                      <Link href={dashHref} onClick={() => setUserMenuOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 21, color: '#0D1B2E', textDecoration: 'none', borderTop: '1px solid #EEF3FA' }}>Subjects</Link>
-                      <button onClick={signOut} style={{ width: '100%', textAlign: 'left', padding: '10px 16px', fontSize: 21, color: '#0D1B2E', background: 'transparent', border: 'none', borderTop: '1px solid #EEF3FA', cursor: 'pointer' }}>Sign out</button>
+                      <Link href="/profile" onClick={() => setUserMenuOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: '#0D1B2E', textDecoration: 'none' }}>Profile</Link>
+                      <Link href={dashHref} onClick={() => setUserMenuOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: '#0D1B2E', textDecoration: 'none', borderTop: '1px solid #EEF3FA' }}>Subjects</Link>
+                      <button onClick={signOut} style={{ width: '100%', textAlign: 'left', padding: '10px 16px', fontSize: 14, color: '#0D1B2E', background: 'transparent', border: 'none', borderTop: '1px solid #EEF3FA', cursor: 'pointer' }}>Sign out</button>
                     </div>
                   )}
                 </div>
               ) : (
                 <>
-                  <Link href="/login" style={{ fontSize: 20, fontWeight: 500, color: '#4A5E78', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
-                  <Link href="/signup" style={{ fontSize: 20, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: '#185FA5', color: '#fff', textDecoration: 'none' }}>Sign up</Link>
+                  <Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
+                  <Link href="/signup" style={{ fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: '#185FA5', color: '#fff', textDecoration: 'none' }}>Sign up</Link>
                 </>
               )}
             </div>
@@ -117,17 +117,17 @@ export default function LandingHeader({ name, isLoggedIn, subscribed, examType }
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 24, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', borderBottom: '1px solid #D4E1F0', display: 'block' }}>Subjects</Link>
-              <Link href="/profile" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 24, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', borderBottom: '1px solid #D4E1F0', display: 'block' }}>My Progress</Link>
-              <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 24, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', display: 'block' }}>Mock Exams</Link>
+              <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', borderBottom: '1px solid #D4E1F0', display: 'block' }}>Subjects</Link>
+              <Link href="/profile" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', borderBottom: '1px solid #D4E1F0', display: 'block' }}>My Progress</Link>
+              <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: '#0D1B2E', textDecoration: 'none', display: 'block' }}>Mock Exams</Link>
             </div>
             <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #D4E1F0', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
               {isLoggedIn ? (
-                <button onClick={signOut} style={{ fontSize: 21, fontWeight: 500, color: '#185FA5', background: 'transparent', border: 'none', cursor: 'pointer' }}>Sign out</button>
+                <button onClick={signOut} style={{ fontSize: 14, fontWeight: 500, color: '#185FA5', background: 'transparent', border: 'none', cursor: 'pointer' }}>Sign out</button>
               ) : (
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <Link href="/login" onClick={() => setDrawerOpen(false)} style={{ fontSize: 21, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Log in</Link>
-                  <Link href="/signup" onClick={() => setDrawerOpen(false)} style={{ fontSize: 20, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: '#185FA5', color: '#fff', textDecoration: 'none' }}>Sign up</Link>
+                  <Link href="/login" onClick={() => setDrawerOpen(false)} style={{ fontSize: 14, fontWeight: 500, color: '#4A5E78', textDecoration: 'none' }}>Log in</Link>
+                  <Link href="/signup" onClick={() => setDrawerOpen(false)} style={{ fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: '#185FA5', color: '#fff', textDecoration: 'none' }}>Sign up</Link>
                 </div>
               )}
             </div>

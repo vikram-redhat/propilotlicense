@@ -74,14 +74,14 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
 
         <section style={{ borderBottom: '1px solid #D4E1F0', padding: '24px 20px' }} className="sm:px-9 lg:px-[60px]">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#185FA5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 800, fontSize: 20, flexShrink: 0, textAlign: 'center', lineHeight: 1.2 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#185FA5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 800, fontSize: 13, flexShrink: 0, textAlign: 'center', lineHeight: 1.2 }}>
               COM
             </div>
             <div>
               <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: '#0D1B2E', letterSpacing: '-0.3px' }}>
                 Composite Licence Conversion
               </h1>
-              <p style={{ fontSize: 20, color: '#4A5E78', marginTop: 2 }}>Foreign licence conversion · 2 papers</p>
+              <p style={{ fontSize: 13, color: '#4A5E78', marginTop: 2 }}>Foreign licence conversion · 2 papers</p>
             </div>
           </div>
         </section>
@@ -99,15 +99,15 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
                 <div style={{ width: 38, height: 38, borderRadius: 9, background: '#E8F0FB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <SubjectIcon name={byCode['REG'].icon_name} size={20} className="text-[#185FA5]" />
                 </div>
-                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 600, fontSize: 20, color: '#0D1B2E', lineHeight: 1.3 }}>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 600, fontSize: 13, color: '#0D1B2E', lineHeight: 1.3 }}>
                   {byCode['REG'].name}
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  <span style={{ fontSize: 17, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>
                     {byCode['REG'].question_count ?? 0} questions
                   </span>
                   {(byCode['REG'].book_count ?? 0) > 0 && (
-                    <span style={{ fontSize: 17, fontWeight: 500, padding: '3px 9px', borderRadius: 20, background: '#F8FAFF', color: '#4A5E78', border: '1px solid #D4E1F0' }}>
+                    <span style={{ fontSize: 11, fontWeight: 500, padding: '3px 9px', borderRadius: 20, background: '#F8FAFF', color: '#4A5E78', border: '1px solid #D4E1F0' }}>
                       {byCode['REG'].book_count} books
                     </span>
                   )}
@@ -143,14 +143,14 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
 
       <section style={{ borderBottom: '1px solid #D4E1F0', padding: '24px 20px' }} className="sm:px-9 lg:px-[60px]">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#185FA5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 800, fontSize: 23, flexShrink: 0 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#185FA5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 800, fontSize: 15, flexShrink: 0 }}>
             {licenceUpper}
           </div>
           <div>
             <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: '#0D1B2E', letterSpacing: '-0.3px' }}>
               {licenceUpper === 'CPL' ? 'Commercial Pilot Licence' : 'Airline Transport Pilot Licence'}
             </h1>
-            <p style={{ fontSize: 20, color: '#4A5E78', marginTop: 2 }}>{dashboardNote}</p>
+            <p style={{ fontSize: 13, color: '#4A5E78', marginTop: 2 }}>{dashboardNote}</p>
           </div>
         </div>
       </section>
@@ -158,7 +158,7 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
       <main className="flex-1 px-5 sm:px-9 lg:px-[60px] py-8">
         {subjects.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 0', color: '#4A5E78' }}>
-            <p style={{ fontSize: 24 }}>No subjects available yet.</p>
+            <p style={{ fontSize: 16 }}>No subjects available yet.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -172,15 +172,15 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
                 <div style={{ width: 38, height: 38, borderRadius: 9, background: '#E8F0FB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <SubjectIcon name={subject.icon_name} size={20} className="text-[#185FA5]" />
                 </div>
-                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 600, fontSize: 20, color: '#0D1B2E', lineHeight: 1.3 }}>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 600, fontSize: 13, color: '#0D1B2E', lineHeight: 1.3 }}>
                   {subject.name}
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  <span style={{ fontSize: 17, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>
                     {subject.question_count ?? 0} questions
                   </span>
                   {(subject.book_count ?? 0) > 0 && (
-                    <span style={{ fontSize: 17, fontWeight: 500, padding: '3px 9px', borderRadius: 20, background: '#F8FAFF', color: '#4A5E78', border: '1px solid #D4E1F0' }}>
+                    <span style={{ fontSize: 11, fontWeight: 500, padding: '3px 9px', borderRadius: 20, background: '#F8FAFF', color: '#4A5E78', border: '1px solid #D4E1F0' }}>
                       {subject.book_count} books
                     </span>
                   )}

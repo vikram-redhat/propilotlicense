@@ -85,10 +85,10 @@ export default function ProfilePage() {
             </p>
             {profile?.exam_type && (
               <div className="mt-2 flex items-center gap-2">
-                <span style={{ fontSize: 17, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>
+                <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>
                   {profile.exam_type === 'CPL' ? 'CPL' : profile.exam_type === 'ATPL' ? 'ATPL' : 'Composite'}
                 </span>
-                <span style={{ fontSize: 17, color: '#4A5E78' }}>
+                <span style={{ fontSize: 11, color: '#4A5E78' }}>
                   Preparing for
                 </span>
               </div>

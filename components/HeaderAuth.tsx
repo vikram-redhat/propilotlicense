@@ -24,8 +24,8 @@ export default function HeaderAuth() {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <Link href="/login" style={{ fontSize: 20, fontWeight: 500, color: '#4A5E78', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
-      <Link href="/signup" style={{ fontSize: 20, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: '#185FA5', color: '#fff', textDecoration: 'none' }}>Sign up</Link>
+      <Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: '#4A5E78', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
+      <Link href="/signup" style={{ fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: '#185FA5', color: '#fff', textDecoration: 'none' }}>Sign up</Link>
     </div>
   )
 }

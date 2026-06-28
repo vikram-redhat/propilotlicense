@@ -182,10 +182,10 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                 const subPct = subQs.length > 0 ? Math.round((subCorrect / subQs.length) * 100) : 0
                 return (
                   <div key={sid} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #EEF3FA' }}>
-                    <span style={{ fontSize: 20, fontWeight: 500, color: '#0D1B2E' }}>{sName}</span>
-                    <span style={{ fontSize: 20, color: '#4A5E78' }}>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2E' }}>{sName}</span>
+                    <span style={{ fontSize: 13, color: '#4A5E78' }}>
                       <span style={{ fontWeight: 700, color: subPct >= 70 ? '#1A7A4A' : '#B83232' }}>{subCorrect}/{subQs.length}</span>
-                      <span style={{ marginLeft: 6, fontSize: 18 }}>({subPct}%)</span>
+                      <span style={{ marginLeft: 6, fontSize: 12 }}>({subPct}%)</span>
                     </span>
                   </div>
                 )
@@ -208,10 +208,10 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                   const gPct = gQs.length > 0 ? Math.round((gCorrect / gQs.length) * 100) : 0
                   return (
                     <div key={g.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < groups.length - 1 ? '1px solid #EEF3FA' : 'none' }}>
-                      <span style={{ fontSize: 20, fontWeight: 500, color: '#0D1B2E' }}>{g.label}</span>
-                      <span style={{ fontSize: 20, color: '#4A5E78' }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2E' }}>{g.label}</span>
+                      <span style={{ fontSize: 13, color: '#4A5E78' }}>
                         <span style={{ fontWeight: 700, color: gPct >= 70 ? '#1A7A4A' : '#B83232' }}>{gCorrect}/{gQs.length}</span>
-                        <span style={{ marginLeft: 6, fontSize: 18 }}>({gPct}%)</span>
+                        <span style={{ marginLeft: 6, fontSize: 12 }}>({gPct}%)</span>
                       </span>
                     </div>
                   )

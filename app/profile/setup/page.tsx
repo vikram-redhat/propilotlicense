@@ -66,7 +66,7 @@ export default function ProfileSetupPage() {
           <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: '#0D1B2E', textAlign: 'center', marginBottom: 4, letterSpacing: '-0.3px' }}>
             One quick question
           </h1>
-          <p style={{ fontSize: 21, color: '#4A5E78', textAlign: 'center', marginBottom: 24 }}>
+          <p style={{ fontSize: 14, color: '#4A5E78', textAlign: 'center', marginBottom: 24 }}>
             What are you preparing for?
           </p>
 
@@ -84,19 +84,19 @@ export default function ProfileSetupPage() {
                     transition: 'border-color 0.15s, background 0.15s',
                   }}
                 >
-                  <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 23, fontWeight: 700, color: active ? '#185FA5' : '#0D1B2E', marginBottom: 2 }}>
+                  <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, color: active ? '#185FA5' : '#0D1B2E', marginBottom: 2 }}>
                     {opt.title}
                   </div>
-                  <div style={{ fontSize: 20, fontWeight: 500, color: active ? '#185FA5' : '#0D1B2E', marginBottom: 2 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: active ? '#185FA5' : '#0D1B2E', marginBottom: 2 }}>
                     {opt.subtitle}
                   </div>
-                  <div style={{ fontSize: 18, color: '#4A5E78' }}>{opt.detail}</div>
+                  <div style={{ fontSize: 12, color: '#4A5E78' }}>{opt.detail}</div>
                 </div>
               )
             })}
           </div>
 
-          <p style={{ fontSize: 18, color: '#4A5E78', textAlign: 'center', marginBottom: 18 }}>
+          <p style={{ fontSize: 12, color: '#4A5E78', textAlign: 'center', marginBottom: 18 }}>
             This personalises your subject list. This choice cannot be changed later.
           </p>
 
@@ -107,7 +107,7 @@ export default function ProfileSetupPage() {
               width: '100%', padding: '14px 0', borderRadius: 12,
               background: selected ? '#185FA5' : '#D4E1F0',
               color: '#fff', fontFamily: 'var(--font-outfit),sans-serif',
-              fontSize: 23, fontWeight: 700, border: 'none',
+              fontSize: 15, fontWeight: 700, border: 'none',
               cursor: selected && !saving ? 'pointer' : 'not-allowed',
               opacity: saving ? 0.7 : 1,
               transition: 'background 0.15s',
