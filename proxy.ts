@@ -67,6 +67,14 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Authenticated users without an exam_type must complete profile setup
+  const isSetupPage = pathname.startsWith('/profile/setup')
+  if (user && !isSetupPage && !isAuthRoute && !isPublicRoute && !hasBypass) {
+    if (!user.user_metadata?.exam_type) {
+      return NextResponse.redirect(new URL('/profile/setup', request.url))
+    }
+  }
+
   return supabaseResponse
 }
 
