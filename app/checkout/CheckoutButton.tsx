@@ -113,7 +113,7 @@ export default function CheckoutButton({
           userId: user.id,
         },
         theme: {
-          color: '#185FA5',
+          color: 'var(--clr-primary)',
         },
         modal: {
           ondismiss: () => {
@@ -143,7 +143,7 @@ export default function CheckoutButton({
       onClick={handlePay}
       disabled={loading}
       className="w-full rounded-xl py-3.5 font-semibold text-white text-sm transition-all disabled:opacity-60 hover:opacity-90"
-      style={{ backgroundColor: '#185FA5' }}
+      style={{ backgroundColor: 'var(--clr-primary)' }}
     >
       {loading ? 'Processing…' : `Pay ₹${amount} →`}
     </button>

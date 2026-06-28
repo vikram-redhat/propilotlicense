@@ -54,19 +54,19 @@ export default function ProfileSetupPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFF', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
       <div style={{ width: '100%', maxWidth: 460 }}>
 
-        <div style={{ textAlign: 'center', marginBottom: 32, fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: '#0D1B2E', letterSpacing: '-0.3px' }}>
-          ProPilot<span style={{ color: '#EF9F27' }}>Licence</span>
+        <div style={{ textAlign: 'center', marginBottom: 32, fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', letterSpacing: '-0.3px' }}>
+          ProPilot<span style={{ color: 'var(--clr-amber)' }}>Licence</span>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #D4E1F0', padding: '36px 28px' }}>
+        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid var(--clr-border)', padding: '36px 28px' }}>
           <div style={{ fontSize: 26, textAlign: 'center', marginBottom: 10 }}>✈</div>
-          <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: '#0D1B2E', textAlign: 'center', marginBottom: 4, letterSpacing: '-0.3px' }}>
+          <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', textAlign: 'center', marginBottom: 4, letterSpacing: '-0.3px' }}>
             One quick question
           </h1>
-          <p style={{ fontSize: 14, color: '#4A5E78', textAlign: 'center', marginBottom: 24 }}>
+          <p style={{ fontSize: 14, color: 'var(--clr-text-med)', textAlign: 'center', marginBottom: 24 }}>
             What are you preparing for?
           </p>
 
@@ -78,25 +78,25 @@ export default function ProfileSetupPage() {
                   key={opt.type}
                   onClick={() => setSelected(opt.type)}
                   style={{
-                    border: `1.5px solid ${active ? '#185FA5' : '#D4E1F0'}`,
-                    background: active ? '#E8F0FB' : '#F8FAFF',
+                    border: `1.5px solid ${active ? 'var(--clr-primary)' : 'var(--clr-border)'}`,
+                    background: active ? 'var(--clr-pri-light)' : 'var(--clr-surface)',
                     borderRadius: 13, padding: '14px 16px', cursor: 'pointer',
                     transition: 'border-color 0.15s, background 0.15s',
                   }}
                 >
-                  <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, color: active ? '#185FA5' : '#0D1B2E', marginBottom: 2 }}>
+                  <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, color: active ? 'var(--clr-primary)' : 'var(--clr-text)', marginBottom: 2 }}>
                     {opt.title}
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: active ? '#185FA5' : '#0D1B2E', marginBottom: 2 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: active ? 'var(--clr-primary)' : 'var(--clr-text)', marginBottom: 2 }}>
                     {opt.subtitle}
                   </div>
-                  <div style={{ fontSize: 12, color: '#4A5E78' }}>{opt.detail}</div>
+                  <div style={{ fontSize: 12, color: 'var(--clr-text-med)' }}>{opt.detail}</div>
                 </div>
               )
             })}
           </div>
 
-          <p style={{ fontSize: 12, color: '#4A5E78', textAlign: 'center', marginBottom: 18 }}>
+          <p style={{ fontSize: 12, color: 'var(--clr-text-med)', textAlign: 'center', marginBottom: 18 }}>
             This personalises your subject list. This choice cannot be changed later.
           </p>
 
@@ -105,7 +105,7 @@ export default function ProfileSetupPage() {
             disabled={!selected || saving}
             style={{
               width: '100%', padding: '14px 0', borderRadius: 12,
-              background: selected ? '#185FA5' : '#D4E1F0',
+              background: selected ? 'var(--clr-primary)' : 'var(--clr-border)',
               color: '#fff', fontFamily: 'var(--font-outfit),sans-serif',
               fontSize: 15, fontWeight: 700, border: 'none',
               cursor: selected && !saving ? 'pointer' : 'not-allowed',

@@ -4,9 +4,9 @@ import SiteFooter from '@/components/SiteFooter'
 
 export default function PricingPage() {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F8FAFF' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--clr-surface)' }}>
       <SiteHeader right={
-        <Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: '#185FA5', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
+        <Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-primary)', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
       } />
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-16">
@@ -57,16 +57,16 @@ export default function PricingPage() {
             <Link
               href="/checkout?plan=30days"
               className="block text-center rounded-xl py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90"
-              style={{ backgroundColor: '#185FA5' }}
+              style={{ backgroundColor: 'var(--clr-primary)' }}
             >
               Get 30 days →
             </Link>
           </div>
 
           {/* 90 days */}
-          <div className="bg-white border-2 rounded-2xl p-6 relative" style={{ borderColor: '#185FA5' }}>
+          <div className="bg-white border-2 rounded-2xl p-6 relative" style={{ borderColor: 'var(--clr-primary)' }}>
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-              <span className="text-xs font-semibold text-white px-3 py-1 rounded-full" style={{ backgroundColor: '#185FA5' }}>
+              <span className="text-xs font-semibold text-white px-3 py-1 rounded-full" style={{ backgroundColor: 'var(--clr-primary)' }}>
                 Best value
               </span>
             </div>
@@ -82,7 +82,7 @@ export default function PricingPage() {
             <Link
               href="/checkout?plan=90days"
               className="block text-center rounded-xl py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90"
-              style={{ backgroundColor: '#185FA5' }}
+              style={{ backgroundColor: 'var(--clr-primary)' }}
             >
               Get 90 days →
             </Link>

@@ -311,7 +311,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
                   {!pdfProcessed && (
                     <button type="button" onClick={processPdf} disabled={processing}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white disabled:opacity-50 transition-colors"
-                      style={{ backgroundColor: '#185FA5' }}>
+                      style={{ backgroundColor: 'var(--clr-primary)' }}>
                       {processing ? (
                         <>
                           <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full" />
@@ -369,7 +369,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
           <div className="flex items-center gap-3 pt-2">
             <button type="submit" disabled={saving}
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-all"
-              style={{ backgroundColor: '#185FA5' }}>
+              style={{ backgroundColor: 'var(--clr-primary)' }}>
               {saving ? 'Saving…' : 'Save Changes'}
             </button>
             <Link href="/admin/books"

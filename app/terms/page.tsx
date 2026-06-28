@@ -13,7 +13,7 @@ export default function TermsPage() {
           <Link href="/" className="flex items-center gap-2">
             <div
               className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: '#185FA5' }}
+              style={{ backgroundColor: 'var(--clr-primary)' }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
@@ -88,7 +88,7 @@ export default function TermsPage() {
           </section>
 
           <div className="mt-10 pt-6 border-t border-slate-100">
-            <Link href="/" className="text-sm font-medium hover:underline" style={{ color: '#185FA5' }}>
+            <Link href="/" className="text-sm font-medium hover:underline" style={{ color: 'var(--clr-primary)' }}>
               ← Back to ProPilotLicence
             </Link>
           </div>

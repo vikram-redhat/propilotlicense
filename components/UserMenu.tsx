@@ -42,7 +42,7 @@ export default function UserMenu() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setOpen(o => !o)}
-        style={{ fontSize: 13, fontWeight: 500, color: '#185FA5', background: 'transparent', border: 'none', cursor: 'pointer', padding: '5px 4px', display: 'flex', alignItems: 'center', gap: 4 }}
+        style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-primary)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '5px 4px', display: 'flex', alignItems: 'center', gap: 4 }}
       >
         Hi, {name}
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -51,13 +51,13 @@ export default function UserMenu() {
       </button>
 
       {open && (
-        <div style={{ position: 'absolute', right: 0, marginTop: 8, width: 176, background: '#fff', borderRadius: 12, border: '1px solid #D4E1F0', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
-          <Link href="/profile" onClick={() => setOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: '#0D1B2E', textDecoration: 'none' }}
-            className="hover:bg-[#EEF3FA] transition-colors">Profile</Link>
-          <Link href="/" onClick={() => setOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: '#0D1B2E', textDecoration: 'none', borderTop: '1px solid #EEF3FA' }}
-            className="hover:bg-[#EEF3FA] transition-colors">Home</Link>
-          <button onClick={signOut} style={{ width: '100%', textAlign: 'left', padding: '10px 16px', fontSize: 14, color: '#0D1B2E', background: 'transparent', border: 'none', borderTop: '1px solid #EEF3FA', cursor: 'pointer' }}
-            className="hover:bg-[#EEF3FA] transition-colors">Sign out</button>
+        <div style={{ position: 'absolute', right: 0, marginTop: 8, width: 176, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
+          <Link href="/profile" onClick={() => setOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none' }}
+            className="hover:bg-[var(--clr-surf-alt)] transition-colors">Profile</Link>
+          <Link href="/" onClick={() => setOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none', borderTop: '1px solid var(--clr-surf-alt)' }}
+            className="hover:bg-[var(--clr-surf-alt)] transition-colors">Home</Link>
+          <button onClick={signOut} style={{ width: '100%', textAlign: 'left', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', background: 'transparent', border: 'none', borderTop: '1px solid var(--clr-surf-alt)', cursor: 'pointer' }}
+            className="hover:bg-[var(--clr-surf-alt)] transition-colors">Sign out</button>
         </div>
       )}
     </div>

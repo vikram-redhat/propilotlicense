@@ -1,14 +1,51 @@
 @import "tailwindcss";
 
+/* ── Palette A — Runway Blue (default) ── */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --primary: #185FA5;
+  --clr-hero: #042C53;
+  --clr-primary: #185FA5;
+  --clr-pri-light: #E8F0FB;
+  --clr-amber: #EF9F27;
+  --clr-amber-light: #FEF4DC;
+  --clr-amber-glow: rgba(239,159,39,0.32);
+  --clr-surface: #F8FAFF;
+  --clr-surf-alt: #EEF3FA;
+  --clr-border: #D4E1F0;
+  --clr-text: #0D1B2E;
+  --clr-text-med: #4A5E78;
+  --clr-correct: #1A7A4A;
+  --clr-correct-bg: #E5F7ED;
+  --clr-wrong: #B83232;
+  --clr-wrong-bg: #FDEAEA;
+}
+
+/* ── Palette B — Golden Hour ── */
+[data-palette="B"] {
+  --clr-hero: #021D35;
+  --clr-primary: #1872B5;
+  --clr-pri-light: #E8EFF8;
+  --clr-amber: #E8941A;
+  --clr-amber-light: #FEF2DC;
+  --clr-amber-glow: rgba(232,148,26,0.32);
+  --clr-surface: #FFFCF5;
+  --clr-surf-alt: #F4EDE0;
+  --clr-border: #E2D4BB;
+  --clr-text: #0D1520;
+  --clr-text-med: #50423A;
+}
+
+/* Smooth palette transitions on all colour properties */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.35s;
+  transition-timing-function: ease;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--clr-surface);
+  color: var(--clr-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow-x: hidden;
 }

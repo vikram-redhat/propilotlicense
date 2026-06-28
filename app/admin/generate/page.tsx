@@ -503,7 +503,7 @@ export default function GeneratePage() {
                 <button
                   onClick={() => startGeneration()}
                   className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
-                  style={{ backgroundColor: '#185FA5' }}
+                  style={{ backgroundColor: 'var(--clr-primary)' }}
                 >
                   Continue anyway
                 </button>
@@ -522,7 +522,7 @@ export default function GeneratePage() {
               onClick={generate}
               disabled={generating || checking || !subjectId}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-50 transition-all"
-              style={{ backgroundColor: '#185FA5' }}
+              style={{ backgroundColor: 'var(--clr-primary)' }}
             >
               <IconSparkles size={16} />
               {checking ? 'Checking book relevance…' : generating ? 'Generating…' : 'Generate Questions'}
@@ -675,7 +675,7 @@ export default function GeneratePage() {
                           onClick={() => approve(index, true)}
                           disabled={saving[index]}
                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50"
-                          style={{ backgroundColor: '#185FA5' }}
+                          style={{ backgroundColor: 'var(--clr-primary)' }}
                         >
                           <IconCheck size={13} />
                           {saving[index] ? 'Saving…' : 'Approve'}
@@ -694,7 +694,7 @@ export default function GeneratePage() {
                             onClick={() => approve(index, true)}
                             disabled={saving[index]}
                             className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50"
-                            style={{ backgroundColor: '#185FA5' }}
+                            style={{ backgroundColor: 'var(--clr-primary)' }}
                           >
                             <IconCheck size={13} />
                             <IconCheck size={13} className="-ml-2" />

@@ -130,7 +130,7 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
               type="submit"
               disabled={saving}
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-all"
-              style={{ backgroundColor: '#185FA5' }}
+              style={{ backgroundColor: 'var(--clr-primary)' }}
             >
               {saving ? 'Saving…' : 'Save Changes'}
             </button>

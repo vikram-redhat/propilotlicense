@@ -66,7 +66,7 @@ export default function ProfilePage() {
     : null
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFF', color: '#0D1B2E' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <SiteHeader />
 
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-4">
@@ -74,7 +74,7 @@ export default function ProfilePage() {
         <div className="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-4">
           <div
             className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0"
-            style={{ backgroundColor: '#185FA5' }}
+            style={{ backgroundColor: 'var(--clr-primary)' }}
           >
             {initial}
           </div>
@@ -85,10 +85,10 @@ export default function ProfilePage() {
             </p>
             {profile?.exam_type && (
               <div className="mt-2 flex items-center gap-2">
-                <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>
+                <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: 'var(--clr-pri-light)', color: 'var(--clr-primary)' }}>
                   {profile.exam_type === 'CPL' ? 'CPL' : profile.exam_type === 'ATPL' ? 'ATPL' : 'Composite'}
                 </span>
-                <span style={{ fontSize: 11, color: '#4A5E78' }}>
+                <span style={{ fontSize: 11, color: 'var(--clr-text-med)' }}>
                   Preparing for
                 </span>
               </div>
@@ -101,7 +101,7 @@ export default function ProfilePage() {
           <div className="bg-white rounded-2xl border border-slate-200 p-5">
             <p className="text-sm font-semibold text-slate-700 mb-1">Preparing for</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 18, fontWeight: 700, color: '#185FA5' }}>
+              <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--clr-primary)' }}>
                 {profile.exam_type === 'CPL' ? 'Commercial Pilot Licence (CPL)'
                   : profile.exam_type === 'ATPL' ? 'Airline Transport Pilot Licence (ATPL)'
                   : 'Composite — Foreign licence conversion'}
@@ -134,7 +134,7 @@ export default function ProfilePage() {
             <Link
               href="/pricing"
               className="inline-block mt-3 text-sm font-semibold text-white px-4 py-2 rounded-lg transition-all hover:opacity-90"
-              style={{ backgroundColor: '#185FA5' }}
+              style={{ backgroundColor: 'var(--clr-primary)' }}
             >
               Renew access →
             </Link>

@@ -6,8 +6,8 @@ import { supabase } from '@/lib/supabase'
 
 function Logo() {
   return (
-    <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 22, fontWeight: 700, letterSpacing: '-0.3px', color: '#0D1B2E', textAlign: 'center', marginBottom: 32 }}>
-      ProPilot<span style={{ color: '#EF9F27' }}>Licence</span>
+    <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 22, fontWeight: 700, letterSpacing: '-0.3px', color: 'var(--clr-text)', textAlign: 'center', marginBottom: 32 }}>
+      ProPilot<span style={{ color: 'var(--clr-amber)' }}>Licence</span>
     </div>
   )
 }
@@ -87,7 +87,7 @@ export default function LoginForm({ next }: { next: string }) {
               type="submit"
               disabled={loading || !email || !password}
               className="w-full py-3 rounded-xl font-semibold text-white text-sm transition-all disabled:opacity-50"
-              style={{ backgroundColor: '#185FA5' }}
+              style={{ backgroundColor: 'var(--clr-primary)' }}
             >
               {loading ? 'Signing in…' : 'Sign in →'}
             </button>

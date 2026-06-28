@@ -5,8 +5,8 @@ import { supabase } from '@/lib/supabase'
 
 function Logo() {
   return (
-    <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 22, fontWeight: 700, letterSpacing: '-0.3px', color: '#0D1B2E', textAlign: 'center', marginBottom: 32 }}>
-      ProPilot<span style={{ color: '#EF9F27' }}>Licence</span>
+    <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 22, fontWeight: 700, letterSpacing: '-0.3px', color: 'var(--clr-text)', textAlign: 'center', marginBottom: 32 }}>
+      ProPilot<span style={{ color: 'var(--clr-amber)' }}>Licence</span>
     </div>
   )
 }
@@ -56,7 +56,7 @@ export default function SignupForm({ next }: { next: string }) {
           <Logo />
           <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center">
             <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#EBF4FF' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" strokeWidth="2">
                 <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
@@ -116,7 +116,7 @@ export default function SignupForm({ next }: { next: string }) {
               type="submit"
               disabled={loading || !email || !password || !confirm}
               className="w-full py-3 rounded-xl font-semibold text-white text-sm transition-all disabled:opacity-50"
-              style={{ backgroundColor: '#185FA5' }}
+              style={{ backgroundColor: 'var(--clr-primary)' }}
             >
               {loading ? 'Creating account…' : 'Create account →'}
             </button>

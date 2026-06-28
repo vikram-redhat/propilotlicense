@@ -293,7 +293,7 @@ export default function QuestionForm({ question }: QuestionFormProps) {
           onClick={save}
           disabled={saving}
           className="px-6 py-2.5 rounded-xl font-semibold text-white text-sm disabled:opacity-50"
-          style={{ backgroundColor: '#185FA5' }}
+          style={{ backgroundColor: 'var(--clr-primary)' }}
         >
           {saving ? 'Saving…' : 'Save Question'}
         </button>

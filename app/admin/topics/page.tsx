@@ -60,7 +60,7 @@ export default function TopicsPage() {
           <Link
             href="/admin/topics/new"
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-white transition-all"
-            style={{ backgroundColor: '#185FA5' }}
+            style={{ backgroundColor: 'var(--clr-primary)' }}
           >
             <IconPlus size={15} />
             New Topic

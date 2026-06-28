@@ -149,7 +149,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
       : `/${session.licence_type.toLowerCase()}/${session.subject_id}`
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F8FAFF', color: '#0D1B2E' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <SiteHeader />
 
       <main className="flex-1 px-4 py-8">
@@ -175,15 +175,15 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
 
           {/* Per-subject breakdown for nav_rai_combined */}
           {session.scope === 'nav_rai_combined' && Object.keys(subjectMap).length > 0 && (
-            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #D4E1F0', padding: '16px 20px' }}>
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '16px 20px' }}>
               {Object.entries(subjectMap).map(([sid, sName]) => {
                 const subQs = questions.filter(q => q.subject_id === sid)
                 const subCorrect = subQs.filter(q => sessionState.answers[q.id]?.isCorrect).length
                 const subPct = subQs.length > 0 ? Math.round((subCorrect / subQs.length) * 100) : 0
                 return (
-                  <div key={sid} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #EEF3FA' }}>
-                    <span style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2E' }}>{sName}</span>
-                    <span style={{ fontSize: 13, color: '#4A5E78' }}>
+                  <div key={sid} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--clr-surf-alt)' }}>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text)' }}>{sName}</span>
+                    <span style={{ fontSize: 13, color: 'var(--clr-text-med)' }}>
                       <span style={{ fontWeight: 700, color: subPct >= 70 ? '#1A7A4A' : '#B83232' }}>{subCorrect}/{subQs.length}</span>
                       <span style={{ marginLeft: 6, fontSize: 12 }}>({subPct}%)</span>
                     </span>
@@ -201,15 +201,15 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
               { label: 'Air Regulations', codes: ['REG'] },
             ]
             return (
-              <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #D4E1F0', padding: '16px 20px' }}>
+              <div style={{ background: '#fff', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '16px 20px' }}>
                 {groups.map((g, i) => {
                   const gQs = questions.filter(q => g.codes.includes(codeMap[q.subject_id ?? '']))
                   const gCorrect = gQs.filter(q => sessionState.answers[q.id]?.isCorrect).length
                   const gPct = gQs.length > 0 ? Math.round((gCorrect / gQs.length) * 100) : 0
                   return (
-                    <div key={g.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < groups.length - 1 ? '1px solid #EEF3FA' : 'none' }}>
-                      <span style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2E' }}>{g.label}</span>
-                      <span style={{ fontSize: 13, color: '#4A5E78' }}>
+                    <div key={g.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < groups.length - 1 ? '1px solid var(--clr-surf-alt)' : 'none' }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text)' }}>{g.label}</span>
+                      <span style={{ fontSize: 13, color: 'var(--clr-text-med)' }}>
                         <span style={{ fontWeight: 700, color: gPct >= 70 ? '#1A7A4A' : '#B83232' }}>{gCorrect}/{gQs.length}</span>
                         <span style={{ marginLeft: 6, fontSize: 12 }}>({gPct}%)</span>
                       </span>
@@ -360,7 +360,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
             <Link
               href={`/${session.licence_type.toLowerCase()}`}
               className="flex-1 py-3 rounded-xl text-center font-semibold text-white transition-all"
-              style={{ backgroundColor: '#185FA5' }}
+              style={{ backgroundColor: 'var(--clr-primary)' }}
             >
               All Subjects
             </Link>

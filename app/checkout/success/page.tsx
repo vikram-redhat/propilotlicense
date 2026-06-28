@@ -13,7 +13,7 @@ export default function SuccessPage() {
         <Link
           href="/cpl"
           className="inline-block rounded-xl px-8 py-3 font-semibold text-white text-sm transition-all hover:opacity-90"
-          style={{ backgroundColor: '#185FA5' }}
+          style={{ backgroundColor: 'var(--clr-primary)' }}
         >
           Start practising →
         </Link>
