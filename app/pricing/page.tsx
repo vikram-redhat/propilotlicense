@@ -6,7 +6,7 @@ export default function PricingPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F8FAFF' }}>
       <SiteHeader right={
-        <Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: '#185FA5', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
+        <Link href="/login" style={{ fontSize: 20, fontWeight: 500, color: '#185FA5', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
       } />
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-16">

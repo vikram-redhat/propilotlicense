@@ -187,26 +187,26 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <button
                 onClick={() => router.back()}
-                style={{ fontSize: 12, color: '#4A5E78', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 3 }}
+                style={{ fontSize: 18, color: '#4A5E78', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 3 }}
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2.5L4 6l4 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 Session
               </button>
-              <span style={{ color: '#D4E1F0', fontSize: 14 }}>›</span>
-              <span style={{ fontSize: 12, color: '#0D1B2E', fontWeight: 500 }}>{subjectName}</span>
+              <span style={{ color: '#D4E1F0', fontSize: 21 }}>›</span>
+              <span style={{ fontSize: 18, color: '#0D1B2E', fontWeight: 500 }}>{subjectName}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               {isMock && (
                 <>
-                  <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 12, fontWeight: 600, color: (timeLeft ?? 0) <= 60 ? '#B83232' : '#4A5E78', background: (timeLeft ?? 0) <= 60 ? '#FDEAEA' : '#EEF3FA', padding: '3px 8px', borderRadius: 6 }}>
+                  <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 18, fontWeight: 600, color: (timeLeft ?? 0) <= 60 ? '#B83232' : '#4A5E78', background: (timeLeft ?? 0) <= 60 ? '#FDEAEA' : '#EEF3FA', padding: '3px 8px', borderRadius: 6 }}>
                     {formatTime(timeLeft ?? 0)}
                   </span>
-                  <button onClick={() => setShowNavigator(!showNavigator)} style={{ fontSize: 11, color: '#185FA5', background: 'transparent', border: 'none', cursor: 'pointer' }}>Navigator</button>
-                  <button onClick={submitExam} style={{ fontSize: 11, background: '#B83232', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 7, cursor: 'pointer', fontWeight: 600 }}>Submit</button>
+                  <button onClick={() => setShowNavigator(!showNavigator)} style={{ fontSize: 17, color: '#185FA5', background: 'transparent', border: 'none', cursor: 'pointer' }}>Navigator</button>
+                  <button onClick={submitExam} style={{ fontSize: 17, background: '#B83232', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 7, cursor: 'pointer', fontWeight: 600 }}>Submit</button>
                 </>
               )}
-              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 12, fontWeight: 600, color: '#4A5E78' }}>
-                <span style={{ color: '#0D1B2E', fontSize: 15, fontWeight: 700 }}>{sessionState.currentIndex + 1}</span>
+              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 18, fontWeight: 600, color: '#4A5E78' }}>
+                <span style={{ color: '#0D1B2E', fontSize: 23, fontWeight: 700 }}>{sessionState.currentIndex + 1}</span>
                 {' '}/ {questions.length}
               </div>
             </div>
@@ -249,7 +249,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                 )
               })}
             </div>
-            <div style={{ marginTop: 16, fontSize: 12, color: '#4A5E78' }}>{answeredCount} / {questions.length} answered</div>
+            <div style={{ marginTop: 16, fontSize: 18, color: '#4A5E78' }}>{answeredCount} / {questions.length} answered</div>
           </div>
         </div>
       )}
@@ -259,11 +259,11 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
         {/* Tags */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
-          <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>{subjectName}</span>
+          <span style={{ fontSize: 17, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: '#E8F0FB', color: '#185FA5' }}>{subjectName}</span>
           {chapterLabel && (
-            <span style={{ fontSize: 11, fontWeight: 500, padding: '4px 10px', borderRadius: 20, background: '#EEF3FA', color: '#4A5E78', border: '1px solid #D4E1F0' }}>{chapterLabel}</span>
+            <span style={{ fontSize: 17, fontWeight: 500, padding: '4px 10px', borderRadius: 20, background: '#EEF3FA', color: '#4A5E78', border: '1px solid #D4E1F0' }}>{chapterLabel}</span>
           )}
-          <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: diffStyle.bg, color: diffStyle.color }}>{diffLabel}</span>
+          <span style={{ fontSize: 17, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: diffStyle.bg, color: diffStyle.color }}>{diffLabel}</span>
         </div>
 
         {/* Question text */}
@@ -296,9 +296,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                 style={{ display: 'flex', alignItems: 'flex-start', gap: 11, padding: 14, borderRadius: 13, border: `1.5px solid ${borderColor}`, background: bg, cursor: answered ? 'default' : 'pointer', transition: 'border-color 0.25s, background 0.25s' }}
               >
                 <div style={{ width: 28, height: 28, borderRadius: 7, background: labelBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 12, fontWeight: 700, color: labelColor }}>{letter}</span>
+                  <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 18, fontWeight: 700, color: labelColor }}>{letter}</span>
                 </div>
-                <span style={{ fontSize: 14, color: textColor, lineHeight: 1.52, paddingTop: 5, flex: 1 }}>{opt.option_text}</span>
+                <span style={{ fontSize: 21, color: textColor, lineHeight: 1.52, paddingTop: 5, flex: 1 }}>{opt.option_text}</span>
               </div>
             )
           })}
@@ -308,11 +308,11 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
         {!isMock && answered && (
           <div style={{ animation: 'slideUp 0.36s cubic-bezier(0.16,1,0.3,1) both', background: explBg, border: `1px solid ${explBorderColor}`, borderRadius: 14, padding: 16, marginBottom: 14, maxWidth: 660 }}>
             <style>{`@keyframes slideUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }`}</style>
-            <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 13, fontWeight: 700, color: explLabelColor, marginBottom: 9 }}>
+            <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: explLabelColor, marginBottom: 9 }}>
               {isCorrect ? 'Correct!' : 'Incorrect — review this'}
             </div>
             {currentQ?.explanation && (
-              <p style={{ fontSize: 13, color: '#0D1B2E', lineHeight: 1.66, marginBottom: 11 }}>{currentQ.explanation}</p>
+              <p style={{ fontSize: 20, color: '#0D1B2E', lineHeight: 1.66, marginBottom: 11 }}>{currentQ.explanation}</p>
             )}
             {currentBook && (
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7, padding: '9px 11px', background: '#F8FAFF', borderRadius: 8 }}>
@@ -320,7 +320,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                   <rect x="1" y="1" width="11" height="11" rx="1.5" stroke="#4A5E78" strokeWidth="1.1"/>
                   <path d="M3 4.5h7M3 7h5" stroke="#4A5E78" strokeWidth="1" strokeLinecap="round"/>
                 </svg>
-                <span style={{ fontSize: 11, color: '#4A5E78', fontStyle: 'italic', lineHeight: 1.5 }}>
+                <span style={{ fontSize: 17, color: '#4A5E78', fontStyle: 'italic', lineHeight: 1.5 }}>
                   {currentBook.title}{currentBook.author ? ` — ${currentBook.author}` : ''}
                   {chapterLabel ? ` · ${chapterLabel}` : ''}
                   {currentQ.source_page ? ` · ${currentQ.source_page}` : ''}
@@ -335,7 +335,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
         {(isMock || answered) && (
           <button
             onClick={goNext}
-            style={{ width: '100%', maxWidth: 660, padding: 14, background: '#EF9F27', color: '#fff', border: 'none', borderRadius: 13, fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(239,159,39,0.32)', marginBottom: 14, display: 'block' }}
+            style={{ width: '100%', maxWidth: 660, padding: 14, background: '#EF9F27', color: '#fff', border: 'none', borderRadius: 13, fontFamily: 'var(--font-outfit),sans-serif', fontSize: 23, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(239,159,39,0.32)', marginBottom: 14, display: 'block' }}
           >
             {isLastQ ? (isMock ? 'Submit exam →' : 'See results →') : 'Next question →'}
           </button>
@@ -344,14 +344,14 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
         {/* Skip + Flag row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 4 }}>
           {!answered && (
-            <button onClick={goNext} style={{ fontSize: 12.5, color: '#4A5E78', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3, padding: '8px 0' }}>
+            <button onClick={goNext} style={{ fontSize: 19, color: '#4A5E78', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3, padding: '8px 0' }}>
               Skip question
             </button>
           )}
           <button
             onClick={flagQuestion}
             disabled={flagged.has(currentQ?.id) || !userId}
-            style={{ fontSize: 12, color: flagged.has(currentQ?.id) ? '#EF9F27' : '#4A5E78', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' }}
+            style={{ fontSize: 18, color: flagged.has(currentQ?.id) ? '#EF9F27' : '#4A5E78', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' }}
           >
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 2v9M2.5 2h7.5l-2 3.5 2 3.5H2.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
             {flagged.has(currentQ?.id) ? 'Flagged' : 'Flag this question'}
