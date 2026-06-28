@@ -24,8 +24,9 @@ export function buildMetadata({
       siteName: 'ProPilotLicence',
       type: 'website',
       locale: 'en_IN',
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep' }],
     },
-    twitter: { card: 'summary_large_image', title, description },
+    twitter: { card: 'summary_large_image', title, description, images: ['/og-image.jpg'] },
     robots: { index: true, follow: true },
   }
 }

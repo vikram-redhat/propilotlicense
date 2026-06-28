@@ -14,7 +14,9 @@ export const metadata: Metadata = {
     siteName: 'ProPilotLicence',
     type: 'website',
     locale: 'en_IN',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep' }],
   },
+  twitter: { card: 'summary_large_image', images: ['/og-image.jpg'] },
 }
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
