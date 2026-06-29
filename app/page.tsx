@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic'
 
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { SUBJECTS } from '@/lib/subjects'
 
 export const metadata: Metadata = {
   title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
@@ -75,10 +74,18 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const name = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? null
 
   const svc = createServiceClient()
-  type SubjectRow = { id: string; name: string; icon_name: string; sort_order: number; licence_types: string[] }
+  type SubjectRow = { id: string; name: string; code: string; icon_name: string; sort_order: number; licence_types: string[] }
+
+  const CODE_TO_SLUG: Record<string, string> = {
+    MET: 'aviation-meteorology',
+    REG: 'air-regulations',
+    NAV: 'air-navigation',
+    TG:  'technical-general',
+    RAI: 'radio-aids-instruments',
+  }
 
   const [subjectsRes, bookCountRes, profileRes] = await Promise.all([
-    svc.from('subjects').select('id, name, icon_name, sort_order, licence_types').eq('active', true).order('sort_order'),
+    svc.from('subjects').select('id, name, code, icon_name, sort_order, licence_types').eq('active', true).order('sort_order'),
     svc.from('source_books').select('*', { count: 'exact', head: true }),
     user ? svc.from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single() : Promise.resolve({ data: null }),
   ])
@@ -93,12 +100,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   )
 
   const subjects = subjectRows.map((s, i) => {
-    const libSubject = SUBJECTS.find(ls => ls.title.toLowerCase() === s.name.toLowerCase())
+    const slug = CODE_TO_SLUG[s.code]
     return {
       ...s,
       questionCount: countResults[i].count ?? 0,
       href: (s.licence_types?.includes('CPL') ? '/cpl/' : '/atpl/') + s.id,
-      publicHref: libSubject ? `/subjects/${libSubject.slug}` : '/subjects',
+      publicHref: slug ? `/subjects/${slug}` : '/subjects',
     }
   })
 
