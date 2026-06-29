@@ -46,7 +46,7 @@ export default function AboutPage() {
         <Section title="The verification panel">
           <p>This is what makes ProPilotLicence different from every other platform in this space.</p>
           <p>
-            Before any question enters the question bank, it is reviewed by a panel of four or more active commercial airline captains. These are not retired pilots consulting from memory. They are currently flying commercially on Indian routes, holding valid DGCA CPL and ATPL licences, and sitting in the left seat of aircraft you have flown on.
+            Before any question enters the question bank, it is reviewed by a panel of four or more active commercial airline captains. These are not retired pilots consulting from memory. They are currently flying commercially on Indian domestic and international routes, holding valid DGCA CPL and ATPL licences, and sitting in the left seat of aircraft you have flown on. The pilots have vast experience in flying in airspace managed by DGCA, FAA, EASA, North America, South America, AFRICA, SE ASIA, Middle East GCC, CHINA rules and guidelines. 
           </p>
           <p>The panel reviews each question for:</p>
           <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
