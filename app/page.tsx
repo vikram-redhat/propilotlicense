@@ -77,11 +77,20 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   type SubjectRow = { id: string; name: string; code: string; icon_name: string; sort_order: number; licence_types: string[] }
 
   const CODE_TO_SLUG: Record<string, string> = {
-    MET: 'aviation-meteorology',
-    REG: 'air-regulations',
-    NAV: 'air-navigation',
-    TG:  'technical-general',
-    RAI: 'radio-aids-instruments',
+    MET:  'aviation-meteorology',
+    REG:  'air-regulations',
+    NAV:  'air-navigation',
+    TECH: 'technical-general',
+    RAI:  'radio-aids-instruments',
+  }
+  const NAME_TO_SLUG: Record<string, string> = {
+    'meteorology':               'aviation-meteorology',
+    'aviation meteorology':      'aviation-meteorology',
+    'air regulations':           'air-regulations',
+    'air navigation':            'air-navigation',
+    'technical general':         'technical-general',
+    'radio aids & instruments':  'radio-aids-instruments',
+    'radio aids and instruments':'radio-aids-instruments',
   }
 
   const [subjectsRes, bookCountRes, profileRes] = await Promise.all([
@@ -100,7 +109,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   )
 
   const subjects = subjectRows.map((s, i) => {
-    const slug = CODE_TO_SLUG[s.code]
+    const slug = (s.code && CODE_TO_SLUG[s.code]) || NAME_TO_SLUG[s.name.toLowerCase()]
     return {
       ...s,
       questionCount: countResults[i].count ?? 0,
