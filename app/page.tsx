@@ -77,11 +77,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   type SubjectRow = { id: string; name: string; code: string; icon_name: string; sort_order: number; licence_types: string[] }
 
   const CODE_TO_SLUG: Record<string, string> = {
-    MET:  'aviation-meteorology',
-    REG:  'air-regulations',
-    NAV:  'air-navigation',
-    TECH: 'technical-general',
-    RAI:  'radio-aids-instruments',
+    MET:                  'aviation-meteorology',
+    REG:                  'air-regulations',
+    NAV:                  'air-navigation',
+    TECH:                 'technical-general',
+    RADIOAIDSINSTRUMENTS: 'radio-aids-instruments',
   }
   const NAME_TO_SLUG: Record<string, string> = {
     'meteorology':               'aviation-meteorology',
