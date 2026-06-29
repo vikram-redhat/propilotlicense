@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { SUBJECTS } from '@/lib/subjects'
 
 export const metadata: Metadata = {
   title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
@@ -91,11 +92,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     )
   )
 
-  const subjects = subjectRows.map((s, i) => ({
-    ...s,
-    questionCount: countResults[i].count ?? 0,
-    href: (s.licence_types?.includes('CPL') ? '/cpl/' : '/atpl/') + s.id,
-  }))
+  const subjects = subjectRows.map((s, i) => {
+    const libSubject = SUBJECTS.find(ls => ls.title.toLowerCase() === s.name.toLowerCase())
+    return {
+      ...s,
+      questionCount: countResults[i].count ?? 0,
+      href: (s.licence_types?.includes('CPL') ? '/cpl/' : '/atpl/') + s.id,
+      publicHref: libSubject ? `/subjects/${libSubject.slug}` : '/subjects',
+    }
+  })
 
   const totalQuestions = subjects.reduce((a, s) => a + s.questionCount, 0)
   const bookCount = bookCountRes.count ?? 0
@@ -218,7 +223,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           {subjects.map((s, i) => (
             <Link
               key={s.id}
-              href={s.href}
+              href={user ? s.href : s.publicHref}
               className={`hover:border-[var(--clr-primary)] ${i === subjects.length - 1 ? 'col-span-2 sm:col-span-1' : ''}`}
               style={{ background: 'var(--clr-surf-alt)', border: '1px solid var(--clr-border)', borderRadius: 13, padding: 14, display: 'flex', flexDirection: 'column', gap: 8, textDecoration: 'none', transition: 'border-color 0.2s' }}
             >
