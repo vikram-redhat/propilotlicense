@@ -18,6 +18,25 @@ export const BLOG_POSTS = [
       'RK Bali DGCA',
     ],
   },
+  {
+    slug: 'dgca-cpl-meteorology-preparation',
+    title: 'How to Prepare for the DGCA CPL Meteorology Exam — Complete Study Guide',
+    metaTitle: 'How to Prepare for the DGCA CPL Meteorology Exam — Complete Study Guide | ProPilotLicence',
+    metaDescription:
+      'A complete guide to preparing for the DGCA CPL Aviation Meteorology paper. Which book to use, which chapters matter most, how to approach Indian climatology, and what to expect on exam day.',
+    publishedAt: '2026-06-15',
+    updatedAt: '2026-06-15',
+    reviewedBy: 'ProPilotLicence Captain Panel',
+    excerpt:
+      'The DGCA Meteorology paper catches candidates who studied from international textbooks and skipped Indian climatology. This guide covers exactly what to study, in what order, and where most marks are lost.',
+    keywords: [
+      'DGCA CPL meteorology preparation',
+      'how to prepare DGCA meteorology',
+      'DGCA meteorology exam guide',
+      'IC Joshi meteorology',
+      'DGCA aviation meteorology',
+    ],
+  },
 ] as const
 
 export type BlogPost = (typeof BLOG_POSTS)[number]
