@@ -56,10 +56,10 @@ export default function DgcaCplBooksPost() {
 
         <BlogSection title="Aviation Meteorology — IC Joshi">
           <p>
-            <strong>Aviation Meteorology</strong> by Group Captain IC Joshi (IAF, Retd.) is the only prescribed Indian text that covers Indian climatology, the monsoon system, and subcontinent-specific weather phenomena in the depth the DGCA tests.
+            <strong>Aviation Meteorology</strong> by Group Captain IC Joshi (IAF, Retd.) is one prescribed Indian text that covers Indian climatology, the monsoon system, and subcontinent-specific weather phenomena in the depth the DGCA tests.
           </p>
           <p>
-            This is the most important book distinction for Meteorology candidates: international textbooks (ATPL Oxford, JAA ground studies) are thorough on European and North Atlantic weather but light on Indian climatology. The DGCA Meteorology paper regularly includes 3–5 questions from Chapter 11 (Indian Climatology) and Chapter 8 (Thunderstorms), both of which Joshi covers in depth.
+            This is the most important book distinction for Meteorology candidates: international textbooks (ATPL Oxford, JAA ground studies) are thorough on European and North Atlantic weather however, slightly light on Indian climatology. The DGCA Meteorology paper regularly includes questions from Chapter 11 (Indian Climatology) and Chapter 8 (Thunderstorms), both of which Joshi covers in depth.
           </p>
           <SubSection title="Chapters to prioritise">
             <ChapterList items={[
@@ -115,7 +115,7 @@ export default function DgcaCplBooksPost() {
             Air Navigation has two commonly used prescribed texts: <strong>Air Navigation</strong> by Group Captain DP Khanna and <strong>Navigation for Pilots</strong> by RK Bali. Most candidates use both — Khanna as the primary text and Bali for its worked examples.
           </p>
           <p>
-            Navigation is the heaviest paper (100 questions, 180 minutes) and includes both conceptual and numerical questions. The wind triangle, 1-in-60 rule, and fuel endurance calculations must be executable accurately under exam conditions.
+            Navigation is the heaviest paper (100 questions for CPL and 90 for ATPL, 180 minutes) and includes both conceptual and numerical questions. The wind triangle, 1-in-60 rule, and fuel endurance calculations must be executable accurately under exam conditions.
           </p>
           <SubSection title="High-yield topics">
             <ChapterList items={[
