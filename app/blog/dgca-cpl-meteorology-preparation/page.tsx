@@ -15,7 +15,7 @@ export const metadata = buildMetadata({
 const FAQS = [
   {
     q: 'How difficult is the DGCA CPL Meteorology paper compared to other CPL subjects?',
-    a: 'Meteorology is generally considered one of the more manageable CPL papers by candidates who have studied IC Joshi thoroughly. The most common failure pattern is not insufficient study effort — it is misaligned study material. Candidates who used international textbooks as their primary reference consistently underperform on Indian climatology questions. With IC Joshi and chapter-wise practice, the paper is very passable.',
+    a: 'Meteorology is generally considered one of the more manageable CPL papers by candidates who have studied the text book thoroughly. The most common failure pattern is not insufficient study effort — it is misaligned study material. Candidates who used international textbooks as their primary reference consistently underperform on Indian climatology questions. With the text book and chapter-wise practice, the paper is very passable.',
   },
   {
     q: 'How many questions on the DGCA Meteorology paper are about Indian weather specifically?',
@@ -69,7 +69,7 @@ export default function MeteorologyPrepPost() {
 
         <Prose>
           <p>
-            The DGCA CPL Aviation Meteorology paper is 50 questions in 90 minutes, and a 70% pass mark is required. On paper, it is one of the more manageable CPL subjects. In practice, it catches a specific type of candidate: the one who studied from an international textbook, felt well-prepared, and then encountered three to five questions about Indian monsoon systems and subcontinent weather that their book simply did not cover.
+            The DGCA CPL Aviation Meteorology paper is 50 questions in 90 minutes, and a 70% pass mark is required. On paper, it is one of the more manageable CPL subjects. In practice, it catches a specific type of candidate: the one who studied from an international textbook, felt well-prepared, and then encountered three to five questions about Indian monsoon systems and subcontinent weather that their book simply did not cover in that detail as expected in the DGCA paper.
           </p>
           <p>
             This guide covers what to study, how to study it, which chapters matter most, and where candidates typically lose marks they should not lose.
@@ -81,12 +81,12 @@ export default function MeteorologyPrepPost() {
         <Section title="The one book you need">
           <Prose>
             <p>
-              <strong>Aviation Meteorology by Group Captain IC Joshi (IAF, Retd.)</strong> is the primary DGCA-prescribed textbook for the Meteorology paper and the only study material you strictly need for it. If you are currently using an Oxford, Jeppesen, or other international text as your primary Meteorology reference, you are underprepared for the Indian-specific content the DGCA tests.
+              <strong>Aviation Meteorology by Group Captain IC Joshi (IAF, Retd.)</strong> is the primary DGCA-prescribed textbook for the CPL Meteorology paper and frankly the only study material you strictly need for it. If you are currently using an Oxford, Jeppesen, or other international text as your primary Meteorology reference, you are underprepared for the Indian-specific content the DGCA tests.
             </p>
             <p>
-              This is not a criticism of international texts — they are thorough and technically rigorous. They are written for European and North American syllabi. The DGCA Meteorology paper is not. The Indian monsoon, western disturbances, the ITCZ over the subcontinent, and seasonal weather patterns over Indian airspace receive significant weight in the DGCA paper and negligible coverage in international textbooks.
+              This is not a criticism of international texts — they are thorough and technically rigorous. They are written for European and North American syllabi. The DGCA CPL Meteorology paper requires you to study intensively Indian climatology. The Indian monsoon, western disturbances, the ITCZ over the subcontinent, and seasonal weather patterns over Indian airspace receive significant weight in the DGCA paper and negligible coverage in international textbooks.
             </p>
-            <p>Buy IC Joshi. Study IC Joshi. Use international texts as supplementary reading if you want additional depth on specific topics, but Joshi is the primary reference.</p>
+            <p>Buy IC Joshi. Study IC Joshi. Use international texts as supplementary reading if you want additional depth on specific topics, but Joshi should be the primary reference.</p>
           </Prose>
           <InternalLink href="/books/ic-joshi-aviation-meteorology">
             See the chapter-by-chapter breakdown of IC Joshi on ProPilotLicence →
@@ -106,7 +106,7 @@ export default function MeteorologyPrepPost() {
             <p>The practical sequence:</p>
           </Prose>
           <ol style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 15, lineHeight: 1.7, color: 'var(--clr-text)' }}>
-            <li>Read one chapter of IC Joshi</li>
+            <li>Read one chapter of the text book by IC Joshi</li>
             <li>Immediately practise all questions from that chapter on ProPilotLicence</li>
             <li>For every question answered incorrectly, note the topic and re-read the relevant section of the chapter</li>
             <li>Move to the next chapter only when you are consistently getting above 70% on that chapter&apos;s questions</li>
@@ -154,7 +154,7 @@ export default function MeteorologyPrepPost() {
             Occlusions — warm and cold — are also tested and are a common source of confusion. The distinction between a warm occlusion and a cold occlusion, and the weather associated with each, is specific enough that candidates who have not studied it precisely will guess.
           </ChapterEntry>
 
-          <PriorityLabel colour="var(--clr-amber)" bg="var(--clr-amber-light)">Medium priority — study thoroughly but these carry less per-paper weight</PriorityLabel>
+          <PriorityLabel colour="var(--clr-amber)" bg="var(--clr-amber-light)">Medium priority — study thoroughly</PriorityLabel>
 
           {[
             [4, 'Wind', 'Geostrophic wind, gradient wind, surface friction effects, and jet streams are all tested. Jet stream characteristics — altitude, seasonal variation, location — appear consistently. Wind shear definitions and their operational implications are tested specifically.'],
@@ -208,12 +208,12 @@ export default function MeteorologyPrepPost() {
         <Section title="What to do in the final week before the exam">
           <Prose>
             <p>
-              By the final week, you should have completed all twelve chapters and have mock exam scores consistently above 75%. The final week is not for new learning — it is for reinforcement and weak-chapter targeting.
+              By the final week, you should have completed all chapters and have mock exam scores consistently above 75%. The final week is not for new learning — it is for reinforcement and weak-chapter targeting.
             </p>
           </Prose>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[
-              ['Days 7–4 before the exam', 'Run one full-subject mock exam per day. After each mock, identify every question answered incorrectly and return to the source chapter. Do not simply read the correct answer — read the section of IC Joshi that covers the concept, so you understand why the correct answer is correct rather than memorising the answer to that specific question.'],
+              ['Days 7–4 before the exam', 'Run one full-subject mock exam per day. After each mock, identify every question answered incorrectly and return to the source chapter. Do not simply read the correct answer — read the section of the text book that covers the concept, so you understand why the correct answer is correct rather than memorising the answer to that specific question.'],
               ['Days 3–2 before the exam', 'Stop full mock exams. Switch to chapter-specific sessions on your weakest chapters only — the ones where your mock performance was lowest. Use the ProPilotLicence chapter filter to drill exclusively those chapters.'],
               ['Day 1 before the exam', 'Light revision only. Review your notes on Chapter 8 (Thunderstorms), Chapter 11 (Indian Climatology), and Chapter 12 (METAR/TAF) — the three highest-yield chapters. Do not attempt new questions. Get eight hours of sleep.'],
             ].map(([label, text]) => (
@@ -269,7 +269,7 @@ export default function MeteorologyPrepPost() {
             Practise DGCA Meteorology questions
           </div>
           <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: 0 }}>
-            1,851 questions from IC Joshi, organised by chapter. First 10 free, no sign-up required.
+            1,851 questions from IC Joshi and related books, organised mostly by chapter. First 10 free, no sign-up required.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Link href="/subjects/aviation-meteorology" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Aviation Meteorology subject page →</Link>
