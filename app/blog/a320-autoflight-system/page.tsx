@@ -101,10 +101,6 @@ export default function A320AutoflightPost() {
             <p>The Flight Mode Annunciator occupies the top strip of the Primary Flight Display and is divided into five columns. Reading the FMA correctly, every time, is non-negotiable for safe autoflight operation — and it is the most examined topic in A320 type rating oral assessments.</p>
           </Prose>
 
-          <DiagramBlock label="Diagram 2 — FMA layout: five columns, two rows" caption="Green = active mode. Blue = armed (will engage when conditions met). Amber = warning or caution. White = status. A new mode engagement is boxed for 10 seconds.">
-            <FmaDisplay />
-          </DiagramBlock>
-
           <Prose>
             <p>The five FMA columns, left to right:</p>
             <p><strong>Column 1 — Autothrust mode:</strong> What the ATHR is doing. Common modes: MAN THR (manual thrust, ATHR not active), SPEED (ATHR is maintaining a speed target), or a fixed thrust rating being commanded. The thrust rating appears below the mode — THR CLB, THR MCT, THR IDLE, etc.</p>
@@ -122,7 +118,7 @@ export default function A320AutoflightPost() {
         <Divider />
 
         <Section title="Vertical modes — the most examined area">
-          <DiagramBlock label="Diagram 3 — Vertical mode logic: managed vs selected, and key transitions" caption="Managed modes (green) follow the FMS profile. Selected modes (amber) track a pilot-assigned value. The FCU knob action — push for managed, pull for selected — drives the transition.">
+          <DiagramBlock label="Diagram 2 — Vertical mode logic: managed vs selected, and key transitions" caption="Managed modes (green) follow the FMS profile. Selected modes (amber) track a pilot-assigned value. The FCU knob action — push for managed, pull for selected — drives the transition.">
             <VerticalModesDiagram />
           </DiagramBlock>
 
@@ -330,123 +326,6 @@ function DataTable({ head, rows, monoCol }: { head: string[]; rows: string[][]; 
           ))}
         </tbody>
       </table>
-    </div>
-  )
-}
-
-const FMA_CELL_COLORS: Record<string, string> = {
-  green: '#00e676',
-  white: '#e8eaf6',
-  amber: '#ffca28',
-  blue: '#40c4ff',
-  dim: '#444c63',
-}
-
-function FmaCell({ text, color = 'white' }: { text: React.ReactNode; color?: keyof typeof FMA_CELL_COLORS }) {
-  return (
-    <div style={{ padding: '7px 8px', borderRadius: 3, lineHeight: 1.2, background: '#1a1f2e', color: FMA_CELL_COLORS[color], textAlign: 'center', fontSize: 12 }}>
-      {text}
-    </div>
-  )
-}
-
-const FMA_LABELS = ['ATHR mode', 'Vertical mode', 'Lateral mode', 'AP status', 'FD / A/THR']
-
-function FmaRow({ cells }: { cells: { text: React.ReactNode; color: keyof typeof FMA_CELL_COLORS }[] }) {
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 2, marginBottom: 3 }}>
-      {cells.map((c, i) => (
-        <FmaCell key={i} text={c.text} color={c.color} />
-      ))}
-    </div>
-  )
-}
-
-function FmaLabelRow() {
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 2, textAlign: 'center', marginTop: 4, marginBottom: 16, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-      {FMA_LABELS.map((l) => (
-        <div key={l} style={{ fontSize: 10, color: '#444c63' }}>{l}</div>
-      ))}
-    </div>
-  )
-}
-
-function FmaExample({ note, row1, row2 }: {
-  note: string
-  row1: { text: React.ReactNode; color: keyof typeof FMA_CELL_COLORS }[]
-  row2: { text: React.ReactNode; color: keyof typeof FMA_CELL_COLORS }[]
-}) {
-  return (
-    <div>
-      <div style={{ fontSize: 12, color: '#444c63', fontFamily: MONO, marginBottom: 8 }}>{note}</div>
-      <FmaRow cells={row1} />
-      <FmaRow cells={row2} />
-      <FmaLabelRow />
-    </div>
-  )
-}
-
-function FmaDisplay() {
-  return (
-    <div style={{ background: '#0d1117', borderRadius: 8, padding: '18px 20px', fontFamily: MONO, overflowX: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <div style={{ fontSize: 11, color: '#444c63', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 4 }}>
-        — FMA — Primary Flight Display (top strip) —
-      </div>
-
-      <FmaExample
-        note="Example: Climb phase, managed speed, lateral nav, approaching altitude"
-        row1={[
-          { text: <>MAN THR<br />CLB</>, color: 'green' },
-          { text: 'CLB', color: 'green' },
-          { text: 'NAV', color: 'green' },
-          { text: 'AP 1', color: 'white' },
-          { text: '1 FD 2', color: 'white' },
-        ]}
-        row2={[
-          { text: '—', color: 'dim' },
-          { text: 'ALT*', color: 'blue' },
-          { text: '—', color: 'dim' },
-          { text: '—', color: 'dim' },
-          { text: 'A/THR', color: 'white' },
-        ]}
-      />
-
-      <FmaExample
-        note="Example: ILS approach — both GS and LOC captured"
-        row1={[
-          { text: 'SPEED', color: 'green' },
-          { text: 'G/S', color: 'green' },
-          { text: 'LOC', color: 'green' },
-          { text: 'AP 1', color: 'white' },
-          { text: '1 FD 2', color: 'white' },
-        ]}
-        row2={[
-          { text: '—', color: 'dim' },
-          { text: '—', color: 'dim' },
-          { text: '—', color: 'dim' },
-          { text: '—', color: 'dim' },
-          { text: 'A/THR', color: 'white' },
-        ]}
-      />
-
-      <FmaExample
-        note="Example: Mode reversion after AP disconnect — FD guidance remains"
-        row1={[
-          { text: 'SPEED', color: 'green' },
-          { text: 'V/S', color: 'green' },
-          { text: 'HDG', color: 'green' },
-          { text: 'AP OFF', color: 'amber' },
-          { text: '1 FD 2', color: 'white' },
-        ]}
-        row2={[
-          { text: '—', color: 'dim' },
-          { text: '—', color: 'dim' },
-          { text: '—', color: 'dim' },
-          { text: '—', color: 'dim' },
-          { text: 'A/THR', color: 'white' },
-        ]}
-      />
     </div>
   )
 }
