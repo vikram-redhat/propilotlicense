@@ -2,7 +2,7 @@
 import {
   IconStethoscope, IconWind, IconRoute, IconGauge,
   IconEngine, IconBuilding, IconAntenna, IconGavel,
-  IconRadio, IconBook
+  IconRadio, IconBook, IconPlaneTilt
 } from '@tabler/icons-react'
 
 const icons: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -15,6 +15,7 @@ const icons: Record<string, React.ComponentType<{ size?: number; className?: str
   antenna: IconAntenna,
   gavel: IconGavel,
   radio: IconRadio,
+  A320: IconPlaneTilt,
 }
 
 export default function SubjectIcon({ name, size = 24, className }: { name: string | null; size?: number; className?: string }) {

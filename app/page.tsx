@@ -27,6 +27,58 @@ import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 import { isSubscribed } from '@/lib/subscription'
 
+const MONO = "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace"
+
+// Raw topic names come from the ATA-chapter question bank as entered by the captain
+// panel (inconsistent casing/spacing) — mapped here to clean display labels.
+const AIRBUS_TOPIC_LABELS: Record<string, { ata: string; label: string }> = {
+  'ATA21 AIRCONDITIONING': { ata: 'ATA 21', label: 'Air Conditioning' },
+  'ATA21 20 PRESSURISATION': { ata: 'ATA 21', label: 'Pressurisation' },
+  'ATA21 30 VENTILATION': { ata: 'ATA 21', label: 'Ventilation' },
+  'ATA21 40 CARGO': { ata: 'ATA 21', label: 'Cargo' },
+  'ATA 22_10 AUTO FLIGHT -  GENERAL': { ata: 'ATA 22', label: 'Autoflight — General' },
+  'ATA22_20 AUTO FLIGHT - FLIGHT MANAGEMENT': { ata: 'ATA 22', label: 'Autoflight — Flight Management' },
+  'ATA22_30 AUTOFLIGHT - FLIGHT GUIDANCE': { ata: 'ATA 22', label: 'Autoflight — Flight Guidance' },
+  'ATA22_41 AUTO FLIGHT - Flight Envelope': { ata: 'ATA 22', label: 'Autoflight — Flight Envelope' },
+  'ATA22_40 AUTOFLIGHT - FLIGHT AUGMENTATION': { ata: 'ATA 22', label: 'Autoflight — Flight Augmentation' },
+  'AT23 COMMUNICATIONS': { ata: 'ATA 23', label: 'Communications' },
+  'ATA24 ELECTRICAL': { ata: 'ATA 24', label: 'Electrical' },
+  'ATA25 EQUIPMENT': { ata: 'ATA 25', label: 'Equipment & Furnishings' },
+  'ATA26 FIRE PROTECTION': { ata: 'ATA 26', label: 'Fire Protection' },
+  'ATA27 FLIGHT CONTROLS': { ata: 'ATA 27', label: 'Flight Controls' },
+  'ATA28 FUEL': { ata: 'ATA 28', label: 'Fuel' },
+  'ATA29 HYDRAULIC': { ata: 'ATA 29', label: 'Hydraulics' },
+  'ATA30 ICE AND RAIN PROTECTION': { ata: 'ATA 30', label: 'Ice & Rain Protection' },
+  'ATA31 INDICATING AND RECORDING SYSTEMS': { ata: 'ATA 31', label: 'Indicating & Recording Systems' },
+  'ATA32 LANDING GEAR': { ata: 'ATA 32', label: 'Landing Gear' },
+  'ATA33 LIGHTS': { ata: 'ATA 33', label: 'Lights' },
+  'ATA34 NAV NAVIGATION': { ata: 'ATA 34', label: 'Navigation' },
+  'ATA34 SURV SURVEILLANCE': { ata: 'ATA 34', label: 'Surveillance' },
+  'ATA35 OXYGEN': { ata: 'ATA 35', label: 'Oxygen' },
+  'ATA36 PNEUMATIC': { ata: 'ATA 36', label: 'Pneumatic' },
+  'ATA38 WATER / WASTE': { ata: 'ATA 38', label: 'Water / Waste' },
+  'ATA45 MAINTENANCE SYSTEM': { ata: 'ATA 45', label: 'Central Maintenance System' },
+  'ATA46 INFORMATION SYSTEM': { ata: 'ATA 46', label: 'Information System' },
+  'ATA49 APU': { ata: 'ATA 49', label: 'APU' },
+  'ATA52 DOORS': { ata: 'ATA 52', label: 'Doors' },
+  'ATA53 STRUCTURE': { ata: 'ATA 53', label: 'Structure' },
+  'ATA56 COCKPIT WINDOWS': { ata: 'ATA 56', label: 'Cockpit Windows' },
+  'ATA70 ENGINES': { ata: 'ATA 70', label: 'Engines' },
+  'SAFETY FIRST': { ata: '', label: 'Safety First' },
+}
+
+function formatAtaTopic(raw: string): { ata: string; label: string } {
+  if (AIRBUS_TOPIC_LABELS[raw]) return AIRBUS_TOPIC_LABELS[raw]
+  const match = raw.match(/^ATA\s?(\d+)(?:[_\s]+\d+)?\s*[-–]?\s*/i)
+  const ata = match ? `ATA ${match[1]}` : ''
+  const rest = (match ? raw.slice(match[0].length) : raw).trim()
+  const label = rest
+    .split(/\s+/)
+    .map(w => (w.length <= 3 ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))
+    .join(' ')
+  return { ata, label: label || raw }
+}
+
 const FEATURES = [
   {
     icon: (
@@ -100,13 +152,19 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   ])
 
   const subjectRows = (subjectsRes.data as SubjectRow[] || [])
+  const airbusRow = subjectRows.find(s => s.code === 'A320FAMILY')
 
   // Count per subject using individual count queries (avoids the 1000-row default limit on bulk selects)
-  const countResults = await Promise.all(
-    subjectRows.map(s =>
-      svc.from('questions').select('*', { count: 'exact', head: true }).eq('active', true).eq('subject_id', s.id)
-    )
-  )
+  const [countResults, airbusTopicsRes] = await Promise.all([
+    Promise.all(
+      subjectRows.map(s =>
+        svc.from('questions').select('*', { count: 'exact', head: true }).eq('active', true).eq('subject_id', s.id)
+      )
+    ),
+    airbusRow
+      ? svc.from('topics').select('name').eq('subject_id', airbusRow.id).order('sort_order')
+      : Promise.resolve({ data: [] as { name: string }[] }),
+  ])
 
   const subjects = subjectRows.map((s, i) => {
     const slug = (s.code && CODE_TO_SLUG[s.code]) || NAME_TO_SLUG[s.name.toLowerCase()]
@@ -117,6 +175,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       publicHref: slug ? `/subjects/${slug}` : '/subjects',
     }
   })
+
+  const regularSubjects = subjects.filter(s => s.code !== 'A320FAMILY')
+  const airbusSubject = subjects.find(s => s.code === 'A320FAMILY')
+  const airbusTopics = ((airbusTopicsRes.data as { name: string }[]) || []).map(t => formatAtaTopic(t.name))
 
   const totalQuestions = subjects.reduce((a, s) => a + s.questionCount, 0)
   const bookCount = bookCountRes.count ?? 0
@@ -235,12 +297,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
         {/* Subjects grid */}
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: 'var(--clr-text-med)', marginBottom: 10 }}>Subjects covered</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
-          {subjects.map((s, i) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4">
+          {regularSubjects.map((s) => (
             <Link
               key={s.id}
               href={user ? s.href : s.publicHref}
-              className={`hover:border-[var(--clr-primary)] ${i === subjects.length - 1 ? 'col-span-2 sm:col-span-1' : ''}`}
+              className="hover:border-[var(--clr-primary)]"
               style={{ background: 'var(--clr-surf-alt)', border: '1px solid var(--clr-border)', borderRadius: 13, padding: 14, display: 'flex', flexDirection: 'column', gap: 8, textDecoration: 'none', transition: 'border-color 0.2s' }}
             >
               <SubjectIcon name={s.icon_name} size={22} className="text-[var(--clr-primary)]" />
@@ -249,6 +311,52 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             </Link>
           ))}
         </div>
+
+        {/* Airbus A320 family — shown separately with full topic breakdown */}
+        {airbusSubject && (
+          <div style={{ border: '1px solid var(--clr-border)', borderRadius: 16, padding: '18px 20px', marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 14, background: 'linear-gradient(135deg, var(--clr-pri-light) 0%, var(--clr-surf-alt) 60%)' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: 'var(--clr-surface)', border: '1px solid var(--clr-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <SubjectIcon name={airbusSubject.icon_name} size={22} className="text-[var(--clr-primary)]" />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 17, fontWeight: 700, color: 'var(--clr-text)' }}>Airbus A320 Family</div>
+                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', background: 'var(--clr-amber-light)', color: 'var(--clr-amber)', padding: '3px 8px', borderRadius: 5 }}>New</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--clr-text-med)', marginTop: 2 }}>320 / 319 / 321 · XLR · NEO · CEO · PW · IAE · CFM · LEAP</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', background: 'var(--clr-surface)', border: '1px solid var(--clr-border)', borderRadius: 8, padding: '6px 12px', whiteSpace: 'nowrap' }}>
+                {airbusSubject.questionCount > 0 ? `${airbusSubject.questionCount.toLocaleString()} questions` : 'Coming soon'}
+              </div>
+            </div>
+
+            {airbusTopics.length > 0 && (
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--clr-text-med)', marginBottom: 8 }}>
+                  Every ATA chapter covered
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {airbusTopics.map((t, i) => (
+                    <span
+                      key={i}
+                      style={{ fontSize: 12, color: 'var(--clr-text)', background: 'var(--clr-surface)', border: '1px solid var(--clr-border)', borderRadius: 20, padding: '5px 11px', display: 'inline-flex', alignItems: 'center', gap: 6, lineHeight: 1.3 }}
+                    >
+                      {t.ata && <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: 'var(--clr-primary)' }}>{t.ata}</span>}
+                      {t.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <Link href={user ? airbusSubject.href : airbusSubject.publicHref} style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
+              Practise Airbus A320 questions →
+            </Link>
+          </div>
+        )}
 
         {/* Features row */}
         <div style={{ background: 'var(--clr-surf-alt)', border: '1px solid var(--clr-border)', borderRadius: 16, padding: '20px 18px', marginBottom: 16 }} className="flex flex-col sm:flex-row gap-4">
