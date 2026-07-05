@@ -37,6 +37,26 @@ export const BLOG_POSTS = [
       'DGCA aviation meteorology',
     ],
   },
+  {
+    slug: 'a320-autoflight-system',
+    title: 'A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic',
+    metaTitle: 'A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic | ProPilotLicence',
+    metaDescription:
+      'A complete guide to the A320 autoflight system. Autopilot modes, Flight Director, Autothrust, FCU operation, FMA logic, and managed vs selected guidance — explained for ATPL and type rating candidates.',
+    publishedAt: '2026-07-05',
+    updatedAt: '2026-07-05',
+    reviewedBy: 'ProPilotLicence Captain Panel',
+    excerpt:
+      'The A320 autoflight system does not merely fly the aircraft — it communicates its intentions through the FMA on every mode change. Pilots who understand that conversation rarely get surprised.',
+    keywords: [
+      'A320 autoflight system',
+      'A320 FMA',
+      'A320 autopilot modes',
+      'A320 ATHR',
+      'FCU push pull',
+      'managed vs selected A320',
+    ],
+  },
 ] as const
 
 export type BlogPost = (typeof BLOG_POSTS)[number]
