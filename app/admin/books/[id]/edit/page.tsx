@@ -3,7 +3,8 @@ import { use, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { Subject } from '@/lib/types'
+import { Subject, Country } from '@/lib/types'
+import { flagEmoji } from '@/lib/countries'
 
 const LICENCE_OPTIONS = ['CPL', 'ATPL']
 
@@ -12,6 +13,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
   const router = useRouter()
 
   const [subjects, setSubjects] = useState<Subject[]>([])
+  const [countries, setCountries] = useState<Country[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -21,6 +23,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
   const [author, setAuthor] = useState('')
   const [edition, setEdition] = useState('')
   const [licenceTypes, setLicenceTypes] = useState<string[]>([])
+  const [bookCountries, setBookCountries] = useState<string[]>([])
   const [sortOrder, setSortOrder] = useState(0)
 
   const [pdfStoragePath, setPdfStoragePath] = useState<string | null>(null)
@@ -37,6 +40,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
 
   useEffect(() => {
     supabase.from('subjects').select('*').order('sort_order').then(({ data }) => setSubjects(data || []))
+    supabase.from('countries').select('*').eq('active', true).order('sort_order').then(({ data }) => setCountries(data || []))
   }, [])
 
   useEffect(() => {
@@ -48,6 +52,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
         setAuthor(data.author || '')
         setEdition(data.edition || '')
         setLicenceTypes(data.licence_types || [])
+        setBookCountries(data.countries || [])
         setSortOrder(data.sort_order ?? 0)
         setPdfStoragePath(data.pdf_storage_path || null)
         setPdfFilename(data.pdf_filename || null)
@@ -70,6 +75,12 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
     )
   }
 
+  function toggleCountry(code: string) {
+    setBookCountries(prev =>
+      prev.includes(code) ? prev.filter(x => x !== code) : [...prev, code]
+    )
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!title.trim()) { setError('Title is required.'); return }
@@ -82,6 +93,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
       author: author.trim() || null,
       edition: edition.trim() || null,
       licence_types: licenceTypes,
+      countries: bookCountries,
       sort_order: sortOrder,
     })
     if (err) {
@@ -254,6 +266,25 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
                 </label>
               ))}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Countries</label>
+            <div className="flex flex-wrap gap-3">
+              {countries.map(c => (
+                <label key={c.code} className="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" checked={bookCountries.includes(c.code)} onChange={() => toggleCountry(c.code)}
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                  <span className="text-sm text-slate-700">{flagEmoji(c.code)} {c.name}</span>
+                </label>
+              ))}
+              {countries.length === 0 && (
+                <span className="text-xs text-slate-400">
+                  No countries set up yet — add one in <Link href="/admin/countries" className="underline">Countries</Link>.
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-400 mt-1">Which exam(s)/region(s) this book is relevant to. New countries can be added in Countries.</p>
           </div>
 
           <div>

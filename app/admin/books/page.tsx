@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { SourceBook, Subject } from '@/lib/types'
+import { flagEmoji } from '@/lib/countries'
 import { IconPlus, IconEdit, IconTrash, IconBook2 } from '@tabler/icons-react'
 
 type BookWithSubject = SourceBook & {
@@ -108,10 +109,11 @@ export default function BooksPage() {
           ) : (
             <div className="divide-y divide-slate-100">
               {/* Table header */}
-              <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 py-2 bg-slate-50 text-xs font-medium text-slate-500 uppercase tracking-wide">
+              <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-4 px-4 py-2 bg-slate-50 text-xs font-medium text-slate-500 uppercase tracking-wide">
                 <span>Title / Author</span>
                 <span>Subject</span>
                 <span>Licence</span>
+                <span>Countries</span>
                 <span>Order</span>
                 <span></span>
               </div>
@@ -139,6 +141,12 @@ export default function BooksPage() {
                       </span>
                     ))}
                     {(!book.licence_types || book.licence_types.length === 0) && (
+                      <span className="text-xs text-slate-400">—</span>
+                    )}
+                  </div>
+                  <div className="hidden sm:flex flex-shrink-0 gap-1 text-base leading-none" title={(book.countries || []).join(', ')}>
+                    {(book.countries || []).map(code => <span key={code}>{flagEmoji(code)}</span>)}
+                    {(!book.countries || book.countries.length === 0) && (
                       <span className="text-xs text-slate-400">—</span>
                     )}
                   </div>

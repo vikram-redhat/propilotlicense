@@ -12,6 +12,15 @@ export interface Subject {
   book_count?: number
 }
 
+export interface Country {
+  id: string
+  code: string
+  name: string
+  sort_order: number
+  active: boolean
+  created_at: string
+}
+
 export interface Topic {
   id: string
   subject_id: string
@@ -34,6 +43,7 @@ export interface SourceBook {
   author: string | null
   edition: string | null
   licence_types: string[]
+  countries: string[]
   sort_order: number
   pdf_storage_path: string | null
   pdf_filename: string | null
