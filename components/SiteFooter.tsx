@@ -13,6 +13,7 @@ export default function SiteFooter({ label }: { label?: string }) {
             <Link href="/about" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">About</Link>
             <Link href="/subjects" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Subjects</Link>
             <Link href="/blog" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Blog</Link>
+            <Link href="/become-a-pilot" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Become a Pilot</Link>
             <Link href="/pricing" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Pricing</Link>
             <Link href="/privacy" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Privacy</Link>
             <Link href="/terms" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Terms of Use</Link>
