@@ -2,17 +2,17 @@ import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { seriesNavItems } from '@/lib/become-a-pilot'
+import { seriesNavItems } from '@/lib/guides'
 import {
   Breadcrumb, ArticleHeader, SeriesNav, Section, Prose, Callout,
   DataTable, FinancialTable, StepList, CtaBlock, Disclaimer, ReadyBox,
-} from '@/components/become-a-pilot/ArticleKit'
+} from '@/components/guides/ArticleKit'
 
 export const metadata = buildMetadata({
   title: 'Cabin Crew to Pilot in India — The Complete Transition Guide | ProPilotLicence',
   description:
     'A practical, unsentimental guide to transitioning from cabin crew to commercial pilot in India. Costs, timeline, medical requirements, age realities, and what nobody tells you before you start.',
-  path: '/become-a-pilot/cabin-crew-to-pilot',
+  path: '/guides/become-a-pilot/cabin-crew-to-pilot',
 })
 
 export default function CabinCrewToPilotPost() {
@@ -21,14 +21,14 @@ export default function CabinCrewToPilotPost() {
       <ArticleSchema
         title="Cabin Crew to Pilot in India — The Complete Transition Guide"
         description="A practical, unsentimental guide to transitioning from cabin crew to commercial pilot in India. Costs, timeline, medical requirements, age realities, and what nobody tells you before you start."
-        url="https://propilotlicence.com/become-a-pilot/cabin-crew-to-pilot"
+        url="https://propilotlicence.com/guides/become-a-pilot/cabin-crew-to-pilot"
         publishedAt="2026-07-07"
         updatedAt="2026-07-07"
       />
       <LandingHeader isLoggedIn={false} name={null} />
 
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
-        <Breadcrumb current="Cabin Crew to Pilot" />
+        <Breadcrumb seriesSlug="become-a-pilot" seriesLabel="Become a Pilot" current="Cabin Crew to Pilot" />
 
         <ArticleHeader
           articleNumber={1}
@@ -37,7 +37,7 @@ export default function CabinCrewToPilotPost() {
           standfirst="You already work in aviation. You understand aircraft, operations, and passengers better than most CPL candidates. None of that gives you any credit toward a pilot licence. Here is what the transition actually involves — the costs, the timeline, the medical realities, and the age maths airlines won't spell out for you."
         />
 
-        <SeriesNav items={seriesNavItems('cabin-crew-to-pilot')} />
+        <SeriesNav items={seriesNavItems('become-a-pilot', 'cabin-crew-to-pilot')} />
 
         <Prose>
           <p>Cabin crew who decide to pursue a pilot licence start with one genuine advantage: they are not romanticising the job. They have seen the cockpit door from the other side for years. They know what delays look like, what a difficult sector feels like, and what it means to be responsible for a cabin full of people. The idealism that trips up many young CPL candidates is largely absent.</p>

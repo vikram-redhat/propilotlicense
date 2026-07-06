@@ -9,7 +9,7 @@ export const metadata = buildMetadata({
   title: 'How to Prepare for the DGCA CPL Meteorology Exam — Complete Study Guide | ProPilotLicence',
   description:
     'A complete guide to preparing for the DGCA CPL Aviation Meteorology paper. Which book to use, which chapters matter most, how to approach Indian climatology, and what to expect on exam day.',
-  path: '/blog/dgca-cpl-meteorology-preparation',
+  path: '/guides/dgca-exam-guides/dgca-cpl-meteorology-preparation',
 })
 
 const FAQS = [
@@ -41,7 +41,7 @@ export default function MeteorologyPrepPost() {
       <ArticleSchema
         title="How to Prepare for the DGCA CPL Meteorology Exam — Complete Study Guide"
         description="A complete guide to preparing for the DGCA CPL Aviation Meteorology paper. Which book to use, which chapters matter most, how to approach Indian climatology, and what to expect on exam day."
-        url="https://propilotlicence.com/blog/dgca-cpl-meteorology-preparation"
+        url="https://propilotlicence.com/guides/dgca-exam-guides/dgca-cpl-meteorology-preparation"
         publishedAt="2026-06-15"
         updatedAt="2026-06-15"
       />
@@ -52,7 +52,7 @@ export default function MeteorologyPrepPost() {
 
         {/* Breadcrumb */}
         <nav style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 24 }}>
-          <Link href="/blog" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>Blog</Link>
+          <Link href="/guides/dgca-exam-guides" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>DGCA Exam Guides</Link>
           <span style={{ margin: '0 6px' }}>›</span>
           <span>DGCA CPL Meteorology Preparation</span>
         </nav>
@@ -275,7 +275,7 @@ export default function MeteorologyPrepPost() {
             <Link href="/subjects/aviation-meteorology" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Aviation Meteorology subject page →</Link>
             <Link href="/books/ic-joshi-aviation-meteorology" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>IC Joshi chapter breakdown →</Link>
             <Link href="/pricing" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Pricing →</Link>
-            <Link href="/blog/dgca-cpl-books" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Which books to study →</Link>
+            <Link href="/guides/dgca-exam-guides/dgca-cpl-books" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Which books to study →</Link>
           </div>
         </div>
       </main>

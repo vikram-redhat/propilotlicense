@@ -55,8 +55,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/checkout') ||
     pathname.startsWith('/subjects') ||
     pathname.startsWith('/books') ||
-    pathname.startsWith('/blog') ||
-    pathname.startsWith('/become-a-pilot') ||
+    pathname.startsWith('/guides') ||
     pathname === '/sitemap.xml' ||
     pathname === '/robots.txt'
 

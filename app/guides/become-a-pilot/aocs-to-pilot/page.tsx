@@ -2,17 +2,17 @@ import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { seriesNavItems } from '@/lib/become-a-pilot'
+import { seriesNavItems } from '@/lib/guides'
 import {
   Breadcrumb, ArticleHeader, SeriesNav, Section, Prose, Callout,
   DataTable, FinancialTable, StepList, SubjectAdvantageGrid, RoleGrid, CtaBlock, Disclaimer,
-} from '@/components/become-a-pilot/ArticleKit'
+} from '@/components/guides/ArticleKit'
 
 export const metadata = buildMetadata({
   title: 'Aviation Operations Staff to Pilot in India — Complete Transition Guide | ProPilotLicence',
   description:
     "A practical guide for aviation operations staff — ground ops, flight dispatch, load control, crew scheduling — considering the transition to commercial pilot in India. What your ops background gives you, and what it doesn't.",
-  path: '/become-a-pilot/aocs-to-pilot',
+  path: '/guides/become-a-pilot/aocs-to-pilot',
 })
 
 export default function AocsToPilotPost() {
@@ -21,14 +21,14 @@ export default function AocsToPilotPost() {
       <ArticleSchema
         title="Aviation Operations Staff to Pilot in India — The Complete Transition Guide"
         description="A practical guide for aviation operations staff — ground ops, flight dispatch, load control, crew scheduling — considering the transition to commercial pilot in India. What your ops background gives you, and what it does not."
-        url="https://propilotlicence.com/become-a-pilot/aocs-to-pilot"
+        url="https://propilotlicence.com/guides/become-a-pilot/aocs-to-pilot"
         publishedAt="2026-07-07"
         updatedAt="2026-07-07"
       />
       <LandingHeader isLoggedIn={false} name={null} />
 
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
-        <Breadcrumb current="Aviation Operations Staff to Pilot" />
+        <Breadcrumb seriesSlug="become-a-pilot" seriesLabel="Become a Pilot" current="Aviation Operations Staff to Pilot" />
 
         <ArticleHeader
           articleNumber={3}
@@ -37,7 +37,7 @@ export default function AocsToPilotPost() {
           standfirst="Ground operations, flight dispatch, load control, crew scheduling — aviation operations staff understand how flights actually happen. That operational context is a genuine asset in pilot training. It does not, however, give you a single credit toward flying hours, and it does not change the cost or the timeline. Here is what the transition actually involves."
         />
 
-        <SeriesNav items={seriesNavItems('aocs-to-pilot')} />
+        <SeriesNav items={seriesNavItems('become-a-pilot', 'aocs-to-pilot')} />
 
         <Section title="Who this article is for" first>
           <Prose>

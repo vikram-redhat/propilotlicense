@@ -4,10 +4,13 @@ export const MONO = "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace"
 
 export type SeriesNavItem = { label: string; href?: string; state: 'current' | 'link' | 'upcoming' }
 
-export function Breadcrumb({ current }: { current: string }) {
+export function Breadcrumb({ seriesSlug, seriesLabel, current }: { seriesSlug: string; seriesLabel: string; current: string }) {
+  const linkStyle = { color: 'var(--clr-text-med)', textDecoration: 'none' }
   return (
     <nav style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 24 }}>
-      <Link href="/become-a-pilot" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>Become a Pilot</Link>
+      <Link href="/guides" style={linkStyle}>Guides</Link>
+      <span style={{ margin: '0 6px' }}>›</span>
+      <Link href={`/guides/${seriesSlug}`} style={linkStyle}>{seriesLabel}</Link>
       <span style={{ margin: '0 6px' }}>›</span>
       <span>{current}</span>
     </nav>

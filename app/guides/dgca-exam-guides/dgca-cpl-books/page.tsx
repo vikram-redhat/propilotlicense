@@ -8,7 +8,7 @@ export const metadata = buildMetadata({
   title: 'Which Books to Study for DGCA CPL Exams — Complete 2026 Guide | ProPilotLicence',
   description:
     'The complete guide to DGCA-prescribed textbooks for CPL theory exams. Which books to buy for Meteorology, Air Regulations, Navigation, Technical General, and Radio Aids — reviewed by active airline captains.',
-  path: '/blog/dgca-cpl-books',
+  path: '/guides/dgca-exam-guides/dgca-cpl-books',
 })
 
 export default function DgcaCplBooksPost() {
@@ -17,7 +17,7 @@ export default function DgcaCplBooksPost() {
       <ArticleSchema
         title="Which Books Should I Study for the DGCA CPL Theory Exams? (2026 Guide)"
         description="The complete guide to DGCA-prescribed textbooks for CPL theory exams. Which books to buy for Meteorology, Air Regulations, Navigation, Technical General, and Radio Aids."
-        url="https://propilotlicence.com/blog/dgca-cpl-books"
+        url="https://propilotlicence.com/guides/dgca-exam-guides/dgca-cpl-books"
         publishedAt="2026-06-01"
         updatedAt="2026-06-01"
       />
@@ -27,7 +27,7 @@ export default function DgcaCplBooksPost() {
 
         {/* Breadcrumb */}
         <nav style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 24 }}>
-          <Link href="/blog" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>Blog</Link>
+          <Link href="/guides/dgca-exam-guides" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>DGCA Exam Guides</Link>
           <span style={{ margin: '0 6px' }}>›</span>
           <span>DGCA CPL Books Guide</span>
         </nav>

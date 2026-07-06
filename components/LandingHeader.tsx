@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { useTheme } from '@/components/ThemeProvider'
+import { GUIDE_SERIES } from '@/lib/guides'
 
 interface Props {
   name: string | null
@@ -14,8 +15,10 @@ interface Props {
 
 export default function LandingHeader({ name, isLoggedIn, subscribed, examType }: Props) {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [guidesMenuOpen, setGuidesMenuOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const guidesMenuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   const supabase = useMemo(() => createBrowserClient(
@@ -26,6 +29,7 @@ export default function LandingHeader({ name, isLoggedIn, subscribed, examType }
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setUserMenuOpen(false)
+      if (guidesMenuRef.current && !guidesMenuRef.current.contains(e.target as Node)) setGuidesMenuOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
@@ -54,7 +58,29 @@ export default function LandingHeader({ name, isLoggedIn, subscribed, examType }
           {/* Desktop nav links (sm+) */}
           <div className="hidden sm:flex" style={{ gap: 22, alignItems: 'center' }}>
             <Link href="/subjects" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Subjects</Link>
-            <Link href="/blog" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Blog</Link>
+            <div className="relative" ref={guidesMenuRef}>
+              <button
+                onClick={() => setGuidesMenuOpen(o => !o)}
+                style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
+              >
+                Guides
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              {guidesMenuOpen && (
+                <div style={{ position: 'absolute', left: 0, marginTop: 12, width: 200, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
+                  {GUIDE_SERIES.map((series, i) => (
+                    <Link
+                      key={series.slug}
+                      href={`/guides/${series.slug}`}
+                      onClick={() => setGuidesMenuOpen(false)}
+                      style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none', borderTop: i > 0 ? '1px solid var(--clr-surf-alt)' : 'none' }}
+                    >
+                      {series.navLabel}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
             <Link href="/about" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>About</Link>
           </div>
 
@@ -130,7 +156,7 @@ export default function LandingHeader({ name, isLoggedIn, subscribed, examType }
           >
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <Link href="/subjects" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>Subjects</Link>
-              <Link href="/blog" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>Blog</Link>
+              <Link href="/guides" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>Guides</Link>
               <Link href="/about" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: isLoggedIn ? '1px solid var(--clr-border)' : 'none', display: 'block' }}>About</Link>
               {isLoggedIn && (
                 <>

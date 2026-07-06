@@ -8,7 +8,7 @@ export const metadata = buildMetadata({
   title: 'A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic | ProPilotLicence',
   description:
     'A complete guide to the A320 autoflight system. Autopilot modes, Flight Director, Autothrust, FCU operation, FMA logic, and managed vs selected guidance — explained for ATPL and type rating candidates.',
-  path: '/blog/a320-autoflight-system',
+  path: '/guides/dgca-exam-guides/a320-autoflight-system',
 })
 
 const MONO = "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace"
@@ -19,7 +19,7 @@ export default function A320AutoflightPost() {
       <ArticleSchema
         title="A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic"
         description="A complete guide to the A320 autoflight system. Autopilot modes, Flight Director, Autothrust, FCU operation, FMA logic, and managed vs selected guidance — explained for ATPL and type rating candidates."
-        url="https://propilotlicence.com/blog/a320-autoflight-system"
+        url="https://propilotlicence.com/guides/dgca-exam-guides/a320-autoflight-system"
         publishedAt="2026-07-05"
         updatedAt="2026-07-05"
       />
@@ -29,7 +29,7 @@ export default function A320AutoflightPost() {
 
         {/* Breadcrumb */}
         <nav style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 24 }}>
-          <Link href="/blog" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>Blog</Link>
+          <Link href="/guides/dgca-exam-guides" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>DGCA Exam Guides</Link>
           <span style={{ margin: '0 6px' }}>›</span>
           <span>A320 Autoflight System</span>
         </nav>
@@ -214,7 +214,7 @@ export default function A320AutoflightPost() {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
             <Link href="/subjects/technical-general" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Technical General subject →</Link>
             <Link href="/subjects/radio-aids-instruments" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Radio Aids &amp; Instruments →</Link>
-            <Link href="/blog" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>More A320 Systems articles →</Link>
+            <Link href="/guides/dgca-exam-guides" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>More A320 Systems articles →</Link>
           </div>
         </div>
       </main>
