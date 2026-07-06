@@ -7,10 +7,12 @@ import SiteHeader from '@/components/SiteHeader'
 import type { User } from '@supabase/supabase-js'
 import type { Profile } from '@/lib/types'
 import { getSubscriptionStatus, daysRemaining } from '@/lib/subscription'
+import { flagEmoji } from '@/lib/countries'
 
 export default function ProfilePage() {
   const [user, setUser]       = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [countryName, setCountryName] = useState<string | null>(null)
   const [stats, setStats]     = useState({ sessions: 0, totalAnswers: 0, correctAnswers: 0 })
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -34,6 +36,11 @@ export default function ProfilePage() {
         correctAnswers: correctRes.count ?? 0,
       })
       setProfile(profileRes.data)
+
+      if (profileRes.data?.country) {
+        const { data: countryRow } = await supabase.from('countries').select('name').eq('code', profileRes.data.country).single()
+        setCountryName(countryRow?.name ?? null)
+      }
       setLoading(false)
     }
     load()
@@ -88,6 +95,11 @@ export default function ProfilePage() {
                 <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: 'var(--clr-pri-light)', color: 'var(--clr-primary)' }}>
                   {profile.exam_type === 'CPL' ? 'CPL' : profile.exam_type === 'ATPL' ? 'ATPL' : 'Composite'}
                 </span>
+                {profile.country && (
+                  <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: 'var(--clr-pri-light)', color: 'var(--clr-primary)' }}>
+                    {flagEmoji(profile.country)} {countryName || profile.country}
+                  </span>
+                )}
                 <span style={{ fontSize: 11, color: 'var(--clr-text-med)' }}>
                   Preparing for
                 </span>

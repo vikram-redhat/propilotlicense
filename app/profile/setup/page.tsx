@@ -1,8 +1,11 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { flagEmoji } from '@/lib/countries'
+import type { Country } from '@/lib/types'
 
 type ExamType = 'CPL' | 'Composite' | 'ATPL'
+type Step = 'examType' | 'country'
 
 const OPTIONS: { type: ExamType; title: string; subtitle: string; detail: string }[] = [
   {
@@ -26,28 +29,49 @@ const OPTIONS: { type: ExamType; title: string; subtitle: string; detail: string
 ]
 
 export default function ProfileSetupPage() {
-  const [selected, setSelected] = useState<ExamType | null>(null)
+  const [step, setStep] = useState<Step>('examType')
+  const [examType, setExamType] = useState<ExamType | null>(null)
+  const [country, setCountry] = useState<string | null>(null)
+  const [countries, setCountries] = useState<Country[]>([])
   const [saving, setSaving] = useState(false)
 
-  async function confirm() {
-    if (!selected || saving) return
+  useEffect(() => {
+    supabase.from('countries').select('*').eq('active', true).order('sort_order').then(({ data }) => {
+      setCountries(data || [])
+    })
+  }, [])
+
+  function goToCountryStep() {
+    if (!examType) return
+    // If the countries catalog isn't set up yet, don't block onboarding on it — default to India.
+    if (countries.length === 0) {
+      finish(examType, 'IN')
+      return
+    }
+    setStep('country')
+  }
+
+  async function finish(finalExamType: ExamType, finalCountry: string) {
+    if (saving) return
     setSaving(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/login'; return }
 
       await supabase.from('profiles').update({
-        exam_type: selected,
+        exam_type: finalExamType,
         exam_type_set_at: new Date().toISOString(),
+        country: finalCountry,
+        country_set_at: new Date().toISOString(),
       }).eq('id', user.id)
 
       // Update user metadata then refresh the session so the proxy
-      // sees the new exam_type in the JWT cookie before we redirect
-      await supabase.auth.updateUser({ data: { exam_type: selected } })
+      // sees the new exam_type/country in the JWT cookie before we redirect
+      await supabase.auth.updateUser({ data: { exam_type: finalExamType, country: finalCountry } })
       await supabase.auth.refreshSession()
 
       // Full reload — not router.push — so the fresh cookie is sent with the first request
-      window.location.href = selected === 'ATPL' ? '/atpl' : '/cpl'
+      window.location.href = finalExamType === 'ATPL' ? '/atpl' : '/cpl'
     } catch {
       setSaving(false)
     }
@@ -62,59 +86,131 @@ export default function ProfileSetupPage() {
         </div>
 
         <div style={{ background: '#fff', borderRadius: 20, border: '1px solid var(--clr-border)', padding: '36px 28px' }}>
-          <div style={{ fontSize: 26, textAlign: 'center', marginBottom: 10 }}>✈</div>
-          <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', textAlign: 'center', marginBottom: 4, letterSpacing: '-0.3px' }}>
-            One quick question
-          </h1>
-          <p style={{ fontSize: 14, color: 'var(--clr-text-med)', textAlign: 'center', marginBottom: 24 }}>
-            What are you preparing for?
-          </p>
+          {step === 'examType' ? (
+            <>
+              <div style={{ fontSize: 26, textAlign: 'center', marginBottom: 10 }}>✈</div>
+              <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', textAlign: 'center', marginBottom: 4, letterSpacing: '-0.3px' }}>
+                One quick question
+              </h1>
+              <p style={{ fontSize: 14, color: 'var(--clr-text-med)', textAlign: 'center', marginBottom: 24 }}>
+                What are you preparing for?
+              </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-            {OPTIONS.map(opt => {
-              const active = selected === opt.type
-              return (
-                <div
-                  key={opt.type}
-                  onClick={() => setSelected(opt.type)}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                {OPTIONS.map(opt => {
+                  const active = examType === opt.type
+                  return (
+                    <div
+                      key={opt.type}
+                      onClick={() => setExamType(opt.type)}
+                      style={{
+                        border: `1.5px solid ${active ? 'var(--clr-primary)' : 'var(--clr-border)'}`,
+                        background: active ? 'var(--clr-pri-light)' : 'var(--clr-surface)',
+                        borderRadius: 13, padding: '14px 16px', cursor: 'pointer',
+                        transition: 'border-color 0.15s, background 0.15s',
+                      }}
+                    >
+                      <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, color: active ? 'var(--clr-primary)' : 'var(--clr-text)', marginBottom: 2 }}>
+                        {opt.title}
+                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: active ? 'var(--clr-primary)' : 'var(--clr-text)', marginBottom: 2 }}>
+                        {opt.subtitle}
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--clr-text-med)' }}>{opt.detail}</div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <p style={{ fontSize: 12, color: 'var(--clr-text-med)', textAlign: 'center', marginBottom: 18 }}>
+                This personalises your subject list. This choice cannot be changed later.
+              </p>
+
+              <button
+                onClick={goToCountryStep}
+                disabled={!examType || saving}
+                style={{
+                  width: '100%', padding: '14px 0', borderRadius: 12,
+                  background: examType ? 'var(--clr-primary)' : 'var(--clr-border)',
+                  color: '#fff', fontFamily: 'var(--font-outfit),sans-serif',
+                  fontSize: 15, fontWeight: 700, border: 'none',
+                  cursor: examType && !saving ? 'pointer' : 'not-allowed',
+                  opacity: saving ? 0.7 : 1,
+                  transition: 'background 0.15s',
+                }}
+              >
+                {saving ? 'Setting up…' : 'Continue →'}
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 26, textAlign: 'center', marginBottom: 10 }}>🌍</div>
+              <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', textAlign: 'center', marginBottom: 4, letterSpacing: '-0.3px' }}>
+                One more thing
+              </h1>
+              <p style={{ fontSize: 14, color: 'var(--clr-text-med)', textAlign: 'center', marginBottom: 24 }}>
+                Which country&apos;s exam are you studying for?
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                {countries.map(c => {
+                  const active = country === c.code
+                  return (
+                    <div
+                      key={c.code}
+                      onClick={() => setCountry(c.code)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        border: `1.5px solid ${active ? 'var(--clr-primary)' : 'var(--clr-border)'}`,
+                        background: active ? 'var(--clr-pri-light)' : 'var(--clr-surface)',
+                        borderRadius: 13, padding: '14px 16px', cursor: 'pointer',
+                        transition: 'border-color 0.15s, background 0.15s',
+                      }}
+                    >
+                      <span style={{ fontSize: 22, lineHeight: 1 }}>{flagEmoji(c.code)}</span>
+                      <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, color: active ? 'var(--clr-primary)' : 'var(--clr-text)' }}>
+                        {c.name}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <p style={{ fontSize: 12, color: 'var(--clr-text-med)', textAlign: 'center', marginBottom: 18 }}>
+                This determines which reference books and content you&apos;ll see. This choice cannot be changed later.
+              </p>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  onClick={() => setStep('examType')}
+                  disabled={saving}
                   style={{
-                    border: `1.5px solid ${active ? 'var(--clr-primary)' : 'var(--clr-border)'}`,
-                    background: active ? 'var(--clr-pri-light)' : 'var(--clr-surface)',
-                    borderRadius: 13, padding: '14px 16px', cursor: 'pointer',
-                    transition: 'border-color 0.15s, background 0.15s',
+                    padding: '14px 18px', borderRadius: 12,
+                    background: 'var(--clr-surface)', border: '1.5px solid var(--clr-border)',
+                    color: 'var(--clr-text-med)', fontFamily: 'var(--font-outfit),sans-serif',
+                    fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, color: active ? 'var(--clr-primary)' : 'var(--clr-text)', marginBottom: 2 }}>
-                    {opt.title}
-                  </div>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: active ? 'var(--clr-primary)' : 'var(--clr-text)', marginBottom: 2 }}>
-                    {opt.subtitle}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--clr-text-med)' }}>{opt.detail}</div>
-                </div>
-              )
-            })}
-          </div>
-
-          <p style={{ fontSize: 12, color: 'var(--clr-text-med)', textAlign: 'center', marginBottom: 18 }}>
-            This personalises your subject list. This choice cannot be changed later.
-          </p>
-
-          <button
-            onClick={confirm}
-            disabled={!selected || saving}
-            style={{
-              width: '100%', padding: '14px 0', borderRadius: 12,
-              background: selected ? 'var(--clr-primary)' : 'var(--clr-border)',
-              color: '#fff', fontFamily: 'var(--font-outfit),sans-serif',
-              fontSize: 15, fontWeight: 700, border: 'none',
-              cursor: selected && !saving ? 'pointer' : 'not-allowed',
-              opacity: saving ? 0.7 : 1,
-              transition: 'background 0.15s',
-            }}
-          >
-            {saving ? 'Setting up…' : 'Confirm →'}
-          </button>
+                  ← Back
+                </button>
+                <button
+                  onClick={() => examType && country && finish(examType, country)}
+                  disabled={!country || saving}
+                  style={{
+                    flex: 1, padding: '14px 0', borderRadius: 12,
+                    background: country ? 'var(--clr-primary)' : 'var(--clr-border)',
+                    color: '#fff', fontFamily: 'var(--font-outfit),sans-serif',
+                    fontSize: 15, fontWeight: 700, border: 'none',
+                    cursor: country && !saving ? 'pointer' : 'not-allowed',
+                    opacity: saving ? 0.7 : 1,
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  {saving ? 'Setting up…' : 'Confirm →'}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

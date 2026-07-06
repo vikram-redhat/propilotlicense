@@ -108,9 +108,14 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
         supabase.from('source_books').select('*').eq('subject_id', subjectId).order('sort_order'),
         user ? supabase.from('profiles').select('*').eq('id', user.id).single() : Promise.resolve({ data: null }),
       ])
+      const studentCountry = profileRes.data?.country ?? null
+      const visibleBooks = studentCountry
+        ? (bks || []).filter(b => !b.countries?.length || b.countries.includes(studentCountry))
+        : (bks || [])
+
       setSubject(sub)
       setTopics(tops || [])
-      setBooks(bks || [])
+      setBooks(visibleBooks)
       setProfile(profileRes.data)
 
       if ((sub?.code === 'NAV' || sub?.code === 'RAI') && licence.toLowerCase() === 'cpl') {

@@ -133,6 +133,8 @@ export interface Profile {
   exam_preference: 'CPL' | 'ATPL'
   exam_type: 'CPL' | 'Composite' | 'ATPL' | null
   exam_type_set_at: string | null
+  country: string | null
+  country_set_at: string | null
   created_at: string
   updated_at: string
 }

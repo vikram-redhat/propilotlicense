@@ -8,6 +8,22 @@ const weights = {
   advanced: { basic: 0.2, advanced: 0.8 },
 }
 
+type CountryTaggedQuestion = {
+  id: string
+  difficulty: string
+  source_book: { countries: string[] | null } | null
+}
+
+// Questions with no linked book (the common pool) are treated as universal —
+// only questions tied to a book explicitly tagged to other countries are excluded.
+function filterByCountry<T extends CountryTaggedQuestion>(rows: T[], country: string | null): T[] {
+  if (!country) return rows
+  return rows.filter(q => {
+    const countries = q.source_book?.countries
+    return !countries || countries.length === 0 || countries.includes(country)
+  })
+}
+
 export async function POST(req: Request) {
   const { subjectId, licenceType, scope, topicId, sourceBookId, chapterId, mode, difficulty, questionCount, pairedSubjectId } = await req.json()
 
@@ -36,10 +52,11 @@ export async function POST(req: Request) {
   // Server-side subscription enforcement
   const { data: profile } = await supabase
     .from('profiles')
-    .select('subscription_tier, subscription_expires_at')
+    .select('subscription_tier, subscription_expires_at, country')
     .eq('id', user.id)
     .single()
 
+  const studentCountry = profile?.country ?? null
   const isAdmin    = user.user_metadata?.is_admin === true
   const subscribed = isAdmin || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
 
@@ -55,12 +72,13 @@ export async function POST(req: Request) {
     if (!pairedSubjectId) return Response.json({ error: 'Missing pairedSubjectId' }, { status: 400 })
 
     const pickHalf = async (sid: string): Promise<string[]> => {
-      const { data: qs } = await supabase
+      const { data: rows } = await supabase
         .from('questions')
-        .select('id, difficulty')
+        .select('id, difficulty, source_book:source_books(countries)')
         .eq('subject_id', sid)
         .eq('active', true)
-      if (!qs || qs.length === 0) return []
+      const qs = filterByCountry((rows || []) as unknown as CountryTaggedQuestion[], studentCountry)
+      if (qs.length === 0) return []
       const w = weights[difficulty as keyof typeof weights] || weights.all
       const weighted: string[] = []
       for (const q of qs) {
@@ -117,12 +135,13 @@ export async function POST(req: Request) {
     subjects?.forEach(s => { byCode[s.code] = s.id })
 
     const pickN = async (subjectIds: string[], n: number): Promise<string[]> => {
-      const { data: qs } = await supabase
+      const { data: rows } = await supabase
         .from('questions')
-        .select('id, difficulty')
+        .select('id, difficulty, source_book:source_books(countries)')
         .in('subject_id', subjectIds)
         .eq('active', true)
-      if (!qs || qs.length === 0) return []
+      const qs = filterByCountry((rows || []) as unknown as CountryTaggedQuestion[], studentCountry)
+      if (qs.length === 0) return []
       const w = weights[difficulty as keyof typeof weights] || weights.all
       const weighted: string[] = []
       for (const q of qs) {
@@ -174,7 +193,7 @@ export async function POST(req: Request) {
 
   let query = supabase
     .from('questions')
-    .select('id, difficulty')
+    .select('id, difficulty, source_book:source_books(countries)')
     .eq('subject_id', subjectId)
     .eq('active', true)
 
@@ -194,13 +213,15 @@ export async function POST(req: Request) {
       break
   }
 
-  const { data: questions, error } = await query
+  const { data: rawQuestions, error } = await query
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 })
   }
 
-  if (!questions || questions.length === 0) {
+  const questions = filterByCountry((rawQuestions || []) as unknown as CountryTaggedQuestion[], studentCountry)
+
+  if (questions.length === 0) {
     return Response.json({ error: 'No questions available for this configuration' }, { status: 400 })
   }
 
