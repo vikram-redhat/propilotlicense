@@ -27,8 +27,11 @@ export default function EditCountryPage({ params }: { params: Promise<{ id: stri
         setName(data.name || '')
         setSortOrder(data.sort_order ?? 0)
         setActive(data.active ?? true)
-        const { data: books } = await supabase.from('source_books').select('id, countries')
-        setBookCount((books || []).filter(b => (b.countries || []).includes(data.code)).length)
+        const { count } = await supabase
+          .from('source_books')
+          .select('id', { count: 'exact', head: true })
+          .contains('countries', [data.code])
+        setBookCount(count ?? 0)
       }
       setLoading(false)
     }

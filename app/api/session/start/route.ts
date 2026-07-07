@@ -1,6 +1,7 @@
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
 import { isSubscribed } from '@/lib/subscription'
+import { isVisibleForCountry } from '@/lib/countries'
 
 const weights = {
   all:      { basic: 1,   advanced: 1   },
@@ -16,12 +17,10 @@ type CountryTaggedQuestion = {
 
 // Questions with no linked book (the common pool) are treated as universal —
 // only questions tied to a book explicitly tagged to other countries are excluded.
+// See lib/countries.ts's isVisibleForCountry for the shared rule (also used by the
+// book picker at app/[licence]/[subjectId]/page.tsx).
 function filterByCountry<T extends CountryTaggedQuestion>(rows: T[], country: string | null): T[] {
-  if (!country) return rows
-  return rows.filter(q => {
-    const countries = q.source_book?.countries
-    return !countries || countries.length === 0 || countries.includes(country)
-  })
+  return rows.filter(q => isVisibleForCountry(q.source_book?.countries, country))
 }
 
 export async function POST(req: Request) {

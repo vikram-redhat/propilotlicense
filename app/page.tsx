@@ -352,7 +352,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             )}
 
-            <Link href={user ? airbusSubject.href : airbusSubject.publicHref} style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
+            <Link href={user ? airbusSubject.href : configHref} style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
               Practise Airbus A320 questions →
             </Link>
           </div>

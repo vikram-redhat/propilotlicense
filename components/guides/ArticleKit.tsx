@@ -17,7 +17,8 @@ export function Breadcrumb({ seriesSlug, seriesLabel, current }: { seriesSlug: s
   )
 }
 
-export function ArticleHeader({ articleNumber, totalArticles, title, standfirst }: {
+export function ArticleHeader({ seriesLabel, articleNumber, totalArticles, title, standfirst }: {
+  seriesLabel: string
   articleNumber: number
   totalArticles: number
   title: string
@@ -28,7 +29,7 @@ export function ArticleHeader({ articleNumber, totalArticles, title, standfirst 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
         <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--clr-text-med)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ display: 'inline-block', width: 22, height: 2, background: 'var(--clr-primary)' }} />
-          Become a Pilot India — Series
+          {seriesLabel} — Series
         </div>
         <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', background: 'var(--clr-pri-light)', color: 'var(--clr-primary)', padding: '3px 9px', borderRadius: 5 }}>
           Article {articleNumber} of {totalArticles}
@@ -48,17 +49,17 @@ export function ArticleHeader({ articleNumber, totalArticles, title, standfirst 
         <span>·</span>
         <span>Reviewed by the ProPilotLicence Captain Panel</span>
         <span>·</span>
-        <span>Become a Pilot India Series</span>
+        <span>{seriesLabel} Series</span>
       </div>
     </>
   )
 }
 
-export function SeriesNav({ items }: { items: SeriesNavItem[] }) {
+export function SeriesNav({ seriesLabel, items }: { seriesLabel: string; items: SeriesNavItem[] }) {
   return (
     <div style={{ background: 'var(--clr-surf-alt)', border: '1px solid var(--clr-border)', borderRadius: 10, padding: '16px 20px', marginBottom: 32 }}>
       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--clr-text-med)', marginBottom: 10 }}>
-        Become a Pilot India — Article series
+        {seriesLabel} — Article series
       </div>
       <ol style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingLeft: 20, margin: 0 }}>
         {items.map((item, i) => (

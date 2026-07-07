@@ -3,6 +3,7 @@ import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
+import { Section, SubSection, Prose, Callout, DataTable } from '@/components/guides/ArticleKit'
 
 export const metadata = buildMetadata({
   title: 'A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic | ProPilotLicence',
@@ -10,8 +11,6 @@ export const metadata = buildMetadata({
     'A complete guide to the A320 autoflight system. Autopilot modes, Flight Director, Autothrust, FCU operation, FMA logic, and managed vs selected guidance — explained for ATPL and type rating candidates.',
   path: '/guides/dgca-exam-guides/a320-autoflight-system',
 })
-
-const MONO = "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace"
 
 export default function A320AutoflightPost() {
   return (
@@ -34,15 +33,12 @@ export default function A320AutoflightPost() {
           <span>A320 Autoflight System</span>
         </nav>
 
-        {/* Eyebrow / series badge */}
+        {/* Eyebrow */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--clr-text-med)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ display: 'inline-block', width: 22, height: 2, background: 'var(--clr-primary)' }} />
             A320 Systems — Autoflight
           </div>
-          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', background: 'var(--clr-pri-light)', color: 'var(--clr-primary)', padding: '3px 9px', borderRadius: 5 }}>
-            Article 2 of series
-          </span>
         </div>
 
         <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 30, fontWeight: 700, color: 'var(--clr-text)', letterSpacing: '-0.5px', lineHeight: 1.2, marginBottom: 16 }}>
@@ -68,7 +64,7 @@ export default function A320AutoflightPost() {
           </p>
         </Prose>
 
-        <Section title="System architecture — the four components">
+        <Section title="System architecture — the four components" first>
           <DiagramBlock label="Diagram 1 — Autoflight system architecture" caption="The FCU is the pilot's interface. AP, FD, and ATHR are the execution layer. The FMA is the readback — it confirms what the system is actually doing.">
             <ArchitectureDiagram />
           </DiagramBlock>
@@ -81,20 +77,16 @@ export default function A320AutoflightPost() {
           </Prose>
         </Section>
 
-        <Divider />
-
         <Section title="Managed vs selected — the fundamental distinction">
           <Prose>
             <p>Every autoflight mode is either <strong>managed</strong> or <strong>selected</strong>. This is the distinction that ATPL orals probe most consistently, because it reveals whether a candidate understands the system or has merely memorised mode names.</p>
             <p><strong>Managed guidance</strong> means the FMS is in control of that parameter. The FCU window for that parameter shows dashes rather than a numerical value. The FMA annunciates the mode in magenta. The aircraft follows the FMS computed profile — the lateral route, the climb or descent profile, the speed schedule.</p>
             <p><strong>Selected guidance</strong> means the pilot has assigned a specific value via the FCU. The FCU window shows the numerical value. The FMA annunciates the mode in green (active) or blue (armed). The aircraft tracks that value.</p>
           </Prose>
-          <Callout>
+          <Callout variant="blue">
             <strong>The FCU window tells you who is flying:</strong> Dashes in the speed window means the FMS is managing speed. A number means the pilot has selected a target. Same logic applies to heading and vertical guidance windows. Look at the windows — they tell the story at a glance.
           </Callout>
         </Section>
-
-        <Divider />
 
         <Section title="The FMA — reading the annunciator">
           <Prose>
@@ -115,8 +107,6 @@ export default function A320AutoflightPost() {
           </Callout>
         </Section>
 
-        <Divider />
-
         <Section title="Vertical modes — the most examined area">
           <DiagramBlock label="Diagram 2 — Vertical mode logic: managed vs selected, and key transitions" caption="Managed modes (green) follow the FMS profile. Selected modes (amber) track a pilot-assigned value. The FCU knob action — push for managed, pull for selected — drives the transition.">
             <VerticalModesDiagram />
@@ -130,7 +120,7 @@ export default function A320AutoflightPost() {
               <li><strong>Pull the altitude knob</strong> → Open Climb (OP CLB) or Open Descent (OP DES). The aircraft climbs or descends to the FCU altitude at maximum performance. A selected value is shown in the FCU window. This is the selected guidance mode for the vertical axis.</li>
               <li><strong>Push the altitude knob</strong> → Managed CLB or managed DES. The FMS takes control of the vertical profile. Dashes appear in the altitude window — the FMS is managing. The aircraft follows the FMS computed climb or descent path, which may not use maximum performance.</li>
             </ul>
-            <Callout>
+            <Callout variant="blue">
               <strong>Memory rule:</strong> Pull = take control (selected). Push = give control to FMS (managed). The same logic applies to the speed and heading knobs — pull gives you a selected value; push gives the FMS control and shows dashes in the window.
             </Callout>
           </SubSection>
@@ -142,8 +132,6 @@ export default function A320AutoflightPost() {
             </Prose>
           </SubSection>
         </Section>
-
-        <Divider />
 
         <Section title="Autothrust modes — speed vs thrust">
           <Prose>
@@ -170,8 +158,6 @@ export default function A320AutoflightPost() {
           </Prose>
         </Section>
 
-        <Divider />
-
         <Section title="Key numbers and limitations">
           <DataTable
             head={['Parameter', 'Value']}
@@ -189,8 +175,6 @@ export default function A320AutoflightPost() {
             ]}
           />
         </Section>
-
-        <Divider />
 
         <Section title="Summary">
           <Prose>
@@ -224,57 +208,6 @@ export default function A320AutoflightPost() {
   )
 }
 
-function Divider() {
-  return <hr style={{ border: 'none', borderTop: '1px solid var(--clr-border)', margin: '36px 0' }} />
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <h2 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--clr-text)', letterSpacing: '-0.3px' }}>
-        {title}
-      </h2>
-      {children}
-    </section>
-  )
-}
-
-function SubSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
-      <h3 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 16, fontWeight: 700, color: 'var(--clr-text)' }}>{title}</h3>
-      {children}
-    </div>
-  )
-}
-
-function Prose({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ fontSize: 16, lineHeight: 1.75, color: 'var(--clr-text)', display: 'flex', flexDirection: 'column', gap: 14 }}>
-      {children}
-    </div>
-  )
-}
-
-function Callout({ children, variant = 'primary' }: { children: React.ReactNode; variant?: 'primary' | 'amber' }) {
-  const isAmber = variant === 'amber'
-  return (
-    <div
-      style={{
-        background: isAmber ? 'var(--clr-amber-light)' : 'var(--clr-pri-light)',
-        borderLeft: `3px solid ${isAmber ? 'var(--clr-amber)' : 'var(--clr-primary)'}`,
-        borderRadius: '0 8px 8px 0',
-        padding: '14px 18px',
-        fontSize: 14,
-        lineHeight: 1.7,
-        color: 'var(--clr-text)',
-      }}
-    >
-      {children}
-    </div>
-  )
-}
-
 function DiagramBlock({ label, caption, children }: { label: string; caption: string; children: React.ReactNode }) {
   return (
     <div style={{ border: '1px solid var(--clr-border)', borderRadius: 10, overflow: 'hidden', background: 'var(--clr-surf-alt)' }}>
@@ -287,45 +220,6 @@ function DiagramBlock({ label, caption, children }: { label: string; caption: st
       <div style={{ fontSize: 13, color: 'var(--clr-text-med)', padding: '10px 16px', borderTop: '1px solid var(--clr-border)', background: 'var(--clr-surface)', fontStyle: 'italic' }}>
         {caption}
       </div>
-    </div>
-  )
-}
-
-function DataTable({ head, rows, monoCol }: { head: string[]; rows: string[][]; monoCol?: number }) {
-  return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-        <thead>
-          <tr>
-            {head.map((h) => (
-              <th key={h} style={{ textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--clr-text-med)', padding: '10px 14px', background: 'var(--clr-surf-alt)', borderBottom: '1px solid var(--clr-border)' }}>
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i}>
-              {row.map((cell, j) => (
-                <td
-                  key={j}
-                  style={{
-                    padding: '11px 14px',
-                    borderBottom: i < rows.length - 1 ? '1px solid var(--clr-border)' : 'none',
-                    color: j === monoCol ? 'var(--clr-primary)' : 'var(--clr-text)',
-                    verticalAlign: 'top',
-                    fontFamily: j === monoCol ? MONO : undefined,
-                    fontSize: j === monoCol ? 13 : undefined,
-                  }}
-                >
-                  {cell}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   )
 }

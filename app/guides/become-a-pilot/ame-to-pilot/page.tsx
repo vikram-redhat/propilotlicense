@@ -2,7 +2,7 @@ import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { seriesNavItems } from '@/lib/guides'
+import { seriesNavItems, getSeries } from '@/lib/guides'
 import {
   Breadcrumb, ArticleHeader, SeriesNav, Section, Prose, Callout,
   DataTable, FinancialTable, StepList, SubjectAdvantageGrid, CardGrid, CtaBlock, Disclaimer,
@@ -14,6 +14,9 @@ export const metadata = buildMetadata({
     'A practical guide for Aircraft Maintenance Engineers considering the transition to commercial pilot in India. Education eligibility, financial trade-offs, your technical advantage in theory exams, and the age maths you need to do first.',
   path: '/guides/become-a-pilot/ame-to-pilot',
 })
+
+const SERIES = getSeries('become-a-pilot')!
+const ARTICLE_INDEX = SERIES.posts.findIndex(p => p.slug === 'ame-to-pilot')
 
 export default function AmeToPilotPost() {
   return (
@@ -31,13 +34,14 @@ export default function AmeToPilotPost() {
         <Breadcrumb seriesSlug="become-a-pilot" seriesLabel="Become a Pilot" current="AME to Pilot" />
 
         <ArticleHeader
-          articleNumber={2}
-          totalArticles={3}
+          seriesLabel="Become a Pilot India"
+          articleNumber={ARTICLE_INDEX + 1}
+          totalArticles={SERIES.posts.length}
           title="Aircraft Maintenance Engineer to Pilot in India — The Complete Transition Guide"
           standfirst="You already understand how aircraft work at a level most CPL candidates will never reach. That knowledge does not exempt you from a single hour of flight training or a single exam. But it does give you a meaningful head start in ground school — and that changes the financial and timeline maths of this transition in ways worth understanding before you decide."
         />
 
-        <SeriesNav items={seriesNavItems('become-a-pilot', 'ame-to-pilot')} />
+        <SeriesNav seriesLabel="Become a Pilot India" items={seriesNavItems('become-a-pilot', 'ame-to-pilot')} />
 
         <Prose>
           <p>An Aircraft Maintenance Engineer who decides to pursue a CPL brings something to the process that very few other candidates have: a deep, practical understanding of what they are flying. When Technical General exam questions cover hydraulic system failure modes, pressurisation logic, or electrical bus architecture, an AME with years on A320s is not learning concepts — they are applying existing knowledge to a new format. That is a genuine advantage, and it translates directly into ground school performance.</p>

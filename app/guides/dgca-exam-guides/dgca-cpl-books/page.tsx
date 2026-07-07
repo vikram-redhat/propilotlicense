@@ -3,6 +3,7 @@ import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
+import { Section, SubSection } from '@/components/guides/ArticleKit'
 
 export const metadata = buildMetadata({
   title: 'Which Books to Study for DGCA CPL Exams — Complete 2026 Guide | ProPilotLicence',
@@ -52,9 +53,7 @@ export default function DgcaCplBooksPost() {
           </p>
         </div>
 
-        <Divider />
-
-        <BlogSection title="Aviation Meteorology — IC Joshi">
+        <Section title="Aviation Meteorology — IC Joshi" first>
           <p>
             <strong>Aviation Meteorology</strong> by Group Captain IC Joshi (IAF, Retd.) is one prescribed Indian text that covers Indian climatology, the monsoon system, and subcontinent-specific weather phenomena in the depth the DGCA tests.
           </p>
@@ -76,11 +75,9 @@ export default function DgcaCplBooksPost() {
             </Link>
             , organised by chapter.
           </p>
-        </BlogSection>
+        </Section>
 
-        <Divider />
-
-        <BlogSection title="Air Regulations — RK Bali">
+        <Section title="Air Regulations — RK Bali">
           <p>
             <strong>Air Regulations for CPL/ATPL</strong> by Wing Commander RK Bali (IAF, Retd.) is the standard prescribed text for the DGCA Air Regulations paper. It covers all 18 ICAO Annexes as applicable to Indian operations, DGCA Civil Aviation Requirements, Rules of the Air, licensing, and ATC procedures.
           </p>
@@ -106,11 +103,9 @@ export default function DgcaCplBooksPost() {
             </Link>
             , organised by chapter.
           </p>
-        </BlogSection>
+        </Section>
 
-        <Divider />
-
-        <BlogSection title="Air Navigation — DP Khanna and RK Bali">
+        <Section title="Air Navigation — DP Khanna and RK Bali">
           <p>
             Air Navigation has two commonly used prescribed texts: <strong>Air Navigation</strong> by Group Captain DP Khanna and <strong>Navigation for Pilots</strong> by RK Bali. Most candidates use both — Khanna as the primary text and Bali for its worked examples.
           </p>
@@ -126,40 +121,34 @@ export default function DgcaCplBooksPost() {
               ['Mass and balance', 'CG calculation and limits — always in the paper.'],
             ]} />
           </SubSection>
-        </BlogSection>
+        </Section>
 
-        <Divider />
-
-        <BlogSection title="Technical General — AK Garg">
+        <Section title="Technical General — AK Garg">
           <p>
             <strong>Aircraft General Engineering and Maintenance Practices</strong> by AK Garg is the standard Indian reference for the DGCA Technical General paper. Candidates wanting more engineering depth often supplement with the Oxford Aviation Academy Airframes and Systems and Powerplant volumes.
           </p>
           <p>
             Technical General rewards understanding over memorisation. Study each system (hydraulic, electrical, pressurisation, fuel) by understanding how it works and what happens when components fail — the DGCA tests application, not definition.
           </p>
-        </BlogSection>
+        </Section>
 
-        <Divider />
-
-        <BlogSection title="Radio Aids and Instruments — RK Bali">
+        <Section title="Radio Aids and Instruments — RK Bali">
           <p>
             <strong>Radio Aids</strong> by RK Bali is the primary prescribed text for the Radio Aids and Instruments paper. The Oxford Aviation Academy Radio Navigation volume is used by candidates wanting additional depth on ILS, VOR error analysis, and GNSS principles.
           </p>
           <p>
             The DGCA has increased GPS and GNSS-related content in the Radio Aids paper in recent years. Candidates using older study materials should ensure GNSS coverage is current.
           </p>
-        </BlogSection>
+        </Section>
 
-        <Divider />
-
-        <BlogSection title="A note on buying books">
+        <Section title="A note on buying books">
           <p>
             Indian aviation textbooks have limited distribution. The most reliable sources are the publishers directly or established aviation bookshops. Photocopied editions circulate widely in flying clubs — while the content is the same, note that edition dates matter for Air Regulations (older editions may have outdated CARs).
           </p>
           <p>
             Questions on ProPilotLicence are always reviewed against the current DGCA-prescribed edition of each textbook before publication.
           </p>
-        </BlogSection>
+        </Section>
 
         <div style={{ marginTop: 48, padding: '24px', background: 'var(--clr-pri-light)', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 17, fontWeight: 700, color: 'var(--clr-text)' }}>
@@ -177,32 +166,6 @@ export default function DgcaCplBooksPost() {
       </main>
 
       <SiteFooter />
-    </div>
-  )
-}
-
-function Divider() {
-  return <hr style={{ border: 'none', borderTop: '1px solid var(--clr-border)', margin: '36px 0' }} />
-}
-
-function BlogSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <h2 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--clr-text)', letterSpacing: '-0.3px', marginBottom: 4 }}>
-        {title}
-      </h2>
-      <div style={{ fontSize: 16, lineHeight: 1.75, color: 'var(--clr-text)', display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {children}
-      </div>
-    </section>
-  )
-}
-
-function SubSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--clr-text)', marginBottom: 8 }}>{title}</div>
-      {children}
     </div>
   )
 }

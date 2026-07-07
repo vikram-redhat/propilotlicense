@@ -2,7 +2,7 @@ import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { seriesNavItems } from '@/lib/guides'
+import { seriesNavItems, getSeries } from '@/lib/guides'
 import {
   Breadcrumb, ArticleHeader, SeriesNav, Section, Prose, Callout,
   DataTable, FinancialTable, StepList, CtaBlock, Disclaimer, ReadyBox,
@@ -14,6 +14,9 @@ export const metadata = buildMetadata({
     'A practical, unsentimental guide to transitioning from cabin crew to commercial pilot in India. Costs, timeline, medical requirements, age realities, and what nobody tells you before you start.',
   path: '/guides/become-a-pilot/cabin-crew-to-pilot',
 })
+
+const SERIES = getSeries('become-a-pilot')!
+const ARTICLE_INDEX = SERIES.posts.findIndex(p => p.slug === 'cabin-crew-to-pilot')
 
 export default function CabinCrewToPilotPost() {
   return (
@@ -31,13 +34,14 @@ export default function CabinCrewToPilotPost() {
         <Breadcrumb seriesSlug="become-a-pilot" seriesLabel="Become a Pilot" current="Cabin Crew to Pilot" />
 
         <ArticleHeader
-          articleNumber={1}
-          totalArticles={3}
+          seriesLabel="Become a Pilot India"
+          articleNumber={ARTICLE_INDEX + 1}
+          totalArticles={SERIES.posts.length}
           title="Cabin Crew to Pilot in India — The Complete Transition Guide"
           standfirst="You already work in aviation. You understand aircraft, operations, and passengers better than most CPL candidates. None of that gives you any credit toward a pilot licence. Here is what the transition actually involves — the costs, the timeline, the medical realities, and the age maths airlines won't spell out for you."
         />
 
-        <SeriesNav items={seriesNavItems('become-a-pilot', 'cabin-crew-to-pilot')} />
+        <SeriesNav seriesLabel="Become a Pilot India" items={seriesNavItems('become-a-pilot', 'cabin-crew-to-pilot')} />
 
         <Prose>
           <p>Cabin crew who decide to pursue a pilot licence start with one genuine advantage: they are not romanticising the job. They have seen the cockpit door from the other side for years. They know what delays look like, what a difficult sector feels like, and what it means to be responsible for a cabin full of people. The idealism that trips up many young CPL candidates is largely absent.</p>

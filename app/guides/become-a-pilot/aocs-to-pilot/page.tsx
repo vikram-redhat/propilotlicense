@@ -2,7 +2,7 @@ import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { seriesNavItems } from '@/lib/guides'
+import { seriesNavItems, getSeries } from '@/lib/guides'
 import {
   Breadcrumb, ArticleHeader, SeriesNav, Section, Prose, Callout,
   DataTable, FinancialTable, StepList, SubjectAdvantageGrid, RoleGrid, CtaBlock, Disclaimer,
@@ -14,6 +14,9 @@ export const metadata = buildMetadata({
     "A practical guide for aviation operations staff — ground ops, flight dispatch, load control, crew scheduling — considering the transition to commercial pilot in India. What your ops background gives you, and what it doesn't.",
   path: '/guides/become-a-pilot/aocs-to-pilot',
 })
+
+const SERIES = getSeries('become-a-pilot')!
+const ARTICLE_INDEX = SERIES.posts.findIndex(p => p.slug === 'aocs-to-pilot')
 
 export default function AocsToPilotPost() {
   return (
@@ -31,13 +34,14 @@ export default function AocsToPilotPost() {
         <Breadcrumb seriesSlug="become-a-pilot" seriesLabel="Become a Pilot" current="Aviation Operations Staff to Pilot" />
 
         <ArticleHeader
-          articleNumber={3}
-          totalArticles={3}
+          seriesLabel="Become a Pilot India"
+          articleNumber={ARTICLE_INDEX + 1}
+          totalArticles={SERIES.posts.length}
           title="Aviation Operations Staff to Pilot in India — The Complete Transition Guide"
           standfirst="Ground operations, flight dispatch, load control, crew scheduling — aviation operations staff understand how flights actually happen. That operational context is a genuine asset in pilot training. It does not, however, give you a single credit toward flying hours, and it does not change the cost or the timeline. Here is what the transition actually involves."
         />
 
-        <SeriesNav items={seriesNavItems('become-a-pilot', 'aocs-to-pilot')} />
+        <SeriesNav seriesLabel="Become a Pilot India" items={seriesNavItems('become-a-pilot', 'aocs-to-pilot')} />
 
         <Section title="Who this article is for" first>
           <Prose>

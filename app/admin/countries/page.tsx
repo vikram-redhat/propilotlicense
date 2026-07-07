@@ -6,7 +6,7 @@ import { Country } from '@/lib/types'
 import { flagEmoji } from '@/lib/countries'
 import { IconPlus, IconEdit, IconTrash, IconFlag } from '@tabler/icons-react'
 
-type CountryWithBooks = Country & { books: { id: string }[] }
+type CountryWithBooks = Country & { bookCount: number }
 
 export default function CountriesPage() {
   const [countries, setCountries] = useState<CountryWithBooks[]>([])
@@ -15,19 +15,21 @@ export default function CountriesPage() {
   async function load() {
     setLoading(true)
     const { data: rows } = await supabase.from('countries').select('*').order('sort_order')
-    const { data: books } = await supabase.from('source_books').select('id, countries')
-    const withBooks = (rows || []).map(c => ({
-      ...c,
-      books: (books || []).filter(b => (b.countries || []).includes(c.code)).map(b => ({ id: b.id })),
+    const withCounts = await Promise.all((rows || []).map(async c => {
+      const { count } = await supabase
+        .from('source_books')
+        .select('id', { count: 'exact', head: true })
+        .contains('countries', [c.code])
+      return { ...c, bookCount: count ?? 0 }
     }))
-    setCountries(withBooks)
+    setCountries(withCounts)
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
 
   async function deleteCountry(country: CountryWithBooks) {
-    const n = country.books.length
+    const n = country.bookCount
     if (n > 0) {
       alert(`Can't delete ${country.name} — ${n} book${n !== 1 ? 's' : ''} still tagged with it. Untag them first, or mark it inactive instead.`)
       return
@@ -101,9 +103,9 @@ export default function CountriesPage() {
                   </div>
                   <div className="hidden sm:block flex-shrink-0 w-16 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      country.books.length > 0 ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-500'
+                      country.bookCount > 0 ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-500'
                     }`}>
-                      {country.books.length}
+                      {country.bookCount}
                     </span>
                   </div>
                   <div className="hidden sm:block flex-shrink-0">

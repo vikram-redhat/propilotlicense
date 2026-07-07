@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook, Profile } from '@/lib/types'
 import { isSubscribed } from '@/lib/subscription'
+import { isVisibleForCountry } from '@/lib/countries'
 import UserMenu from '@/components/UserMenu'
 
 type Scope = 'topic' | 'book' | 'book_chapter' | 'combined'
@@ -109,9 +110,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
         user ? supabase.from('profiles').select('*').eq('id', user.id).single() : Promise.resolve({ data: null }),
       ])
       const studentCountry = profileRes.data?.country ?? null
-      const visibleBooks = studentCountry
-        ? (bks || []).filter(b => !b.countries?.length || b.countries.includes(studentCountry))
-        : (bks || [])
+      const visibleBooks = (bks || []).filter(b => isVisibleForCountry(b.countries, studentCountry))
 
       setSubject(sub)
       setTopics(tops || [])

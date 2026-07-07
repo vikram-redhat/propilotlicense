@@ -33,18 +33,21 @@ export default function ProfileSetupPage() {
   const [examType, setExamType] = useState<ExamType | null>(null)
   const [country, setCountry] = useState<string | null>(null)
   const [countries, setCountries] = useState<Country[]>([])
+  const [countriesLoaded, setCountriesLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     supabase.from('countries').select('*').eq('active', true).order('sort_order').then(({ data }) => {
       setCountries(data || [])
+      setCountriesLoaded(true)
     })
   }, [])
 
   function goToCountryStep() {
     if (!examType) return
-    // If the countries catalog isn't set up yet, don't block onboarding on it — default to India.
-    if (countries.length === 0) {
+    // Only skip the country step once we've confirmed the catalog is genuinely empty —
+    // a fast click before the fetch resolves should never silently default someone to India.
+    if (countriesLoaded && countries.length === 0) {
       finish(examType, 'IN')
       return
     }
