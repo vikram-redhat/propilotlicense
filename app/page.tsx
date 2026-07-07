@@ -23,6 +23,7 @@ import { redirect } from 'next/navigation'
 import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import SubjectIcon from '@/components/SubjectIcon'
+import { WebSiteSchema } from '@/components/schema/WebSiteSchema'
 import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 import { isSubscribed } from '@/lib/subscription'
@@ -189,6 +190,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
+      <WebSiteSchema />
       <LandingHeader isLoggedIn={!!user} name={name} subscribed={subscribed} examType={examType} />
 
       {/* ── Full-bleed hero ── */}
