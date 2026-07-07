@@ -1,4 +1,5 @@
 import LandingHeader from '@/components/LandingHeader'
+import { getHeaderAuthState } from '@/lib/supabase-server'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
@@ -18,7 +19,8 @@ export const metadata = buildMetadata({
 const SERIES = getSeries('become-a-pilot')!
 const ARTICLE_INDEX = SERIES.posts.findIndex(p => p.slug === 'cabin-crew-to-pilot')
 
-export default function CabinCrewToPilotPost() {
+export default async function CabinCrewToPilotPost() {
+  const { isLoggedIn, name } = await getHeaderAuthState()
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -28,7 +30,7 @@ export default function CabinCrewToPilotPost() {
         publishedAt="2026-07-07"
         updatedAt="2026-07-07"
       />
-      <LandingHeader isLoggedIn={false} name={null} />
+      <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
         <Breadcrumb seriesSlug="become-a-pilot" seriesLabel="Become a Pilot" current="Cabin Crew to Pilot" />

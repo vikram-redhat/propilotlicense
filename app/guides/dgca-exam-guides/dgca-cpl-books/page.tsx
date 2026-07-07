@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
+import { getHeaderAuthState } from '@/lib/supabase-server'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
@@ -12,7 +13,8 @@ export const metadata = buildMetadata({
   path: '/guides/dgca-exam-guides/dgca-cpl-books',
 })
 
-export default function DgcaCplBooksPost() {
+export default async function DgcaCplBooksPost() {
+  const { isLoggedIn, name } = await getHeaderAuthState()
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -22,7 +24,7 @@ export default function DgcaCplBooksPost() {
         publishedAt="2026-06-01"
         updatedAt="2026-06-01"
       />
-      <LandingHeader isLoggedIn={false} name={null} />
+      <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
 

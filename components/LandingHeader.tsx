@@ -13,7 +13,7 @@ interface Props {
   examType?: string | null
 }
 
-export default function LandingHeader({ name, isLoggedIn, subscribed, examType }: Props) {
+export default function LandingHeader({ name: initialName, isLoggedIn: initialIsLoggedIn, subscribed, examType }: Props) {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [guidesMenuOpen, setGuidesMenuOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -21,10 +21,25 @@ export default function LandingHeader({ name, isLoggedIn, subscribed, examType }
   const guidesMenuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
+  // Some pages (statically generated ones, or ones that just haven't been wired up)
+  // pass isLoggedIn/name as a hardcoded or build-time value rather than the real
+  // per-request session. Treat the prop as an initial hint only, and verify the
+  // actual session client-side — this is the single place that guarantees the
+  // header reflects who's really logged in, regardless of what any page passed in.
+  const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn)
+  const [name, setName] = useState(initialName)
+
   const supabase = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   ), [])
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsLoggedIn(!!user)
+      setName(user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? null)
+    })
+  }, [supabase])
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {

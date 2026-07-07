@@ -1,12 +1,14 @@
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
+import { getHeaderAuthState } from '@/lib/supabase-server'
 import type { GuideSeries } from '@/lib/guides'
 
-export function SeriesHubPage({ series }: { series: GuideSeries }) {
+export async function SeriesHubPage({ series }: { series: GuideSeries }) {
+  const { isLoggedIn, name } = await getHeaderAuthState()
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
-      <LandingHeader isLoggedIn={false} name={null} />
+      <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
         <nav style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 24 }}>

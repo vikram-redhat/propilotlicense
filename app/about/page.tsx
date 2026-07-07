@@ -3,6 +3,7 @@ import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { OrganizationSchema } from '@/components/schema/OrganizationSchema'
 import { buildMetadata } from '@/lib/metadata'
+import { getHeaderAuthState } from '@/lib/supabase-server'
 
 export const metadata = buildMetadata({
   title: 'About ProPilotLicence — DGCA Exam Prep Verified by Airline Captains',
@@ -10,11 +11,12 @@ export const metadata = buildMetadata({
   path: '/about',
 })
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { isLoggedIn, name } = await getHeaderAuthState()
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <OrganizationSchema />
-      <LandingHeader isLoggedIn={false} name={null} />
+      <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
 

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { buildMetadata } from '@/lib/metadata'
+import { getHeaderAuthState } from '@/lib/supabase-server'
 
 export const metadata = buildMetadata({
   title: 'Privacy Policy — ProPilotLicence',
@@ -9,10 +10,11 @@ export const metadata = buildMetadata({
   path: '/privacy',
 })
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const { isLoggedIn, name } = await getHeaderAuthState()
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
-      <LandingHeader isLoggedIn={false} name={null} />
+      <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
         <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 32, fontWeight: 700, color: 'var(--clr-text)', letterSpacing: '-0.5px', lineHeight: 1.2, marginBottom: 8 }}>
