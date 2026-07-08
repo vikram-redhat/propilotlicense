@@ -223,7 +223,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           </div>
 
           {/* Runway centreline lights */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: !isMock ? 10 : 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
             {Array.from({ length: LIGHTS }, (_, i) => (
               <div
                 key={i}
@@ -235,34 +235,6 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
               />
             ))}
           </div>
-
-          {/* Back / Forward — practice mode only */}
-          {!isMock && (
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button
-                onClick={goPrev}
-                disabled={sessionState.currentIndex === 0}
-                style={{
-                  flex: 1, fontSize: 13, fontWeight: 600, padding: '8px 0', borderRadius: 9,
-                  border: '1px solid var(--clr-border)', background: 'var(--clr-surface)',
-                  color: sessionState.currentIndex === 0 ? 'var(--clr-border)' : 'var(--clr-text-med)',
-                  cursor: sessionState.currentIndex === 0 ? 'default' : 'pointer',
-                }}
-              >
-                ‹ Back
-              </button>
-              <button
-                onClick={goNext}
-                style={{
-                  flex: 1, fontSize: 13, fontWeight: 600, padding: '8px 0', borderRadius: 9,
-                  border: '1px solid var(--clr-border)', background: 'var(--clr-surface)',
-                  color: 'var(--clr-text-med)', cursor: 'pointer',
-                }}
-              >
-                {isLastQ ? 'Finish →' : 'Forward ›'}
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -377,6 +349,30 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           >
             {isLastQ ? (isMock ? 'Submit exam →' : 'See results →') : 'Next question →'}
           </button>
+        )}
+
+        {/* Back / Forward — practice mode only */}
+        {!isMock && (
+          <div style={{ display: 'flex', gap: 20, marginBottom: 4 }}>
+            <button
+              onClick={goPrev}
+              disabled={sessionState.currentIndex === 0}
+              style={{
+                fontSize: 14, background: 'transparent', border: 'none', padding: '8px 0',
+                textDecoration: 'underline', textUnderlineOffset: 3,
+                color: sessionState.currentIndex === 0 ? 'var(--clr-border)' : 'var(--clr-text-med)',
+                cursor: sessionState.currentIndex === 0 ? 'default' : 'pointer',
+              }}
+            >
+              ‹ Back
+            </button>
+            <button
+              onClick={goNext}
+              style={{ fontSize: 14, color: 'var(--clr-text-med)', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3, padding: '8px 0' }}
+            >
+              {isLastQ ? 'Finish ›' : 'Forward ›'}
+            </button>
+          </div>
         )}
 
         {/* Skip + Flag row */}
