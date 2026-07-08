@@ -23,7 +23,6 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const [subjectName, setSubjectName] = useState('')
   const [loading, setLoading]         = useState(true)
   const [timeLeft, setTimeLeft]       = useState<number | null>(null)
-  const [showNavigator, setShowNavigator] = useState(false)
   const [flagged, setFlagged]         = useState<Set<string>>(new Set())
   const [userId, setUserId]           = useState<string | null>(null)
 
@@ -133,7 +132,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
   function jumpTo(index: number) {
     setSessionState(prev => prev ? { ...prev, currentIndex: index } : prev)
-    setShowNavigator(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   async function flagQuestion() {
@@ -211,7 +210,6 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                   <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 12, fontWeight: 600, color: (timeLeft ?? 0) <= 60 ? '#B83232' : 'var(--clr-text-med)', background: (timeLeft ?? 0) <= 60 ? '#FDEAEA' : 'var(--clr-surf-alt)', padding: '3px 8px', borderRadius: 6 }}>
                     {formatTime(timeLeft ?? 0)}
                   </span>
-                  <button onClick={() => setShowNavigator(!showNavigator)} style={{ fontSize: 11, color: 'var(--clr-primary)', background: 'transparent', border: 'none', cursor: 'pointer' }}>Navigator</button>
                   <button onClick={submitExam} style={{ fontSize: 11, background: '#B83232', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 7, cursor: 'pointer', fontWeight: 600 }}>Submit</button>
                 </>
               )}
@@ -235,15 +233,10 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
               />
             ))}
           </div>
-        </div>
-      </div>
 
-      {/* Mock navigator drawer */}
-      {isMock && showNavigator && (
-        <div className="fixed inset-0 bg-black/40 z-20 flex items-start justify-end" onClick={() => setShowNavigator(false)}>
-          <div className="bg-white w-72 h-full p-4 overflow-y-auto shadow-xl" onClick={e => e.stopPropagation()}>
-            <h3 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 600, color: 'var(--clr-text)', marginBottom: 12 }}>Question Navigator</h3>
-            <div className="grid grid-cols-5 gap-2">
+          {/* Question navigator strip — mock mode only, always visible */}
+          {isMock && (
+            <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginTop: 10, paddingBottom: 2 }}>
               {questions.map((q, i) => {
                 const isAns = !!sessionState.answers[q.id]
                 const isCur = i === sessionState.currentIndex
@@ -251,18 +244,22 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                   <button
                     key={q.id}
                     onClick={() => jumpTo(i)}
-                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${isCur ? 'ring-2' : ''}`}
-                    style={{ background: isAns ? 'var(--clr-primary)' : 'var(--clr-surf-alt)', color: isAns ? '#fff' : 'var(--clr-text-med)' }}
+                    style={{
+                      flexShrink: 0, width: 26, height: 26, borderRadius: '50%',
+                      fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                      border: isCur ? '2px solid var(--clr-amber)' : '1px solid transparent',
+                      background: isAns ? 'var(--clr-primary)' : 'var(--clr-surf-alt)',
+                      color: isAns ? '#fff' : 'var(--clr-text-med)',
+                    }}
                   >
                     {i + 1}
                   </button>
                 )
               })}
             </div>
-            <div style={{ marginTop: 16, fontSize: 12, color: 'var(--clr-text-med)' }}>{answeredCount} / {questions.length} answered</div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* ── Question body ── */}
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '18px 16px 48px' }}>
