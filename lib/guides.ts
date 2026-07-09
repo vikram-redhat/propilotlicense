@@ -72,6 +72,19 @@ export const GUIDE_SERIES: GuideSeries[] = [
         reviewedBy: 'ProPilotLicence Captain Panel',
         seriesNavLabel: 'Aviation Operations staff to pilot — the complete transition guide',
       },
+      {
+        slug: 'cpl-roadmap-india',
+        title: 'How to Become a Pilot in India — The Complete CPL Roadmap',
+        metaTitle: 'How to Become a Pilot in India — The Complete CPL Roadmap | ProPilotLicence',
+        metaDescription:
+          'The complete step-by-step guide to becoming a commercial pilot in India. From 12th standard to CPL — eligibility, medicals, SPL, flight training, DGCA theory exams, costs, timelines, and training abroad.',
+        publishedAt: '2026-07-09',
+        updatedAt: '2026-07-09',
+        excerpt:
+          'Every year thousands of people in India decide they want to fly commercially, then spend months researching without a clear picture of the path. This is that picture — from eligibility check to CPL in hand, with honest numbers at every stage.',
+        reviewedBy: 'ProPilotLicence Captain Panel',
+        seriesNavLabel: 'Starting from scratch — the complete CPL roadmap for India',
+      },
     ],
   },
   {
@@ -128,9 +141,7 @@ export function getPost(seriesSlug: string, postSlug: string): GuidePost | undef
   return getSeries(seriesSlug)?.posts.find(p => p.slug === postSlug)
 }
 
-const SERIES_NAV_UPCOMING: Record<string, { label: string }[]> = {
-  'become-a-pilot': [{ label: '4. Starting from scratch — the complete CPL roadmap for India' }],
-}
+const SERIES_NAV_UPCOMING: Record<string, { label: string }[]> = {}
 
 export function seriesNavItems(seriesSlug: string, currentSlug: string) {
   const series = getSeries(seriesSlug)

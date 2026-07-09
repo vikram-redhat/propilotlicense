@@ -290,6 +290,87 @@ export function RoleGrid({ rows }: { rows: { name: string; note: string }[] }) {
   )
 }
 
+export type RoadmapStage = {
+  n: string
+  title: string
+  detail: string
+  time: string
+  cost: string
+  done?: boolean
+  split?: { title: string; detail: string; cost: string }[]
+}
+
+// Palette-aware vertical roadmap. Money figures (containing ₹) render amber;
+// nominal/free costs render green. Use `split` for stages that run concurrently.
+export function Roadmap({ label, caption, stages }: { label: string; caption?: string; stages: RoadmapStage[] }) {
+  const costColor = (cost: string) => (cost.includes('₹') ? 'var(--clr-amber)' : 'var(--clr-correct)')
+  return (
+    <div style={{ border: '1px solid var(--clr-border)', borderRadius: 12, overflow: 'hidden', margin: '8px 0' }}>
+      <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--clr-border)', background: 'var(--clr-surf-alt)', fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--clr-text-med)' }}>
+        {label}
+      </div>
+      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {stages.map((s, i) => {
+          const accent = s.done ? 'var(--clr-correct)' : 'var(--clr-primary)'
+          const bg = s.done ? 'var(--clr-correct-bg)' : 'var(--clr-pri-light)'
+          return (
+            <div key={i} style={{ display: 'flex', gap: 14 }}>
+              <div style={{ flexShrink: 0, width: 30, height: 30, borderRadius: '50%', background: accent, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, marginTop: 2 }}>
+                {s.n}
+              </div>
+              <div style={{ flex: 1, minWidth: 0, background: bg, border: `1px solid ${accent}`, borderRadius: 8, padding: '12px 14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: accent }}>{s.title}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 12, color: 'var(--clr-text-med)', whiteSpace: 'nowrap' }}>{s.time}</span>
+                </div>
+                <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--clr-text-med)', margin: '4px 0 0' }}>{s.detail}</p>
+                {s.split ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10, marginTop: 10 }}>
+                    {s.split.map((c, j) => (
+                      <div key={j} style={{ background: 'var(--clr-surface)', border: '1px solid var(--clr-border)', borderRadius: 6, padding: '10px 12px' }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--clr-text)' }}>{c.title}</div>
+                        <p style={{ fontSize: 12, lineHeight: 1.55, color: 'var(--clr-text-med)', margin: '3px 0 6px' }}>{c.detail}</p>
+                        <span style={{ fontFamily: MONO, fontSize: 12, color: costColor(c.cost) }}>{c.cost}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ marginTop: 8, fontFamily: MONO, fontSize: 12, color: costColor(s.cost) }}>{s.cost}</div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      {caption && (
+        <div style={{ padding: '10px 16px', borderTop: '1px solid var(--clr-border)', background: 'var(--clr-surf-alt)', fontSize: 12, fontStyle: 'italic', color: 'var(--clr-text-med)', lineHeight: 1.6 }}>
+          {caption}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function ComparisonGrid({ cards }: { cards: { title: string; flag?: string; points: string[] }[] }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12, margin: '8px 0' }}>
+      {cards.map((card, i) => (
+        <div key={i} style={{ border: '1px solid var(--clr-border)', borderRadius: 8, padding: '14px 16px', background: 'var(--clr-surf-alt)' }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--clr-text)', marginBottom: 8 }}>
+            {card.flag && <span style={{ marginRight: 6 }}>{card.flag}</span>}
+            {card.title}
+          </h3>
+          <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {card.points.map((p, j) => (
+              <li key={j} style={{ fontSize: 13, lineHeight: 1.55, color: 'var(--clr-text-med)' }}>{p}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function CardGrid({ cards }: { cards: { title: string; desc: string }[] }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, margin: '8px 0' }}>
