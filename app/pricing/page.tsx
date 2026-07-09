@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import SiteHeader from '@/components/SiteHeader'
+import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { buildMetadata } from '@/lib/metadata'
+import { getHeaderAuthState } from '@/lib/supabase-server'
 
 export const metadata = buildMetadata({
   title: 'Pricing — ProPilotLicence DGCA Exam Prep',
@@ -9,12 +10,11 @@ export const metadata = buildMetadata({
   path: '/pricing',
 })
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const { isLoggedIn, name } = await getHeaderAuthState()
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--clr-surface)' }}>
-      <SiteHeader right={
-        <Link href="/login" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-primary)', textDecoration: 'none', padding: '5px 4px' }}>Log in</Link>
-      } />
+      <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-16">
         <div className="text-center mb-12">
