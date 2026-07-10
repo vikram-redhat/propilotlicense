@@ -6,6 +6,7 @@ import { createBrowserClient } from '@supabase/ssr'
 
 export default function UserMenu() {
   const [name, setName] = useState<string | null>(null)
+  const [hubHref, setHubHref] = useState('/cpl')
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -20,6 +21,7 @@ export default function UserMenu() {
       if (!user) return
       const display = user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'Account'
       setName((display as string).split(' ')[0])
+      setHubHref(user.user_metadata?.exam_type === 'ATPL' ? '/atpl' : '/cpl')
     })
 
     function handleClick(e: MouseEvent) {
@@ -54,8 +56,8 @@ export default function UserMenu() {
         <div style={{ position: 'absolute', right: 0, marginTop: 8, width: 176, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
           <Link href="/profile" onClick={() => setOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none' }}
             className="hover:bg-[var(--clr-surf-alt)] transition-colors">Profile</Link>
-          <Link href="/" onClick={() => setOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none', borderTop: '1px solid var(--clr-surf-alt)' }}
-            className="hover:bg-[var(--clr-surf-alt)] transition-colors">Home</Link>
+          <Link href={hubHref} onClick={() => setOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none', borderTop: '1px solid var(--clr-surf-alt)' }}
+            className="hover:bg-[var(--clr-surf-alt)] transition-colors">Practice &amp; Mock Exams</Link>
           <button onClick={signOut} style={{ width: '100%', textAlign: 'left', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', background: 'transparent', border: 'none', borderTop: '1px solid var(--clr-surf-alt)', cursor: 'pointer' }}
             className="hover:bg-[var(--clr-surf-alt)] transition-colors">Sign out</button>
         </div>
