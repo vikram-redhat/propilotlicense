@@ -129,7 +129,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                   </button>
                   {userMenuOpen && (
                     <div style={{ position: 'absolute', right: 0, marginTop: 8, width: 176, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
-                      <Link href="/profile" onClick={() => setUserMenuOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none' }}>My Progress</Link>
+                      <Link href="/profile" onClick={() => setUserMenuOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none' }}>Profile</Link>
                       <Link href={dashHref} onClick={() => setUserMenuOpen(false)} style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none', borderTop: '1px solid var(--clr-surf-alt)' }}>Mock Exams</Link>
                       <button onClick={signOut} style={{ width: '100%', textAlign: 'left', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', background: 'transparent', border: 'none', borderTop: '1px solid var(--clr-surf-alt)', cursor: 'pointer' }}>Sign out</button>
                     </div>
@@ -175,7 +175,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
               <Link href="/about" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: isLoggedIn ? '1px solid var(--clr-border)' : 'none', display: 'block' }}>About</Link>
               {isLoggedIn && (
                 <>
-                  <Link href="/profile" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>My Progress</Link>
+                  <Link href="/profile" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>Profile</Link>
                   <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', display: 'block' }}>Mock Exams</Link>
                 </>
               )}
