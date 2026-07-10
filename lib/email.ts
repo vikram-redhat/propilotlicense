@@ -62,7 +62,7 @@ function welcomeHtml(firstName: string): string {
         </td></tr>
         <tr><td style="padding:18px 28px;border-top:1px solid ${BORDER};">
           <p style="margin:0;font-size:12px;line-height:1.6;color:#8a8f9c;">
-            You're receiving this because you created a ProPilotLicence account. Questions? Just reply to this email.
+            You're receiving this because you created a ProPilotLicence account. This is a one-time welcome email — you are not on a mailing list and won't receive marketing from us.
           </p>
         </td></tr>
       </table>
