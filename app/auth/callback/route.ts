@@ -55,6 +55,11 @@ export async function GET(request: NextRequest) {
     const user = data?.user
     // Only for genuine sign-ins, never on password-reset callbacks.
     if (user && !isReset) {
+      // First-time users land on a public page (home), which the proxy's setup gate
+      // skips — so force them into profile setup here before anything else.
+      const needsSetup = !user.user_metadata?.exam_type || !user.user_metadata?.country
+      if (needsSetup) response.headers.set('location', new URL('/profile/setup', origin).toString())
+
       const name = (user.user_metadata?.full_name as string | undefined) ?? user.email?.split('@')[0] ?? null
       after(() => maybeSendWelcome(user.id, user.email!, name))
     }

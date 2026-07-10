@@ -5,7 +5,7 @@ import { flagEmoji } from '@/lib/countries'
 import type { Country } from '@/lib/types'
 
 type ExamType = 'CPL' | 'Composite' | 'ATPL'
-type Step = 'examType' | 'country'
+type Step = 'name' | 'examType' | 'country'
 
 const OPTIONS: { type: ExamType; title: string; subtitle: string; detail: string }[] = [
   {
@@ -29,7 +29,8 @@ const OPTIONS: { type: ExamType; title: string; subtitle: string; detail: string
 ]
 
 export default function ProfileSetupPage() {
-  const [step, setStep] = useState<Step>('examType')
+  const [step, setStep] = useState<Step>('name')
+  const [name, setName] = useState('')
   const [examType, setExamType] = useState<ExamType | null>(null)
   const [country, setCountry] = useState<string | null>(null)
   const [countries, setCountries] = useState<Country[]>([])
@@ -61,16 +62,18 @@ export default function ProfileSetupPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/login'; return }
 
+      const finalName = name.trim()
       await supabase.from('profiles').update({
+        full_name: finalName,
         exam_type: finalExamType,
         exam_type_set_at: new Date().toISOString(),
         country: finalCountry,
         country_set_at: new Date().toISOString(),
       }).eq('id', user.id)
 
-      // Update user metadata then refresh the session so the proxy
-      // sees the new exam_type/country in the JWT cookie before we redirect
-      await supabase.auth.updateUser({ data: { exam_type: finalExamType, country: finalCountry } })
+      // Update user metadata then refresh the session so the proxy sees the new
+      // exam_type/country in the JWT cookie (and the header sees full_name) before we redirect
+      await supabase.auth.updateUser({ data: { full_name: finalName, exam_type: finalExamType, country: finalCountry } })
       await supabase.auth.refreshSession()
 
       // Full reload — not router.push — so the fresh cookie is sent with the first request
@@ -89,7 +92,47 @@ export default function ProfileSetupPage() {
         </div>
 
         <div style={{ background: '#fff', borderRadius: 20, border: '1px solid var(--clr-border)', padding: '36px 28px' }}>
-          {step === 'examType' ? (
+          {step === 'name' ? (
+            <>
+              <div style={{ fontSize: 26, textAlign: 'center', marginBottom: 10 }}>👋</div>
+              <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', textAlign: 'center', marginBottom: 4, letterSpacing: '-0.3px' }}>
+                Welcome aboard
+              </h1>
+              <p style={{ fontSize: 14, color: 'var(--clr-text-med)', textAlign: 'center', marginBottom: 24 }}>
+                What should we call you?
+              </p>
+
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && name.trim()) setStep('examType') }}
+                placeholder="Full name"
+                autoFocus
+                autoComplete="name"
+                style={{
+                  width: '100%', padding: '14px 16px', borderRadius: 12,
+                  border: '1.5px solid var(--clr-border)', background: 'var(--clr-surface)',
+                  color: 'var(--clr-text)', fontSize: 15, marginBottom: 20, outline: 'none',
+                }}
+              />
+
+              <button
+                onClick={() => name.trim() && setStep('examType')}
+                disabled={!name.trim()}
+                style={{
+                  width: '100%', padding: '14px 0', borderRadius: 12,
+                  background: name.trim() ? 'var(--clr-primary)' : 'var(--clr-border)',
+                  color: '#fff', fontFamily: 'var(--font-outfit),sans-serif',
+                  fontSize: 15, fontWeight: 700, border: 'none',
+                  cursor: name.trim() ? 'pointer' : 'not-allowed',
+                  transition: 'background 0.15s',
+                }}
+              >
+                Continue →
+              </button>
+            </>
+          ) : step === 'examType' ? (
             <>
               <div style={{ fontSize: 26, textAlign: 'center', marginBottom: 10 }}>✈</div>
               <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', textAlign: 'center', marginBottom: 4, letterSpacing: '-0.3px' }}>
@@ -129,21 +172,35 @@ export default function ProfileSetupPage() {
                 This personalises your subject list. This choice cannot be changed later.
               </p>
 
-              <button
-                onClick={goToCountryStep}
-                disabled={!examType || saving}
-                style={{
-                  width: '100%', padding: '14px 0', borderRadius: 12,
-                  background: examType ? 'var(--clr-primary)' : 'var(--clr-border)',
-                  color: '#fff', fontFamily: 'var(--font-outfit),sans-serif',
-                  fontSize: 15, fontWeight: 700, border: 'none',
-                  cursor: examType && !saving ? 'pointer' : 'not-allowed',
-                  opacity: saving ? 0.7 : 1,
-                  transition: 'background 0.15s',
-                }}
-              >
-                {saving ? 'Setting up…' : 'Continue →'}
-              </button>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  onClick={() => setStep('name')}
+                  disabled={saving}
+                  style={{
+                    padding: '14px 18px', borderRadius: 12,
+                    background: 'var(--clr-surface)', border: '1.5px solid var(--clr-border)',
+                    color: 'var(--clr-text-med)', fontFamily: 'var(--font-outfit),sans-serif',
+                    fontSize: 15, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  ← Back
+                </button>
+                <button
+                  onClick={goToCountryStep}
+                  disabled={!examType || saving}
+                  style={{
+                    flex: 1, padding: '14px 0', borderRadius: 12,
+                    background: examType ? 'var(--clr-primary)' : 'var(--clr-border)',
+                    color: '#fff', fontFamily: 'var(--font-outfit),sans-serif',
+                    fontSize: 15, fontWeight: 700, border: 'none',
+                    cursor: examType && !saving ? 'pointer' : 'not-allowed',
+                    opacity: saving ? 0.7 : 1,
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  {saving ? 'Setting up…' : 'Continue →'}
+                </button>
+              </div>
             </>
           ) : (
             <>
