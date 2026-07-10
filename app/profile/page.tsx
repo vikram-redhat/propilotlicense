@@ -61,7 +61,8 @@ export default function ProfilePage() {
     )
   }
 
-  const initial  = (user?.email?.[0] ?? 'U').toUpperCase()
+  const displayName = profile?.full_name?.trim() || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Pilot'
+  const initial  = (displayName[0] ?? 'U').toUpperCase()
   const avgScore = stats.totalAnswers > 0
     ? Math.round((stats.correctAnswers / stats.totalAnswers) * 100)
     : null
@@ -86,7 +87,10 @@ export default function ProfilePage() {
             {initial}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-slate-800">{user?.email}</p>
+            <p className="font-semibold text-slate-800 truncate">{displayName}</p>
+            {user?.email && user.email !== displayName && (
+              <p className="text-sm text-slate-500 mt-0.5 truncate">{user.email}</p>
+            )}
             <p className="text-sm text-slate-500 mt-0.5 capitalize">
               {status === 'active' ? 'Full access' : status === 'expired' ? 'Access expired' : 'Free plan'}
             </p>
