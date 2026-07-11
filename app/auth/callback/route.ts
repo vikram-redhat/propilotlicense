@@ -9,15 +9,53 @@ import { sendWelcomeEmail } from '@/lib/email'
 async function maybeSendWelcome(userId: string, email: string, name: string | null) {
   try {
     const svc = createServiceClient()
-    const { data, error } = await svc
-      .from('profiles')
-      .select('welcome_email_sent_at')
-      .eq('id', userId)
-      .single()
-    if (error || !data || data.welcome_email_sent_at) return
+
+    // Claim the send atomically: stamp the flag only if it's still null, and treat the
+    // updated-row count as "we won the claim". This also prevents a double send if the
+    // callback runs twice concurrently.
+    //
+    // The profiles row is created by the handle_new_user trigger. On an OAuth signup the
+    // user is created during THIS request, so the row can lag by a few ms — retry instead
+    // of giving up, which is what previously caused OAuth signups to silently get no
+    // welcome email. We're inside after(), so the wait costs the user nothing.
+    let claimed = false
+    for (let attempt = 0; attempt < 5 && !claimed; attempt++) {
+      const { data: rows, error } = await svc
+        .from('profiles')
+        .update({ welcome_email_sent_at: new Date().toISOString() })
+        .eq('id', userId)
+        .is('welcome_email_sent_at', null)
+        .select('id')
+
+      if (error) {
+        console.error('[welcome] claim query failed:', error.message)
+        return
+      }
+      if (rows && rows.length > 0) {
+        claimed = true
+        break
+      }
+
+      // Nothing updated: either already sent, or the profile row doesn't exist yet.
+      const { data: existing } = await svc
+        .from('profiles')
+        .select('welcome_email_sent_at')
+        .eq('id', userId)
+        .maybeSingle()
+      if (existing) return // row is there and already stamped — nothing to do
+      await new Promise(r => setTimeout(r, 300))
+    }
+
+    if (!claimed) {
+      console.error('[welcome] profile row never appeared for', userId, '— no email sent')
+      return
+    }
+
     const sent = await sendWelcomeEmail({ to: email, name })
-    if (sent) {
-      await svc.from('profiles').update({ welcome_email_sent_at: new Date().toISOString() }).eq('id', userId)
+    if (!sent) {
+      // Release the claim so a later sign-in retries rather than being stamped as sent.
+      await svc.from('profiles').update({ welcome_email_sent_at: null }).eq('id', userId)
+      console.error('[welcome] send failed for', userId, '— claim released for retry')
     }
   } catch (e) {
     console.error('[auth/callback] welcome email error:', e)
