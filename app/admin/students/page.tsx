@@ -11,6 +11,7 @@ type Student = {
   subscription_plan: '30days' | '90days' | null
   subscription_expires_at: string | null
   created_at: string
+  session_count: number
 }
 
 type StudentStats = {
@@ -347,6 +348,7 @@ export default function StudentsPage() {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Student</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Exam</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Subscription</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sessions</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Joined</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -384,6 +386,13 @@ export default function StudentsPage() {
                         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">
                           Free
                         </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {s.session_count > 0 ? (
+                        <span className="font-medium text-slate-700">{s.session_count}</span>
+                      ) : (
+                        <span className="text-slate-300">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-400 hidden sm:table-cell">
