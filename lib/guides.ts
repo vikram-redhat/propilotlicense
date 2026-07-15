@@ -129,6 +129,18 @@ export const GUIDE_SERIES: GuideSeries[] = [
           'The A320 autoflight system does not merely fly the aircraft — it communicates its intentions through the FMA on every mode change. Pilots who understand that conversation rarely get surprised.',
         reviewedBy: 'ProPilotLicence Captain Panel',
       },
+      {
+        slug: 'a320-flight-controls',
+        title: 'A320 Flight Controls — Fly-by-Wire, Normal Law, Alternate Law, Direct Law and the Sidestick',
+        metaTitle: 'A320 Flight Controls — Fly-by-Wire, Normal Law, Alternate Law, Direct Law & Sidestick | ProPilotLicence',
+        metaDescription:
+          'The complete A320 flight controls guide. Fly-by-wire architecture, ELAC/SEC/FAC computers, Normal law protections, Alternate law with and without protections, Direct law, sidestick design, priority logic and dual input handling.',
+        publishedAt: '2026-07-15',
+        updatedAt: '2026-07-15',
+        excerpt:
+          'The A320 does not have a direct mechanical connection between the sidestick and the control surfaces except in Direct Law. The pilot inputs a demand; computers decide how to meet it. What changes between Normal, Alternate and Direct law is the envelope protections the computers provide.',
+        reviewedBy: 'ProPilotLicence Captain Panel',
+      },
     ],
   },
 ]
