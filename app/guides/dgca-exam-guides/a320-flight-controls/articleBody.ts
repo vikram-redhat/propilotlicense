@@ -19,7 +19,7 @@ export const ARTICLE_BODY = String.raw`
   <div class="series-nav">
     <div class="series-nav-label">A320 Systems Series</div>
     <ol>
-      <li class="upcoming">1. Hydraulic System — complete guide (coming soon)</li>
+      <li><a href="/guides/dgca-exam-guides/a320-hydraulic-system">1. Hydraulic System — complete guide</a></li>
       <li><a href="/guides/dgca-exam-guides/a320-autoflight-system">2. Autoflight System — AP, FD, ATHR, FCU and FMA logic</a></li>
       <li class="current">3. Flight Controls — fly-by-wire, Normal law, Alternate law, Direct law and the sidestick</li>
       <li class="upcoming">4. Electrical System</li>

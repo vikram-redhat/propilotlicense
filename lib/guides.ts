@@ -141,6 +141,18 @@ export const GUIDE_SERIES: GuideSeries[] = [
           'The A320 does not have a direct mechanical connection between the sidestick and the control surfaces except in Direct Law. The pilot inputs a demand; computers decide how to meet it. What changes between Normal, Alternate and Direct law is the envelope protections the computers provide.',
         reviewedBy: 'ProPilotLicence Captain Panel',
       },
+      {
+        slug: 'a320-hydraulic-system',
+        title: 'A320 Hydraulic System — Complete Guide: Systems, Services, Failures and Effects',
+        metaTitle: 'A320 Hydraulic System — Complete Guide: Systems, Services, Failures & Effects | ProPilotLicence',
+        metaDescription:
+          'The complete A320 hydraulic system guide for type rating and ATPL candidates. All services powered by Green, Blue and Yellow systems, PTU, RAT, failure effects on flight controls, brakes, landing gear, flaps, slats and stabiliser.',
+        publishedAt: '2026-07-16',
+        updatedAt: '2026-07-16',
+        excerpt:
+          'Three independent 3,000 PSI circuits. No single failure removes all hydraulic power — but each failure cascades through flight controls, braking, landing gear, flaps and slats. Exactly what is lost and what remains, system by system.',
+        reviewedBy: 'ProPilotLicence Captain Panel',
+      },
     ],
   },
 ]
