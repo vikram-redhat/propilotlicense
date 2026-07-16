@@ -4,7 +4,7 @@
 // Styling is applied via the sibling styles.module.css (scoped; structural vars
 // remapped to site palette, Green/Blue/Yellow system colours kept fixed to match
 // the diagrams).
-export const ARTICLE_BODY = String.raw`
+export const ARTICLE_HEAD = String.raw`
   <div class="eyebrow">A320 Systems — Hydraulics</div>
   <h1>A320 Hydraulic System — Complete Guide: Systems, Services, Failures and Effects</h1>
 
@@ -18,22 +18,9 @@ export const ARTICLE_BODY = String.raw`
     <span>ATPL / Type Rating</span>
   </div>
 
-  <div class="series-nav">
-    <div class="series-nav-label">A320 Systems Series</div>
-    <ol>
-      <li class="current">1. Hydraulic System — complete guide</li>
-      <li><a href="/guides/dgca-exam-guides/a320-autoflight-system">2. Autoflight System — AP, FD, ATHR, FCU and FMA logic</a></li>
-      <li><a href="/guides/dgca-exam-guides/a320-flight-controls">3. Flight Controls — Normal law, Alternate law and Direct law</a></li>
-      <li class="upcoming">4. Electrical System</li>
-      <li class="upcoming">5. Pneumatics — Air conditioning, Pressurisation and Ventilation</li>
-      <li class="upcoming">6. Engines</li>
-      <li class="upcoming">7. APU</li>
-      <li class="upcoming">8. Fire Fighting</li>
-      <li class="upcoming">9. Landing Gear and Brakes</li>
-      <li class="upcoming">10. Ice and Rain Protection</li>
-    </ol>
-  </div>
+`
 
+export const ARTICLE_BODY = String.raw`
   <h2 class="first">System overview</h2>
 
   <p>The A320 has three independent hydraulic systems — <span class="pill pill-green">Green</span> <span class="pill pill-blue">Blue</span> <span class="pill pill-yellow">Yellow</span> — each operating at a nominal pressure of 3,000 PSI (206 bar). The systems are completely independent: they use separate reservoirs, separate fluid circuits, and separate pressurisation sources. No fluid is shared between circuits under any normal condition. A leak in one system cannot drain another.</p>

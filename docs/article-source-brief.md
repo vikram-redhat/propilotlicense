@@ -40,6 +40,11 @@ tables, callouts, pills):
     --red/--red-bg, --purple/--purple-bg,
     --normal-c/bg, --alt-c/bg, --direct-c/bg
 
+**Domain colour codes (e.g. the Green/Blue/Yellow hydraulic systems) must stay
+fixed** — do not expect them to follow the palette. Use the article's own hex/vars
+for those so a "Blue system" card matches its "Blue" diagram in every theme. Only
+generic chrome (text, surfaces, borders, links) follows the palette.
+
 Reuse these class names so existing styling applies: `diagram-block`,
 `diagram-label`, `anim-badge`, `diagram-inner`, `diagram-caption`,
 `protection-grid` + `protection-card.normal|partial|none`, `law-table` with
@@ -67,11 +72,19 @@ Reuse these class names so existing styling applies: `diagram-block`,
 - publishedAt / updatedAt (YYYY-MM-DD)
 - reviewedBy: "ProPilotLicence Captain Panel"
 
+## Series navigation — you can omit it
+For an A320 Systems Series article you do **not** need to hand-write the
+`<div class="series-nav">` list. The site now renders that nav from a single
+shared list (`lib/a320-series.ts`) via the `<A320SeriesNav>` component, so it
+stays correct automatically — published articles link, the current one is bold,
+unpublished ones show "coming soon", and no article can link to an unpublished
+sibling. If you do include a series-nav for preview, the publisher strips it and
+substitutes the shared component. (To publish a new series article, add its slug
+to `lib/a320-series.ts`.)
+
 ## Conventions
 - British spelling throughout ("licence", "aluminium", etc.).
 - ⚑ flags mark values needing FCOM verification — keep them.
-- The series-nav links use `/guides/dgca-exam-guides/<slug>`; upcoming/not-yet-
-  published articles can be listed (they'll 404 until published — that's fine).
 
 ---
 
@@ -90,4 +103,10 @@ For each article the publisher creates a route folder under
   `ArticleSchema` + `buildMetadata`, with `<main className={styles.wrap}
   dangerouslySetInnerHTML={{ __html: ARTICLE_BODY }} />`.
 Then add the post to `GUIDE_SERIES` (`dgca-exam-guides`) in `lib/guides.ts`.
-Run `npm run build` to confirm the CSS module compiles before pushing.
+For A320 Systems Series articles, strip any embedded `<div class="series-nav">`
+from the body (split it into `ARTICLE_HEAD` = through the byline and
+`ARTICLE_BODY` = from the first `<h2>`), and render `<A320SeriesNav currentSlug=…>`
+between the two halves; also add the slug to `lib/a320-series.ts`. Keep the
+Green/Blue/Yellow-style domain colours fixed in the module (only remap the
+structural vars). Run `npm run build` to confirm the CSS module compiles before
+pushing.

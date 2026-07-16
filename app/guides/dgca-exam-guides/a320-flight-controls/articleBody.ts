@@ -2,7 +2,7 @@
 // i.e. the inner HTML of <main class="article-wrap">. Do NOT hand-edit the diagrams,
 // animation classes, ⚑ FCOM flags, or disclaimer — this content is reviewed and approved.
 // Styling is applied via the sibling styles.module.css (scoped + remapped to site palette).
-export const ARTICLE_BODY = String.raw`
+export const ARTICLE_HEAD = String.raw`
   <div class="eyebrow">A320 Systems — Flight Controls</div>
   <h1>A320 Flight Controls — Fly-by-Wire, Normal Law, Alternate Law, Direct Law and the Sidestick</h1>
 
@@ -16,22 +16,9 @@ export const ARTICLE_BODY = String.raw`
     <span>ATPL / Type Rating</span>
   </div>
 
-  <div class="series-nav">
-    <div class="series-nav-label">A320 Systems Series</div>
-    <ol>
-      <li><a href="/guides/dgca-exam-guides/a320-hydraulic-system">1. Hydraulic System — complete guide</a></li>
-      <li><a href="/guides/dgca-exam-guides/a320-autoflight-system">2. Autoflight System — AP, FD, ATHR, FCU and FMA logic</a></li>
-      <li class="current">3. Flight Controls — fly-by-wire, Normal law, Alternate law, Direct law and the sidestick</li>
-      <li class="upcoming">4. Electrical System</li>
-      <li class="upcoming">5. Pneumatics — Air conditioning, Pressurisation and Ventilation</li>
-      <li class="upcoming">6. Engines</li>
-      <li class="upcoming">7. APU</li>
-      <li class="upcoming">8. Fire Fighting</li>
-      <li class="upcoming">9. Landing Gear and Brakes</li>
-      <li class="upcoming">10. Ice and Rain Protection</li>
-    </ol>
-  </div>
+`
 
+export const ARTICLE_BODY = String.raw`
   <h2 class="first">What fly-by-wire actually means</h2>
 
   <p>In a conventional aircraft — a Boeing 737, an ATR, any aircraft with mechanical flight controls — moving the control column physically moves cables, pulleys, and push-pull rods that connect to the control surfaces. The pilot has a direct mechanical connection to the aircraft. Push forward on the column and the elevator physically moves down. The relationship is direct and immediate.</p>

@@ -5,6 +5,7 @@ import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { Section, SubSection, Prose, Callout, DataTable } from '@/components/guides/ArticleKit'
+import A320SeriesNav from '@/components/guides/A320SeriesNav'
 
 export const metadata = buildMetadata({
   title: 'A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic | ProPilotLicence',
@@ -12,19 +13,6 @@ export const metadata = buildMetadata({
     'A complete guide to the A320 autoflight system. Autopilot modes, Flight Director, Autothrust, FCU operation, FMA logic, and managed vs selected guidance — explained for ATPL and type rating candidates.',
   path: '/guides/dgca-exam-guides/a320-autoflight-system',
 })
-
-const A320_SERIES: { label: string; href?: string; current?: boolean; upcoming?: boolean }[] = [
-  { label: '1. Hydraulic System — complete guide', href: '/guides/dgca-exam-guides/a320-hydraulic-system' },
-  { label: '2. Autoflight System — AP, FD, ATHR, FCU and FMA logic', current: true },
-  { label: '3. Flight Controls — Normal law, Alternate law and Direct law', href: '/guides/dgca-exam-guides/a320-flight-controls' },
-  { label: '4. Electrical System', upcoming: true },
-  { label: '5. Pneumatics — Air conditioning, Pressurisation and Ventilation', upcoming: true },
-  { label: '6. Engines', upcoming: true },
-  { label: '7. APU', upcoming: true },
-  { label: '8. Fire Fighting', upcoming: true },
-  { label: '9. Landing Gear and Brakes', upcoming: true },
-  { label: '10. Ice and Rain Protection', upcoming: true },
-]
 
 export default async function A320AutoflightPost() {
   const { isLoggedIn, name } = await getHeaderAuthState()
@@ -70,27 +58,7 @@ export default async function A320AutoflightPost() {
           <span>ATPL / Type Rating</span>
         </div>
 
-        {/* A320 Systems Series nav */}
-        <div style={{ background: 'var(--clr-surf-alt)', border: '1px solid var(--clr-border)', borderRadius: 10, padding: '16px 20px', marginBottom: 32 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--clr-text-med)', marginBottom: 10 }}>
-            A320 Systems Series
-          </div>
-          <ol style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingLeft: 20, margin: 0 }}>
-            {A320_SERIES.map((item, i) => (
-              <li
-                key={i}
-                style={{
-                  fontSize: 14,
-                  color: item.current ? 'var(--clr-text)' : 'var(--clr-text-med)',
-                  fontWeight: item.current ? 600 : 400,
-                  fontStyle: item.upcoming ? 'italic' : 'normal',
-                }}
-              >
-                {item.href ? <Link href={item.href} style={{ color: 'var(--clr-primary)', textDecoration: 'none' }}>{item.label}</Link> : item.label}
-              </li>
-            ))}
-          </ol>
-        </div>
+        <A320SeriesNav currentSlug="a320-autoflight-system" />
 
         <Prose>
           <p>

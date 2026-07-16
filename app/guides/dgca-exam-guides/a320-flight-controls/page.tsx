@@ -4,7 +4,8 @@ import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { Breadcrumb } from '@/components/guides/ArticleKit'
-import { ARTICLE_BODY } from './articleBody'
+import A320SeriesNav from '@/components/guides/A320SeriesNav'
+import { ARTICLE_HEAD, ARTICLE_BODY } from './articleBody'
 import styles from './styles.module.css'
 
 export const metadata = buildMetadata({
@@ -31,7 +32,11 @@ export default async function A320FlightControlsPage() {
         <Breadcrumb seriesSlug="dgca-exam-guides" seriesLabel="DGCA Exam Guides" current="A320 Flight Controls" />
       </div>
 
-      <main className={styles.wrap} style={{ paddingTop: 8 }} dangerouslySetInnerHTML={{ __html: ARTICLE_BODY }} />
+      <main className={styles.wrap} style={{ paddingTop: 8 }}>
+        <div dangerouslySetInnerHTML={{ __html: ARTICLE_HEAD }} />
+        <A320SeriesNav currentSlug="a320-flight-controls" />
+        <div dangerouslySetInnerHTML={{ __html: ARTICLE_BODY }} />
+      </main>
 
       <SiteFooter />
     </div>
