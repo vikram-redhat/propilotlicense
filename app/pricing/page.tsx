@@ -4,6 +4,7 @@ import SiteFooter from '@/components/SiteFooter'
 import PriceTag, { DiscountTag } from '@/components/PriceTag'
 import { buildMetadata } from '@/lib/metadata'
 import { getHeaderAuthState } from '@/lib/supabase-server'
+import { hubForExamType } from '@/lib/hub'
 
 export const metadata = buildMetadata({
   title: 'Pricing — ProPilotLicence DGCA Exam Prep',
@@ -12,10 +13,10 @@ export const metadata = buildMetadata({
 })
 
 export default async function PricingPage() {
-  const { isLoggedIn, name } = await getHeaderAuthState()
+  const { isLoggedIn, name, examType } = await getHeaderAuthState()
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--clr-surface)' }}>
-      <LandingHeader isLoggedIn={isLoggedIn} name={name} />
+      <LandingHeader isLoggedIn={isLoggedIn} name={name} examType={examType} />
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-16">
         <div className="text-center mb-12">
@@ -40,7 +41,7 @@ export default async function PricingPage() {
               <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Difficulty selection</li>
             </ul>
             <Link
-              href="/cpl"
+              href={hubForExamType(examType)}
               className="block text-center border border-slate-200 rounded-xl py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
             >
               Start free →
