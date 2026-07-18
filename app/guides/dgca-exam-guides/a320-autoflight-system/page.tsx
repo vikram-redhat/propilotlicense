@@ -4,7 +4,7 @@ import { getHeaderAuthState } from '@/lib/supabase-server'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { Section, SubSection, Prose, Callout, DataTable } from '@/components/guides/ArticleKit'
+import { Section, SubSection, Prose, Callout, DataTable, CtaBlock } from '@/components/guides/ArticleKit'
 import A320SeriesNav from '@/components/guides/A320SeriesNav'
 
 export const metadata = buildMetadata({
@@ -193,19 +193,12 @@ export default async function A320AutoflightPost() {
           <strong style={{ color: 'var(--clr-text)' }}>Note:</strong> This article reflects general A320 family autoflight architecture. Specific mode logic, engagement conditions, and limitations vary by aircraft variant, software standard, and operator procedures. Always refer to your aircraft&apos;s approved FCOM and your operator&apos;s Operations Manual for authoritative procedures. Content reviewed by the ProPilotLicence Captain Panel — four or more active commercial airline captains holding current DGCA CPL and ATPL licences.
         </div>
 
-        <div style={{ marginTop: 48, padding: '24px', background: 'var(--clr-pri-light)', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 17, fontWeight: 700, color: 'var(--clr-text)' }}>
-            More on aircraft systems
-          </div>
-          <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: 0 }}>
-            ProPilotLicence covers Technical General and Radio Aids &amp; Instruments for the DGCA CPL syllabus, with questions reviewed by active airline captains.
-          </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
-            <Link href="/subjects/technical-general" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Technical General subject →</Link>
-            <Link href="/subjects/radio-aids-instruments" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Radio Aids &amp; Instruments →</Link>
-            <Link href="/guides/dgca-exam-guides" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>More A320 Systems articles →</Link>
-          </div>
-        </div>
+        <CtaBlock
+          title="Practise A320 questions"
+          body="ProPilotLicence has 12,000+ DGCA ATPL and CPL practice questions — including a full A320 question bank covering every ATA chapter, verified by active airline captains. Free to start."
+          href="/login?next=/atpl"
+          label="Practise A320 questions →"
+        />
       </main>
 
       <SiteFooter />

@@ -597,9 +597,9 @@ export const ARTICLE_BODY = String.raw`
   </table>
 
   <div class="cta-block">
-    <h3>Practise A320 Technical General questions</h3>
-    <p>ProPilotLicence has 7,000+ DGCA CPL and ATPL questions including Technical General — verified by active airline captains. Free to start.</p>
-    <a class="cta-btn" href="/subjects/technical-general">Start Technical General →</a>
+    <h3>Practise A320 questions</h3>
+    <p>ProPilotLicence has 12,000+ DGCA ATPL and CPL practice questions — including a full A320 question bank covering every ATA chapter, verified by active airline captains. Free to start.</p>
+    <a class="cta-btn" href="/login?next=/atpl">Practise A320 questions →</a>
   </div>
 
   <div class="disclaimer">

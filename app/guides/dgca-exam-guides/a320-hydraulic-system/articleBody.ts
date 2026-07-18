@@ -495,9 +495,9 @@ export const ARTICLE_BODY = String.raw`
   <p style="font-size:0.82rem; color:var(--ink-3); margin-top:-0.75rem;"><span class="fcom-flag">⚑</span> = Verify against your operator's FCOM before use in training or operations. Values vary by aircraft variant and modification state.</p>
 
   <div class="cta-block">
-    <h3>Practise A320 Technical General questions</h3>
-    <p>ProPilotLicence has 7,000+ DGCA CPL and ATPL questions including Technical General — all verified by active airline captains. Free to start.</p>
-    <a class="cta-btn" href="/subjects/technical-general">Start Technical General →</a>
+    <h3>Practise A320 questions</h3>
+    <p>ProPilotLicence has 12,000+ DGCA ATPL and CPL practice questions — including a full A320 question bank covering every ATA chapter, verified by active airline captains. Free to start.</p>
+    <a class="cta-btn" href="/login?next=/atpl">Practise A320 questions →</a>
   </div>
 
   <div class="disclaimer">

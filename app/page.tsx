@@ -188,7 +188,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const examType = user?.user_metadata?.exam_type ?? null
 
   const hub = hubForExamType(examType)
-  const configHref = user ? hub : `/login?next=${hub}`
+  // Logged-out visitors go to /signup so they hit the licence-type (CPL vs ATPL)
+  // selection in onboarding; logged-in users go straight to their own hub.
+  const startHref = user ? hub : '/signup'
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
@@ -227,10 +229,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
             {/* CTA */}
             <Link
-              href={configHref}
+              href={startHref}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--clr-amber)', color: '#fff', border: 'none', borderRadius: 11, padding: '14px 26px', fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, textDecoration: 'none', letterSpacing: '0.1px', boxShadow: '0 4px 24px var(--clr-amber-glow)', marginBottom: 40, width: 'fit-content' }}
             >
-              Get Started
+              Get Started — it&apos;s free
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M8.5 3.5L12 7l-3.5 3.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
 
@@ -356,7 +358,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             )}
 
-            <Link href={user ? airbusSubject.href : configHref} style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
+            <Link href={user ? airbusSubject.href : '/login?next=/atpl'} style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
               Practise Airbus A320 questions →
             </Link>
           </div>
@@ -395,7 +397,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
         {/* Bottom CTA */}
         <Link
-          href={configHref}
+          href={startHref}
           style={{ display: 'block', width: '100%', padding: 15, background: 'var(--clr-hero)', color: '#fff', border: 'none', borderRadius: 13, fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 600, textDecoration: 'none', textAlign: 'center', letterSpacing: '0.1px' }}
         >
           Get Started →
