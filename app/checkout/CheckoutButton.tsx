@@ -78,7 +78,12 @@ export default function CheckoutButton({
       })
 
       if (!orderRes.ok) {
-        throw new Error('Failed to create order')
+        let errorMessage = 'Failed to create order'
+        try {
+          const errBody = await orderRes.json()
+          if (errBody?.error) errorMessage = errBody.error
+        } catch (_) {}
+        throw new Error(errorMessage)
       }
 
       const { orderId } = await orderRes.json()
@@ -137,9 +142,9 @@ export default function CheckoutButton({
       })
 
       rzp.open()
-    } catch (err) {
+    } catch (err: any) {
       console.error('Checkout error:', err)
-      alert('Something went wrong. Please try again.')
+      alert(err.message || 'Something went wrong. Please try again.')
       setLoading(false)
     }
   }

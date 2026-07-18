@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
-import PriceTag from '@/components/PriceTag'
+import PriceTag, { DiscountTag } from '@/components/PriceTag'
 import { buildMetadata } from '@/lib/metadata'
 import { getHeaderAuthState } from '@/lib/supabase-server'
 
@@ -81,7 +81,7 @@ export default async function PricingPage() {
             <p className="text-sm font-medium text-slate-500 mb-1">90 Days</p>
             <PriceTag inr={599} usd={6.50} />
             <p className="text-sm text-slate-400 mb-1">one-time · no renewal</p>
-            <p className="text-xs font-medium text-green-600 mb-5">Save ₹151 vs 3× monthly</p>
+            <DiscountTag />
             <ul className="space-y-2.5 text-sm mb-8">
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Everything in 30 Days</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> 90 days full access</li>
