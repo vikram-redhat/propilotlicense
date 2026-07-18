@@ -6,6 +6,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { OrganizationSchema } from '@/components/schema/OrganizationSchema'
+import RegionPrompt from '@/components/RegionPrompt'
 import './globals.css'
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit', display: 'swap' })
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen antialiased" style={{ fontFamily: 'system-ui,-apple-system,sans-serif' }}>
         <OrganizationSchema />
+        <RegionPrompt />
         <ThemeProvider>
           {children}
         </ThemeProvider>

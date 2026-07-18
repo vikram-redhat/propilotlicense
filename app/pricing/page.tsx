@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
+import PriceTag from '@/components/PriceTag'
 import { buildMetadata } from '@/lib/metadata'
 import { getHeaderAuthState } from '@/lib/supabase-server'
 
@@ -49,8 +50,7 @@ export default async function PricingPage() {
           {/* 30 days */}
           <div className="bg-white border border-slate-200 rounded-2xl p-6">
             <p className="text-sm font-medium text-slate-500 mb-1">30 Days</p>
-            <p className="text-3xl font-bold text-slate-900 mb-1">₹250</p>
-            <p className="text-xs text-slate-400">$3 for international users</p>
+            <PriceTag inr={250} usd={3} />
             <p className="text-sm text-slate-400 mb-6">one-time · no renewal</p>
             <ul className="space-y-2.5 text-sm mb-8">
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Everything in Free</li>
@@ -79,8 +79,7 @@ export default async function PricingPage() {
               </span>
             </div>
             <p className="text-sm font-medium text-slate-500 mb-1">90 Days</p>
-            <p className="text-3xl font-bold text-slate-900 mb-1">₹599</p>
-            <p className="text-xs text-slate-400">$6.50 for international users</p>
+            <PriceTag inr={599} usd={6.50} />
             <p className="text-sm text-slate-400 mb-1">one-time · no renewal</p>
             <p className="text-xs font-medium text-green-600 mb-5">Save ₹151 vs 3× monthly</p>
             <ul className="space-y-2.5 text-sm mb-8">
