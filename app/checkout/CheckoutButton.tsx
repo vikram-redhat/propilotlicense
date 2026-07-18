@@ -46,12 +46,18 @@ interface RazorpayErrorResponse {
 export default function CheckoutButton({
   plan,
   amount,
+  currency = 'INR',
+  amountDisplay,
 }: {
   plan: '30days' | '90days'
   amount: number
+  currency?: 'INR' | 'USD'
+  amountDisplay?: string
 }) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+
+  const label = amountDisplay ?? `₹${amount}`
 
   async function handlePay() {
     setLoading(true)
@@ -67,7 +73,7 @@ export default function CheckoutButton({
       // 1. Create order on server
       const orderRes = await fetch('/api/payment/create-order', {
         method: 'POST',
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan, currency }),
         headers: { 'Content-Type': 'application/json' },
       })
 
@@ -81,7 +87,7 @@ export default function CheckoutButton({
       const options: RazorpayOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
         amount: String(amount * 100),
-        currency: 'INR',
+        currency,
         name: 'ProPilotLicence',
         description: `${plan === '90days' ? '90' : '30'} Day Access`,
         order_id: orderId,
@@ -145,7 +151,7 @@ export default function CheckoutButton({
       className="w-full rounded-xl py-3.5 font-semibold text-white text-sm transition-all disabled:opacity-60 hover:opacity-90"
       style={{ backgroundColor: 'var(--clr-primary)' }}
     >
-      {loading ? 'Processing…' : `Pay ₹${amount} →`}
+      {loading ? 'Processing…' : `Pay ${label} →`}
     </button>
   )
 }
