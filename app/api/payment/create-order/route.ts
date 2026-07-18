@@ -42,7 +42,8 @@ export async function POST(req: Request) {
   if (!razorpayRes.ok) {
     const err = await razorpayRes.json()
     console.error('Razorpay order creation failed:', err)
-    return Response.json({ error: 'Failed to create order' }, { status: 500 })
+    const description = err?.error?.description || 'Failed to create order'
+    return Response.json({ error: description }, { status: 500 })
   }
 
   const order = await razorpayRes.json()
