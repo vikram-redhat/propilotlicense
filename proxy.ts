@@ -45,6 +45,7 @@ export async function proxy(request: NextRequest) {
   // Auth pages: redirect logged-in users away. Auth handlers (/auth/*): always pass through.
   const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/verify'
   const isAuthRoute = isAuthPage || pathname.startsWith('/auth/')
+  const isApiRoute = pathname.startsWith('/api/')
   const isPublicRoute =
     pathname === '/' ||
     pathname === '/terms' ||
@@ -63,7 +64,7 @@ export async function proxy(request: NextRequest) {
   const bypassCookie = request.cookies.get('admin_bypass')?.value
   const hasBypass = !!bypassSecret && bypassCookie === bypassSecret
 
-  if (!user && !isAuthRoute && !isPublicRoute && !hasBypass) {
+  if (!user && !isAuthRoute && !isPublicRoute && !isApiRoute && !hasBypass) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(loginUrl)
@@ -82,7 +83,7 @@ export async function proxy(request: NextRequest) {
 
   // Authenticated users without an exam_type or country must complete profile setup
   const isSetupPage = pathname.startsWith('/profile/setup')
-  if (user && !isSetupPage && !isAuthRoute && !isPublicRoute && !hasBypass) {
+  if (user && !isSetupPage && !isAuthRoute && !isPublicRoute && !isApiRoute && !hasBypass) {
     if (!user.user_metadata?.exam_type || !user.user_metadata?.country) {
       return NextResponse.redirect(new URL('/profile/setup', request.url))
     }
