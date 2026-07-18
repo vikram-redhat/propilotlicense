@@ -5,13 +5,20 @@ export async function POST(req: Request) {
   const { data: { user } } = await authClient.auth.getUser()
   if (!user) return Response.json({ error: 'Unauthorised' }, { status: 401 })
 
-  const { plan } = await req.json() as { plan: '30days' | '90days' }
+  const { plan, currency: rawCurrency } = await req.json() as { plan: '30days' | '90days'; currency?: string }
   if (plan !== '30days' && plan !== '90days') {
     return Response.json({ error: 'Invalid plan' }, { status: 400 })
   }
 
-  const amount = plan === '90days' ? 59900 : 25000 // paise (₹ × 100)
-  const days   = plan === '90days' ? 90 : 30
+  const currency = rawCurrency === 'USD' ? 'USD' : 'INR' // ponytail: default INR
+  const days = plan === '90days' ? 90 : 30
+
+  // Smallest currency unit: paise for INR, cents for USD
+  const PRICES = {
+    INR: { '30days': 25000, '90days': 59900 },
+    USD: { '30days': 300, '90days': 650 },
+  } as const
+  const amount = PRICES[currency][plan]
 
   // Create order via Razorpay REST API
   const credentials = Buffer.from(
@@ -26,7 +33,7 @@ export async function POST(req: Request) {
     },
     body: JSON.stringify({
       amount,
-      currency: 'INR',
+      currency,
       receipt: `order_${Date.now()}`,
       notes: { plan, days: String(days), userId: user.id },
     }),
@@ -43,7 +50,7 @@ export async function POST(req: Request) {
   return Response.json({
     orderId: order.id,
     amount,
-    currency: 'INR',
+    currency,
     plan,
     days,
   })
