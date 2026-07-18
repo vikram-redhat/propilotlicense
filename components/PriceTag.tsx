@@ -1,18 +1,13 @@
 'use client'
 import { getRegion } from '@/lib/detect-region'
 
-// ponytail: show currency based on region, no alternate currency info for international users
+// ponytail: show only the main price for the current region, no alternate currency subtext
 export default function PriceTag({ inr, usd }: { inr: number; usd: number }) {
   const isIndia = getRegion() === 'IN'
   return (
-    <>
-      <p className="text-3xl font-bold text-slate-900 mb-1">
-        {isIndia ? `₹${inr}` : `$${usd}`}
-      </p>
-      {isIndia && (
-        <p className="text-xs text-slate-400">${usd} for international users</p>
-      )}
-    </>
+    <p className="text-3xl font-bold text-slate-900 mb-1">
+      {isIndia ? `₹${inr}` : `$${usd}`}
+    </p>
   )
 }
 
