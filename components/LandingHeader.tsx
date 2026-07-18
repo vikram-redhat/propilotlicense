@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { useTheme } from '@/components/ThemeProvider'
 import { GUIDE_SERIES } from '@/lib/guides'
+import { hubForExamType } from '@/lib/hub'
 
 interface Props {
   name: string | null
@@ -28,6 +29,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
   // header reflects who's really logged in, regardless of what any page passed in.
   const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn)
   const [name, setName] = useState(initialName)
+  const [examTypeState, setExamTypeState] = useState(examType)
 
   const supabase = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,6 +40,10 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
     supabase.auth.getUser().then(({ data: { user } }) => {
       setIsLoggedIn(!!user)
       setName(user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? null)
+      // Self-correct exam type too: static pages (subjects/[subject], books/[book])
+      // can't pass it per-request, so the prop is often absent — without this an
+      // ATPL user's hub link would default to /cpl.
+      if (user) setExamTypeState((user.user_metadata?.exam_type as string | undefined) ?? null)
     })
   }, [supabase])
 
@@ -58,7 +64,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
 
   const { palette, toggle: togglePalette } = useTheme()
   const firstName = (name || 'Account').split(' ')[0]
-  const dashHref = examType === 'ATPL' ? '/atpl' : '/cpl'
+  const dashHref = hubForExamType(examTypeState)
 
   return (
     <>

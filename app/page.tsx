@@ -27,6 +27,7 @@ import { WebSiteSchema } from '@/components/schema/WebSiteSchema'
 import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 import { isSubscribed } from '@/lib/subscription'
+import { hubForExamType } from '@/lib/hub'
 
 const MONO = "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace"
 
@@ -186,7 +187,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const subscribed = isSubscribed(profileRes?.data as Parameters<typeof isSubscribed>[0])
   const examType = user?.user_metadata?.exam_type ?? null
 
-  const configHref = user ? '/cpl' : '/login?next=/cpl'
+  const hub = hubForExamType(examType)
+  const configHref = user ? hub : `/login?next=${hub}`
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>

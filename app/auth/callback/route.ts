@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest, after } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
 import { sendWelcomeEmail } from '@/lib/email'
+import { hubForExamType } from '@/lib/hub'
 
 // Best-effort welcome email on a user's first confirmed sign-in (email confirmation or
 // OAuth). Idempotent via profiles.welcome_email_sent_at, so it sends exactly once and
@@ -96,7 +97,13 @@ export async function GET(request: NextRequest) {
       // First-time users land on a public page (home), which the proxy's setup gate
       // skips — so force them into profile setup here before anything else.
       const needsSetup = !user.user_metadata?.exam_type || !user.user_metadata?.country
-      if (needsSetup) response.headers.set('location', new URL('/profile/setup', origin).toString())
+      if (needsSetup) {
+        response.headers.set('location', new URL('/profile/setup', origin).toString())
+      } else if (redirectTo === '/cpl' || redirectTo === '/atpl') {
+        // A generic licence-hub `next` may not match the user's exam type — send
+        // ATPL users to /atpl instead of the hardcoded /cpl.
+        response.headers.set('location', new URL(hubForExamType(user.user_metadata?.exam_type as string | undefined), origin).toString())
+      }
 
       const name = (user.user_metadata?.full_name as string | undefined) ?? user.email?.split('@')[0] ?? null
       after(() => maybeSendWelcome(user.id, user.email!, name))
