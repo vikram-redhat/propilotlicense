@@ -6,6 +6,7 @@ import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { Section, SubSection, Prose, Callout, DataTable, CtaBlock } from '@/components/guides/ArticleKit'
 import A320SeriesNav from '@/components/guides/A320SeriesNav'
+import A320InlineCta from '@/components/guides/A320InlineCta'
 
 export const metadata = buildMetadata({
   title: 'A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic | ProPilotLicence',
@@ -69,6 +70,8 @@ export default async function A320AutoflightPost() {
           </p>
         </Prose>
 
+        <A320InlineCta />
+
         <Section title="System architecture — the four components" first>
           <DiagramBlock label="Diagram 1 — Autoflight system architecture" caption="The FCU is the pilot's interface. AP, FD, and ATHR are the execution layer. The FMA is the readback — it confirms what the system is actually doing.">
             <ArchitectureDiagram />
@@ -111,6 +114,8 @@ export default async function A320AutoflightPost() {
             <strong>The 10-second box rule:</strong> Any new mode engagement on the FMA is boxed for 10 seconds. This is the system drawing the crew&apos;s attention to a mode change. The correct response is always to look at the FMA, confirm the boxed mode is what you expected, and call it out. A boxed mode you did not expect is an immediate cue to understand why.
           </Callout>
         </Section>
+
+        <A320InlineCta />
 
         <Section title="Vertical modes — the most examined area">
           <DiagramBlock label="Diagram 2 — Vertical mode logic: managed vs selected, and key transitions" caption="Managed modes (green) follow the FMS profile. Selected modes (amber) track a pilot-assigned value. The FCU knob action — push for managed, pull for selected — drives the transition.">

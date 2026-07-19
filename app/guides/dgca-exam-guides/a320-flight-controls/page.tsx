@@ -5,7 +5,8 @@ import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { Breadcrumb } from '@/components/guides/ArticleKit'
 import A320SeriesNav from '@/components/guides/A320SeriesNav'
-import { ARTICLE_HEAD, ARTICLE_BODY } from './articleBody'
+import A320InlineCta from '@/components/guides/A320InlineCta'
+import { ARTICLE_HEAD, ARTICLE_BODY, ARTICLE_BODY_2 } from './articleBody'
 import styles from './styles.module.css'
 
 export const metadata = buildMetadata({
@@ -35,7 +36,10 @@ export default async function A320FlightControlsPage() {
       <main className={styles.wrap} style={{ paddingTop: 8 }}>
         <div dangerouslySetInnerHTML={{ __html: ARTICLE_HEAD }} />
         <A320SeriesNav currentSlug="a320-flight-controls" />
+        <A320InlineCta />
         <div dangerouslySetInnerHTML={{ __html: ARTICLE_BODY }} />
+        <A320InlineCta />
+        <div dangerouslySetInnerHTML={{ __html: ARTICLE_BODY_2 }} />
       </main>
 
       <SiteFooter />

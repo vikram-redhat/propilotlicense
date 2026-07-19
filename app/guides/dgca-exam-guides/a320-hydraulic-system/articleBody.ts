@@ -301,6 +301,9 @@ export const ARTICLE_BODY = String.raw`
 
 
 
+`
+
+export const ARTICLE_BODY_2 = String.raw`
   <h2>Failure effects — complete analysis</h2>
 
   <h3>Effects on flight controls</h3>

@@ -358,6 +358,9 @@ export const ARTICLE_BODY = String.raw`
     <strong>Alpha floor in a go-around:</strong> If alpha floor activates during a go-around (high pitch, low speed, thrust lever not yet at TOGA), it commands TOGA thrust automatically. This is protective. However, once the immediate energy state is recovered, the crew must consciously reset TOGA LK by cycling the thrust levers through TOGA and then to CLB, otherwise the Autothrust remains locked at TOGA thrust as the aircraft climbs.
   </div>
 
+`
+
+export const ARTICLE_BODY_2 = String.raw`
   <h2>Alternate Law — the two variants</h2>
 
   <p><span class="pill pill-alt">Alternate Law</span> occurs when the flight control computers cannot maintain Normal law due to sensor failures, computer failures, or combinations of hydraulic and electrical failures. There are two distinct variants with significantly different implications.</p>
