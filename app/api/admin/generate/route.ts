@@ -2,9 +2,12 @@ import Anthropic from '@anthropic-ai/sdk'
 import { createServiceClient } from '@/lib/supabase'
 import { isAdminRequest } from '@/lib/admin-auth'
 
-export const maxDuration = 60
+export const maxDuration = 120
 
-const client = new Anthropic()
+// Bound the Claude call so a slow/overloaded request fails fast and cleanly
+// (returning a real error the client can show + retry) instead of hanging until
+// the connection is dropped and the browser reports "Failed to fetch".
+const client = new Anthropic({ timeout: 50_000, maxRetries: 1 })
 
 export async function POST(req: Request) {
   if (!await isAdminRequest(req)) {
@@ -81,24 +84,37 @@ export async function POST(req: Request) {
     `"explanation":"...","source_chapter":"Chapter 4","source_page":"Page 67",` +
     `"difficulty":"${difficulty}","citation_verified":${citationVerifiedValue}}`
 
+  // ── Claude call (Anthropic API errors: rate limit, overload, timeout) ──
+  let response
   try {
-    const response = await client.messages.create({
+    response = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 4000,
       messages: [{ role: 'user', content: prompt }],
     })
+  } catch (err) {
+    const e = err as { status?: number; name?: string; message?: string }
+    let error = 'Question generation failed — please retry'
+    if (e?.status === 429) error = 'Anthropic rate limit reached — wait a few seconds and retry'
+    else if (e?.status === 529) error = 'Anthropic API is temporarily overloaded — retry shortly'
+    else if (/timeout/i.test(e?.name ?? '') || /timeout/i.test(e?.message ?? '')) error = 'The AI request timed out — retry'
+    else if (e?.message) error = `Generation error: ${e.message.slice(0, 140)}`
+    return Response.json({ error, details: String(err) }, { status: e?.status ?? 500 })
+  }
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+  // ── Parse the model output (may be truncated if it hit the token limit) ──
+  const text = response.content[0]?.type === 'text' ? response.content[0].text : ''
+  try {
     const questions = JSON.parse(text.trim())
     return Response.json({
       questions,
       source: citationVerifiedValue ? 'pdf_chunk' : 'memory',
     })
-  } catch (err) {
-    return Response.json(
-      { error: 'Failed to parse AI response', details: String(err) },
-      { status: 500 }
-    )
+  } catch {
+    const error = response.stop_reason === 'max_tokens'
+      ? 'AI response was cut off at the token limit — try a smaller batch or count'
+      : 'AI returned an unreadable response — please retry'
+    return Response.json({ error }, { status: 502 })
   }
 }
 

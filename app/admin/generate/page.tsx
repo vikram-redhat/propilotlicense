@@ -173,7 +173,7 @@ export default function GeneratePage() {
       while (attempts < 2 && !success) {
         attempts++
         try {
-          const TIMEOUT_MS = 50000
+          const TIMEOUT_MS = 115000
           const res = await Promise.race([
             fetch('/api/admin/generate', {
               method: 'POST',
