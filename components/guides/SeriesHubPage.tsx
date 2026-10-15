@@ -2,9 +2,17 @@ import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { getHeaderAuthState } from '@/lib/supabase-server'
+import type { ReactNode } from 'react'
 import type { GuideSeries } from '@/lib/guides'
 
-export async function SeriesHubPage({ series }: { series: GuideSeries }) {
+// `upcoming` lists not-yet-published article titles as plain text (never links,
+// so nothing 404s); `children` renders below the list (e.g. a cross-link).
+export async function SeriesHubPage({ series, upcoming = [], children }: {
+  series: GuideSeries
+  upcoming?: string[]
+  children?: ReactNode
+}) {
+  const total = series.posts.length + upcoming.length
   const { isLoggedIn, name } = await getHeaderAuthState()
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
@@ -32,7 +40,7 @@ export async function SeriesHubPage({ series }: { series: GuideSeries }) {
               style={{ display: 'block', textDecoration: 'none', border: '1px solid var(--clr-border)', borderRadius: 12, padding: '20px 24px', background: 'var(--clr-surface)' }}
             >
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--clr-primary)', marginBottom: 8 }}>
-                Article {i + 1} of {series.posts.length}
+                Article {i + 1} of {total}
               </div>
               <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--clr-text)', lineHeight: 1.3, marginBottom: 8 }}>
                 {post.title}
@@ -46,7 +54,26 @@ export async function SeriesHubPage({ series }: { series: GuideSeries }) {
               </div>
             </Link>
           ))}
+          {upcoming.map((label, i) => (
+            <div
+              key={label}
+              style={{ border: '1px dashed var(--clr-border)', borderRadius: 12, padding: '16px 24px', background: 'var(--clr-surf-alt)' }}
+            >
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--clr-text-med)', marginBottom: 6 }}>
+                Article {series.posts.length + i + 1} of {total} · Upcoming
+              </div>
+              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 16, fontWeight: 600, color: 'var(--clr-text-med)', lineHeight: 1.3 }}>
+                {label}
+              </div>
+            </div>
+          ))}
         </div>
+
+        {children && (
+          <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid var(--clr-border)', fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.65 }}>
+            {children}
+          </div>
+        )}
       </main>
 
       <SiteFooter />

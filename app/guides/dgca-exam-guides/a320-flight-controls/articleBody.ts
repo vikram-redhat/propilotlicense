@@ -569,7 +569,7 @@ export const ARTICLE_BODY_2 = String.raw`
     <thead><tr><th>ECAM message</th><th>Active law</th><th>Immediate crew action</th></tr></thead>
     <tbody>
       <tr><td>No F/CTL message</td><td>Normal Law</td><td>Normal operations. Monitor for further degradation.</td></tr>
-      <tr><td>F/CTL ALTN LAW (PROT AVAIL)</td><td>Alternate with protections</td><td>Follow ECAM. Be aware alpha floor is lost. Monitor speed actively. Advise crew of degraded law.</td></tr>
+      <tr><td>F/CTL ALTN LAW (PROT AVAIL)</td><td>Alternate with protections</td><td><a href="/guides/a320-procedures/a320-ecam-handling">Follow ECAM</a>. Be aware alpha floor is lost. Monitor speed actively. Advise crew of degraded law.</td></tr>
       <tr><td>F/CTL ALTN LAW (PROT LOST)</td><td>Alternate without protections</td><td>Actively fly pitch axis at all times. Do not expect return to level on stick release. Monitor speed carefully — stall is possible. Follow ECAM actions.</td></tr>
       <tr><td>F/CTL DIRECT LAW</td><td>Direct Law</td><td>Trim manually for every speed/config/power change. Apply rudder in turns. Dutch roll — use rudder input. Monitor g — no limiting. Declare emergency if appropriate.</td></tr>
       <tr><td>F/CTL MECH BACKUP</td><td>Mechanical Backup</td><td>Sidestick disconnected. Pitch via THS trim wheel. Roll via differential thrust/braking. Declare emergency immediately. Follow QRH.</td></tr>

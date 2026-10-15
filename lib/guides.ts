@@ -155,6 +155,29 @@ export const GUIDE_SERIES: GuideSeries[] = [
       },
     ],
   },
+  {
+    // Upcoming (unpublished) articles are listed from A320_PROCEDURES_SERIES in
+    // lib/a320-series.ts — add a post here AND its slug there when one publishes.
+    slug: 'a320-procedures',
+    navLabel: 'A320 Operations and Procedures',
+    title: 'A320 Operations and Procedures',
+    description:
+      'Operating technique for A320 type rating and ATPL candidates — how the aircraft is handled and the crew works, rather than how its systems are built. ECAM, circuits and approaches, reviewed by the ProPilotLicence captain panel.',
+    posts: [
+      {
+        slug: 'a320-ecam-handling',
+        title: 'A320 ECAM Handling Philosophy — Alert Levels, Task Sharing and Actions',
+        metaTitle: 'A320 ECAM Handling Philosophy — Alert Levels & Task Sharing | ProPilotLicence',
+        metaDescription:
+          'The complete A320 ECAM handling guide for type rating and ATPL candidates. Display architecture, alert levels, aural warnings, flight phase inhibition, PF/PM task sharing, STATUS page, and ECAM versus QRH.',
+        publishedAt: '2026-10-15',
+        updatedAt: '2026-10-15',
+        excerpt:
+          'ECAM does not fly the aircraft. It tells you what has failed and what to do about it, in a priority order, and it expects the crew to fly first and action second. Understanding the philosophy behind ECAM matters more than memorising any individual procedure.',
+        reviewedBy: 'ProPilotLicence Captain Panel',
+      },
+    ],
+  },
 ]
 
 export function getSeries(slug: string): GuideSeries | undefined {
