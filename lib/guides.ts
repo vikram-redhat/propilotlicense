@@ -120,9 +120,9 @@ export const GUIDE_SERIES: GuideSeries[] = [
       {
         slug: 'a320-autoflight-system',
         title: 'A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic',
-        metaTitle: 'A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic | ProPilotLicence',
+        metaTitle: 'A320 Autoflight: FMA, Managed vs Selected, AP and A/THR',
         metaDescription:
-          'A complete guide to the A320 autoflight system. Autopilot modes, Flight Director, Autothrust, FCU operation, FMA logic, and managed vs selected guidance — explained for ATPL and type rating candidates.',
+          'How the FMGS, FCU and FMA work together. Managed versus selected guidance, AP and A/THR modes, and mode reversions. Diagrams at type rating level.',
         publishedAt: '2026-07-05',
         updatedAt: '2026-07-05',
         excerpt:
@@ -132,9 +132,9 @@ export const GUIDE_SERIES: GuideSeries[] = [
       {
         slug: 'a320-flight-controls',
         title: 'A320 Flight Controls — Fly-by-Wire, Normal Law, Alternate Law, Direct Law and the Sidestick',
-        metaTitle: 'A320 Flight Controls — Fly-by-Wire, Normal Law, Alternate Law, Direct Law & Sidestick | ProPilotLicence',
+        metaTitle: 'A320 Flight Controls: Normal, Alternate and Direct Law',
         metaDescription:
-          'The complete A320 flight controls guide. Fly-by-wire architecture, ELAC/SEC/FAC computers, Normal law protections, Alternate law with and without protections, Direct law, sidestick design, priority logic and dual input handling.',
+          'Every Normal law protection listed, what Alternate law keeps and loses with and without protections, and Direct law handling technique. ECAM messages and diagrams.',
         publishedAt: '2026-07-15',
         updatedAt: '2026-07-15',
         excerpt:
@@ -144,9 +144,9 @@ export const GUIDE_SERIES: GuideSeries[] = [
       {
         slug: 'a320-hydraulic-system',
         title: 'A320 Hydraulic System — Complete Guide: Systems, Services, Failures and Effects',
-        metaTitle: 'A320 Hydraulic System — Complete Guide: Systems, Services, Failures & Effects | ProPilotLicence',
+        metaTitle: 'A320 Hydraulic System: Green, Blue, Yellow, PTU and RAT',
         metaDescription:
-          'The complete A320 hydraulic system guide for type rating and ATPL candidates. All services powered by Green, Blue and Yellow systems, PTU, RAT, failure effects on flight controls, brakes, landing gear, flaps, slats and stabiliser.',
+          'Every service powered by each system, how the PTU and RAT work, and exactly what is lost in each failure case. Animated diagrams, type rating and ATPL level.',
         publishedAt: '2026-07-16',
         updatedAt: '2026-07-16',
         excerpt:

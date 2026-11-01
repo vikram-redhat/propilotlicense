@@ -26,7 +26,7 @@ export default async function CabinCrewToPilotPost() {
       <ArticleSchema
         title="Cabin Crew to Pilot in India — The Complete Transition Guide"
         description="A practical, unsentimental guide to transitioning from cabin crew to commercial pilot in India. Costs, timeline, medical requirements, age realities, and what nobody tells you before you start."
-        url="https://propilotlicence.com/guides/become-a-pilot/cabin-crew-to-pilot"
+        url="https://www.propilotlicence.com/guides/become-a-pilot/cabin-crew-to-pilot"
         publishedAt="2026-07-07"
         updatedAt="2026-07-07"
       />

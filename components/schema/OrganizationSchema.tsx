@@ -3,7 +3,7 @@ export function OrganizationSchema() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'ProPilotLicence',
-    url: 'https://propilotlicence.com',
+    url: 'https://www.propilotlicence.com',
     description:
       'DGCA CPL and ATPL theory exam preparation platform. Every question reviewed by a panel of four or more active commercial airline captains before entering the question bank.',
     knowsAbout: [

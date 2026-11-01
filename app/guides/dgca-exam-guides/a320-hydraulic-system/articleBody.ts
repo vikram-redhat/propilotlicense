@@ -8,7 +8,7 @@ export const ARTICLE_HEAD = String.raw`
   <div class="eyebrow">A320 Systems — Hydraulics</div>
   <h1>A320 Hydraulic System — Complete Guide: Systems, Services, Failures and Effects</h1>
 
-  <p class="standfirst">Three independent 3,000 PSI circuits. No single failure removes all hydraulic power. But the effects of each individual failure cascade through flight controls, braking, landing gear, flaps, slats, and the spoilers — and understanding exactly what is lost and what remains is fundamental knowledge for any A320 type rating and ATPL oral.</p>
+  <p class="standfirst">Three independent 3,000 PSI circuits. No single failure removes all hydraulic power. But the effects of each individual failure cascade through flight controls, braking, landing gear, flaps, slats, and the spoilers — and understanding exactly what is lost and what remains is fundamental knowledge for any A320 type rating and ATPL oral. For the written exam, hydraulics sits in <a href="/subjects/technical-general">DGCA Technical General</a>.</p>
 
   <div class="byline">
     <strong>ProPilotLicence Editorial</strong>

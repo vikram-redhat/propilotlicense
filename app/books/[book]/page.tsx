@@ -27,7 +27,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
   const book = getBookBySlug(slug)
   if (!book) notFound()
 
-  const url = `https://propilotlicence.com/books/${book.slug}`
+  const url = `https://www.propilotlicence.com/books/${book.slug}`
   const courseDescription = `${book.questionCount.toLocaleString()} practice questions sourced from ${book.title} by ${book.author}, organised by chapter and reviewed by active airline captains.`
 
   return (

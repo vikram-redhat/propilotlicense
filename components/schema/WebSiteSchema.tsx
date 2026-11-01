@@ -4,7 +4,7 @@ export function WebSiteSchema() {
     '@type': 'WebSite',
     name: 'ProPilotLicence',
     alternateName: ['ProPilotLicence.com', 'Pro Pilot Licence'],
-    url: 'https://propilotlicence.com/',
+    url: 'https://www.propilotlicence.com/',
   }
   return (
     <script

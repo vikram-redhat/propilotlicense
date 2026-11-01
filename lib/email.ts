@@ -11,7 +11,7 @@ function client(): Resend | null {
 }
 
 const FROM = 'ProPilotLicence <noreply@propilotlicence.com>'
-const SITE = 'https://propilotlicence.com'
+const SITE = 'https://www.propilotlicence.com'
 
 const BRAND = '#185FA5'
 const INK = '#0d1117'

@@ -14,7 +14,7 @@ const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit', display: 
 export const metadata: Metadata = {
   title: { default: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep', template: '%s' },
   description: 'Practice questions for DGCA CPL and ATPL theory exams — sourced from prescribed textbooks, verified by active airline captains.',
-  metadataBase: new URL('https://propilotlicence.com'),
+  metadataBase: new URL('https://www.propilotlicence.com'),
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

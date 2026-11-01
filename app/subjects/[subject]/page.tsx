@@ -27,7 +27,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
   const subject = getSubjectBySlug(slug)
   if (!subject) notFound()
 
-  const url = `https://propilotlicence.com/subjects/${subject.slug}`
+  const url = `https://www.propilotlicence.com/subjects/${subject.slug}`
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>

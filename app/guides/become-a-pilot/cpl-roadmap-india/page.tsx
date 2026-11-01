@@ -26,7 +26,7 @@ export default async function CplRoadmapIndiaPost() {
       <ArticleSchema
         title="How to Become a Pilot in India — The Complete CPL Roadmap"
         description="The complete step-by-step guide to becoming a commercial pilot in India. From 12th standard to CPL — eligibility, medicals, SPL, flight training, DGCA theory exams, costs, timelines, and training abroad."
-        url="https://propilotlicence.com/guides/become-a-pilot/cpl-roadmap-india"
+        url="https://www.propilotlicence.com/guides/become-a-pilot/cpl-roadmap-india"
         publishedAt="2026-07-09"
         updatedAt="2026-07-09"
       />

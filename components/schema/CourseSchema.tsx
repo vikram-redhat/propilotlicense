@@ -11,7 +11,7 @@ export function CourseSchema({ name, description, url }: Props) {
     name,
     description,
     url,
-    provider: { '@type': 'Organization', name: 'ProPilotLicence', url: 'https://propilotlicence.com' },
+    provider: { '@type': 'Organization', name: 'ProPilotLicence', url: 'https://www.propilotlicence.com' },
     educationalLevel: 'Professional',
     courseMode: 'online',
     isAccessibleForFree: true,

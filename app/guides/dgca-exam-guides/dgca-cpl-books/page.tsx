@@ -20,7 +20,7 @@ export default async function DgcaCplBooksPost() {
       <ArticleSchema
         title="Which Books Should I Study for the DGCA CPL Theory Exams? (2026 Guide)"
         description="The complete guide to DGCA-prescribed textbooks for CPL theory exams. Which books to buy for Meteorology, Air Regulations, Navigation, Technical General, and Radio Aids."
-        url="https://propilotlicence.com/guides/dgca-exam-guides/dgca-cpl-books"
+        url="https://www.propilotlicence.com/guides/dgca-exam-guides/dgca-cpl-books"
         publishedAt="2026-06-01"
         updatedAt="2026-06-01"
       />

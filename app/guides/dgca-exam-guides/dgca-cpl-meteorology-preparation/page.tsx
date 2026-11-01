@@ -43,7 +43,7 @@ export default async function MeteorologyPrepPost() {
       <ArticleSchema
         title="How to Prepare for the DGCA CPL Meteorology Exam — Complete Study Guide"
         description="A complete guide to preparing for the DGCA CPL Aviation Meteorology paper. Which book to use, which chapters matter most, how to approach Indian climatology, and what to expect on exam day."
-        url="https://propilotlicence.com/guides/dgca-exam-guides/dgca-cpl-meteorology-preparation"
+        url="https://www.propilotlicence.com/guides/dgca-exam-guides/dgca-cpl-meteorology-preparation"
         publishedAt="2026-06-15"
         updatedAt="2026-06-15"
       />

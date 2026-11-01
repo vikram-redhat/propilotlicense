@@ -578,6 +578,8 @@ export const ARTICLE_BODY_2 = String.raw`
 
   <h2>Key numbers for ATPL oral preparation</h2>
 
+  <p>For the written exam, flight controls are examined in <a href="/subjects/technical-general">DGCA Technical General</a>.</p>
+
   <table class="data-table">
     <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
     <tbody>

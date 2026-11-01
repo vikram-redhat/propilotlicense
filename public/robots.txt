@@ -9,4 +9,4 @@ Disallow: /results
 Disallow: /profile
 Disallow: /api/
 
-Sitemap: https://propilotlicence.com/sitemap.xml
+Sitemap: https://www.propilotlicence.com/sitemap.xml

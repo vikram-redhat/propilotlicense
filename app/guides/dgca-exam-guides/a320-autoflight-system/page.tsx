@@ -9,9 +9,9 @@ import A320SeriesNav from '@/components/guides/A320SeriesNav'
 import A320InlineCta from '@/components/guides/A320InlineCta'
 
 export const metadata = buildMetadata({
-  title: 'A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic | ProPilotLicence',
+  title: 'A320 Autoflight: FMA, Managed vs Selected, AP and A/THR',
   description:
-    'A complete guide to the A320 autoflight system. Autopilot modes, Flight Director, Autothrust, FCU operation, FMA logic, and managed vs selected guidance — explained for ATPL and type rating candidates.',
+    'How the FMGS, FCU and FMA work together. Managed versus selected guidance, AP and A/THR modes, and mode reversions. Diagrams at type rating level.',
   path: '/guides/dgca-exam-guides/a320-autoflight-system',
 })
 
@@ -22,7 +22,7 @@ export default async function A320AutoflightPost() {
       <ArticleSchema
         title="A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic"
         description="A complete guide to the A320 autoflight system. Autopilot modes, Flight Director, Autothrust, FCU operation, FMA logic, and managed vs selected guidance — explained for ATPL and type rating candidates."
-        url="https://propilotlicence.com/guides/dgca-exam-guides/a320-autoflight-system"
+        url="https://www.propilotlicence.com/guides/dgca-exam-guides/a320-autoflight-system"
         publishedAt="2026-07-05"
         updatedAt="2026-07-05"
       />
@@ -87,7 +87,7 @@ export default async function A320AutoflightPost() {
 
         <Section title="Managed vs selected — the fundamental distinction">
           <Prose>
-            <p>Every autoflight mode is either <strong>managed</strong> or <strong>selected</strong>. This is the distinction that ATPL orals probe most consistently, because it reveals whether a candidate understands the system or has merely memorised mode names.</p>
+            <p>Every autoflight mode is either <strong>managed</strong> or <strong>selected</strong>. This is the distinction that ATPL orals probe most consistently, because it reveals whether a candidate understands the system or has merely memorised mode names. For written-exam practice, work through the <Link href="/subjects/technical-general" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'none' }}>DGCA Technical General practice questions</Link>.</p>
             <p><strong>Managed guidance</strong> means the FMS is in control of that parameter. The FCU window for that parameter shows dashes rather than a numerical value. The FMA annunciates the mode in magenta. The aircraft follows the FMS computed profile — the lateral route, the climb or descent profile, the speed schedule.</p>
             <p><strong>Selected guidance</strong> means the pilot has assigned a specific value via the FCU. The FCU window shows the numerical value. The FMA annunciates the mode in green (active) or blue (armed). The aircraft tracks that value.</p>
           </Prose>
@@ -164,7 +164,7 @@ export default async function A320AutoflightPost() {
           />
 
           <Prose>
-            <p>Alpha Floor is the ATHR protection mode that automatically applies TOGA thrust when the aircraft reaches a high angle of attack threshold, regardless of thrust lever position. Once activated, it locks to TOGA LK on the FMA — the crew must manually move thrust levers to TOGA and then select a lower setting to reset. Alpha Floor activation in normal operations is an abnormal event requiring crew action and understanding of the reset procedure.</p>
+            <p>Alpha Floor is the ATHR protection mode that automatically applies TOGA thrust when the aircraft reaches a high angle of attack threshold, regardless of thrust lever position. Once activated, it locks to TOGA LK on the FMA — the crew must manually move thrust levers to TOGA and then select a lower setting to reset. Alpha Floor activation in normal operations is an abnormal event requiring <Link href="/guides/a320-procedures/a320-ecam-handling" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'none' }}>crew action</Link> and understanding of the reset procedure.</p>
           </Prose>
         </Section>
 

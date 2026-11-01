@@ -10,9 +10,9 @@ import { ARTICLE_HEAD, ARTICLE_BODY, ARTICLE_BODY_2 } from './articleBody'
 import styles from './styles.module.css'
 
 export const metadata = buildMetadata({
-  title: 'A320 Flight Controls — Fly-by-Wire, Normal Law, Alternate Law, Direct Law & Sidestick | ProPilotLicence',
+  title: 'A320 Flight Controls: Normal, Alternate and Direct Law',
   description:
-    'The complete A320 flight controls guide. Fly-by-wire architecture, ELAC/SEC/FAC computers, Normal law protections, Alternate law with and without protections, Direct law, sidestick design, priority logic and dual input handling.',
+    'Every Normal law protection listed, what Alternate law keeps and loses with and without protections, and Direct law handling technique. ECAM messages and diagrams.',
   path: '/guides/dgca-exam-guides/a320-flight-controls',
 })
 
@@ -23,7 +23,7 @@ export default async function A320FlightControlsPage() {
       <ArticleSchema
         title="A320 Flight Controls — Fly-by-Wire, Normal Law, Alternate Law, Direct Law and the Sidestick"
         description="The complete A320 flight controls guide for ATPL and type rating candidates. Fly-by-wire architecture, ELAC/SEC/FAC computers, Normal, Alternate and Direct law, sidestick priority logic and dual input handling."
-        url="https://propilotlicence.com/guides/dgca-exam-guides/a320-flight-controls"
+        url="https://www.propilotlicence.com/guides/dgca-exam-guides/a320-flight-controls"
         publishedAt="2026-07-15"
         updatedAt="2026-07-15"
       />

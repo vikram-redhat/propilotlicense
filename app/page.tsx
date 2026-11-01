@@ -6,11 +6,11 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
   description: 'India\'s most complete DGCA CPL and ATPL question bank — 7,000+ questions mapped to prescribed textbooks, verified by active airline captains. First 10 questions free.',
-  alternates: { canonical: 'https://propilotlicence.com' },
+  alternates: { canonical: 'https://www.propilotlicence.com' },
   openGraph: {
     title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
     description: 'India\'s most complete DGCA CPL and ATPL question bank — 7,000+ questions mapped to prescribed textbooks, verified by active airline captains.',
-    url: 'https://propilotlicence.com',
+    url: 'https://www.propilotlicence.com',
     siteName: 'ProPilotLicence',
     type: 'website',
     locale: 'en_IN',

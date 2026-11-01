@@ -26,7 +26,7 @@ export default async function AmeToPilotPost() {
       <ArticleSchema
         title="Aircraft Maintenance Engineer to Pilot in India — The Complete Transition Guide"
         description="A practical guide for Aircraft Maintenance Engineers considering the transition to commercial pilot in India. Education eligibility, financial trade-offs, your technical advantage in theory exams, and the age maths you need to do first."
-        url="https://propilotlicence.com/guides/become-a-pilot/ame-to-pilot"
+        url="https://www.propilotlicence.com/guides/become-a-pilot/ame-to-pilot"
         publishedAt="2026-07-07"
         updatedAt="2026-07-07"
       />

@@ -26,7 +26,7 @@ export default async function AocsToPilotPost() {
       <ArticleSchema
         title="Aviation Operations Staff to Pilot in India — The Complete Transition Guide"
         description="A practical guide for aviation operations staff — ground ops, flight dispatch, load control, crew scheduling — considering the transition to commercial pilot in India. What your ops background gives you, and what it does not."
-        url="https://propilotlicence.com/guides/become-a-pilot/aocs-to-pilot"
+        url="https://www.propilotlicence.com/guides/become-a-pilot/aocs-to-pilot"
         publishedAt="2026-07-07"
         updatedAt="2026-07-07"
       />

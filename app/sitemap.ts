@@ -3,7 +3,7 @@ import { SUBJECTS } from '@/lib/subjects'
 import { BOOKS } from '@/lib/books'
 import { GUIDE_SERIES } from '@/lib/guides'
 
-const BASE = 'https://propilotlicence.com'
+const BASE = 'https://www.propilotlicence.com'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date().toISOString()

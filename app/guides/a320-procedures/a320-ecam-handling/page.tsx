@@ -25,7 +25,7 @@ export default async function A320EcamHandlingPage() {
       <ArticleSchema
         title="A320 ECAM Handling Philosophy — Alert Levels, Task Sharing and Actions"
         description="The complete A320 ECAM handling guide for type rating and ATPL candidates. Display architecture, alert levels, aural warnings, flight phase inhibition, PF/PM task sharing, STATUS page, and ECAM versus QRH."
-        url="https://propilotlicence.com/guides/a320-procedures/a320-ecam-handling"
+        url="https://www.propilotlicence.com/guides/a320-procedures/a320-ecam-handling"
         publishedAt="2026-10-15"
         updatedAt="2026-10-15"
       />

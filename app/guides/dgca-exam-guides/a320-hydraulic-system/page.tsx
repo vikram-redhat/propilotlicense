@@ -10,9 +10,9 @@ import { ARTICLE_HEAD, ARTICLE_BODY, ARTICLE_BODY_2 } from './articleBody'
 import styles from './styles.module.css'
 
 export const metadata = buildMetadata({
-  title: 'A320 Hydraulic System — Complete Guide: Systems, Services, Failures & Effects | ProPilotLicence',
+  title: 'A320 Hydraulic System: Green, Blue, Yellow, PTU and RAT',
   description:
-    'The complete A320 hydraulic system guide for type rating and ATPL candidates. All services powered by Green, Blue and Yellow systems, PTU, RAT, failure effects on flight controls, brakes, landing gear, flaps, slats and stabiliser.',
+    'Every service powered by each system, how the PTU and RAT work, and exactly what is lost in each failure case. Animated diagrams, type rating and ATPL level.',
   path: '/guides/dgca-exam-guides/a320-hydraulic-system',
 })
 
@@ -23,7 +23,7 @@ export default async function A320HydraulicSystemPage() {
       <ArticleSchema
         title="A320 Hydraulic System — Complete Guide: Systems, Services, Failures and Effects"
         description="The complete A320 hydraulic system guide for type rating and ATPL candidates. Green, Blue and Yellow circuits, PTU, RAT, and failure effects on flight controls, brakes, landing gear, flaps and slats."
-        url="https://propilotlicence.com/guides/dgca-exam-guides/a320-hydraulic-system"
+        url="https://www.propilotlicence.com/guides/dgca-exam-guides/a320-hydraulic-system"
         publishedAt="2026-07-16"
         updatedAt="2026-07-16"
       />

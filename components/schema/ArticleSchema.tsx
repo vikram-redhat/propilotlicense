@@ -15,8 +15,8 @@ export function ArticleSchema({ title, description, url, publishedAt, updatedAt 
     url,
     datePublished: publishedAt,
     dateModified: updatedAt,
-    author: { '@type': 'Organization', name: 'ProPilotLicence', url: 'https://propilotlicence.com' },
-    publisher: { '@type': 'Organization', name: 'ProPilotLicence', url: 'https://propilotlicence.com' },
+    author: { '@type': 'Organization', name: 'ProPilotLicence', url: 'https://www.propilotlicence.com' },
+    publisher: { '@type': 'Organization', name: 'ProPilotLicence', url: 'https://www.propilotlicence.com' },
     reviewedBy: {
       '@type': 'Organization',
       name: 'ProPilotLicence Captain Panel',

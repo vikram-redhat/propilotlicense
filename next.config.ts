@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
       { source: '/blog/:slug', destination: '/guides/dgca-exam-guides/:slug', permanent: true },
       { source: '/become-a-pilot', destination: '/guides/become-a-pilot', permanent: true },
       { source: '/become-a-pilot/:slug', destination: '/guides/become-a-pilot/:slug', permanent: true },
+      // Truncated book URLs Google indexed from external links (2026-11-01). statusCode
+      // rather than permanent so it's a 301, not a 308.
+      { source: '/books/ic-joshi-aviation-met', destination: '/books/ic-joshi-aviation-meteorology', statusCode: 301 },
+      { source: '/books/ic-joshi-aviation-met-total-q', destination: '/books/ic-joshi-aviation-meteorology', statusCode: 301 },
     ];
   },
 };
