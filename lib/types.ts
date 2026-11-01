@@ -83,6 +83,8 @@ export interface Question {
   active: boolean
   flagged: boolean
   created_at: string
+  last_reviewed_at?: string | null // added by scripts/migrate_question_review.sql
+  last_reviewed_by?: string | null
   options?: QuestionOption[]
   subject?: Subject
   topic?: Topic

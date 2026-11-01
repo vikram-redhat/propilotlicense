@@ -293,6 +293,11 @@ export default function AdminPage() {
                         {q.source_type === 'ai' && (
                           <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-purple-100 text-purple-700">AI</span>
                         )}
+                        {q.last_reviewed_at && (
+                          <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-teal-50 text-teal-700">
+                            Reviewed {new Date(q.last_reviewed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
+                        )}
                       </div>
 
                       {/* Book + chapter context line */}

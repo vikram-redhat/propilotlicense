@@ -6,11 +6,16 @@ import { Question, Subject, Topic, SourceBook } from '@/lib/types'
 
 interface QuestionFormProps {
   question?: Question & { options?: { option_letter: string; option_text: string; is_correct: boolean }[] }
+  // Embedded mode (admin review cards): no page chrome, and save/cancel call back
+  // instead of navigating to /admin.
+  embedded?: boolean
+  onSaved?: () => void
+  onCancel?: () => void
 }
 
 interface Chapter { id: string; chapter_number: number; chapter_name: string }
 
-export default function QuestionForm({ question }: QuestionFormProps) {
+export default function QuestionForm({ question, embedded = false, onSaved, onCancel }: QuestionFormProps) {
   const router = useRouter()
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
@@ -21,7 +26,7 @@ export default function QuestionForm({ question }: QuestionFormProps) {
   const [subjectId, setSubjectId] = useState(question?.subject_id || '')
   const [topicId, setTopicId] = useState(question?.topic_id || '')
   const [sourceBookId, setSourceBookId] = useState(question?.source_book_id || '')
-  const [chapterId, setChapterId] = useState('')
+  const [chapterId, setChapterId] = useState(question?.chapter_id || '')
   const [difficulty, setDifficulty] = useState<'basic' | 'advanced'>(question?.difficulty || 'basic')
   const [questionText, setQuestionText] = useState(question?.question_text || '')
   const [options, setOptions] = useState<Record<'A' | 'B' | 'C' | 'D', string>>({
@@ -79,6 +84,7 @@ export default function QuestionForm({ question }: QuestionFormProps) {
       subject_id: subjectId,
       topic_id: sourceBookId ? null : (topicId || null),
       source_book_id: sourceBookId || null,
+      chapter_id: sourceBookId ? (chapterId || null) : null,
       question_text: questionText.trim(),
       difficulty,
       explanation: explanation.trim() || null,
@@ -125,14 +131,17 @@ export default function QuestionForm({ question }: QuestionFormProps) {
     }
 
     setSaving(false)
-    router.push('/admin')
+    if (onSaved) onSaved()
+    else router.push('/admin')
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-5">
-      <h1 className="text-xl font-bold text-slate-800">
-        {question ? 'Edit Question' : 'New Question'}
-      </h1>
+    <div className={embedded ? 'space-y-5' : 'max-w-3xl mx-auto px-4 py-8 space-y-5'}>
+      {!embedded && (
+        <h1 className="text-xl font-bold text-slate-800">
+          {question ? 'Edit Question' : 'New Question'}
+        </h1>
+      )}
 
       {/* 1. Subject */}
       <div>
@@ -314,7 +323,7 @@ export default function QuestionForm({ question }: QuestionFormProps) {
           {saving ? 'Saving…' : 'Save Question'}
         </button>
         <button
-          onClick={() => router.push('/admin')}
+          onClick={() => (onCancel ? onCancel() : router.push('/admin'))}
           className="px-6 py-2.5 rounded-xl font-semibold text-slate-600 text-sm border border-slate-200 hover:border-slate-300"
         >
           Cancel
