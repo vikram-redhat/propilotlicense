@@ -108,6 +108,22 @@ export default function QuestionForm({ question }: QuestionFormProps) {
       await supabase.from('question_options').insert(optRows)
     }
 
+    // A flagged question whose content was actually edited counts as corrected: clear the
+    // flag and thank the student(s) who reported it. Saving without changes keeps the flag.
+    if (question?.id && question.flagged) {
+      const original = question.options ?? []
+      const contentChanged =
+        questionText.trim() !== (question.question_text ?? '').trim() ||
+        (explanation.trim() || null) !== (question.explanation || null) ||
+        (['A', 'B', 'C', 'D'] as const).some(l => {
+          const o = original.find(x => x.option_letter === l)
+          return options[l] !== (o?.option_text ?? '') || (l === correctAnswer) !== !!o?.is_correct
+        })
+      if (contentChanged) {
+        await fetch(`/api/admin/questions/${question.id}/resolve-flags`, { method: 'POST' })
+      }
+    }
+
     setSaving(false)
     router.push('/admin')
   }

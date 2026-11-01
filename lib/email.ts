@@ -93,3 +93,70 @@ export async function sendWelcomeEmail({ to, name }: { to: string; name: string 
   }
   return true
 }
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+function flagResolvedHtml(firstName: string, questionText: string): string {
+  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : 'Hi there,'
+  return `<!doctype html>
+<html>
+<body style="margin:0;padding:0;background:${SURFACE};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:${INK};">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${SURFACE};padding:32px 16px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid ${BORDER};border-radius:14px;overflow:hidden;">
+        <tr><td style="background:${BRAND};padding:22px 28px;">
+          <span style="color:#ffffff;font-size:18px;font-weight:700;letter-spacing:-0.2px;">ProPilotLicence</span>
+        </td></tr>
+        <tr><td style="padding:28px;">
+          <p style="margin:0 0 14px;font-size:16px;line-height:1.6;color:${INK};">${greeting}</p>
+          <p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:${INK_MED};">
+            Thank you for flagging a question on ProPilotLicence. Our team has reviewed it and the question has now been corrected.
+          </p>
+          <div style="margin:0 0 18px;padding:14px 16px;background:${SURFACE};border:1px solid ${BORDER};border-left:3px solid ${BRAND};border-radius:0 8px 8px 0;font-size:14px;line-height:1.6;color:${INK};">
+            ${escapeHtml(questionText)}
+          </div>
+          <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:${INK_MED};">
+            Reports like yours keep the question bank accurate for every student preparing for their DGCA exams. If you spot anything else that looks wrong, please keep flagging it.
+          </p>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 8px;">
+            <tr><td style="background:${BRAND};border-radius:8px;">
+              <a href="${SITE}" style="display:inline-block;padding:12px 26px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">Continue practising →</a>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:18px 28px;border-top:1px solid ${BORDER};">
+          <p style="margin:0;font-size:12px;line-height:1.6;color:#8a8f9c;">
+            You're receiving this because you flagged this question while practising. This is a one-off notification — you are not on a mailing list.
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+}
+
+// Best-effort "your flagged question has been corrected" notice to the student who flagged it.
+export async function sendFlagResolvedEmail({ to, name, questionText }: { to: string; name: string | null; questionText: string }): Promise<boolean> {
+  const resend = client()
+  if (!resend) {
+    console.warn('[email] RESEND_API_KEY not set — skipping flag-resolved email')
+    return false
+  }
+  // profiles.full_name was backfilled to the email address for older accounts — don't greet with that
+  const first = (name ?? '').trim().split(/\s+/)[0] ?? ''
+  const firstName = first.includes('@') ? '' : first
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject: 'Thank you — the question you flagged has been corrected',
+    html: flagResolvedHtml(firstName, questionText),
+  })
+  if (error) {
+    console.error('[email] flag-resolved send failed:', error)
+    return false
+  }
+  return true
+}
