@@ -107,7 +107,7 @@ export default function ReviewPage() {
           <div>
             <h1 className="text-xl font-bold text-slate-800">Review Questions</h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              Batches of 20 — never-reviewed questions first, then the ones reviewed longest ago.
+              Batches of 20 — never-reviewed questions first (the ones students get wrong most at the top), then the ones reviewed longest ago.
             </p>
           </div>
           {!notice && (

@@ -39,16 +39,42 @@ export async function GET(request: Request) {
     return q
   }
 
-  let batchQuery = applyFilters(
-    supabase
-      .from('questions')
-      .select('*, options:question_options(option_letter,option_text,is_correct), subject:subjects(name,code), topic:topics(name), source_book:source_books(title,author), chapter:chapters(chapter_number,chapter_name)')
-  )
-  if (exclude.length) batchQuery = batchQuery.not('id', 'in', `(${exclude.join(',')})`)
-  const { data: rows, error } = await batchQuery
-    .order('last_reviewed_at', { ascending: true, nullsFirst: true })
-    .order('created_at', { ascending: true })
-    .limit(BATCH_SIZE)
+  const BATCH_SELECT = '*, options:question_options(option_letter,option_text,is_correct), subject:subjects(name,code), topic:topics(name), source_book:source_books(title,author), chapter:chapters(chapter_number,chapter_name)'
+
+  // Batch order comes from the review_batch RPC (scripts/migrate_review_order.sql), which
+  // ranks never-reviewed questions by how often students get them wrong — stats need to
+  // be computed before the limit, so it can't be done with PostgREST ordering.
+  let rows: BatchRow[] | null = null
+  let error: { code?: string; message: string } | null = null
+  const { data: ranked, error: rpcError } = await supabase.rpc('review_batch', {
+    p_subject: subject || null,
+    p_book:    book || null,
+    p_chapter: chapter || null,
+    p_status:  status,
+    p_exclude: exclude,
+    p_limit:   BATCH_SIZE,
+  })
+
+  if (!rpcError) {
+    const order = new Map((ranked as { id: string }[]).map((r, i) => [r.id, i]))
+    const res = order.size
+      ? await supabase.from('questions').select(BATCH_SELECT).in('id', [...order.keys()])
+      : { data: [], error: null }
+    rows = ((res.data ?? []) as BatchRow[]).sort((a, b) => order.get(a.id)! - order.get(b.id)!)
+    error = res.error
+  } else if (rpcError.code === 'PGRST202') {
+    // Function not created yet — fall back to plain least-recently-reviewed ordering.
+    let batchQuery = applyFilters(supabase.from('questions').select(BATCH_SELECT))
+    if (exclude.length) batchQuery = batchQuery.not('id', 'in', `(${exclude.join(',')})`)
+    const res = await batchQuery
+      .order('last_reviewed_at', { ascending: true, nullsFirst: true })
+      .order('created_at', { ascending: true })
+      .limit(BATCH_SIZE)
+    rows = res.data
+    error = res.error
+  } else {
+    error = rpcError
+  }
 
   if (error) {
     // 42703 = undefined column: the review migration hasn't been run yet.
