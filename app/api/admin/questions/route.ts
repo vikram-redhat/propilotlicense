@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   let query = supabase
     .from('questions')
     .select(
-      '*, subject:subjects(name,code), topic:topics(name), source_book:source_books(title,author), chapter:chapters(chapter_number,chapter_name)',
+      '*, subject:subjects(name,code), topic:topics(name), source_book:source_books(title,author), chapter:chapters!chapter_id(chapter_number,chapter_name)',
       { count: 'exact' }
     )
     .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)

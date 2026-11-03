@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     return q
   }
 
-  const BATCH_SELECT = '*, options:question_options(option_letter,option_text,is_correct), subject:subjects(name,code), topic:topics(name), source_book:source_books(title,author), chapter:chapters(chapter_number,chapter_name)'
+  const BATCH_SELECT = '*, options:question_options(option_letter,option_text,is_correct), subject:subjects(name,code), topic:topics(name), source_book:source_books(title,author), chapter:chapters!chapter_id(chapter_number,chapter_name)'
 
   // Batch order comes from the review_batch RPC (scripts/migrate_review_order.sql), which
   // ranks never-reviewed questions by how often students get them wrong — stats need to
