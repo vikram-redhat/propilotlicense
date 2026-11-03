@@ -1,0 +1,983 @@
+[
+ {
+  "id": "00d7d343-7b96-4779-af93-009fc5a0d11c",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "1c35fb79-2900-4d72-96b8-f0b9c0fb6363",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "102fa6f0-c7f3-42fd-9e14-31cd885f01b8",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "0eaf342f-6508-4568-81f7-a9af15422f16",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 1: Atmosphere",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a3e8ea8c-d853-4bfb-bb18-cbd9d4e2073a",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "07760eac-2d87-4c0b-bb34-aa57b23663b5",
+  "chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "source_chapter": "Chapter 5: Humidity",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "07c701c5-58f6-4bb0-953b-ec5a6e310b13",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "08cc00c1-b56c-49f6-910d-92f7feb55c5b",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "32eeb366-8cca-4301-9de5-ffe96f1b62a6",
+  "chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "source_chapter": "Chapter 5: Humidity",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "0e2f05ff-c617-4584-b385-b5ef37502091",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a502b5a0-7f77-4045-a5ae-71161a27a48b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "0f938be0-36bf-4693-ac5a-20e939cc426a",
+  "chapter_id": "1c35fb79-2900-4d72-96b8-f0b9c0fb6363",
+  "source_chapter": "Chapter 14: Air Masses and Western Disturbances",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "0c22ed45-965e-404e-b44f-bf96130f69b0",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a3e8ea8c-d853-4bfb-bb18-cbd9d4e2073a",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "18638675-900b-4f24-90a9-af7f9f054075",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "4f5f2b2e-b9cb-4f26-bce9-a2f2f2588dcb",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "13c2b529-1cc0-4ada-9493-eb9efa07a832",
+  "chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "source_chapter": "Chapter 2: Atmospheric Pressure",
+  "citation_verified": false,
+  "syllabus_chapter_id": "97b094f9-46c8-49f9-84bd-f31c456d099e",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "1d2f092d-1daf-44a2-a2ff-2386e92ef24b",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "23d58276-df75-450e-89ae-c361bc8be7b4",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "3a0e1d04-ffb6-4c6b-b687-3badcfc44ffc",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "2fb03735-65b0-472c-8bed-808df5c5be34",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "2a6b0b03-8c10-41fa-84ae-ba6554e93043",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "2b196f5e-2560-4527-bd97-9e42c1e53905",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a3e8ea8c-d853-4bfb-bb18-cbd9d4e2073a",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "348704ea-06cf-492a-8c0b-c5962b5dfd15",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "59e40011-a02d-45f3-8355-b518c8df12ae",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "39e1afc0-84cc-40b6-b761-061a9c305e63",
+  "chapter_id": "bd5adcfe-81c9-4c74-9344-da13d70a8e21",
+  "source_chapter": "Chapter 8: Clouds",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a502b5a0-7f77-4045-a5ae-71161a27a48b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "3f715826-a3f2-4460-b296-8afd8b6530e7",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "4b626a50-8009-467a-982d-1da2310e7a8b",
+  "chapter_id": "bd5adcfe-81c9-4c74-9344-da13d70a8e21",
+  "source_chapter": "Chapter 8: Clouds",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a502b5a0-7f77-4045-a5ae-71161a27a48b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "95cde67c-7502-4696-8339-5dc3033dc598",
+  "chapter_id": "bd5adcfe-81c9-4c74-9344-da13d70a8e21",
+  "source_chapter": "Chapter 8: Clouds",
+  "citation_verified": false,
+  "syllabus_chapter_id": "fa0e98d9-a8a0-48e4-92ba-4790f8c74ff7",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "40eb6aba-4041-40b7-aa06-4748862da5fe",
+  "chapter_id": "bd5adcfe-81c9-4c74-9344-da13d70a8e21",
+  "source_chapter": "Chapter 8: Clouds",
+  "citation_verified": false,
+  "syllabus_chapter_id": "e0c05413-ffaa-4b12-ba5d-f473db7690e8",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "474da5bc-fa69-4f2e-b92c-cf95e0c86d16",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "47d3c369-969e-4f12-ad1d-5a1ffe9baa6f",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 1: Atmosphere",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "4b20a0d8-4edb-4da5-bf58-15e14e43370d",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 1: Atmosphere",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "619f8cbe-578e-433f-ae21-64f6487809fe",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "591b9677-6fd6-4ad8-9747-2e82a5cc7421",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "74d3ed57-8382-4f49-b831-d7a567f895ef",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "6813c597-ca87-48f7-b310-00bc00ecdb30",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 1: Atmosphere",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "6a1f768c-e8ba-47b8-81cc-0f6b37a325cf",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "76dafc07-5e48-4887-9a79-658908a281ae",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "59e40011-a02d-45f3-8355-b518c8df12ae",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "73033c14-7750-4bef-9703-be7b279d036a",
+  "chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "source_chapter": "Chapter 5: Humidity",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "e7b8b366-1ef9-4625-a750-d0da5178d234",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "8a71bcb4-f82d-499b-8744-4ab5859b790e",
+  "chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "source_chapter": "Chapter 5: Humidity",
+  "citation_verified": false,
+  "syllabus_chapter_id": "59e40011-a02d-45f3-8355-b518c8df12ae",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "91a8436a-56dc-4476-bb0b-065a3d1d64b1",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "93f3911a-9cf3-4cb7-90b0-5090e3c5f720",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "bdb5efca-5a7a-494f-87d5-7db0fb37a462",
+  "chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "source_chapter": "Chapter 5: Humidity",
+  "citation_verified": false,
+  "syllabus_chapter_id": "4f5f2b2e-b9cb-4f26-bce9-a2f2f2588dcb",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "dd7ee351-5684-48db-82ef-916e3e2a6325",
+  "chapter_id": "8f702833-f90d-4aee-b59e-fc1a0a3e7335",
+  "source_chapter": "Chapter 11: Precipitation",
+  "citation_verified": false,
+  "syllabus_chapter_id": "4f5f2b2e-b9cb-4f26-bce9-a2f2f2588dcb",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "f1ef370e-d154-4f75-87c6-aa7819e970d2",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "fcf1e16d-d1be-4aaa-b175-dba1b487ca20",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "55527b80-ec7e-40c5-a1d1-ff923b9dac85",
+  "chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "source_chapter": "Chapter 2: Atmospheric Pressure",
+  "citation_verified": false,
+  "syllabus_chapter_id": "59e40011-a02d-45f3-8355-b518c8df12ae",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "1b17cca4-a8c6-4abc-923e-8eb190541b8c",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a502b5a0-7f77-4045-a5ae-71161a27a48b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "62e69643-6100-43b6-b45e-aefb6d0c0d54",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "1c35fb79-2900-4d72-96b8-f0b9c0fb6363",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "8be7a2fe-b1ad-4696-b3c7-2dd45475e152",
+  "chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "source_chapter": "Chapter 5: Humidity",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "44980f0c-ad96-420f-bd9c-76c0144af751",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "d1d82fc3-b622-4385-aeb1-1beda4f617fe",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "096fe48e-05dc-48a1-88f4-0faadcb2914d",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "59e40011-a02d-45f3-8355-b518c8df12ae",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "1c8e6702-4909-4e6c-9415-3fc4d19978f9",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "300872b6-8159-4191-8e13-3470c9b7003a",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "900594c9-263e-4efa-a753-a57b58864f15",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "ffcd45bc-7b90-47f4-813b-670a7f83b76a",
+  "chapter_id": "bd5adcfe-81c9-4c74-9344-da13d70a8e21",
+  "source_chapter": "Chapter 8: Clouds",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a3e8ea8c-d853-4bfb-bb18-cbd9d4e2073a",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "30b1a584-e099-45c2-936b-31bdaa0369f0",
+  "chapter_id": "8f702833-f90d-4aee-b59e-fc1a0a3e7335",
+  "source_chapter": "Chapter 11: Precipitation",
+  "citation_verified": false,
+  "syllabus_chapter_id": "4f5f2b2e-b9cb-4f26-bce9-a2f2f2588dcb",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "481e6ebf-7a70-4bed-bdc2-05251352a7ec",
+  "chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "source_chapter": "Chapter 5: Humidity",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "50b5910e-31ca-4a5a-ab5a-9a2d3a9975de",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "2fb03735-65b0-472c-8bed-808df5c5be34",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "97cc2b10-32f8-4ce9-b420-f2a3f484f716",
+  "chapter_id": "1c35fb79-2900-4d72-96b8-f0b9c0fb6363",
+  "source_chapter": "Chapter 14: Air Masses and Western Disturbances",
+  "citation_verified": false,
+  "syllabus_chapter_id": "8f702833-f90d-4aee-b59e-fc1a0a3e7335",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "5dcc67fd-53fa-4405-8948-580ab6c573a9",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "2fb03735-65b0-472c-8bed-808df5c5be34",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "c762b757-4a52-4d55-9908-b18d426dae81",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a502b5a0-7f77-4045-a5ae-71161a27a48b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "e39be94d-66ee-4e41-8cf7-b79010af43a2",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "4f5f2b2e-b9cb-4f26-bce9-a2f2f2588dcb",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "e95b793c-f5b0-4b13-9d8e-bbadde6a77c7",
+  "chapter_id": "1c35fb79-2900-4d72-96b8-f0b9c0fb6363",
+  "source_chapter": "Chapter 14: Air Masses and Western Disturbances",
+  "citation_verified": false,
+  "syllabus_chapter_id": "8f702833-f90d-4aee-b59e-fc1a0a3e7335",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "fb4cc73c-0eaa-4a71-8be9-3ee03f547c60",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "1c35fb79-2900-4d72-96b8-f0b9c0fb6363",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "242d5a60-2612-4405-a338-048b6e9aedbd",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "1c35fb79-2900-4d72-96b8-f0b9c0fb6363",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "53b6d591-0180-44d0-a304-cfe7d3506514",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "4f5f2b2e-b9cb-4f26-bce9-a2f2f2588dcb",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "6c20c728-b607-43d7-9102-8e84bab66153",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "4f5f2b2e-b9cb-4f26-bce9-a2f2f2588dcb",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "7483cc0d-045f-453b-8b28-b81f2de712dc",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "cac521a2-fbbd-4c28-b234-b22400a31c57",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "fa89d188-77b1-4458-8c53-e929f87fbd47",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "4f5f2b2e-b9cb-4f26-bce9-a2f2f2588dcb",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "32ff35d8-be78-447f-903b-ed521110819c",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "ff395749-983b-4ec9-8ff5-38ca36b6221b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "6493d13d-dfe6-408a-8bb6-01406f302ab7",
+  "chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "source_chapter": "Chapter 2: Atmospheric Pressure",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "9a1178ab-8b80-4ad0-ab3e-7d2fc64257f9",
+  "chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "source_chapter": "Chapter 2: Atmospheric Pressure",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "d2e7559c-a4c6-4eac-a898-9f279c5f88c4",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "2fb03735-65b0-472c-8bed-808df5c5be34",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "f93ea80f-b077-4063-a5ab-cbbe4f1c8f1a",
+  "chapter_id": "62fc0128-fab6-46b9-b646-5f6d9a0d6e5f",
+  "source_chapter": "Chapter 7: Visibility and Fog",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a502b5a0-7f77-4045-a5ae-71161a27a48b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "5ed9c5a3-7f06-481d-8d9b-be6913d6d7a0",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "9cba5937-0fe8-4c9d-ad09-5975cb61ffe0",
+  "chapter_id": "97b094f9-46c8-49f9-84bd-f31c456d099e",
+  "source_chapter": "Chapter 6: Winds",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "db512f99-92cd-414c-b99d-704e0b30dec7",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "e5410225-bfff-4855-b14b-40f067e5a35d",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "e8838059-15b8-4393-972d-5f19a7cb942a",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "eb089749-2b0c-4f30-b0fb-4f852a0ae5eb",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 1: Atmosphere",
+  "citation_verified": false,
+  "syllabus_chapter_id": "59e40011-a02d-45f3-8355-b518c8df12ae",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "5aab0fd5-2e6d-4505-bf2f-51929cdcd3c8",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "dba7f28e-9b3c-4a7d-866b-8e1f86077ccc",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "6ffd0054-144c-493c-9b1a-fab0621533d8",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "9d077ec5-236a-45cf-b313-f7269cc9731d",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 1: Atmosphere",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a3e8ea8c-d853-4bfb-bb18-cbd9d4e2073a",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "f7da6ccb-74c9-4fbb-8ce5-d19ef92f8efc",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 1: Atmosphere",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "790251e0-50c9-4970-90dc-3aa96d55f141",
+  "chapter_id": "97b094f9-46c8-49f9-84bd-f31c456d099e",
+  "source_chapter": "Chapter 6: Winds",
+  "citation_verified": false,
+  "syllabus_chapter_id": "202e6a19-50b4-4ba0-b3ca-d99dae4e5d49",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "c444d05a-1598-4c9a-97a8-ba2683b87f3b",
+  "chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "source_chapter": "Chapter 5: Humidity",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "9c9a6aec-81a8-4039-8dd0-b102569c6b3e",
+  "chapter_id": "bd5adcfe-81c9-4c74-9344-da13d70a8e21",
+  "source_chapter": "Chapter 8: Clouds",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a502b5a0-7f77-4045-a5ae-71161a27a48b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "d5af2021-4dd3-406e-8fff-e906cdf4e361",
+  "chapter_id": "8f702833-f90d-4aee-b59e-fc1a0a3e7335",
+  "source_chapter": "Chapter 11: Precipitation",
+  "citation_verified": false,
+  "syllabus_chapter_id": "bd5adcfe-81c9-4c74-9344-da13d70a8e21",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "4ce0e564-7cff-4b6d-ac8f-2974e543c2a5",
+  "chapter_id": "8f702833-f90d-4aee-b59e-fc1a0a3e7335",
+  "source_chapter": "Chapter 11: Precipitation",
+  "citation_verified": false,
+  "syllabus_chapter_id": "4f5f2b2e-b9cb-4f26-bce9-a2f2f2588dcb",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "86fcb843-e609-43c8-a2c1-b5ce43ea11e7",
+  "chapter_id": "8f702833-f90d-4aee-b59e-fc1a0a3e7335",
+  "source_chapter": "Chapter 11: Precipitation",
+  "citation_verified": false,
+  "syllabus_chapter_id": "bd5adcfe-81c9-4c74-9344-da13d70a8e21",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "a6623d61-b09c-4f0c-ac76-1d645d2d672e",
+  "chapter_id": "bd5adcfe-81c9-4c74-9344-da13d70a8e21",
+  "source_chapter": "Chapter 8: Clouds",
+  "citation_verified": false,
+  "syllabus_chapter_id": "97b094f9-46c8-49f9-84bd-f31c456d099e",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "15563801-fea1-40e6-9549-500f5cf91b9f",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "26e62391-cc22-4d00-9b16-1db1842d989f",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "4382fa8f-7613-425d-bb39-9013dad108a4",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "59e40011-a02d-45f3-8355-b518c8df12ae",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "686923f7-dcc9-4f29-aac2-4f7e3950a4b0",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "59e40011-a02d-45f3-8355-b518c8df12ae",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "90dc1a21-9e4c-4e77-90bf-c5126bc7d4c2",
+  "chapter_id": "1c35fb79-2900-4d72-96b8-f0b9c0fb6363",
+  "source_chapter": "Chapter 14: Air Masses and Western Disturbances",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "5e2d94b7-0e4e-4d80-a2f1-58607deb9817",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "59e40011-a02d-45f3-8355-b518c8df12ae",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "658cbb25-2dcb-48a6-aeb8-a34facdf6473",
+  "chapter_id": "1c35fb79-2900-4d72-96b8-f0b9c0fb6363",
+  "source_chapter": "Chapter 14: Air Masses and Western Disturbances",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "b9b916e3-7ba9-4133-acf9-2d86dc170e71",
+  "chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "source_chapter": "Chapter 5: Humidity",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "d4e445f2-11df-45c4-b943-e5cab708fe7f",
+  "chapter_id": "53a330f5-fac0-4aa5-8a45-9945c81bd255",
+  "source_chapter": "Chapter 5: Humidity",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "c951eb5f-cc9f-4324-a10b-8e572861b0b7",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 1: Atmosphere",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "d85ec611-4857-41a6-8740-d89515533191",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "ed55b887-4fbd-47fc-8c38-09b5b3a01b0c",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "fdea08ef-a7e6-4ab8-8212-c42de5030dd7",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 1: Atmosphere",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "9ede0ed8-8415-4c61-a9e8-57020e8bba53",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "e420940a-7bf9-4ab7-a055-f940c8a2590f",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "7d5e8def-1223-468d-b7ea-9aafbd1c167c",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "b33f6b3f-69b8-4b05-a76d-a4dc29bd98f6",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "dbd954b6-bbe2-41f7-aefb-347116cb9366",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "97b094f9-46c8-49f9-84bd-f31c456d099e",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "551e02e5-1b2e-4f13-ab76-7cf7d2e13ccf",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "9a5ad430-5766-4adc-9b13-363b1537fc76",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "868eb8b6-4c4b-4c91-996c-257c34174f76",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "962f5eae-fa5e-43d3-8611-dab6c709eecd",
+  "chapter_id": "a546596a-d4ea-4921-9527-30428ff3d5d9",
+  "source_chapter": "Chapter 3: Temperature",
+  "citation_verified": false,
+  "syllabus_chapter_id": "08df6da8-2853-42ee-b0a0-93f1ee1a41fc",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ }
+]

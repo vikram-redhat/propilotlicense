@@ -18,6 +18,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const [chapters, setChapters] = useState<Record<string, { chapter_number: number; chapter_name: string }>>({})
   const [subjectName, setSubjectName] = useState('')
   const [topicName, setTopicName] = useState('')
+  const [bookChapterName, setBookChapterName] = useState('')
   const [subjectMap, setSubjectMap] = useState<Record<string, string>>({})
   const [codeMap, setCodeMap] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
@@ -49,6 +50,16 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
       if (sess.scope === 'topic' && sess.topic_id) {
         const { data: topic } = await supabase.from('topics').select('name').eq('id', sess.topic_id).single()
         topicDisplayName = topic?.name || ''
+      }
+
+      // e.g. "IC Joshi · Ch 13 Thunderstorm"
+      let bookChapterDisplayName = ''
+      if (sess.scope === 'book_chapter' && sess.source_book_id && sess.chapter_id) {
+        const [{ data: bk }, { data: ch }] = await Promise.all([
+          supabase.from('source_books').select('title, author').eq('id', sess.source_book_id).single(),
+          supabase.from('chapters').select('chapter_number, chapter_name').eq('id', sess.chapter_id).single(),
+        ])
+        if (bk && ch) bookChapterDisplayName = `${bk.author || bk.title} · Ch ${ch.chapter_number} ${ch.chapter_name}`
       }
 
       if (qs) {
@@ -102,6 +113,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
 
       setSubjectName(sub?.name || '')
       setTopicName(topicDisplayName)
+      setBookChapterName(bookChapterDisplayName)
       setLoading(false)
     }
     load()
@@ -141,6 +153,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
     session.scope === 'book' && session.source_book_id && books[session.source_book_id]
       ? books[session.source_book_id].title :
     session.scope === 'topic' && topicName ? topicName :
+    session.scope === 'book_chapter' && bookChapterName ? bookChapterName :
     'Combined Paper'
 
   const backHref =

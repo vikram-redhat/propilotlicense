@@ -11,3 +11,10 @@ export const SYLLABUS_BOOK_IDS: ReadonlySet<string> = new Set([
 export function isSyllabusBook(bookId: string | null | undefined): boolean {
   return !!bookId && SYLLABUS_BOOK_IDS.has(bookId)
 }
+
+// Which questions column chapter practice filters on for a book. Shared by
+// /api/session/start (the pool) and /api/session/chapter-counts (the picker's counts)
+// so the two always agree.
+export function chapterColumnFor(bookId: string | null | undefined): 'syllabus_chapter_id' | 'chapter_id' {
+  return isSyllabusBook(bookId) ? 'syllabus_chapter_id' : 'chapter_id'
+}

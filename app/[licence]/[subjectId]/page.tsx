@@ -87,6 +87,9 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const [showUpgrade, setShowUpgrade] = useState(false)
 
   const [chapters, setChapters]               = useState<{ id: string; chapter_number: number; chapter_name: string }[]>([])
+  // Questions per chapter as practice would draw them; null until loaded (or if it fails,
+  // in which case every chapter stays listed without a count).
+  const [loadedCounts, setLoadedCounts]       = useState<{ bookId: string; counts: Record<string, number> } | null>(null)
   const [scope, setScope]                     = useState<Scope>('combined')
   const [selectedTopicId, setSelectedTopicId] = useState('')
   const [selectedBookId, setSelectedBookId]   = useState('')
@@ -140,7 +143,17 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
     if (!selectedBookId) { setChapters([]); setSelectedChapterId(''); return }
     supabase.from('chapters').select('id, chapter_number, chapter_name').eq('book_id', selectedBookId).order('sort_order')
       .then(({ data }) => setChapters(data || []))
-  }, [selectedBookId])
+    let cancelled = false
+    fetch(`/api/session/chapter-counts?subjectId=${subjectId}&bookId=${selectedBookId}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (!cancelled && data?.counts) setLoadedCounts({ bookId: selectedBookId, counts: data.counts }) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [selectedBookId, subjectId])
+
+  const chapterCounts = loadedCounts?.bookId === selectedBookId ? loadedCounts.counts : null
+  // Chapters with no questions are hidden once counts are known.
+  const visibleChapters = chapterCounts ? chapters.filter(c => (chapterCounts[c.id] ?? 0) > 0) : chapters
 
   const effectiveScope: Scope = scope === 'book' && selectedChapterId ? 'book_chapter' : scope
   const canStart = scope === 'topic' ? !!selectedTopicId : scope === 'book' ? !!selectedBookId : true
@@ -329,7 +342,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                             </select>
                             <svg style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="var(--clr-text-med)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           </div>
-                          {selectedBookId && chapters.length > 0 && (
+                          {selectedBookId && visibleChapters.length > 0 && (
                             <div style={{ marginTop: 8, position: 'relative' }}>
                               <select
                                 value={selectedChapterId}
@@ -337,7 +350,11 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                                 style={{ width: '100%', padding: '10px 36px 10px 12px', borderRadius: 9, border: '1px solid var(--clr-border)', background: 'var(--clr-surface)', fontSize: 13.5, color: 'var(--clr-text)', cursor: 'pointer', outline: 'none', appearance: 'none' }}
                               >
                                 <option value="">All chapters</option>
-                                {chapters.map(c => <option key={c.id} value={c.id}>Ch. {c.chapter_number} — {c.chapter_name}</option>)}
+                                {visibleChapters.map(c => (
+                                  <option key={c.id} value={c.id}>
+                                    Ch. {c.chapter_number} — {c.chapter_name}{chapterCounts ? ` (${chapterCounts[c.id]} question${chapterCounts[c.id] === 1 ? '' : 's'})` : ''}
+                                  </option>
+                                ))}
                               </select>
                               <svg style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="var(--clr-text-med)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             </div>

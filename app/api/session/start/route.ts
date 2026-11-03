@@ -2,7 +2,7 @@ import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
 import { isSubscribed } from '@/lib/subscription'
 import { isVisibleForCountry } from '@/lib/countries'
-import { isSyllabusBook } from '@/lib/syllabus'
+import { chapterColumnFor } from '@/lib/syllabus'
 
 const weights = {
   all:      { basic: 1,   advanced: 1   },
@@ -193,7 +193,7 @@ export async function POST(req: Request) {
 
   // A chapter of a syllabus book (IC Joshi) draws every question on that syllabus topic,
   // whichever book it cites; each still shows its own citation in the session.
-  const bySyllabus = scope === 'book_chapter' && !!chapterId && isSyllabusBook(sourceBookId)
+  const bySyllabus = scope === 'book_chapter' && !!chapterId && chapterColumnFor(sourceBookId) === 'syllabus_chapter_id'
 
   const buildQuery = (useSyllabus: boolean) => {
     let query = supabase
