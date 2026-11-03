@@ -34,6 +34,13 @@ export interface Chapter {
   chapter_number: number
   chapter_name: string
   sort_order: number
+  // From scripts/migrate_chapter_metadata.sql — absent until it has been run.
+  exam_weight?: 'High' | 'Medium' | 'Low' | null
+  syllabus_topics?: string | null
+  key_subtopics?: string | null
+  page_start?: number | null
+  page_end?: number | null
+  verified_at?: string | null
 }
 
 export interface SourceBook {
