@@ -13,6 +13,15 @@
 // syllabus_classification_full.jsonl and skipped on the next run; the database write is
 // also guarded to fill only empty syllabus_chapter_id, so nothing is overwritten.
 //
+//   node --env-file=.env.local scripts/classify-syllabus-chapters.mjs --apply-seed-overrides
+//
+// --apply-seed-overrides (after --full): where a seeded IC Joshi question's classifier
+// result disagrees with HIGH confidence, switch it to the classifier's chapter (source
+// 'ai', confidence 'high') — the seeds came from the old, unreliable labels (decision
+// 2026-11-03). Medium/low disagreements keep the seed. Guarded to rows still holding
+// the seeded value, so a reviewed change is never overwritten. Every disagreement stays
+// listed in syllabus_seed_disagreements.csv, with an `applied` column.
+//
 // --pilot: a fixed random sample of 100 active Meteorology questions (all 7 Brief A
 // conflicts, 20 seeded IC Joshi questions, 73 others). Reads the database, writes
 // nothing to it; results go to pilot_syllabus_classification.csv.
@@ -303,16 +312,21 @@ async function writeResults(results, chapters) {
   const toWrite = records.filter(r => !r.seeded_chapter_id)
   for (let i = 0; i < toWrite.length; i += 10) {
     await Promise.all(toWrite.slice(i, i + 10).map(async r => {
-      const { error } = await supabase
-        .from('questions')
-        .update({
-          syllabus_chapter_id: byNumber.get(r.chapter).id,
-          syllabus_chapter_confidence: r.confidence,
-          syllabus_chapter_source: 'ai',
-        })
-        .eq('id', r.id)
-        .is('syllabus_chapter_id', null)
-      if (error) throw new Error(`Update ${r.id}: ${error.message}`)
+      // Retry transient network failures ("fetch failed"); the update is idempotent.
+      for (let attempt = 1; ; attempt++) {
+        const { error } = await supabase
+          .from('questions')
+          .update({
+            syllabus_chapter_id: byNumber.get(r.chapter).id,
+            syllabus_chapter_confidence: r.confidence,
+            syllabus_chapter_source: 'ai',
+          })
+          .eq('id', r.id)
+          .is('syllabus_chapter_id', null)
+        if (!error) return
+        if (attempt >= 4) throw new Error(`Update ${r.id}: ${error.message}`)
+        await new Promise(res => setTimeout(res, 1000 * 2 ** attempt))
+      }
     }))
   }
   fs.appendFileSync(CHECKPOINT, records.map(r => JSON.stringify(r)).join('\n') + '\n')
@@ -360,12 +374,49 @@ async function fullRun(chapters, questions) {
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 const mode = process.argv[2]
-if (mode !== '--pilot' && mode !== '--full') {
-  console.error('Usage: node --env-file=.env.local scripts/classify-syllabus-chapters.mjs --pilot | --full')
+if (!['--pilot', '--full', '--apply-seed-overrides'].includes(mode)) {
+  console.error('Usage: node --env-file=.env.local scripts/classify-syllabus-chapters.mjs --pilot | --full | --apply-seed-overrides')
   process.exit(1)
 }
 
 const chapters = await loadChapters()
+
+if (mode === '--apply-seed-overrides') {
+  const byId = new Map(chapters.map(c => [c.id, c]))
+  const byNumber = new Map(chapters.map(c => [c.chapter_number, c]))
+  const disagreements = [...readCheckpoint().values()]
+    .filter(r => r.seeded_chapter_id && byId.get(r.seeded_chapter_id).chapter_number !== r.chapter)
+  let applied = 0
+  const rows = []
+  for (const r of disagreements) {
+    let done = false
+    if (r.confidence === 'high') {
+      const { data, error } = await supabase
+        .from('questions')
+        .update({ syllabus_chapter_id: byNumber.get(r.chapter).id, syllabus_chapter_source: 'ai', syllabus_chapter_confidence: 'high' })
+        .eq('id', r.id)
+        .eq('syllabus_chapter_source', 'rule')
+        .eq('syllabus_chapter_id', r.seeded_chapter_id)
+        .select('id')
+      if (error) throw new Error(`Update ${r.id}: ${error.message}`)
+      done = data.length === 1
+      if (done) applied++
+    }
+    rows.push({ r, done })
+  }
+  const { data: texts, error } = await supabase.from('questions').select('id, question_text').in('id', disagreements.map(r => r.id))
+  if (error) throw new Error(error.message)
+  const text = new Map(texts.map(t => [t.id, t.question_text]))
+  const header = ['question_id', 'question_text', 'seeded_chapter', 'ai_chapter', 'ai_confidence', 'ai_reason', 'applied']
+  fs.writeFileSync('syllabus_seed_disagreements.csv', [header.join(','), ...rows.map(({ r, done }) => {
+    const seed = byId.get(r.seeded_chapter_id)
+    return [r.id, (text.get(r.id) ?? '').replace(/\s+/g, ' ').slice(0, 120),
+      `${seed.chapter_number} ${seed.chapter_name}`, `${r.chapter} ${byNumber.get(r.chapter).chapter_name}`,
+      r.confidence, r.reason, done ? 'yes — now ai' : 'no — seed kept'].map(csvCell).join(',')
+  })].join('\n') + '\n')
+  console.log(`Disagreements: ${disagreements.length}; high-confidence switched to classifier: ${applied}; seed kept: ${disagreements.length - applied}`)
+  process.exit(0)
+}
 
 if (mode === '--full') {
   const questions = await loadQuestions()
