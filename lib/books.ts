@@ -11,20 +11,8 @@ export const BOOKS = [
     dgcaPrescribed: true,
     description:
       'The primary DGCA-prescribed textbook for the CPL and ATPL Meteorology examination. The only prescribed Indian text that covers Indian climatology, the monsoon system, and subcontinent-specific weather phenomena in the depth the DGCA tests.',
-    chapterBreakdown: [
-      { number: 1, title: 'The Atmosphere', notes: 'Structure of the atmosphere, ISA values, lapse rates. ISA calculations appear in every paper — know the numbers.' },
-      { number: 2, title: 'Temperature', notes: 'Temperature inversions and their role in fog formation are tested frequently.' },
-      { number: 3, title: 'Atmospheric Pressure', notes: 'Altimeter settings (QNH, QFE, QNE) and pressure altitude. These appear in both Meteorology and Navigation papers.' },
-      { number: 4, title: 'Wind', notes: 'Geostrophic wind, wind shear, jet streams. The DGCA tests jet stream characteristics at cruising altitude.' },
-      { number: 5, title: 'Humidity, Clouds and Fog', notes: 'Cloud type identification and fog formation (radiation, advection, steam) are tested frequently.' },
-      { number: 6, title: 'Precipitation', notes: 'Freezing rain and ice pellets are tested specifically for their icing risk implications.' },
-      { number: 7, title: 'Air Masses and Fronts', notes: 'Frontal weather sequences are a staple — expect 2–3 questions on weather before, during, and after a front passage.' },
-      { number: 8, title: 'Thunderstorms', notes: 'The highest-yield topic in the entire Meteorology paper. The DGCA tests this chapter more heavily than any other.' },
-      { number: 9, title: 'Icing', notes: 'Icing questions often combine meteorological conditions with performance implications.' },
-      { number: 10, title: 'Turbulence', notes: 'Clear air turbulence (CAT) associated with jet streams is tested consistently.' },
-      { number: 11, title: 'Indian Climatology', notes: 'The chapter that separates candidates who studied Joshi from those who used international texts only. Expect 3–5 questions per paper.' },
-      { number: 12, title: 'Aviation Weather Reports and Forecasts', notes: 'METAR decoding questions appear in almost every paper. Know the format cold.' },
-    ],
+    // Chapter list is read from the chapters table (Captain Panel verified, 2019 edition).
+    sourceBookId: 'd05dc941-d49b-4fb3-aab8-a1759e518e8b',
     faqs: [
       {
         q: 'Is IC Joshi sufficient for the DGCA CPL Meteorology exam?',
@@ -32,7 +20,7 @@ export const BOOKS = [
       },
       {
         q: 'Which chapters of IC Joshi are most heavily tested in the DGCA exam?',
-        a: 'Based on review by the ProPilotLicence captain panel: Chapter 8 (Thunderstorms) and Chapter 11 (Indian Climatology) are consistently the highest-yield chapters. Chapter 12 (Aviation Weather Reports) is reliable for METAR/TAF decoding questions. Chapter 7 (Air Masses and Fronts) produces consistent questions on frontal sequences.',
+        a: 'Based on review by the ProPilotLicence captain panel: Chapter 13 (Thunderstorm) and Chapter 19 (Climatology India) are consistently the highest-yield chapters. Chapter 25 (Aviation Weather Reports and Codes) is reliable for METAR/TAF decoding questions. Chapter 14 (Air Masses and Western Disturbances) produces consistent questions on frontal sequences.',
       },
       {
         q: 'Can I practise just one chapter of IC Joshi at a time on ProPilotLicence?',
@@ -40,7 +28,7 @@ export const BOOKS = [
       },
       {
         q: 'Is the IC Joshi question bank on ProPilotLicence up to date?',
-        a: 'All questions are reviewed by the ProPilotLicence captain panel for current accuracy against the DGCA syllabus and current edition of the book.',
+        a: 'All questions are reviewed by the ProPilotLicence captain panel for current accuracy against the DGCA syllabus and the 2019 edition of the book.',
       },
     ],
     sampleQuestion: {
@@ -54,8 +42,8 @@ export const BOOKS = [
       correctIndex: 1,
       explanation:
         'During the southwest monsoon (June–September), the Inter-Tropical Convergence Zone (ITCZ) shifts northward over the Indian subcontinent, drawing warm moist air from the Arabian Sea and Bay of Bengal across peninsular India. This northward displacement is the primary driver of the southwest monsoon onset. The ITCZ does not remain stationary — its northward migration is what brings rainfall progressively from Kerala through to northern India.',
-      sourceChapter: 11,
-      sourceChapterTitle: 'Indian Climatology',
+      sourceChapter: 19,
+      sourceChapterTitle: 'Climatology India',
     },
   },
   {

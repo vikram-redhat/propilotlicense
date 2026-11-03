@@ -5,7 +5,39 @@ import SiteFooter from '@/components/SiteFooter'
 import { CourseSchema } from '@/components/schema/CourseSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { BOOKS, getBookBySlug } from '@/lib/books'
+import { BOOKS, getBookBySlug, type Book } from '@/lib/books'
+import { createServiceClient } from '@/lib/supabase'
+
+// Books with a sourceBookId read their chapter list from the database; re-fetch hourly.
+export const revalidate = 3600
+
+type ChapterRow = { number: number; title: string; notes?: string; weight?: string | null }
+
+const WEIGHT_STYLE: Record<string, { color: string; background: string }> = {
+  High:   { color: '#fff',                background: 'var(--clr-primary)' },
+  Medium: { color: 'var(--clr-primary)',  background: 'var(--clr-pri-light)' },
+  Low:    { color: 'var(--clr-text-med)', background: 'var(--clr-surf-alt)' },
+}
+
+// Chapter list + edition. Throws on a database error rather than rendering an empty
+// list: at build that fails the deploy, and on revalidation Next keeps serving the
+// last good page.
+async function loadChapters(book: Book): Promise<{ chapters: ChapterRow[]; edition: string | null }> {
+  if (!('sourceBookId' in book)) {
+    return { chapters: book.chapterBreakdown.map(ch => ({ ...ch })), edition: null }
+  }
+  const supabase = createServiceClient()
+  const [chaptersRes, bookRes] = await Promise.all([
+    supabase.from('chapters').select('*').eq('book_id', book.sourceBookId).order('sort_order'),
+    supabase.from('source_books').select('edition').eq('id', book.sourceBookId).single(),
+  ])
+  if (chaptersRes.error) throw new Error(`Chapters for ${book.slug}: ${chaptersRes.error.message}`)
+  if (!chaptersRes.data?.length) throw new Error(`No chapters found for ${book.slug}`)
+  return {
+    chapters: chaptersRes.data.map(c => ({ number: c.chapter_number, title: c.chapter_name, weight: c.exam_weight ?? null })),
+    edition: bookRes.data?.edition ?? null,
+  }
+}
 
 export function generateStaticParams() {
   return BOOKS.map((b) => ({ book: b.slug }))
@@ -26,6 +58,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
   const { book: slug } = await params
   const book = getBookBySlug(slug)
   if (!book) notFound()
+  const { chapters, edition } = await loadChapters(book)
 
   const url = `https://www.propilotlicence.com/books/${book.slug}`
   const courseDescription = `${book.questionCount.toLocaleString()} practice questions sourced from ${book.title} by ${book.author}, organised by chapter and reviewed by active airline captains.`
@@ -55,7 +88,9 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
           {book.title}
         </h1>
         <div style={{ fontSize: 15, color: 'var(--clr-text-med)', marginBottom: 4 }}>{book.author}</div>
-        <div style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 28 }}>{book.publisher}</div>
+        <div style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 28 }}>
+          {book.publisher}{edition && ` · ${edition} edition`}
+        </div>
 
         <p style={{ fontSize: 16, color: 'var(--clr-text)', lineHeight: 1.7, marginBottom: 36 }}>
           {book.description}
@@ -65,7 +100,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 48 }}>
           {[
             { label: 'Practice questions', value: book.questionCount.toLocaleString() },
-            { label: 'Chapters covered', value: `${book.chapterBreakdown.length}` },
+            { label: 'Chapters covered', value: `${chapters.length}` },
             { label: 'Subject', value: book.subjectTitle },
             { label: 'DGCA prescribed', value: book.dgcaPrescribed ? 'Yes' : 'No' },
           ].map(({ label, value }) => (
@@ -82,12 +117,12 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
             Chapter-by-chapter breakdown
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid var(--clr-border)', borderRadius: 10, overflow: 'hidden' }}>
-            {book.chapterBreakdown.map((ch, i) => (
+            {chapters.map((ch, i) => (
               <div
                 key={ch.number}
                 style={{
                   padding: '16px 20px',
-                  borderBottom: i < book.chapterBreakdown.length - 1 ? '1px solid var(--clr-border)' : 'none',
+                  borderBottom: i < chapters.length - 1 ? '1px solid var(--clr-border)' : 'none',
                   background: 'var(--clr-surface)',
                 }}
               >
@@ -95,10 +130,15 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
                   <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--clr-primary)', background: 'var(--clr-pri-light)', borderRadius: 6, padding: '2px 7px', flexShrink: 0, marginTop: 2 }}>
                     Ch {ch.number}
                   </div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--clr-text)', marginBottom: 4 }}>{ch.title}</div>
-                    <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--clr-text-med)' }}>{ch.notes}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--clr-text)', marginBottom: ch.notes ? 4 : 0 }}>{ch.title}</div>
+                    {ch.notes && <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--clr-text-med)' }}>{ch.notes}</div>}
                   </div>
+                  {ch.weight && WEIGHT_STYLE[ch.weight] && (
+                    <div style={{ fontSize: 11, fontWeight: 600, borderRadius: 999, padding: '2px 9px', flexShrink: 0, marginTop: 2, ...WEIGHT_STYLE[ch.weight] }}>
+                      {ch.weight} weight
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
