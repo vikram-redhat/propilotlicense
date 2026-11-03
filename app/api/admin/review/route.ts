@@ -1,5 +1,6 @@
 import { createServiceClient } from '@/lib/supabase'
 import { isAdminRequest } from '@/lib/admin-auth'
+import { SYLLABUS_BOOK_IDS } from '@/lib/syllabus'
 
 const BATCH_SIZE = 20
 
@@ -23,6 +24,8 @@ export async function GET(request: Request) {
   const chapter = searchParams.get('chapter') || ''
   const status  = searchParams.get('status') || 'published'
   const exclude = (searchParams.get('exclude') || '').split(',').filter(Boolean)
+  const syllabus           = searchParams.get('syllabus') || ''
+  const syllabusConfidence = searchParams.get('syllabusConfidence') || ''
 
   const supabase = createServiceClient()
 
@@ -36,6 +39,8 @@ export async function GET(request: Request) {
     if (status === 'published') q = q.eq('active', true)
     if (status === 'draft')     q = q.eq('active', false)
     if (status === 'flagged')   q = q.eq('flagged', true)
+    if (syllabus)           q = q.eq('syllabus_chapter_id', syllabus)
+    if (syllabusConfidence) q = q.eq('syllabus_chapter_confidence', syllabusConfidence)
     return q
   }
 
@@ -46,6 +51,9 @@ export async function GET(request: Request) {
   // be computed before the limit, so it can't be done with PostgREST ordering.
   let rows: BatchRow[] | null = null
   let error: { code?: string; message: string } | null = null
+  // The syllabus params exist only in the v2 function (scripts/migrate_review_order_v2.sql),
+  // so they're sent only when a syllabus filter is set; without v2 that call returns
+  // PGRST202 and falls back below.
   const { data: ranked, error: rpcError } = await supabase.rpc('review_batch', {
     p_subject: subject || null,
     p_book:    book || null,
@@ -53,6 +61,8 @@ export async function GET(request: Request) {
     p_status:  status,
     p_exclude: exclude,
     p_limit:   BATCH_SIZE,
+    ...(syllabus           ? { p_syllabus_chapter: syllabus } : {}),
+    ...(syllabusConfidence ? { p_syllabus_confidence: syllabusConfidence } : {}),
   })
 
   if (!rpcError) {
@@ -91,12 +101,18 @@ export async function GET(request: Request) {
   let booksQuery = supabase.from('source_books').select('id, title, author').order('sort_order')
   if (subject) booksQuery = booksQuery.eq('subject_id', subject)
 
-  const [subjectsRes, booksRes, chaptersRes] = await Promise.all([
+  const [subjectsRes, booksRes, chaptersRes, syllabusRes] = await Promise.all([
     supabase.from('subjects').select('id, name').order('sort_order'),
     booksQuery,
     book
       ? supabase.from('chapters').select('id, chapter_number, chapter_name').eq('book_id', book).order('sort_order')
       : Promise.resolve({ data: [] as { id: string; chapter_number: number; chapter_name: string }[] }),
+    // The syllabus map (lib/syllabus.ts) for the card dropdown and filter, tagged with
+    // the subject it covers.
+    supabase.from('chapters')
+      .select('id, chapter_number, chapter_name, book_id, book:source_books(subject_id)')
+      .in('book_id', [...SYLLABUS_BOOK_IDS])
+      .order('chapter_number'),
   ])
 
   const [flagsRes, answers, totalRes, neverRes, reviewerIds] = await Promise.all([
@@ -137,6 +153,8 @@ export async function GET(request: Request) {
     subjects: subjectsRes.data ?? [],
     books: booksRes.data ?? [],
     chapters: chaptersRes.data ?? [],
+    syllabusChapters: ((syllabusRes.data ?? []) as unknown as { id: string; chapter_number: number; chapter_name: string; book_id: string; book: { subject_id: string } | null }[])
+      .map(c => ({ id: c.id, chapter_number: c.chapter_number, chapter_name: c.chapter_name, book_id: c.book_id, subject_id: c.book?.subject_id ?? null })),
   })
 }
 

@@ -16,6 +16,7 @@ type ReviewQuestion = Question & {
   last_reviewed_by_name: string | null
 }
 type Outcome = 'reviewed' | 'edited' | 'deactivated' | 'skipped'
+type SyllabusChapter = { id: string; chapter_number: number; chapter_name: string; book_id: string; subject_id: string | null }
 
 const SELECT_CLS = 'text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-40 disabled:cursor-not-allowed'
 
@@ -38,6 +39,9 @@ export default function ReviewPage() {
   const [book, setBook]         = useState('')
   const [chapter, setChapter]   = useState('')
   const [status, setStatus]     = useState('published')
+  const [syllabusChapters, setSyllabusChapters] = useState<SyllabusChapter[]>([])
+  const [syllabus, setSyllabus] = useState('')
+  const [syllabusConfidence, setSyllabusConfidence] = useState('')
 
   const [batch, setBatch]       = useState<ReviewQuestion[]>([])
   const [progress, setProgress] = useState({ total: 0, neverReviewed: 0 })
@@ -50,7 +54,7 @@ export default function ReviewPage() {
   const load = useCallback(async (exclude: string[]) => {
     setLoading(true)
     setNotice(null)
-    const params = new URLSearchParams({ subject, book, chapter, status, exclude: exclude.join(',') })
+    const params = new URLSearchParams({ subject, book, chapter, status, syllabus, syllabusConfidence, exclude: exclude.join(',') })
     const res = await fetch(`/api/admin/review?${params}`)
     const data = await res.json()
     if (!res.ok) {
@@ -62,18 +66,25 @@ export default function ReviewPage() {
       setSubjects(prev => data.subjects?.length ? data.subjects : prev)
       setBooks(data.books)
       setChapters(data.chapters)
+      setSyllabusChapters(data.syllabusChapters ?? [])
     }
     setOutcomes({})
     setEditingId(null)
     setLoading(false)
     window.scrollTo({ top: 0 })
-  }, [subject, book, chapter, status])
+  }, [subject, book, chapter, status, syllabus, syllabusConfidence])
 
   // New filters start a fresh sitting (forget skips).
   useEffect(() => { setSkipped([]); load([]) }, [load])
 
-  async function markReviewed(id: string, outcome: Outcome) {
-    const res = await fetch(`/api/admin/review/${id}`, { method: 'POST' })
+  // "Looks good" also confirms the syllabus chapter (source 'reviewed'). If he already
+  // changed it on the card it's 'reviewed' already, so confirming again changes nothing.
+  async function markReviewed(id: string, outcome: Outcome, confirmSyllabus = false) {
+    const res = await fetch(`/api/admin/review/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirmSyllabus }),
+    })
     if (!res.ok) { alert('Could not mark as reviewed — please try again.'); return }
     setOutcomes(prev => ({ ...prev, [id]: outcome }))
     setProgress(prev => batch.find(q => q.id === id && !q.last_reviewed_at)
@@ -92,12 +103,19 @@ export default function ReviewPage() {
     await markReviewed(id, 'deactivated')
   }
 
+  // Keep the batch copy current after a card saves something, so a later Edit opens the
+  // form on the saved values instead of stale ones.
+  function patchQuestion(id: string, fields: Partial<ReviewQuestion>) {
+    setBatch(prev => prev.map(q => q.id === id ? { ...q, ...fields } : q))
+  }
+
   function skip(id: string) {
     setSkipped(prev => [...prev, id])
     setOutcomes(prev => ({ ...prev, [id]: 'skipped' }))
   }
 
   const done = batch.filter(q => outcomes[q.id]).length
+  const filterSyllabus = subject ? syllabusChapters.filter(c => c.subject_id === subject) : syllabusChapters
   const reviewedPct = progress.total ? Math.round(100 * (progress.total - progress.neverReviewed) / progress.total) : 0
 
   return (
@@ -122,7 +140,7 @@ export default function ReviewPage() {
 
         {/* Filters */}
         <div className="flex flex-wrap gap-2 mb-5">
-          <select value={subject} onChange={e => { setSubject(e.target.value); setBook(''); setChapter('') }} className={SELECT_CLS}>
+          <select value={subject} onChange={e => { setSubject(e.target.value); setBook(''); setChapter(''); setSyllabus('') }} className={SELECT_CLS}>
             <option value="">All Subjects</option>
             {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
@@ -139,6 +157,16 @@ export default function ReviewPage() {
             <option value="draft">Draft</option>
             <option value="flagged">Flagged</option>
             <option value="all">All Status</option>
+          </select>
+          <select value={syllabus} onChange={e => setSyllabus(e.target.value)} className={SELECT_CLS} disabled={!filterSyllabus.length}>
+            <option value="">All Syllabus Chapters</option>
+            {filterSyllabus.map(c => <option key={c.id} value={c.id}>{c.chapter_number} {c.chapter_name}</option>)}
+          </select>
+          <select value={syllabusConfidence} onChange={e => setSyllabusConfidence(e.target.value)} className={SELECT_CLS}>
+            <option value="">Any Syllabus Confidence</option>
+            <option value="high">High confidence</option>
+            <option value="medium">Medium confidence</option>
+            <option value="low">Low confidence</option>
           </select>
         </div>
 
@@ -159,7 +187,9 @@ export default function ReviewPage() {
                 index={i + 1}
                 outcome={outcomes[q.id]}
                 editing={editingId === q.id}
-                onReviewed={() => markReviewed(q.id, 'reviewed')}
+                syllabusChapters={syllabusChapters.filter(c => c.subject_id === q.subject_id)}
+                onReviewed={() => markReviewed(q.id, 'reviewed', true)}
+                onPatch={fields => patchQuestion(q.id, fields)}
                 onEdit={() => setEditingId(q.id)}
                 onEditCancel={() => setEditingId(null)}
                 onEdited={async () => { setEditingId(null); await markReviewed(q.id, 'edited') }}
@@ -191,18 +221,55 @@ export default function ReviewPage() {
   )
 }
 
-function ReviewCard({ q, index, outcome, editing, onReviewed, onEdit, onEditCancel, onEdited, onDeactivate, onSkip }: {
+function ReviewCard({ q, index, outcome, editing, syllabusChapters, onReviewed, onPatch, onEdit, onEditCancel, onEdited, onDeactivate, onSkip }: {
   q: ReviewQuestion
   index: number
   outcome?: Outcome
   editing: boolean
+  syllabusChapters: SyllabusChapter[]
   onReviewed: () => void
+  onPatch: (fields: Partial<ReviewQuestion>) => void
   onEdit: () => void
   onEditCancel: () => void
   onEdited: () => void
   onDeactivate: () => void
   onSkip: () => void
 }) {
+  const [syllabusDraft, setSyllabusDraft] = useState(q.syllabus_chapter_id ?? '')
+  const [savingSyllabus, setSavingSyllabus] = useState(false)
+  const [savingCitation, setSavingCitation] = useState(false)
+  const currentSyllabus = syllabusChapters.find(c => c.id === q.syllabus_chapter_id)
+
+  async function saveSyllabus() {
+    setSavingSyllabus(true)
+    const res = await fetch(`/api/admin/review/${q.id}/syllabus`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chapterId: syllabusDraft }),
+    })
+    const data = await res.json().catch(() => ({}))
+    setSavingSyllabus(false)
+    if (!res.ok) { alert(data.error || 'Could not change the syllabus chapter — please try again.'); return }
+    const picked = syllabusChapters.find(c => c.id === syllabusDraft)
+    onPatch({
+      ...data.fields,
+      // IC Joshi questions: the citation chapter moved too.
+      ...(data.fields.chapter_id && picked ? { chapter: { chapter_number: picked.chapter_number, chapter_name: picked.chapter_name } } : {}),
+    })
+  }
+
+  async function toggleCitation(verified: boolean) {
+    setSavingCitation(true)
+    const res = await fetch(`/api/admin/questions/${q.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ citation_verified: verified }),
+    })
+    setSavingCitation(false)
+    if (!res.ok) { alert('Could not update the citation — please try again.'); return }
+    onPatch({ citation_verified: verified })
+  }
+
   const openFlags = q.flags.filter(f => !f.resolved)
   const { answered, correct, picks } = q.answer_stats
   const pickTotal = Object.values(picks).reduce((a, b) => a + b, 0)
@@ -286,6 +353,16 @@ function ReviewCard({ q, index, outcome, editing, onReviewed, onEdit, onEditCanc
                     <span className={q.citation_verified ? 'text-teal-600 font-medium' : 'text-orange-500 font-medium'}>
                       {q.citation_verified ? ' · citation verified' : ' · citation approximate'}
                     </span>
+                    <label className="ml-2 inline-flex items-center gap-1 text-slate-600 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={q.citation_verified}
+                        disabled={savingCitation}
+                        onChange={e => toggleCitation(e.target.checked)}
+                        className="accent-teal-600"
+                      />
+                      Citation correct
+                    </label>
                   </>
                 : q.topic ? `Common pool · ${q.topic.name}` : 'Common pool · no topic'}
             </span>
@@ -296,6 +373,40 @@ function ReviewCard({ q, index, outcome, editing, onReviewed, onEdit, onEditCanc
             </span>
             <span>Created {fmtDate(q.created_at)}</span>
           </div>
+
+          {/* Syllabus chapter — the topic tested, separate from the source citation above */}
+          {syllabusChapters.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 mb-3">
+              <span>
+                Syllabus chapter:{' '}
+                <strong className="text-slate-800">
+                  {currentSyllabus ? `${currentSyllabus.chapter_number} ${currentSyllabus.chapter_name}` : 'not set'}
+                </strong>
+                {q.syllabus_chapter_source && (
+                  <span className={q.syllabus_chapter_confidence === 'high' ? 'text-slate-500' : 'text-orange-500 font-medium'}>
+                    {' '}({q.syllabus_chapter_source}, {q.syllabus_chapter_confidence})
+                  </span>
+                )}
+              </span>
+              <select
+                value={syllabusDraft}
+                onChange={e => setSyllabusDraft(e.target.value)}
+                className="text-xs border border-slate-200 rounded-md px-2 py-1 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              >
+                {!q.syllabus_chapter_id && <option value="">Choose…</option>}
+                {syllabusChapters.map(c => <option key={c.id} value={c.id}>{c.chapter_number} {c.chapter_name}</option>)}
+              </select>
+              {syllabusDraft && syllabusDraft !== (q.syllabus_chapter_id ?? '') && (
+                <button
+                  onClick={saveSyllabus}
+                  disabled={savingSyllabus}
+                  className="px-2.5 py-1 rounded-md text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {savingSyllabus ? 'Saving…' : 'Save chapter'}
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Flags */}
           {q.flags.length > 0 && (

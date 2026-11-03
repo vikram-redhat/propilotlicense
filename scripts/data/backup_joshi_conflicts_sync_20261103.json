@@ -1,0 +1,65 @@
+[
+ {
+  "id": "07597585-ce92-4a75-98af-f29ce98e7e4f",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 11",
+  "citation_verified": false,
+  "syllabus_chapter_id": "cac521a2-fbbd-4c28-b234-b22400a31c57",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "medium"
+ },
+ {
+  "id": "5b6296d3-0dad-43c8-874a-6e24211caf6c",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 12",
+  "citation_verified": false,
+  "syllabus_chapter_id": "ff395749-983b-4ec9-8ff5-38ca36b6221b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "medium"
+ },
+ {
+  "id": "9ddfa083-29b4-4b4a-a564-76395d9eb99c",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 12",
+  "citation_verified": false,
+  "syllabus_chapter_id": "cac521a2-fbbd-4c28-b234-b22400a31c57",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ },
+ {
+  "id": "9fe48085-f2ce-451f-b7ee-08c5c0a941eb",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 12",
+  "citation_verified": false,
+  "syllabus_chapter_id": "ff395749-983b-4ec9-8ff5-38ca36b6221b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "medium"
+ },
+ {
+  "id": "aeeb06ea-d2ff-4f93-b4b7-bd15a8930c21",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 12",
+  "citation_verified": false,
+  "syllabus_chapter_id": "a502b5a0-7f77-4045-a5ae-71161a27a48b",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "medium"
+ },
+ {
+  "id": "c3179b92-7598-4c4e-a3dd-6ec9f8cc8dab",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 15",
+  "citation_verified": false,
+  "syllabus_chapter_id": "4f5f2b2e-b9cb-4f26-bce9-a2f2f2588dcb",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "medium"
+ },
+ {
+  "id": "cb697b24-b73e-4f92-8bf4-9a7a554ae1f8",
+  "chapter_id": "74fe46bf-8758-41ad-8f46-8cf877161028",
+  "source_chapter": "Chapter 12",
+  "citation_verified": false,
+  "syllabus_chapter_id": "7a96801f-4291-4c16-ac32-b11be596ff52",
+  "syllabus_chapter_source": "ai",
+  "syllabus_chapter_confidence": "high"
+ }
+]
