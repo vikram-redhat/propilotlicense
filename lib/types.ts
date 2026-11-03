@@ -92,6 +92,11 @@ export interface Question {
   created_at: string
   last_reviewed_at?: string | null // added by scripts/migrate_question_review.sql
   last_reviewed_by?: string | null
+  // added by scripts/migrate_syllabus_chapter.sql — the syllabus topic tested, separate
+  // from the source citation above
+  syllabus_chapter_id?: string | null
+  syllabus_chapter_confidence?: 'high' | 'medium' | 'low' | null
+  syllabus_chapter_source?: 'rule' | 'ai' | 'reviewed' | null
   options?: QuestionOption[]
   subject?: Subject
   topic?: Topic
