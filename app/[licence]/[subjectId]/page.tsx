@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook, Profile } from '@/lib/types'
 import { isSubscribed } from '@/lib/subscription'
 import { isVisibleForCountry } from '@/lib/countries'
+import { isSyllabusBook } from '@/lib/syllabus'
 import UserMenu from '@/components/UserMenu'
 
 type Scope = 'topic' | 'book' | 'book_chapter' | 'combined'
@@ -340,6 +341,11 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                               </select>
                               <svg style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="var(--clr-text-med)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             </div>
+                          )}
+                          {selectedChapterId && isSyllabusBook(selectedBookId) && (
+                            <p style={{ fontSize: 12, color: 'var(--clr-text-med)', lineHeight: 1.55, marginTop: 8 }}>
+                              Includes every question on this syllabus topic, from all our source books. Each question shows the book it comes from.
+                            </p>
                           )}
                         </>
                       ) : (

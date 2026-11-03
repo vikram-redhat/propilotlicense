@@ -2,6 +2,7 @@ import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
 import { isSubscribed } from '@/lib/subscription'
 import { isVisibleForCountry } from '@/lib/countries'
+import { isSyllabusBook } from '@/lib/syllabus'
 
 const weights = {
   all:      { basic: 1,   advanced: 1   },
@@ -190,29 +191,45 @@ export async function POST(req: Request) {
     return Response.json({ sessionId: session.id })
   }
 
-  let query = supabase
-    .from('questions')
-    .select('id, difficulty, source_book:source_books(countries)')
-    .eq('subject_id', subjectId)
-    .eq('active', true)
+  // A chapter of a syllabus book (IC Joshi) draws every question on that syllabus topic,
+  // whichever book it cites; each still shows its own citation in the session.
+  const bySyllabus = scope === 'book_chapter' && !!chapterId && isSyllabusBook(sourceBookId)
 
-  switch (scope) {
-    case 'topic':
-      if (topicId) query = query.eq('topic_id', topicId)
-      break
-    case 'book':
-      query = query.eq('source_book_id', sourceBookId)
-      break
-    case 'book_chapter':
-      query = query.eq('source_book_id', sourceBookId)
-      if (chapterId) query = query.eq('chapter_id', chapterId)
-      break
-    case 'combined':
-      // All active questions for the subject — no source_book_id filter
-      break
+  const buildQuery = (useSyllabus: boolean) => {
+    let query = supabase
+      .from('questions')
+      .select('id, difficulty, source_book:source_books(countries)')
+      .eq('subject_id', subjectId)
+      .eq('active', true)
+
+    switch (scope) {
+      case 'topic':
+        if (topicId) query = query.eq('topic_id', topicId)
+        break
+      case 'book':
+        query = query.eq('source_book_id', sourceBookId)
+        break
+      case 'book_chapter':
+        if (useSyllabus) {
+          query = query.eq('syllabus_chapter_id', chapterId)
+        } else {
+          query = query.eq('source_book_id', sourceBookId)
+          if (chapterId) query = query.eq('chapter_id', chapterId)
+        }
+        break
+      case 'combined':
+        // All active questions for the subject — no source_book_id filter
+        break
+    }
+    return query
   }
 
-  const { data: rawQuestions, error } = await query
+  let { data: rawQuestions, error } = await buildQuery(bySyllabus)
+  // 42703 = undefined column: scripts/migrate_syllabus_chapter.sql not run — fall back to
+  // the book's own chapter links.
+  if (bySyllabus && error?.code === '42703') {
+    ({ data: rawQuestions, error } = await buildQuery(false))
+  }
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 })
