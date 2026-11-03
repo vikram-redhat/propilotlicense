@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+pilot_syllabus_classification*
+syllabus_classification_full*
+syllabus_seed_disagreements.csv

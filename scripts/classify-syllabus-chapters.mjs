@@ -3,6 +3,16 @@
 //
 //   node --env-file=.env.local scripts/classify-syllabus-chapters.mjs --pilot
 //
+//   node --env-file=.env.local scripts/classify-syllabus-chapters.mjs --full
+//
+// --full: every active Meteorology question. Needs scripts/migrate_syllabus_chapter.sql
+// and scripts/seed_syllabus_chapter_joshi.sql. Questions with no syllabus_chapter_id get
+// the classifier's chapter (source 'ai'). Seeded ('rule') questions are classified for
+// comparison only: their value is kept, and disagreements go to
+// syllabus_seed_disagreements.csv. Resumable: every classified question is appended to
+// syllabus_classification_full.jsonl and skipped on the next run; the database write is
+// also guarded to fill only empty syllabus_chapter_id, so nothing is overwritten.
+//
 // --pilot: a fixed random sample of 100 active Meteorology questions (all 7 Brief A
 // conflicts, 20 seeded IC Joshi questions, 73 others). Reads the database, writes
 // nothing to it; results go to pilot_syllabus_classification.csv.
@@ -31,6 +41,7 @@ const CONFLICT_IDS = [
 ]
 // claude-sonnet-4-6, $ per million tokens
 const PRICE = { input: 3, output: 15, cacheWrite: 3.75, cacheRead: 0.3 }
+const WITH_SYLLABUS = process.argv[2] === '--full' // the pilot runs before the migration
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
 const anthropic = new Anthropic({ maxRetries: 4 })
@@ -64,7 +75,7 @@ async function loadQuestions() {
   const [questions, books] = await Promise.all([
     selectAll(() => supabase
       .from('questions')
-      .select('id, question_text, explanation, source_book_id, chapter_id')
+      .select(WITH_SYLLABUS ? 'id, question_text, explanation, source_book_id, chapter_id, syllabus_chapter_id, syllabus_chapter_source' : 'id, question_text, explanation, source_book_id, chapter_id')
       .eq('subject_id', MET_SUBJECT_ID)
       .eq('active', true)
       .order('id')),
@@ -269,16 +280,106 @@ function writePilotCsv(path, results, chapters) {
   fs.writeFileSync(path, lines.join('\n') + '\n')
 }
 
+// ── Full run ─────────────────────────────────────────────────────────────────
+
+const CHECKPOINT = 'syllabus_classification_full.jsonl'
+
+function readCheckpoint() {
+  if (!fs.existsSync(CHECKPOINT)) return new Map()
+  return new Map(fs.readFileSync(CHECKPOINT, 'utf8').split('\n').filter(Boolean)
+    .map(line => JSON.parse(line)).map(r => [r.id, r]))
+}
+
+async function writeResults(results, chapters) {
+  const byNumber = new Map(chapters.map(c => [c.chapter_number, c]))
+  const records = results.map(r => ({
+    id: r.question.id,
+    chapter: r.chapter,
+    confidence: r.confidence,
+    reason: r.reason,
+    seeded_chapter_id: r.question.syllabus_chapter_source === 'rule' ? r.question.syllabus_chapter_id : null,
+  }))
+  // Only fill empty values: seeded, reviewed and already-classified rows are never touched.
+  const toWrite = records.filter(r => !r.seeded_chapter_id)
+  for (let i = 0; i < toWrite.length; i += 10) {
+    await Promise.all(toWrite.slice(i, i + 10).map(async r => {
+      const { error } = await supabase
+        .from('questions')
+        .update({
+          syllabus_chapter_id: byNumber.get(r.chapter).id,
+          syllabus_chapter_confidence: r.confidence,
+          syllabus_chapter_source: 'ai',
+        })
+        .eq('id', r.id)
+        .is('syllabus_chapter_id', null)
+      if (error) throw new Error(`Update ${r.id}: ${error.message}`)
+    }))
+  }
+  fs.appendFileSync(CHECKPOINT, records.map(r => JSON.stringify(r)).join('\n') + '\n')
+}
+
+async function fullRun(chapters, questions) {
+  const done = readCheckpoint()
+  const todo = questions.filter(q =>
+    !done.has(q.id) && (q.syllabus_chapter_id == null || q.syllabus_chapter_source === 'rule'))
+  console.log(`${done.size} already in checkpoint; ${todo.length} to classify ` +
+    `(${todo.filter(q => q.syllabus_chapter_source === 'rule').length} seeded, compared only)`)
+  if (todo.length) {
+    const system = systemPrompt(chapters)
+    const batches = []
+    for (let i = 0; i < todo.length; i += BATCH_SIZE) batches.push(todo.slice(i, i + BATCH_SIZE))
+    await writeResults(await classifyBatch(system, batches[0]), chapters) // warms the cache
+    for (let i = 1; i < batches.length; i += CONCURRENCY) {
+      const group = batches.slice(i, i + CONCURRENCY)
+      await Promise.all(group.map(async b => writeResults(await classifyBatch(system, b), chapters)))
+      console.log(`  ${Math.min(i + CONCURRENCY, batches.length)}/${batches.length} batches · $${cost().toFixed(2)}`)
+    }
+  }
+
+  // Disagreements between seeded (Brief A) chapters and the classifier, for review.
+  const all = readCheckpoint()
+  const byId = new Map(chapters.map(c => [c.id, c]))
+  const byNumber = new Map(chapters.map(c => [c.chapter_number, c]))
+  const qById = new Map(questions.map(q => [q.id, q]))
+  const header = ['question_id', 'question_text', 'seeded_chapter', 'ai_chapter', 'ai_confidence', 'ai_reason']
+  const lines = [header.join(',')]
+  let seeded = 0
+  for (const r of all.values()) {
+    if (!r.seeded_chapter_id) continue
+    seeded++
+    const seed = byId.get(r.seeded_chapter_id)
+    if (seed.chapter_number === r.chapter) continue
+    lines.push([r.id, (qById.get(r.id)?.question_text ?? '').replace(/\s+/g, ' ').slice(0, 120),
+      `${seed.chapter_number} ${seed.chapter_name}`, `${r.chapter} ${byNumber.get(r.chapter).chapter_name}`,
+      r.confidence, r.reason].map(csvCell).join(','))
+  }
+  fs.writeFileSync('syllabus_seed_disagreements.csv', lines.join('\n') + '\n')
+  console.log(`Seeded questions compared: ${seeded}; disagreements: ${lines.length - 1} → syllabus_seed_disagreements.csv`)
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 const mode = process.argv[2]
-if (mode !== '--pilot') {
-  console.error('Usage: node --env-file=.env.local scripts/classify-syllabus-chapters.mjs --pilot')
-  console.error('(The full run is added after the pilot has been reviewed.)')
+if (mode !== '--pilot' && mode !== '--full') {
+  console.error('Usage: node --env-file=.env.local scripts/classify-syllabus-chapters.mjs --pilot | --full')
   process.exit(1)
 }
 
 const chapters = await loadChapters()
+
+if (mode === '--full') {
+  const questions = await loadQuestions()
+  const seeded = questions.filter(q => q.syllabus_chapter_source === 'rule').length
+  if (seeded === 0) throw new Error('No seeded questions found: run scripts/seed_syllabus_chapter_joshi.sql first')
+  console.log(`${questions.length} active Meteorology questions, ${seeded} seeded`)
+  await fullRun(chapters, questions)
+  const usagePath = 'syllabus_classification_full.usage.json'
+  const prev = fs.existsSync(usagePath) ? JSON.parse(fs.readFileSync(usagePath, 'utf8')).runs ?? [] : []
+  fs.writeFileSync(usagePath, JSON.stringify({ model: MODEL, runs: [...prev, { at: new Date().toISOString(), ...usage, cost_usd: cost() }] }, null, 2))
+  console.log(`Tokens: input ${usage.input}, output ${usage.output}, cache write ${usage.cacheWrite}, cache read ${usage.cacheRead}, ${usage.calls} calls — $${cost().toFixed(2)}`)
+  process.exit(0)
+}
+
 const questions = await loadQuestions()
 console.log(`${questions.length} active Meteorology questions`)
 const sample = pilotSample(questions)
