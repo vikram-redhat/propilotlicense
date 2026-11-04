@@ -4,9 +4,10 @@ interface Props {
   url: string
   publishedAt: string
   updatedAt: string
+  about?: Record<string, unknown> // e.g. the Book a chapter page covers
 }
 
-export function ArticleSchema({ title, description, url, publishedAt, updatedAt }: Props) {
+export function ArticleSchema({ title, description, url, publishedAt, updatedAt, about }: Props) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -15,6 +16,7 @@ export function ArticleSchema({ title, description, url, publishedAt, updatedAt 
     url,
     datePublished: publishedAt,
     dateModified: updatedAt,
+    ...(about ? { about } : {}),
     author: { '@type': 'Organization', name: 'ProPilotLicence', url: 'https://www.propilotlicence.com' },
     publisher: { '@type': 'Organization', name: 'ProPilotLicence', url: 'https://www.propilotlicence.com' },
     reviewedBy: {

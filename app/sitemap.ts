@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { SUBJECTS } from '@/lib/subjects'
 import { BOOKS } from '@/lib/books'
 import { GUIDE_SERIES } from '@/lib/guides'
+import { allChapterPages } from '@/lib/chapter-pages'
 
 const BASE = 'https://www.propilotlicence.com'
 
@@ -48,5 +49,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }))
   )
 
-  return [...staticPages, ...subjectPages, ...bookPages, ...guideSeriesPages, ...guidePostPages]
+  // Textbook chapter pages: one per registered editorial content file.
+  const chapterPages: MetadataRoute.Sitemap = allChapterPages().map(({ bookSlug, page }) => ({
+    url: `${BASE}/books/${bookSlug}/${page.slug}`,
+    lastModified: page.updatedAt,
+    changeFrequency: 'monthly' as const,
+    priority: 0.75,
+  }))
+
+  return [...staticPages, ...subjectPages, ...bookPages, ...chapterPages, ...guideSeriesPages, ...guidePostPages]
 }

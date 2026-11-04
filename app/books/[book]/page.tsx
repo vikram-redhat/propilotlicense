@@ -7,6 +7,7 @@ import { FAQSchema } from '@/components/schema/FAQSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { BOOKS, getBookBySlug, type Book } from '@/lib/books'
 import { createServiceClient } from '@/lib/supabase'
+import { chapterPageHref } from '@/lib/chapter-pages'
 
 // Books with a sourceBookId read their chapter list from the database; re-fetch hourly.
 export const revalidate = 3600
@@ -131,7 +132,14 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
                     Ch {ch.number}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--clr-text)', marginBottom: ch.notes ? 4 : 0 }}>{ch.title}</div>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--clr-text)', marginBottom: ch.notes ? 4 : 0 }}>
+                      {(() => {
+                        const href = chapterPageHref(book.slug, ch.number)
+                        return href
+                          ? <Link href={href} style={{ color: 'var(--clr-primary)', textDecoration: 'underline', textUnderlineOffset: 2 }}>{ch.title}</Link>
+                          : ch.title
+                      })()}
+                    </div>
                     {ch.notes && <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--clr-text-med)' }}>{ch.notes}</div>}
                   </div>
                   {ch.weight && WEIGHT_STYLE[ch.weight] && (
