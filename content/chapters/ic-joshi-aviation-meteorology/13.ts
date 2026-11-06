@@ -1,7 +1,7 @@
 // IC Joshi, Aviation Meteorology — Chapter 13, Thunderstorm.
 // Editorial content from the Captain Panel source (ic-joshi-ch13-thunderstorm.html):
 // the inner HTML of <main class="article-wrap">, verbatim, split around the parts the
-// page renders live from the database (At a glance, sample questions, FAQ, CTA).
+// page renders live from the database (At a glance, sample questions, CTA).
 // The source's mock-up glance panel, practice placeholder and CTA block are dropped;
 // nothing else is changed. Chapter links keep href="#" — the page resolves them.
 import type { ChapterPageContent } from '@/lib/chapter-pages'
@@ -22,26 +22,6 @@ export const CHAPTER_13: ChapterPageContent = {
     '1b17cca4-a8c6-4abc-923e-8eb190541b8c', // mature stage: updraughts + downdraughts (IC Joshi)
     'c762b757-4a52-4d55-9908-b18d426dae81', // primary requirement: instability (IC Joshi)
     '7ed70b13-27a6-4032-a0f8-8e62c1c79024', // microburst sequence on approach (Oxford)
-  ],
-
-  // Visible FAQ + FAQPage schema. Answers are taken from the body text below.
-  faqs: [
-    {
-      q: 'Which chapter of IC Joshi covers thunderstorms?',
-      a: "Chapter 13, Thunderstorm, of the 2019 edition of IC Joshi's Aviation Meteorology. It covers the conditions a thunderstorm needs to form, the three stages of its life cycle, the hazards to aircraft, Indian storms such as nor'westers and dust storms, and detection and avoidance.",
-    },
-    {
-      q: 'What are the three stages of a thunderstorm?',
-      a: 'Cumulus, mature and dissipating. The cumulus stage has updraughts throughout the cloud. The mature stage has updraughts and downdraughts side by side and is the most hazardous. In the dissipating stage downdraughts spread through the whole cell and the supply of warm moist air is cut off.',
-    },
-    {
-      q: 'When does the mature stage of a thunderstorm begin?',
-      a: 'When precipitation first reaches the surface. That is also when the first gust, the sharp temperature drop and the pressure jump arrive at the surface, and when turbulence, hail, icing and lightning are all at their worst.',
-    },
-    {
-      q: "What is a nor'wester?",
-      a: "A violent pre-monsoon thunderstorm, also called Kalbaishakhi, over West Bengal, Odisha, Assam and Bangladesh, mainly in April and May. Nor'westers usually move from the north-west towards the south-east and bring squalls, hail and heavy rain, often in the afternoon or evening.",
-    },
   ],
 
   head: String.raw`
@@ -234,6 +214,20 @@ export const CHAPTER_13: ChapterPageContent = {
     <div class="wrong">✗ "Radar shows turbulence."</div>
     <div class="right">✓ Radar shows precipitation. Turbulence is inferred from echo intensity and gradients.</div>
   </div>
+`,
+
+  // FAQ section, rendered as written and parsed for the FAQPage schema. Answers are
+  // taken from the body text below.
+  faq: String.raw`
+  <h2>Frequently asked questions</h2>
+  <p class="faq-q">Which chapter of IC Joshi covers thunderstorms?</p>
+  <p>Chapter 13, Thunderstorm, of the 2019 edition of IC Joshi's Aviation Meteorology. It covers the conditions a thunderstorm needs to form, the three stages of its life cycle, the hazards to aircraft, Indian storms such as nor'westers and dust storms, and detection and avoidance.</p>
+  <p class="faq-q">What are the three stages of a thunderstorm?</p>
+  <p>Cumulus, mature and dissipating. The cumulus stage has updraughts throughout the cloud. The mature stage has updraughts and downdraughts side by side and is the most hazardous. In the dissipating stage downdraughts spread through the whole cell and the supply of warm moist air is cut off.</p>
+  <p class="faq-q">When does the mature stage of a thunderstorm begin?</p>
+  <p>When precipitation first reaches the surface. That is also when the first gust, the sharp temperature drop and the pressure jump arrive at the surface, and when turbulence, hail, icing and lightning are all at their worst.</p>
+  <p class="faq-q">What is a nor'wester?</p>
+  <p>A violent pre-monsoon thunderstorm, also called Kalbaishakhi, over West Bengal, Odisha, Assam and Bangladesh, mainly in April and May. Nor'westers usually move from the north-west towards the south-east and bring squalls, hail and heavy rain, often in the afternoon or evening.</p>
 `,
 
   related: String.raw`

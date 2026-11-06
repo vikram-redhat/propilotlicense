@@ -2,6 +2,8 @@
 // editorial content file is registered here — data-only pages for the other chapters
 // would be thin, so they are deliberately not generated. To publish another chapter,
 // add content/chapters/<book>/<n>.ts and list it below.
+import { CHAPTER_2 } from '@/content/chapters/ic-joshi-aviation-meteorology/2'
+import { CHAPTER_6 } from '@/content/chapters/ic-joshi-aviation-meteorology/6'
 import { CHAPTER_13 } from '@/content/chapters/ic-joshi-aviation-meteorology/13'
 
 export interface ChapterPageContent {
@@ -14,15 +16,15 @@ export interface ChapterPageContent {
   updatedAt: string
   reviewedBy: string
   sampleQuestionIds: string[] // fixed, so the page is stable between renders
-  faqs: { q: string; a: string }[] // rendered visibly and as FAQPage schema
   head: string // eyebrow, H1, standfirst, byline
   body: string // editorial body
+  faq: string // "Frequently asked questions": <p class="faq-q"> + <p> pairs, also the FAQPage schema
   related: string // "Related chapters" section
   disclaimer: string
 }
 
 const PAGES: Record<string, ChapterPageContent[]> = {
-  'ic-joshi-aviation-meteorology': [CHAPTER_13],
+  'ic-joshi-aviation-meteorology': [CHAPTER_2, CHAPTER_6, CHAPTER_13],
 }
 
 export function chapterPagesForBook(bookSlug: string): ChapterPageContent[] {
@@ -49,4 +51,14 @@ export function resolveChapterLinks(html: string, bookSlug: string): string {
     const href = chapterPageHref(bookSlug, Number(n))
     return href ? `<a href="${href}">${text}</a>` : text
   })
+}
+
+// FAQPage schema entries from the FAQ section's HTML: each <p class="faq-q"> question and
+// the <p> after it, as plain text. Built from the visible section so the two can't drift.
+export function faqsFromHtml(html: string): { q: string; a: string }[] {
+  const text = (s: string) => s.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&(apos|#39);/g, "'")
+    .replace(/\s+/g, ' ').trim()
+  return [...html.matchAll(/<p class="faq-q">([\s\S]*?)<\/p>\s*<p>([\s\S]*?)<\/p>/g)]
+    .map(m => ({ q: text(m[1]), a: text(m[2]) }))
 }

@@ -6,7 +6,7 @@ import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { getBookBySlug } from '@/lib/books'
-import { allChapterPages, getChapterPage, resolveChapterLinks } from '@/lib/chapter-pages'
+import { allChapterPages, faqsFromHtml, getChapterPage, resolveChapterLinks } from '@/lib/chapter-pages'
 import { countChapterQuestions } from '@/lib/chapter-question-counts'
 import { createServiceClient } from '@/lib/supabase'
 import styles from './styles.module.css'
@@ -132,7 +132,7 @@ export default async function ChapterPage({ params }: Params) {
         }}
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <FAQSchema faqs={page.faqs} />
+      <FAQSchema faqs={faqsFromHtml(page.faq)} />
       <LandingHeader isLoggedIn={false} name={null} />
 
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px 0' }}>
@@ -196,14 +196,8 @@ export default async function ChapterPage({ params }: Params) {
           )
         })}
 
-        {/* FAQ — visible, and the only content in the FAQPage schema */}
-        <h2>Frequently asked questions</h2>
-        {page.faqs.map(f => (
-          <div key={f.q} className="faq">
-            <h3>{f.q}</h3>
-            <p>{f.a}</p>
-          </div>
-        ))}
+        {/* FAQ — from the content file; the FAQPage schema is parsed from the same HTML */}
+        <div className="faq" dangerouslySetInnerHTML={{ __html: resolveChapterLinks(page.faq, bookSlug) }} />
 
         <div dangerouslySetInnerHTML={{ __html: resolveChapterLinks(page.related, bookSlug) }} />
 

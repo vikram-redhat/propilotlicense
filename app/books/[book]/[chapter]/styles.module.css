@@ -104,8 +104,7 @@
 .wrap :global(.sample-q-answer) :global(.cite) { font-size: 0.8rem; color: var(--ink-3); font-style: italic; margin-bottom: 0; }
 
 /* FAQ */
-.wrap :global(.faq) h3 { margin-top: 1.25rem; }
-.wrap :global(.faq) p { margin-bottom: 0.75rem; }
+.wrap :global(.faq-q) { font-weight: 600; color: var(--ink); margin: 1.25rem 0 0.35rem; font-size: 0.975rem; }
 
 /* RELATED */
 .wrap :global(.related) { font-size: 0.9rem; }
