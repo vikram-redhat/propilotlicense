@@ -11,7 +11,9 @@ export const SUBJECTS = [
       'Cloud formations, weather systems, Indian climatology, METARs, TAFs, and atmospheric phenomena tested in the DGCA CPL and ATPL Meteorology paper.',
     primaryBookSlug: 'ic-joshi-aviation-meteorology',
     primaryBookLabel: 'Aviation Meteorology by IC Joshi',
-    topicsHighYield: ['Thunderstorms', 'Indian Climatology', 'METAR/TAF decoding', 'Frontal systems', 'Icing'],
+    // High-yield topics and the {{HIGH_CHAPTERS}} FAQ text come from the Captain Panel's
+    // exam weights in the database (app/subjects/[subject]/page.tsx).
+    topicsHighYield: [] as string[],
     faqs: [
       {
         q: 'How many questions are in the DGCA CPL Meteorology paper?',
@@ -23,7 +25,7 @@ export const SUBJECTS = [
       },
       {
         q: 'Which topics in the DGCA Meteorology paper are most heavily tested?',
-        a: 'Based on review by the ProPilotLicence captain panel: Thunderstorms (Chapter 13 of IC Joshi), Indian Climatology (Chapter 19), and METAR/TAF decoding (Chapter 25) are the highest-yield topics. Frontal weather sequences and icing conditions are also tested consistently.',
+        a: 'Based on review by the ProPilotLicence captain panel, the most heavily tested topics are the IC Joshi chapters rated High exam weight: {{HIGH_CHAPTERS}}. Frontal weather sequences and icing conditions are also tested consistently.',
       },
       {
         q: 'Is the DGCA Meteorology paper difficult?',

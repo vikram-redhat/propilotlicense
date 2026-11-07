@@ -11,9 +11,9 @@ export const CHAPTER_13: ChapterPageContent = {
   slug: 'chapter-13-thunderstorm',
   metaTitle: 'IC Joshi Chapter 13 Thunderstorm: DGCA Notes and Questions',
   metaDescription: "IC Joshi Aviation Meteorology Chapter 13, Thunderstorm. What DGCA asks, the three stages, conditions for formation, hazards, nor'westers, avoidance rules and practice questions.",
-  excerpt: 'Thunderstorm is one of the two High-weight chapters in IC Joshi. Know the three stages, the three ingredients, and exactly which hazards occur when, and most DGCA thunderstorm questions answer themselves.',
+  excerpt: 'Thunderstorm is a High-weight chapter in IC Joshi. Know the three stages, the three ingredients, and exactly which hazards occur when, and most DGCA thunderstorm questions answer themselves.',
   publishedAt: '2026-11-04',
-  updatedAt: '2026-11-04',
+  updatedAt: '2026-11-08',
   reviewedBy: 'ProPilotLicence Captain Panel',
 
   // Fixed sample questions (re-picked 2026-11-07): IC Joshi-sourced, active, syllabus
@@ -29,7 +29,7 @@ export const CHAPTER_13: ChapterPageContent = {
 <div class="eyebrow">IC Joshi · Aviation Meteorology · Chapter 13</div>
   <h1>Thunderstorm: IC Joshi Chapter 13, DGCA Notes and Practice Questions</h1>
 
-  <p class="standfirst">Thunderstorm is one of only two High-weight chapters in IC Joshi, and it draws on half the book: stability, clouds, icing, winds and met services all meet here. Know the three ingredients, the three stages, and which hazard belongs to which stage, and most DGCA thunderstorm questions answer themselves.</p>
+  <p class="standfirst">Thunderstorm is a High-weight chapter in IC Joshi, and it draws on half the book: stability, clouds, icing, winds and met services all meet here. Know the three ingredients, the three stages, and which hazard belongs to which stage, and most DGCA thunderstorm questions answer themselves.</p>
 
   <div class="byline">
     <strong>ProPilotLicence Editorial</strong>

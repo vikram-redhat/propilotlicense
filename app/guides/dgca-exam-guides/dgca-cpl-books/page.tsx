@@ -2,6 +2,7 @@ import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
 import { getHeaderAuthState } from '@/lib/supabase-server'
 import { bookQuestionTotalOrNull, questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
+import { chapterList, loadIcJoshiSyllabus } from '@/lib/ic-joshi-syllabus'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
@@ -15,10 +16,16 @@ export const metadata = buildMetadata({
 })
 
 export default async function DgcaCplBooksPost() {
-  const [{ isLoggedIn, name }, totals, joshiTotal, baliTotal] = await Promise.all([
+  const [{ isLoggedIn, name }, totals, joshiTotal, baliTotal, joshiSyllabus] = await Promise.all([
     getHeaderAuthState(), questionTotalsOrFallback(),
     bookQuestionTotalOrNull('ic-joshi-aviation-meteorology'), bookQuestionTotalOrNull('rk-bali-air-regulations'),
+    // A failed hourly refresh serves the last good data; with nothing cached and the
+    // database down, the IC Joshi priorities fall back to a link to the book page.
+    loadIcJoshiSyllabus().catch(e => { console.error(e); return null }),
   ])
+  // IC Joshi priorities follow the Captain Panel's exam weights: the High chapters, with
+  // an editorial note for those that have one.
+  const joshiHigh = (joshiSyllabus ?? []).filter(c => c.weight === 'High')
   const count = (n: number | null) => (n != null ? `${n.toLocaleString()} ` : '')
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
@@ -65,15 +72,15 @@ export default async function DgcaCplBooksPost() {
             <strong>Aviation Meteorology</strong> by Group Captain IC Joshi (IAF, Retd.) is one prescribed Indian text that covers Indian climatology, the monsoon system, and subcontinent-specific weather phenomena in the depth the DGCA tests.
           </p>
           <p>
-            This is the most important book distinction for Meteorology candidates: international textbooks (ATPL Oxford, JAA ground studies) are thorough on European and North Atlantic weather however, slightly light on Indian climatology. The DGCA Meteorology paper regularly includes questions from Chapter 19 (Indian Climatology) and Chapter 13 (Thunderstorms), both of which Joshi covers in depth.
+            This is the most important book distinction for Meteorology candidates: international textbooks (ATPL Oxford, JAA ground studies) are thorough on European and North Atlantic weather however, slightly light on Indian climatology. The DGCA Meteorology paper regularly includes questions from Chapter 19 (Climatology India) and Chapter 13 (Thunderstorm), both of which Joshi covers in depth.
           </p>
           <SubSection title="Chapters to prioritise">
-            <ChapterList items={[
-              ['Chapter 13 — Thunderstorms', 'The highest-yield chapter in the entire Meteorology paper. Study every section.'],
-              ['Chapter 19 — Indian Climatology', 'The chapter that separates candidates using Joshi from those using international texts only.'],
-              ['Chapter 25 — Aviation Weather Reports and Forecasts', 'METAR decoding questions appear in nearly every paper.'],
-              ['Chapter 14 — Air Masses and Fronts', 'Frontal sequences produce consistent questions.'],
-            ]} />
+            {joshiSyllabus ? <>
+              <p>The ProPilotLicence Captain Panel rates Chapters {chapterList(joshiHigh.map(c => c.number))} High exam weight.</p>
+              <ChapterList items={joshiHigh.filter(c => JOSHI_NOTES[c.number]).map(c => [`Chapter ${c.number} — ${c.name}`, JOSHI_NOTES[c.number]] as [string, string])} />
+            </> : (
+              <p><Link href="/books/ic-joshi-aviation-meteorology" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'none' }}>See the IC Joshi chapter breakdown, with the panel&apos;s exam weights →</Link></p>
+            )}
           </SubSection>
           <p>
             ProPilotLicence has{' '}
@@ -175,6 +182,13 @@ export default async function DgcaCplBooksPost() {
       <SiteFooter />
     </div>
   )
+}
+
+// Editorial notes for IC Joshi chapters, shown when the chapter is rated High.
+const JOSHI_NOTES: Record<number, string> = {
+  13: 'The highest-yield chapter in the entire Meteorology paper. Study every section.',
+  19: 'The chapter that separates candidates using Joshi from those using international texts only.',
+  14: 'Frontal sequences produce consistent questions.',
 }
 
 function ChapterList({ items }: { items: [string, string][] }) {

@@ -7,6 +7,7 @@ import { FAQSchema } from '@/components/schema/FAQSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { SUBJECTS, getSubjectBySlug } from '@/lib/subjects'
 import { questionTotals } from '@/lib/live-counts'
+import { BOOK_SLUG as IC_JOSHI_SLUG, loadIcJoshiSyllabus, namedChapterList } from '@/lib/ic-joshi-syllabus'
 
 // Question counts are live; re-render hourly (a failed refresh keeps the last good page).
 export const revalidate = 3600
@@ -32,12 +33,24 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
   if (!subject) notFound()
   const questionCount = (await questionTotals()).bySubject[subject.code] ?? 0
 
+  // Meteorology: high-yield topics and the FAQ's chapter list follow the Captain Panel's
+  // exam weights (High chapters, the book's names). The same FAQ array feeds the visible
+  // section and the FAQPage schema, so they stay identical.
+  const high = subject.primaryBookSlug === IC_JOSHI_SLUG
+    ? (await loadIcJoshiSyllabus()).filter(c => c.weight === 'High')
+    : null
+  const topics: readonly string[] = high ? high.map(c => c.name) : subject.topicsHighYield
+  const faqs = subject.faqs.map(f => ({
+    q: f.q,
+    a: high ? f.a.replace('{{HIGH_CHAPTERS}}', `Chapters ${namedChapterList(high)}`) : f.a,
+  }))
+
   const url = `https://www.propilotlicence.com/subjects/${subject.slug}`
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <CourseSchema name={`DGCA CPL ${subject.title}`} description={subject.description} url={url} />
-      <FAQSchema faqs={[...subject.faqs]} />
+      <FAQSchema faqs={faqs} />
       <LandingHeader isLoggedIn={false} name={null} />
 
       <main style={{ maxWidth: 800, margin: '0 auto', padding: '48px 20px 96px' }}>
@@ -77,7 +90,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
             High-yield topics
           </h2>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {subject.topicsHighYield.map((t) => (
+            {topics.map((t) => (
               <span
                 key={t}
                 style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-primary)', background: 'var(--clr-pri-light)', borderRadius: 20, padding: '4px 12px', border: '1px solid var(--clr-border)' }}
@@ -128,10 +141,10 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
             Frequently asked questions
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {subject.faqs.map((faq, i) => (
+            {faqs.map((faq, i) => (
               <div
                 key={i}
-                style={{ padding: '20px 0', borderBottom: i < subject.faqs.length - 1 ? '1px solid var(--clr-border)' : 'none' }}
+                style={{ padding: '20px 0', borderBottom: i < faqs.length - 1 ? '1px solid var(--clr-border)' : 'none' }}
               >
                 <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--clr-text)', marginBottom: 8 }}>{faq.q}</div>
                 <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--clr-text-med)' }}>{faq.a}</div>

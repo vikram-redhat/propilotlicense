@@ -5,12 +5,8 @@ import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { unstable_cache } from 'next/cache'
-import { getBookBySlug } from '@/lib/books'
-import { chapterPageHref } from '@/lib/chapter-pages'
-import { countChapterQuestions } from '@/lib/chapter-question-counts'
 import { bookQuestionTotalOrNull } from '@/lib/live-counts'
-import { createServiceClient } from '@/lib/supabase'
+import { chapterList, loadIcJoshiSyllabus, namedChapterList, type SyllabusChapter } from '@/lib/ic-joshi-syllabus'
 
 export const metadata = buildMetadata({
   title: 'How to Prepare for the DGCA CPL Meteorology Exam — Complete Study Guide | ProPilotLicence',
@@ -22,64 +18,6 @@ export const metadata = buildMetadata({
 const BOOK_SLUG = 'ic-joshi-aviation-meteorology'
 // Article dateModified; the visible "Updated" line is generated from it.
 const DATE_MODIFIED = '2026-11-08'
-
-type SyllabusChapter = {
-  number: number
-  name: string
-  weight: 'High' | 'Medium' | 'Low' | null
-  topics: string | null
-  questions: number
-  href: string | null
-}
-
-// The chapter table and every tier list on this page come from the IC Joshi 2019
-// chapters (the syllabus map) and the Captain Panel's exam_weight, so they can't drift
-// from the book page and chapter pages. Question counts use the practice picker's rule.
-// Cached for an hour like the book page (this page reads auth cookies, so page-level
-// revalidate alone wouldn't cache it). Throws on a database error.
-const loadSyllabus = unstable_cache(async (): Promise<SyllabusChapter[]> => {
-  const entry = getBookBySlug(BOOK_SLUG)
-  if (!entry || !('sourceBookId' in entry)) throw new Error('IC Joshi book entry missing')
-  const supabase = createServiceClient()
-  const [bookRes, chaptersRes] = await Promise.all([
-    supabase.from('source_books').select('id, subject_id').eq('id', entry.sourceBookId).single(),
-    supabase.from('chapters').select('id, chapter_number, chapter_name, exam_weight, syllabus_topics')
-      .eq('book_id', entry.sourceBookId).order('chapter_number'),
-  ])
-  if (bookRes.error) throw new Error(`Meteorology guide: ${bookRes.error.message}`)
-  if (chaptersRes.error) throw new Error(`Meteorology guide: ${chaptersRes.error.message}`)
-  const counts = await countChapterQuestions(supabase, {
-    subjectId: bookRes.data.subject_id, bookId: bookRes.data.id,
-    chapterIds: chaptersRes.data.map(c => c.id), country: 'IN',
-  })
-  return chaptersRes.data.map(c => ({
-    number: c.chapter_number,
-    name: c.chapter_name,
-    weight: c.exam_weight ?? null,
-    topics: c.syllabus_topics ?? null,
-    questions: counts[c.id] ?? 0,
-    href: chapterPageHref(BOOK_SLUG, c.chapter_number),
-  }))
-}, ['met-guide-syllabus'], { revalidate: 3600 })
-
-// "1 to 7, 13 and 21": runs of three or more collapse to "a to b".
-function chapterList(numbers: number[]): string {
-  const parts: string[] = []
-  for (let i = 0; i < numbers.length;) {
-    let j = i
-    while (j + 1 < numbers.length && numbers[j + 1] === numbers[j] + 1) j++
-    if (j - i >= 2) parts.push(`${numbers[i]} to ${numbers[j]}`)
-    else for (let k = i; k <= j; k++) parts.push(String(numbers[k]))
-    i = j + 1
-  }
-  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0] ?? ''
-}
-
-// "10 (Optical Phenomenon), 17 (Mountain Waves) and 22 (…)"
-function namedChapterList(chapters: SyllabusChapter[]): string {
-  const parts = chapters.map(c => `${c.number} (${c.name})`)
-  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0] ?? ''
-}
 
 // One table line: cut at the last "; " before the limit.
 function oneLine(topics: string, max = 90): string {
@@ -156,7 +94,7 @@ const FAQS = [
   },
   {
     q: 'Is one month sufficient to prepare for the DGCA Meteorology paper?',
-    a: 'For a candidate who is actively studying (two to three hours per day), one month is sufficient to complete IC Joshi chapter by chapter with question practice and still have time for mock exams in the final week. The risk with a compressed timeline is rushing through Chapter 19 — do not. Indian Climatology takes time to absorb if you have no prior exposure to Indian weather systems.',
+    a: 'For a candidate who is actively studying (two to three hours per day), one month is sufficient to complete IC Joshi chapter by chapter with question practice and still have time for mock exams in the final week. The risk with a compressed timeline is rushing through Chapter 19 — do not. Climatology India takes time to absorb if you have no prior exposure to Indian weather systems.',
   },
   {
     q: 'Can I pass the DGCA Meteorology paper using only ProPilotLicence without reading IC Joshi?',
@@ -170,7 +108,7 @@ export default async function MeteorologyPrepPost() {
     // A failed hourly refresh serves the last good data (unstable_cache). Only with no
     // cached data at all and the database down does this fall back, and the page renders
     // without the table and tier lists rather than erroring.
-    loadSyllabus().catch(e => { console.error(e); return null }),
+    loadIcJoshiSyllabus().catch(e => { console.error(e); return null }),
     bookQuestionTotalOrNull(BOOK_SLUG), // the book page's count
   ])
   const syllabus = loaded ?? []
