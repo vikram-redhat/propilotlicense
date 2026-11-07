@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
 import { getHeaderAuthState } from '@/lib/supabase-server'
+import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
@@ -16,7 +17,7 @@ export const metadata = buildMetadata({
 })
 
 export default async function A320AutoflightPost() {
-  const { isLoggedIn, name } = await getHeaderAuthState()
+  const [{ isLoggedIn, name }, totals] = await Promise.all([getHeaderAuthState(), questionTotalsOrFallback()])
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -200,7 +201,7 @@ export default async function A320AutoflightPost() {
 
         <CtaBlock
           title="Practise A320 questions"
-          body="ProPilotLicence has 12,000+ DGCA ATPL and CPL practice questions — including a full A320 question bank covering every ATA chapter, verified by active airline captains. Free to start."
+          body={`ProPilotLicence has ${roundedTotal(totals.all)} DGCA ATPL and CPL practice questions — including a full A320 question bank covering every ATA chapter, verified by active airline captains. Free to start.`}
           href="/login?next=/atpl"
           label="Practise A320 questions →"
         />

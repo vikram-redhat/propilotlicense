@@ -2,22 +2,6 @@ export const dynamic = 'force-dynamic'
 
 import type { Metadata } from 'next'
 import Link from 'next/link'
-
-export const metadata: Metadata = {
-  title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
-  description: 'India\'s most complete DGCA CPL and ATPL question bank — 7,000+ questions mapped to prescribed textbooks, verified by active airline captains. First 10 questions free.',
-  alternates: { canonical: 'https://www.propilotlicence.com' },
-  openGraph: {
-    title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
-    description: 'India\'s most complete DGCA CPL and ATPL question bank — 7,000+ questions mapped to prescribed textbooks, verified by active airline captains.',
-    url: 'https://www.propilotlicence.com',
-    siteName: 'ProPilotLicence',
-    type: 'website',
-    locale: 'en_IN',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep' }],
-  },
-  twitter: { card: 'summary_large_image', images: ['/og-image.jpg'] },
-}
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import LandingHeader from '@/components/LandingHeader'
@@ -28,6 +12,26 @@ import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 import { isSubscribed } from '@/lib/subscription'
 import { hubForExamType } from '@/lib/hub'
+import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const total = roundedTotal((await questionTotalsOrFallback()).all)
+  return {
+    title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
+    description: `India's most complete DGCA CPL and ATPL question bank — ${total} questions mapped to prescribed textbooks, verified by active airline captains. First 10 questions free.`,
+    alternates: { canonical: 'https://www.propilotlicence.com' },
+    openGraph: {
+      title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
+      description: `India's most complete DGCA CPL and ATPL question bank — ${total} questions mapped to prescribed textbooks, verified by active airline captains.`,
+      url: 'https://www.propilotlicence.com',
+      siteName: 'ProPilotLicence',
+      type: 'website',
+      locale: 'en_IN',
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep' }],
+    },
+    twitter: { card: 'summary_large_image', images: ['/og-image.jpg'] },
+  }
+}
 
 const MONO = "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace"
 

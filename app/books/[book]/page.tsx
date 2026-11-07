@@ -8,7 +8,7 @@ import { buildMetadata } from '@/lib/metadata'
 import { BOOKS, getBookBySlug, type Book } from '@/lib/books'
 import { createServiceClient } from '@/lib/supabase'
 import { chapterPageHref } from '@/lib/chapter-pages'
-import { countChapterQuestions } from '@/lib/chapter-question-counts'
+import { bookQuestionTotal } from '@/lib/live-counts'
 import { isSyllabusBook } from '@/lib/syllabus'
 
 // Books with a sourceBookId read their chapter list from the database; re-fetch hourly.
@@ -42,26 +42,6 @@ async function loadChapters(book: Book): Promise<{ chapters: ChapterRow[]; editi
   }
 }
 
-// Live question total: the sum of the chapter counts the practice picker shows an Indian
-// student. For a syllabus book (IC Joshi) that is every question on its syllabus
-// chapters, whichever book it cites, which is also what whole-book practice draws.
-// Books without a sourceBookId keep the hardcoded figure.
-async function liveQuestionCount(book: Book): Promise<number> {
-  if (!('sourceBookId' in book)) return book.questionCount
-  const supabase = createServiceClient()
-  const [bookRes, chaptersRes] = await Promise.all([
-    supabase.from('source_books').select('subject_id').eq('id', book.sourceBookId).single(),
-    supabase.from('chapters').select('id').eq('book_id', book.sourceBookId),
-  ])
-  if (bookRes.error) throw new Error(`Question count for ${book.slug}: ${bookRes.error.message}`)
-  if (chaptersRes.error) throw new Error(`Question count for ${book.slug}: ${chaptersRes.error.message}`)
-  const counts = await countChapterQuestions(supabase, {
-    subjectId: bookRes.data.subject_id, bookId: book.sourceBookId,
-    chapterIds: chaptersRes.data.map(c => c.id), country: 'IN',
-  })
-  return Object.values(counts).reduce((a, b) => a + b, 0)
-}
-
 // A syllabus book's questions come from all source books, so the copy says they are
 // organised by its chapters rather than sourced from it.
 function bySyllabus(book: Book): boolean {
@@ -79,8 +59,8 @@ export async function generateMetadata({ params }: { params: Promise<{ book: str
   return buildMetadata({
     title: `${book.title} by ${book.authorShort} — DGCA ${book.subjectTitle} Questions | ProPilotLicence`,
     description: bySyllabus(book)
-      ? `${(await liveQuestionCount(book)).toLocaleString()} ${book.subjectTitle} practice questions organised by ${book.authorShort}’s chapters. Reviewed by active airline captains.`
-      : `${book.questionCount.toLocaleString()} practice questions sourced from ${book.title} by ${book.author}. Organised by chapter. Reviewed by active airline captains.`,
+      ? `${(await bookQuestionTotal(slug)).toLocaleString()} ${book.subjectTitle} practice questions organised by ${book.authorShort}’s chapters. Reviewed by active airline captains.`
+      : `${(await bookQuestionTotal(slug)).toLocaleString()} practice questions sourced from ${book.title} by ${book.author}. Organised by chapter. Reviewed by active airline captains.`,
     path: `/books/${slug}`,
   })
 }
@@ -89,7 +69,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
   const { book: slug } = await params
   const book = getBookBySlug(slug)
   if (!book) notFound()
-  const [{ chapters, edition }, questionCount] = await Promise.all([loadChapters(book), liveQuestionCount(book)])
+  const [{ chapters, edition }, questionCount] = await Promise.all([loadChapters(book), bookQuestionTotal(book.slug)])
 
   const url = `https://www.propilotlicence.com/books/${book.slug}`
   const courseDescription = bySyllabus(book)

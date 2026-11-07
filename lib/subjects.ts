@@ -3,7 +3,7 @@ export const SUBJECTS = [
     slug: 'aviation-meteorology',
     title: 'Aviation Meteorology',
     shortTitle: 'Meteorology',
-    questionCount: 1851,
+    code: 'MET', // subjects.code; question count is live (lib/live-counts.ts)
     examQuestions: 50,
     examMinutes: 90,
     passMarkPct: 70,
@@ -35,7 +35,7 @@ export const SUBJECTS = [
     slug: 'air-regulations',
     title: 'Air Regulations',
     shortTitle: 'Air Regulations',
-    questionCount: 1228,
+    code: 'REG', // subjects.code; question count is live (lib/live-counts.ts)
     examQuestions: 50,
     examMinutes: 90,
     passMarkPct: 70,
@@ -67,7 +67,7 @@ export const SUBJECTS = [
     slug: 'air-navigation',
     title: 'Air Navigation',
     shortTitle: 'Navigation',
-    questionCount: 1906,
+    code: 'NAV', // subjects.code; question count is live (lib/live-counts.ts)
     examQuestions: 100,
     examMinutes: 180,
     passMarkPct: 70,
@@ -95,7 +95,7 @@ export const SUBJECTS = [
     slug: 'technical-general',
     title: 'Technical General',
     shortTitle: 'Technical General',
-    questionCount: 963,
+    code: 'TECH', // subjects.code; question count is live (lib/live-counts.ts)
     examQuestions: 100,
     examMinutes: 180,
     passMarkPct: 70,
@@ -123,7 +123,7 @@ export const SUBJECTS = [
     slug: 'radio-aids-instruments',
     title: 'Radio Aids and Instruments',
     shortTitle: 'Radio Aids',
-    questionCount: 1047,
+    code: 'RADIOAIDSINSTRUMENTS', // subjects.code; question count is live (lib/live-counts.ts)
     examQuestions: 50,
     examMinutes: 90,
     passMarkPct: 70,

@@ -4,6 +4,7 @@ import SiteFooter from '@/components/SiteFooter'
 import { OrganizationSchema } from '@/components/schema/OrganizationSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { getHeaderAuthState } from '@/lib/supabase-server'
+import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 
 export const metadata = buildMetadata({
   title: 'About ProPilotLicence — DGCA Exam Prep Verified by Airline Captains',
@@ -12,7 +13,7 @@ export const metadata = buildMetadata({
 })
 
 export default async function AboutPage() {
-  const { isLoggedIn, name } = await getHeaderAuthState()
+  const [{ isLoggedIn, name }, totals] = await Promise.all([getHeaderAuthState(), questionTotalsOrFallback()])
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <OrganizationSchema />
@@ -40,7 +41,7 @@ export default async function AboutPage() {
           <p>
             Every question on ProPilotLicence is sourced from the officially prescribed DGCA syllabus textbooks — the same books your ground instructor tells you to buy on day one of your CPL programme. Questions are organised by subject, book, and chapter, so you can drill IC Joshi Chapter 8 the night before your Meteorology paper, or work through every Air Regulations question from a specific ICAO Annex without wading through unrelated material.
           </p>
-          <p>The question bank currently contains <strong>7,000+ questions</strong> across five CPL subjects, with ATPL coverage expanding continuously.</p>
+          <p>The question bank currently contains <strong>{roundedTotal(totals.cpl)} questions</strong> across five CPL subjects, with ATPL coverage expanding continuously.</p>
         </Section>
 
         <Divider />

@@ -4,6 +4,7 @@ import SiteFooter from '@/components/SiteFooter'
 import { buildMetadata } from '@/lib/metadata'
 import { SUBJECTS } from '@/lib/subjects'
 import { getHeaderAuthState } from '@/lib/supabase-server'
+import { questionTotalsOrFallback } from '@/lib/live-counts'
 
 export const metadata = buildMetadata({
   title: 'DGCA CPL & ATPL Exam Subjects — Practice Questions | ProPilotLicence',
@@ -23,7 +24,7 @@ const sectionLabel = {
 }
 
 export default async function SubjectsPage() {
-  const { isLoggedIn, name, examType } = await getHeaderAuthState()
+  const [{ isLoggedIn, name, examType }, totals] = await Promise.all([getHeaderAuthState(), questionTotalsOrFallback()])
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <LandingHeader isLoggedIn={isLoggedIn} name={name} examType={examType} />
@@ -56,7 +57,7 @@ export default async function SubjectsPage() {
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--clr-primary)', fontFamily: 'var(--font-outfit),sans-serif' }}>
-                    {s.questionCount.toLocaleString()}
+                    {totals.bySubject[s.code] != null ? totals.bySubject[s.code].toLocaleString() : '—'}
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--clr-text-med)', marginTop: 1 }}>practice questions</div>
                 </div>
@@ -84,7 +85,7 @@ export default async function SubjectsPage() {
               <div style={{ fontSize: 13, color: 'var(--clr-text-med)' }}>320 / 319 / 321 · XLR · NEO · CEO</div>
             </div>
             <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--clr-primary)', fontFamily: 'var(--font-outfit),sans-serif' }}>1,631</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--clr-primary)', fontFamily: 'var(--font-outfit),sans-serif' }}>{totals.a320.toLocaleString()}</div>
               <div style={{ fontSize: 11, color: 'var(--clr-text-med)', marginTop: 1 }}>practice questions</div>
             </div>
           </div>

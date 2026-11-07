@@ -1,5 +1,6 @@
 import LandingHeader from '@/components/LandingHeader'
 import { getHeaderAuthState } from '@/lib/supabase-server'
+import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
@@ -17,7 +18,7 @@ export const metadata = buildMetadata({
 })
 
 export default async function A320HydraulicSystemPage() {
-  const { isLoggedIn, name } = await getHeaderAuthState()
+  const [{ isLoggedIn, name }, totals] = await Promise.all([getHeaderAuthState(), questionTotalsOrFallback()])
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -39,7 +40,7 @@ export default async function A320HydraulicSystemPage() {
         <A320InlineCta />
         <div dangerouslySetInnerHTML={{ __html: ARTICLE_BODY }} />
         <A320InlineCta />
-        <div dangerouslySetInnerHTML={{ __html: ARTICLE_BODY_2 }} />
+        <div dangerouslySetInnerHTML={{ __html: ARTICLE_BODY_2.replace('{{TOTAL_QUESTIONS}}', roundedTotal(totals.all)) }} />
       </main>
 
       <SiteFooter />

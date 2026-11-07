@@ -7,7 +7,6 @@ export const BOOKS = [
     publisher: 'Himalayan Books',
     subjectSlug: 'aviation-meteorology',
     subjectTitle: 'Aviation Meteorology',
-    questionCount: 1851,
     dgcaPrescribed: true,
     description:
       'The primary DGCA-prescribed textbook for the CPL and ATPL Meteorology examination. The only prescribed Indian text that covers Indian climatology, the monsoon system, and subcontinent-specific weather phenomena in the depth the DGCA tests.',
@@ -54,7 +53,8 @@ export const BOOKS = [
     publisher: 'Sterling Book House',
     subjectSlug: 'air-regulations',
     subjectTitle: 'Air Regulations',
-    questionCount: 1228,
+    // Question count (lib/live-counts.ts) is the active questions citing this book.
+    questionsBookId: '15db3a2f-0718-4f98-beeb-177d9b92a4a4',
     dgcaPrescribed: true,
     description:
       'The standard DGCA-prescribed reference for the CPL and ATPL Air Regulations examination. Covers all 18 ICAO Annexes as applicable to Indian operations, DGCA Civil Aviation Requirements, Rules of the Air, licensing, and ATC procedures.',

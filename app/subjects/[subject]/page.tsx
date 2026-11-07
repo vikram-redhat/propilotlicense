@@ -6,6 +6,10 @@ import { CourseSchema } from '@/components/schema/CourseSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { SUBJECTS, getSubjectBySlug } from '@/lib/subjects'
+import { questionTotals } from '@/lib/live-counts'
+
+// Question counts are live; re-render hourly (a failed refresh keeps the last good page).
+export const revalidate = 3600
 
 export function generateStaticParams() {
   return SUBJECTS.map((s) => ({ subject: s.slug }))
@@ -16,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ subject: 
   const subject = getSubjectBySlug(slug)
   if (!subject) return {}
   return buildMetadata({
-    title: `DGCA CPL ${subject.title} Practice Questions — ${subject.questionCount.toLocaleString()} Questions | ProPilotLicence`,
+    title: `DGCA CPL ${subject.title} Practice Questions — ${((await questionTotals()).bySubject[subject.code] ?? 0).toLocaleString()} Questions | ProPilotLicence`,
     description: subject.description,
     path: `/subjects/${slug}`,
   })
@@ -26,6 +30,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
   const { subject: slug } = await params
   const subject = getSubjectBySlug(slug)
   if (!subject) notFound()
+  const questionCount = (await questionTotals()).bySubject[subject.code] ?? 0
 
   const url = `https://www.propilotlicence.com/subjects/${subject.slug}`
 
@@ -54,7 +59,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
         {/* Stats strip */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40 }}>
           {[
-            { label: 'Practice questions', value: subject.questionCount.toLocaleString() },
+            { label: 'Practice questions', value: questionCount.toLocaleString() },
             { label: 'Exam questions', value: `${subject.examQuestions}` },
             { label: 'Exam time', value: `${subject.examMinutes} min` },
             { label: 'Pass mark', value: `${subject.passMarkPct}%` },
@@ -107,7 +112,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
             Start practising {subject.shortTitle}
           </div>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.72)', marginBottom: 20 }}>
-            {subject.questionCount.toLocaleString()} practice questions, reviewed by active airline captains. First 10 free, no sign-up required.
+            {questionCount.toLocaleString()} practice questions, reviewed by active airline captains. First 10 free, no sign-up required.
           </p>
           <Link
             href="/login"

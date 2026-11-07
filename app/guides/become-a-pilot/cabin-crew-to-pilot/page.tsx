@@ -1,5 +1,6 @@
 import LandingHeader from '@/components/LandingHeader'
 import { getHeaderAuthState } from '@/lib/supabase-server'
+import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
@@ -20,7 +21,7 @@ const SERIES = getSeries('become-a-pilot')!
 const ARTICLE_INDEX = SERIES.posts.findIndex(p => p.slug === 'cabin-crew-to-pilot')
 
 export default async function CabinCrewToPilotPost() {
-  const { isLoggedIn, name } = await getHeaderAuthState()
+  const [{ isLoggedIn, name }, totals] = await Promise.all([getHeaderAuthState(), questionTotalsOrFallback()])
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -220,7 +221,7 @@ export default async function CabinCrewToPilotPost() {
 
         <CtaBlock
           title="Preparing for DGCA CPL theory exams?"
-          body="When you reach the theory examination stage, ProPilotLicence gives you 7,000+ practice questions organised by subject, book, and chapter — verified by a panel of active airline captains. Free to start."
+          body={`When you reach the theory examination stage, ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions organised by subject, book, and chapter — verified by a panel of active airline captains. Free to start.`}
           href="/subjects"
           label="Start practising →"
         />

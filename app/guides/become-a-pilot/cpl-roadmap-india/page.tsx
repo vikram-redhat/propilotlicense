@@ -1,5 +1,6 @@
 import LandingHeader from '@/components/LandingHeader'
 import { getHeaderAuthState } from '@/lib/supabase-server'
+import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
@@ -20,7 +21,7 @@ const SERIES = getSeries('become-a-pilot')!
 const ARTICLE_INDEX = SERIES.posts.findIndex(p => p.slug === 'cpl-roadmap-india')
 
 export default async function CplRoadmapIndiaPost() {
-  const { isLoggedIn, name } = await getHeaderAuthState()
+  const [{ isLoggedIn, name }, totals] = await Promise.all([getHeaderAuthState(), questionTotalsOrFallback()])
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -288,7 +289,7 @@ export default async function CplRoadmapIndiaPost() {
 
         <CtaBlock
           title="Start preparing for your DGCA theory exams today"
-          body="ProPilotLicence gives you 7,000+ practice questions across all five CPL subjects — organised by book and chapter, verified by active airline captains. Free to start, no credit card required."
+          body={`ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions across all five CPL subjects — organised by book and chapter, verified by active airline captains. Free to start, no credit card required.`}
           href="/subjects"
           label="Start practising free →"
         />

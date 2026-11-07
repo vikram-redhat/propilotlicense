@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
 import { getHeaderAuthState } from '@/lib/supabase-server'
+import { bookQuestionTotalOrNull, questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
@@ -14,7 +15,11 @@ export const metadata = buildMetadata({
 })
 
 export default async function DgcaCplBooksPost() {
-  const { isLoggedIn, name } = await getHeaderAuthState()
+  const [{ isLoggedIn, name }, totals, joshiTotal, baliTotal] = await Promise.all([
+    getHeaderAuthState(), questionTotalsOrFallback(),
+    bookQuestionTotalOrNull('ic-joshi-aviation-meteorology'), bookQuestionTotalOrNull('rk-bali-air-regulations'),
+  ])
+  const count = (n: number | null) => (n != null ? `${n.toLocaleString()} ` : '')
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -73,9 +78,9 @@ export default async function DgcaCplBooksPost() {
           <p>
             ProPilotLicence has{' '}
             <Link href="/books/ic-joshi-aviation-meteorology" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'none' }}>
-              1,851 practice questions sourced from IC Joshi
+              {count(joshiTotal)}Meteorology practice questions
             </Link>
-            , organised by chapter.
+            , organised by IC Joshi&apos;s chapters.
           </p>
         </Section>
 
@@ -101,7 +106,7 @@ export default async function DgcaCplBooksPost() {
           <p>
             ProPilotLicence has{' '}
             <Link href="/books/rk-bali-air-regulations" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'none' }}>
-              1,228 practice questions sourced from RK Bali
+              {count(baliTotal)}practice questions sourced from RK Bali
             </Link>
             , organised by chapter.
           </p>
@@ -157,7 +162,7 @@ export default async function DgcaCplBooksPost() {
             Practice questions from these books
           </div>
           <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: 0 }}>
-            ProPilotLicence has 7,000+ questions sourced from DGCA-prescribed textbooks, organised by subject and chapter, and reviewed by active airline captains.
+            ProPilotLicence has {roundedTotal(totals.cpl)} questions sourced from DGCA-prescribed textbooks, organised by subject and chapter, and reviewed by active airline captains.
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
             <Link href="/books/ic-joshi-aviation-meteorology" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>IC Joshi — Meteorology →</Link>

@@ -9,6 +9,7 @@ import { unstable_cache } from 'next/cache'
 import { getBookBySlug } from '@/lib/books'
 import { chapterPageHref } from '@/lib/chapter-pages'
 import { countChapterQuestions } from '@/lib/chapter-question-counts'
+import { bookQuestionTotalOrNull } from '@/lib/live-counts'
 import { createServiceClient } from '@/lib/supabase'
 
 export const metadata = buildMetadata({
@@ -19,6 +20,8 @@ export const metadata = buildMetadata({
 })
 
 const BOOK_SLUG = 'ic-joshi-aviation-meteorology'
+// Article dateModified; the visible "Updated" line is generated from it.
+const DATE_MODIFIED = '2026-11-08'
 
 type SyllabusChapter = {
   number: number
@@ -87,7 +90,7 @@ function oneLine(topics: string, max = 90): string {
 
 // Editorial notes from the Captain Panel, by IC Joshi 2019 chapter number. The page
 // shows each under the tier the chapter's exam_weight puts it in.
-const CHAPTER_NOTES: { number: number; title: string; body: React.ReactNode }[] = [
+const chapterNotes = (weightOf: Map<number, SyllabusChapter['weight']>): { number: number; title: string; body: React.ReactNode }[] => [
   {
     number: 13,
     title: 'Thunderstorms',
@@ -99,16 +102,16 @@ const CHAPTER_NOTES: { number: number; title: string; body: React.ReactNode }[] 
   },
   {
     number: 19,
-    title: 'Indian Climatology',
+    title: 'Climatology India',
     body: <>
-      This chapter is where the DGCA Meteorology paper diverges most sharply from international syllabi, and where the most preventable mark losses occur. Candidates who studied from Oxford or Jeppesen alone walk into the exam well-prepared for general meteorology and underprepared for three to five questions that are specific to Indian weather systems.
+      This chapter is rated {weightOf.get(19) ?? 'Medium'} overall, but it is where the DGCA paper diverges most sharply from international syllabi. Candidates who studied from Oxford or Jeppesen alone walk in well-prepared for general meteorology and underprepared for the three to five questions on Indian weather systems.
       <br /><br />
       What the DGCA tests from Chapter 19: the southwest monsoon mechanism (onset, progression, withdrawal), the northeast monsoon, western disturbances and their seasonal timing, the role of the Himalayas in Indian weather patterns, the ITCZ position over the subcontinent through the year, and seasonal visibility and fog patterns over northern India. These are not obscure topics — they are predictable fixtures of the paper.
     </>,
   },
   {
     number: 14,
-    title: 'Air Masses and Fronts',
+    title: 'Air Masses and Western Disturbances',
     body: <>
       Frontal weather sequences are tested reliably — what weather to expect before a warm front, what changes at the front passage, what follows behind a cold front. The DGCA tests these sequences in both directions: given weather conditions, identify the frontal type; given a frontal type, describe the expected weather sequence. Know both.
       <br /><br />
@@ -117,14 +120,14 @@ const CHAPTER_NOTES: { number: number; title: string; body: React.ReactNode }[] 
   },
   {
     number: 6,
-    title: 'Wind',
+    title: 'Winds',
     body: <>
       {'Geostrophic wind, gradient wind, surface friction effects, and jet streams are all tested. Jet stream characteristics — altitude, seasonal variation, location — appear consistently. Wind shear definitions and their operational implications are tested specifically.'}
     </>,
   },
   {
     number: 12,
-    title: 'Icing',
+    title: 'Ice Accretion',
     body: <>
       {'Rime, clear, and mixed icing — conditions for each type\'s formation. The effect of icing on lift, drag, stall speed, and instrument readings. Freezing rain is tested specifically for its icing severity (clear ice, most dangerous). Anti-icing vs de-icing distinction.'}
     </>,
@@ -162,14 +165,22 @@ const FAQS = [
 ]
 
 export default async function MeteorologyPrepPost() {
-  const [{ isLoggedIn, name }, syllabus] = await Promise.all([getHeaderAuthState(), loadSyllabus()])
+  const [{ isLoggedIn, name }, loaded, bankTotal] = await Promise.all([
+    getHeaderAuthState(),
+    // A failed hourly refresh serves the last good data (unstable_cache). Only with no
+    // cached data at all and the database down does this fall back, and the page renders
+    // without the table and tier lists rather than erroring.
+    loadSyllabus().catch(e => { console.error(e); return null }),
+    bookQuestionTotalOrNull(BOOK_SLUG), // the book page's count
+  ])
+  const syllabus = loaded ?? []
   const tier = (w: SyllabusChapter['weight']) => syllabus.filter(c => c.weight === w)
   const high = tier('High'), medium = tier('Medium'), low = tier('Low'), unrated = tier(null)
   const highList = chapterList(high.map(c => c.number))
   const weightOf = new Map(syllabus.map(c => [c.number, c.weight]))
   // Editorial notes for some chapters, shown under whichever tier the panel's weight puts
   // the chapter in (in this order within a tier).
-  const notesIn = (w: SyllabusChapter['weight']) => CHAPTER_NOTES.filter(n => weightOf.get(n.number) === w)
+  const notesIn = (w: SyllabusChapter['weight']) => chapterNotes(weightOf).filter(n => weightOf.get(n.number) === w)
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -177,7 +188,7 @@ export default async function MeteorologyPrepPost() {
         description="A complete guide to preparing for the DGCA CPL Aviation Meteorology paper. Which book to use, which chapters matter most, how to approach Indian climatology, and what to expect on exam day."
         url="https://www.propilotlicence.com/guides/dgca-exam-guides/dgca-cpl-meteorology-preparation"
         publishedAt="2026-06-15"
-        updatedAt="2026-11-08"
+        updatedAt={DATE_MODIFIED}
       />
       <FAQSchema faqs={FAQS} />
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
@@ -194,7 +205,7 @@ export default async function MeteorologyPrepPost() {
         <div style={{ fontSize: 12, color: 'var(--clr-text-med)', marginBottom: 16, display: 'flex', gap: 10, alignItems: 'center' }}>
           <span>Reviewed by ProPilotLicence Captain Panel</span>
           <span>·</span>
-          <span>Updated June 2026</span>
+          <span>Updated {new Date(DATE_MODIFIED).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' })}</span>
         </div>
 
         <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 30, fontWeight: 700, color: 'var(--clr-text)', letterSpacing: '-0.5px', lineHeight: 1.2, marginBottom: 32 }}>
@@ -262,6 +273,7 @@ export default async function MeteorologyPrepPost() {
             </p>
           </Prose>
 
+          {loaded ? <>
           <ChapterTable chapters={syllabus} />
 
           <PriorityLabel colour="var(--clr-correct)" bg="var(--clr-correct-bg)">Highest priority — study these first and revisit before the exam</PriorityLabel>
@@ -279,12 +291,18 @@ export default async function MeteorologyPrepPost() {
             </p>
             {unrated.length > 0 && <p>Not yet rated: Chapters {namedChapterList(unrated)}.</p>}
           </Prose>
+          </> : (
+            <InternalLink href={`/books/${BOOK_SLUG}`}>See the chapter-by-chapter breakdown of IC Joshi, with the panel&apos;s exam weights →</InternalLink>
+          )}
         </Section>
 
         <Divider />
 
         <Section title="The Indian climatology problem in detail">
           <Prose>
+            <p>
+              Climatology India is rated {weightOf.get(19) ?? 'Medium'}, but its questions are the ones international textbooks leave you unprepared for, which makes them the easiest marks to lose.
+            </p>
             <p>
               It is worth being specific about this because it is the most predictable failure point for candidates who are otherwise well-prepared.
             </p>
@@ -323,7 +341,7 @@ export default async function MeteorologyPrepPost() {
             {[
               ['Days 7–4 before the exam', 'Run one full-subject mock exam per day. After each mock, identify every question answered incorrectly and return to the source chapter. Do not simply read the correct answer — read the section of the text book that covers the concept, so you understand why the correct answer is correct rather than memorising the answer to that specific question.'],
               ['Days 3–2 before the exam', 'Stop full mock exams. Switch to chapter-specific sessions on your weakest chapters only — the ones where your mock performance was lowest. Use the ProPilotLicence chapter filter to drill exclusively those chapters.'],
-              ['Day 1 before the exam', `Light revision only. Review your notes on the High-weight chapters, Chapters ${highList}. Do not attempt new questions. Get eight hours of sleep.`],
+              ['Day 1 before the exam', `Light revision only. Skim your notes on the High-weight chapters${highList ? ` (${highList})` : ''}, concentrating on the ones where your mock scores were weakest. Do not attempt new questions. Get eight hours of sleep.`],
             ].map(([label, text]) => (
               <div key={label} style={{ padding: '14px 16px', background: 'var(--clr-surf-alt)', border: '1px solid var(--clr-border)', borderRadius: 10 }}>
                 <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--clr-primary)', marginBottom: 6 }}>{label}</div>
@@ -377,7 +395,7 @@ export default async function MeteorologyPrepPost() {
             Practise DGCA Meteorology questions
           </div>
           <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: 0 }}>
-            1,851 questions from IC Joshi and related books, organised mostly by chapter. First 10 free, no sign-up required.
+            {bankTotal != null ? `${bankTotal.toLocaleString()} questions` : 'Questions'} from IC Joshi and related books, organised mostly by chapter. First 10 free, no sign-up required.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Link href="/subjects/aviation-meteorology" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Aviation Meteorology subject page →</Link>

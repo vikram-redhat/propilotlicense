@@ -1,5 +1,6 @@
 import LandingHeader from '@/components/LandingHeader'
 import { getHeaderAuthState } from '@/lib/supabase-server'
+import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
@@ -20,7 +21,7 @@ const SERIES = getSeries('become-a-pilot')!
 const ARTICLE_INDEX = SERIES.posts.findIndex(p => p.slug === 'aocs-to-pilot')
 
 export default async function AocsToPilotPost() {
-  const { isLoggedIn, name } = await getHeaderAuthState()
+  const [{ isLoggedIn, name }, totals] = await Promise.all([getHeaderAuthState(), questionTotalsOrFallback()])
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -226,7 +227,7 @@ export default async function AocsToPilotPost() {
 
         <CtaBlock
           title="Ready to start your DGCA theory preparation?"
-          body="ProPilotLicence gives you 7,000+ practice questions across all five CPL subjects — organised by book and chapter, verified by active airline captains. Start with Air Regulations, where your ops background gives you the strongest advantage."
+          body={`ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions across all five CPL subjects — organised by book and chapter, verified by active airline captains. Start with Air Regulations, where your ops background gives you the strongest advantage.`}
           href="/subjects/air-regulations"
           label="Start with Air Regulations →"
         />
