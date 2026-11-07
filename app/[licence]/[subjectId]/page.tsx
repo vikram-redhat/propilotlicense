@@ -359,9 +359,12 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                               <svg style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="var(--clr-text-med)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             </div>
                           )}
-                          {selectedChapterId && isSyllabusBook(selectedBookId) && (
+                          {isSyllabusBook(selectedBookId) && (
                             <p style={{ fontSize: 12, color: 'var(--clr-text-med)', lineHeight: 1.55, marginTop: 8 }}>
-                              Includes every question on this syllabus topic, from all our source books. Each question shows the book it comes from.
+                              {selectedChapterId
+                                ? 'Includes every question on this syllabus topic, from all our source books.'
+                                : 'Includes every question on the syllabus, from all our source books, arranged by this book’s chapters.'}
+                              {' '}Each question shows the book it comes from.
                             </p>
                           )}
                         </>

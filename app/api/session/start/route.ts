@@ -191,9 +191,17 @@ export async function POST(req: Request) {
     return Response.json({ sessionId: session.id })
   }
 
-  // A chapter of a syllabus book (IC Joshi) draws every question on that syllabus topic,
-  // whichever book it cites; each still shows its own citation in the session.
-  const bySyllabus = scope === 'book_chapter' && !!chapterId && chapterColumnFor(sourceBookId) === 'syllabus_chapter_id'
+  // A syllabus book (IC Joshi) draws by syllabus chapter: one chapter, or the whole book
+  // (every question on any of its syllabus chapters), whichever book each question cites;
+  // each still shows its own citation in the session.
+  const bySyllabus = ((scope === 'book_chapter' && !!chapterId) || scope === 'book')
+    && chapterColumnFor(sourceBookId) === 'syllabus_chapter_id'
+  let syllabusChapterIds: string[] = []
+  if (bySyllabus && scope === 'book') {
+    const { data: chs, error: chError } = await supabase.from('chapters').select('id').eq('book_id', sourceBookId)
+    if (chError) return Response.json({ error: chError.message }, { status: 500 })
+    syllabusChapterIds = (chs ?? []).map(c => c.id)
+  }
 
   const buildQuery = (useSyllabus: boolean) => {
     let query = supabase
@@ -207,7 +215,9 @@ export async function POST(req: Request) {
         if (topicId) query = query.eq('topic_id', topicId)
         break
       case 'book':
-        query = query.eq('source_book_id', sourceBookId)
+        query = useSyllabus
+          ? query.in('syllabus_chapter_id', syllabusChapterIds)
+          : query.eq('source_book_id', sourceBookId)
         break
       case 'book_chapter':
         if (useSyllabus) {
@@ -224,11 +234,23 @@ export async function POST(req: Request) {
     return query
   }
 
-  let { data: rawQuestions, error } = await buildQuery(bySyllabus)
+  // Page past PostgREST's 1,000-row cap so large pools (a whole syllabus book, combined)
+  // draw from every question, not the first 1,000.
+  const fetchPool = async (useSyllabus: boolean) => {
+    const rows: unknown[] = []
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await buildQuery(useSyllabus).order('id').range(from, from + 999)
+      if (error) return { data: rows, error }
+      rows.push(...(data ?? []))
+      if (!data || data.length < 1000) return { data: rows, error: null }
+    }
+  }
+
+  let { data: rawQuestions, error } = await fetchPool(bySyllabus)
   // 42703 = undefined column: scripts/migrate_syllabus_chapter.sql not run — fall back to
   // the book's own chapter links.
   if (bySyllabus && error?.code === '42703') {
-    ({ data: rawQuestions, error } = await buildQuery(false))
+    ({ data: rawQuestions, error } = await fetchPool(false))
   }
 
   if (error) {

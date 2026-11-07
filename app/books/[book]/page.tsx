@@ -9,6 +9,7 @@ import { BOOKS, getBookBySlug, type Book } from '@/lib/books'
 import { createServiceClient } from '@/lib/supabase'
 import { chapterPageHref } from '@/lib/chapter-pages'
 import { countChapterQuestions } from '@/lib/chapter-question-counts'
+import { isSyllabusBook } from '@/lib/syllabus'
 
 // Books with a sourceBookId read their chapter list from the database; re-fetch hourly.
 export const revalidate = 3600
@@ -41,9 +42,10 @@ async function loadChapters(book: Book): Promise<{ chapters: ChapterRow[]; editi
   }
 }
 
-// Live question total for the meta description: the sum of the chapter counts the
-// practice picker shows an Indian student (syllabus chapters for IC Joshi). Books
-// without a sourceBookId keep the hardcoded figure.
+// Live question total: the sum of the chapter counts the practice picker shows an Indian
+// student. For a syllabus book (IC Joshi) that is every question on its syllabus
+// chapters, whichever book it cites, which is also what whole-book practice draws.
+// Books without a sourceBookId keep the hardcoded figure.
 async function liveQuestionCount(book: Book): Promise<number> {
   if (!('sourceBookId' in book)) return book.questionCount
   const supabase = createServiceClient()
@@ -60,6 +62,12 @@ async function liveQuestionCount(book: Book): Promise<number> {
   return Object.values(counts).reduce((a, b) => a + b, 0)
 }
 
+// A syllabus book's questions come from all source books, so the copy says they are
+// organised by its chapters rather than sourced from it.
+function bySyllabus(book: Book): boolean {
+  return 'sourceBookId' in book && isSyllabusBook(book.sourceBookId)
+}
+
 export function generateStaticParams() {
   return BOOKS.map((b) => ({ book: b.slug }))
 }
@@ -70,7 +78,9 @@ export async function generateMetadata({ params }: { params: Promise<{ book: str
   if (!book) return {}
   return buildMetadata({
     title: `${book.title} by ${book.authorShort} — DGCA ${book.subjectTitle} Questions | ProPilotLicence`,
-    description: `${(await liveQuestionCount(book)).toLocaleString()} practice questions sourced from ${book.title} by ${book.author}. Organised by chapter. Reviewed by active airline captains.`,
+    description: bySyllabus(book)
+      ? `${(await liveQuestionCount(book)).toLocaleString()} ${book.subjectTitle} practice questions organised by ${book.authorShort}’s chapters. Reviewed by active airline captains.`
+      : `${book.questionCount.toLocaleString()} practice questions sourced from ${book.title} by ${book.author}. Organised by chapter. Reviewed by active airline captains.`,
     path: `/books/${slug}`,
   })
 }
@@ -79,10 +89,12 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
   const { book: slug } = await params
   const book = getBookBySlug(slug)
   if (!book) notFound()
-  const { chapters, edition } = await loadChapters(book)
+  const [{ chapters, edition }, questionCount] = await Promise.all([loadChapters(book), liveQuestionCount(book)])
 
   const url = `https://www.propilotlicence.com/books/${book.slug}`
-  const courseDescription = `${book.questionCount.toLocaleString()} practice questions sourced from ${book.title} by ${book.author}, organised by chapter and reviewed by active airline captains.`
+  const courseDescription = bySyllabus(book)
+    ? `${questionCount.toLocaleString()} ${book.subjectTitle} practice questions organised by the chapters of ${book.title} by ${book.author}, reviewed by active airline captains.`
+    : `${questionCount.toLocaleString()} practice questions sourced from ${book.title} by ${book.author}, organised by chapter and reviewed by active airline captains.`
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
@@ -120,7 +132,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
         {/* Stats strip */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 48 }}>
           {[
-            { label: 'Practice questions', value: book.questionCount.toLocaleString() },
+            { label: 'Practice questions', value: questionCount.toLocaleString() },
             { label: 'Chapters covered', value: `${chapters.length}` },
             { label: 'Subject', value: book.subjectTitle },
             { label: 'DGCA prescribed', value: book.dgcaPrescribed ? 'Yes' : 'No' },
@@ -214,7 +226,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
         {/* CTA */}
         <div style={{ background: 'var(--clr-hero)', borderRadius: 14, padding: '28px 24px', marginBottom: 48, textAlign: 'center' }}>
           <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 8 }}>
-            Practise all {book.questionCount.toLocaleString()} questions from {book.authorShort}
+            Practise all {questionCount.toLocaleString()} questions {bySyllabus(book) ? `on ${book.authorShort}’s chapters` : `from ${book.authorShort}`}
           </div>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.72)', marginBottom: 20 }}>
             Organised by chapter. Reviewed by active airline captains. First 10 questions free.
