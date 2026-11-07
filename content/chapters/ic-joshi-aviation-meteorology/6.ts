@@ -16,12 +16,13 @@ export const CHAPTER_6: ChapterPageContent = {
   updatedAt: '2026-11-05',
   reviewedBy: 'ProPilotLicence Captain Panel',
 
-  // Fixed sample questions (chosen 2026-11-06): active, syllabus chapter 6, high
-  // confidence, with an explanation checked against this page. Fixed so the page is stable.
+  // Fixed sample questions (re-picked 2026-11-07): IC Joshi-sourced, active, syllabus
+  // chapter 6, high confidence, with an explanation checked against this page. Fixed so
+  // the page is stable.
   sampleQuestionIds: [
-    '471679e2-29fd-48da-97f5-9a6df6d578c1', // geostrophic wind: PGF and Coriolis in balance (IC Joshi)
-    '46e058b8-0502-4e9a-b039-af1d39e68092', // Buys Ballot in the southern hemisphere (Oxford)
-    '7429a957-4cca-4d6b-921f-e95098ce4615', // wind veers with height as friction falls off (Oxford)
+    '471679e2-29fd-48da-97f5-9a6df6d578c1', // geostrophic wind: PGF and Coriolis in balance
+    'a760fb0e-93c7-463f-81c3-c612c54a3757', // clockwise round a low in the southern hemisphere
+    'a800d6c9-7358-4d13-97d5-4a8d4e021ff8', // wind increases with height as friction falls off
   ],
 
   head: String.raw`

@@ -10,18 +10,19 @@ export const CHAPTER_2: ChapterPageContent = {
   chapterNumber: 2,
   slug: 'chapter-2-atmospheric-pressure',
   metaTitle: 'IC Joshi Ch 2 Atmospheric Pressure: DGCA Notes and Questions',
-  metaDescription: 'IC Joshi Aviation Meteorology Chapter 2, Atmospheric Pressure. QNH, QFE, QFF and QNE, altimeter errors, transition procedures, five worked numericals and practice questions.',
+  metaDescription: 'IC Joshi Aviation Meteorology Chapter 2, Atmospheric Pressure. QNH, QFE, QFF and QNE, altimeter errors, transition procedures, four worked numericals and practice questions.',
   excerpt: 'Atmospheric Pressure is a High-weight chapter and home to the numericals. Get QNH, QFE, QFF and QNE exact, understand why temperature changes the altimeter, and these become the easiest marks in the paper.',
   publishedAt: '2026-11-05',
   updatedAt: '2026-11-05',
   reviewedBy: 'ProPilotLicence Captain Panel',
 
-  // Fixed sample questions (chosen 2026-11-06): active, syllabus chapter 2, high
-  // confidence, with an explanation checked against this page. Fixed so the page is stable.
+  // Fixed sample questions (re-picked 2026-11-07): IC Joshi-sourced, active, syllabus
+  // chapter 2, high confidence, with an explanation checked against this page. Fixed so
+  // the page is stable.
   sampleQuestionIds: [
-    '73033c14-7750-4bef-9703-be7b279d036a', // high to low pressure: true altitude decreases (IC Joshi)
-    'ec90d8dc-1871-4b32-89cd-5e6c9d237cc0', // colder than ISA: true altitude lower (Underdown & Standen)
-    'cca1c758-5799-4abc-8e85-d6ef5f544599', // QNH set on the ground reads aerodrome elevation (Oxford)
+    '73033c14-7750-4bef-9703-be7b279d036a', // high to low pressure: true altitude decreases
+    '1d2f092d-1daf-44a2-a2ff-2386e92ef24b', // warm to cold air: true altitude decreases
+    '658cbb25-2dcb-48a6-aeb8-a34facdf6473', // QFE: altimeter reads zero on the aerodrome
   ],
 
   head: String.raw`

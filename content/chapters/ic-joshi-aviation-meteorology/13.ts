@@ -16,12 +16,13 @@ export const CHAPTER_13: ChapterPageContent = {
   updatedAt: '2026-11-04',
   reviewedBy: 'ProPilotLicence Captain Panel',
 
-  // Fixed sample questions (chosen 2026-11-04): active, syllabus chapter 13, high
-  // confidence, with an explanation; two already reviewed. Fixed so the page is stable.
+  // Fixed sample questions (re-picked 2026-11-07): IC Joshi-sourced, active, syllabus
+  // chapter 13, high confidence, with an explanation checked against this page. Fixed so
+  // the page is stable.
   sampleQuestionIds: [
-    '1b17cca4-a8c6-4abc-923e-8eb190541b8c', // mature stage: updraughts + downdraughts (IC Joshi)
-    'c762b757-4a52-4d55-9908-b18d426dae81', // primary requirement: instability (IC Joshi)
-    '7ed70b13-27a6-4032-a0f8-8e62c1c79024', // microburst sequence on approach (Oxford)
+    '1b17cca4-a8c6-4abc-923e-8eb190541b8c', // mature stage: updraughts + downdraughts (reviewed)
+    'c762b757-4a52-4d55-9908-b18d426dae81', // primary requirement: instability (reviewed)
+    'f93ea80f-b077-4063-a5ab-cbbe4f1c8f1a', // horizontal extent of an air mass thunderstorm (reviewed)
   ],
 
   head: String.raw`
@@ -233,6 +234,7 @@ export const CHAPTER_13: ChapterPageContent = {
   related: String.raw`
   <h2>Related chapters</h2>
   <ul class="related">
+    <li><a href="#">Chapter 6, Winds</a>: squalls, gusts and wind shear.</li>
     <li><a href="#">Chapter 8, Clouds</a>: the cumulonimbus as a cloud type, separate from the storm process.</li>
     <li><a href="#">Chapter 9, Stability of Atmosphere</a>: conditional instability, the reason thunderstorms form at all.</li>
     <li><a href="#">Chapter 12, Ice Accretion</a>: clear ice in convective cloud.</li>

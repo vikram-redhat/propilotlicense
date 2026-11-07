@@ -20,7 +20,7 @@ export const BOOKS = [
       },
       {
         q: 'Which chapters of IC Joshi are most heavily tested in the DGCA exam?',
-        a: 'Based on review by the ProPilotLicence captain panel: Chapter 13 (Thunderstorm) and Chapter 19 (Climatology India) are consistently the highest-yield chapters. Chapter 25 (Aviation Weather Reports and Codes) is reliable for METAR/TAF decoding questions. Chapter 14 (Air Masses and Western Disturbances) produces consistent questions on frontal sequences.',
+        a: 'The ProPilotLicence Captain Panel rates nine chapters High exam weight: Chapters 1 to 7 (Atmosphere, Atmospheric Pressure, Temperature, Air Density, Humidity, Winds, and Visibility and Fog), Chapter 13 (Thunderstorm) and Chapter 21 (Meteorological Services for Aviation). The weight of every chapter is shown in the chapter-by-chapter breakdown on this page.',
       },
       {
         q: 'Can I practise just one chapter of IC Joshi at a time on ProPilotLicence?',

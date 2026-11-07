@@ -8,6 +8,7 @@ import { buildMetadata } from '@/lib/metadata'
 import { BOOKS, getBookBySlug, type Book } from '@/lib/books'
 import { createServiceClient } from '@/lib/supabase'
 import { chapterPageHref } from '@/lib/chapter-pages'
+import { countChapterQuestions } from '@/lib/chapter-question-counts'
 
 // Books with a sourceBookId read their chapter list from the database; re-fetch hourly.
 export const revalidate = 3600
@@ -40,6 +41,25 @@ async function loadChapters(book: Book): Promise<{ chapters: ChapterRow[]; editi
   }
 }
 
+// Live question total for the meta description: the sum of the chapter counts the
+// practice picker shows an Indian student (syllabus chapters for IC Joshi). Books
+// without a sourceBookId keep the hardcoded figure.
+async function liveQuestionCount(book: Book): Promise<number> {
+  if (!('sourceBookId' in book)) return book.questionCount
+  const supabase = createServiceClient()
+  const [bookRes, chaptersRes] = await Promise.all([
+    supabase.from('source_books').select('subject_id').eq('id', book.sourceBookId).single(),
+    supabase.from('chapters').select('id').eq('book_id', book.sourceBookId),
+  ])
+  if (bookRes.error) throw new Error(`Question count for ${book.slug}: ${bookRes.error.message}`)
+  if (chaptersRes.error) throw new Error(`Question count for ${book.slug}: ${chaptersRes.error.message}`)
+  const counts = await countChapterQuestions(supabase, {
+    subjectId: bookRes.data.subject_id, bookId: book.sourceBookId,
+    chapterIds: chaptersRes.data.map(c => c.id), country: 'IN',
+  })
+  return Object.values(counts).reduce((a, b) => a + b, 0)
+}
+
 export function generateStaticParams() {
   return BOOKS.map((b) => ({ book: b.slug }))
 }
@@ -50,7 +70,7 @@ export async function generateMetadata({ params }: { params: Promise<{ book: str
   if (!book) return {}
   return buildMetadata({
     title: `${book.title} by ${book.authorShort} — DGCA ${book.subjectTitle} Questions | ProPilotLicence`,
-    description: `${book.questionCount.toLocaleString()} practice questions sourced from ${book.title} by ${book.author}. Organised by chapter. Reviewed by active airline captains.`,
+    description: `${(await liveQuestionCount(book)).toLocaleString()} practice questions sourced from ${book.title} by ${book.author}. Organised by chapter. Reviewed by active airline captains.`,
     path: `/books/${slug}`,
   })
 }
