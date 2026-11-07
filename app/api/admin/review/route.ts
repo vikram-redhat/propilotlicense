@@ -26,6 +26,9 @@ export async function GET(request: Request) {
   const exclude = (searchParams.get('exclude') || '').split(',').filter(Boolean)
   const syllabus           = searchParams.get('syllabus') || ''
   const syllabusConfidence = searchParams.get('syllabusConfidence') || ''
+  // ?ids=<id>,<id>,… — exactly those questions, in that order; every filter is ignored.
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  const listIds = [...new Set((searchParams.get('ids') || '').split(',').map(s => s.trim().toLowerCase()).filter(s => UUID.test(s)))].slice(0, 100)
 
   const supabase = createServiceClient()
 
@@ -54,16 +57,18 @@ export async function GET(request: Request) {
   // The syllabus params exist only in the v2 function (scripts/migrate_review_order_v2.sql),
   // so they're sent only when a syllabus filter is set; without v2 that call returns
   // PGRST202 and falls back below.
-  const { data: ranked, error: rpcError } = await supabase.rpc('review_batch', {
-    p_subject: subject || null,
-    p_book:    book || null,
-    p_chapter: chapter || null,
-    p_status:  status,
-    p_exclude: exclude,
-    p_limit:   BATCH_SIZE,
-    ...(syllabus           ? { p_syllabus_chapter: syllabus } : {}),
-    ...(syllabusConfidence ? { p_syllabus_confidence: syllabusConfidence } : {}),
-  })
+  const { data: ranked, error: rpcError } = listIds.length
+    ? { data: listIds.map(id => ({ id })), error: null }
+    : await supabase.rpc('review_batch', {
+      p_subject: subject || null,
+      p_book:    book || null,
+      p_chapter: chapter || null,
+      p_status:  status,
+      p_exclude: exclude,
+      p_limit:   BATCH_SIZE,
+      ...(syllabus           ? { p_syllabus_chapter: syllabus } : {}),
+      ...(syllabusConfidence ? { p_syllabus_confidence: syllabusConfidence } : {}),
+    })
 
   if (!rpcError) {
     const order = new Map((ranked as { id: string }[]).map((r, i) => [r.id, i]))
@@ -115,13 +120,18 @@ export async function GET(request: Request) {
       .order('chapter_number'),
   ])
 
+  // Progress for an ids list is over the listed questions; otherwise over the filters.
+  const listProgress = listIds.length
+    ? { count: questions.length, never: questions.filter(q => !q.last_reviewed_at).length }
+    : null
+
   const [flagsRes, answers, totalRes, neverRes, reviewerIds] = await Promise.all([
     ids.length
       ? supabase.from('question_flags').select('question_id, reason, resolved, created_at').in('question_id', ids).order('created_at', { ascending: false })
       : Promise.resolve({ data: [] as { question_id: string; reason: string | null; resolved: boolean; created_at: string }[] }),
     fetchAnswers(supabase, ids),
-    applyFilters(supabase.from('questions').select('id', head)),
-    applyFilters(supabase.from('questions').select('id', head)).is('last_reviewed_at', null),
+    listProgress ? { count: listProgress.count } : applyFilters(supabase.from('questions').select('id', head)),
+    listProgress ? { count: listProgress.never } : applyFilters(supabase.from('questions').select('id', head)).is('last_reviewed_at', null),
     Promise.resolve([...new Set(questions.map(q => q.last_reviewed_by).filter(Boolean))] as string[]),
   ])
 

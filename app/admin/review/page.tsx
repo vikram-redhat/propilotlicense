@@ -1,5 +1,7 @@
 'use client'
-import { useCallback, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import QuestionForm from '@/components/QuestionForm'
 import { Question } from '@/lib/types'
 import { IconCheck, IconEdit, IconPlayerSkipForward, IconTrash, IconFlag, IconBook, IconRefresh } from '@tabler/icons-react'
@@ -31,7 +33,14 @@ function fmtDate(iso: string | null | undefined) {
   return iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
 }
 
+// useSearchParams needs a Suspense boundary for prerendering.
 export default function ReviewPage() {
+  return <Suspense fallback={null}><ReviewQueue /></Suspense>
+}
+
+function ReviewQueue() {
+  // ?ids=<id>,<id>,… — review exactly those questions, in that order; filters are ignored.
+  const ids = useSearchParams().get('ids') ?? ''
   const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([])
   const [books, setBooks]       = useState<{ id: string; title: string; author: string | null }[]>([])
   const [chapters, setChapters] = useState<{ id: string; chapter_number: number; chapter_name: string }[]>([])
@@ -54,7 +63,9 @@ export default function ReviewPage() {
   const load = useCallback(async (exclude: string[]) => {
     setLoading(true)
     setNotice(null)
-    const params = new URLSearchParams({ subject, book, chapter, status, syllabus, syllabusConfidence, exclude: exclude.join(',') })
+    const params = ids
+      ? new URLSearchParams({ ids })
+      : new URLSearchParams({ subject, book, chapter, status, syllabus, syllabusConfidence, exclude: exclude.join(',') })
     const res = await fetch(`/api/admin/review?${params}`)
     const data = await res.json()
     if (!res.ok) {
@@ -72,7 +83,7 @@ export default function ReviewPage() {
     setEditingId(null)
     setLoading(false)
     window.scrollTo({ top: 0 })
-  }, [subject, book, chapter, status, syllabus, syllabusConfidence])
+  }, [ids, subject, book, chapter, status, syllabus, syllabusConfidence])
 
   // New filters start a fresh sitting (forget skips).
   useEffect(() => { setSkipped([]); load([]) }, [load])
@@ -132,13 +143,19 @@ export default function ReviewPage() {
             <div className="bg-white rounded-xl border border-slate-200 px-4 py-3 text-right">
               <div className="text-lg font-bold text-slate-800">{reviewedPct}% reviewed</div>
               <div className="text-xs text-slate-500">
-                {progress.neverReviewed.toLocaleString()} of {progress.total.toLocaleString()} matching questions never reviewed
+                {progress.neverReviewed.toLocaleString()} of {progress.total.toLocaleString()} {ids ? 'listed' : 'matching'} questions never reviewed
               </div>
             </div>
           )}
         </div>
 
-        {/* Filters */}
+        {/* Filters (a question list from ?ids= replaces them) */}
+        {ids ? (
+          <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-xl px-4 py-3 text-sm mb-5 flex items-center justify-between gap-3 flex-wrap">
+            <span>Showing {batch.length} question{batch.length === 1 ? '' : 's'} from a link, in the order given. Filters are off.</span>
+            <Link href="/admin/review" className="font-semibold underline">Back to the review queue</Link>
+          </div>
+        ) : (
         <div className="flex flex-wrap gap-2 mb-5">
           <select value={subject} onChange={e => { setSubject(e.target.value); setBook(''); setChapter(''); setSyllabus('') }} className={SELECT_CLS}>
             <option value="">All Subjects</option>
@@ -169,6 +186,7 @@ export default function ReviewPage() {
             <option value="low">Low confidence</option>
           </select>
         </div>
+        )}
 
         {notice && (
           <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-sm mb-5">{notice}</div>
@@ -177,7 +195,7 @@ export default function ReviewPage() {
         {loading ? (
           <div className="text-center text-slate-400 py-16 text-sm">Loading batch…</div>
         ) : !notice && batch.length === 0 ? (
-          <div className="text-center text-slate-500 py-16 text-sm">No questions match these filters.</div>
+          <div className="text-center text-slate-500 py-16 text-sm">{ids ? 'None of the linked questions were found.' : 'No questions match these filters.'}</div>
         ) : (
           <div className="space-y-4">
             {batch.map((q, i) => (
@@ -206,14 +224,14 @@ export default function ReviewPage() {
             <span className="text-sm text-slate-600">
               <strong className="text-slate-800">{done}</strong> of {batch.length} done in this batch
             </span>
-            <button
+            {!ids && <button
               onClick={() => load(skipped)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white"
               style={{ backgroundColor: done === batch.length ? 'var(--clr-primary)' : '#64748b' }}
             >
               <IconRefresh size={15} />
               Next batch
-            </button>
+            </button>}
           </div>
         )}
       </div>
