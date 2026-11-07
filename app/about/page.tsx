@@ -39,7 +39,7 @@ export default async function AboutPage() {
 
         <Section title="The question bank">
           <p>
-            Every question on ProPilotLicence is sourced from the officially prescribed DGCA syllabus textbooks — the same books your ground instructor tells you to buy on day one of your CPL programme. Questions are organised by subject, book, and chapter, so you can drill IC Joshi Chapter 8 the night before your Meteorology paper, or work through every Air Regulations question from a specific ICAO Annex without wading through unrelated material.
+            Every question on ProPilotLicence is sourced from the officially prescribed DGCA syllabus textbooks — the same books your ground instructor tells you to buy on day one of your CPL programme. Questions are organised by subject, book, and chapter, so you can drill IC Joshi Chapter 13 the night before your Meteorology paper, or work through every Air Regulations question from a specific ICAO Annex without wading through unrelated material.
           </p>
           <p>The question bank currently contains <strong>{roundedTotal(totals.cpl)} questions</strong> across five CPL subjects, with ATPL coverage expanding continuously.</p>
         </Section>

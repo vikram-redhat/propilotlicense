@@ -23,7 +23,7 @@ export const SUBJECTS = [
       },
       {
         q: 'Which topics in the DGCA Meteorology paper are most heavily tested?',
-        a: 'Based on review by the ProPilotLicence captain panel: Thunderstorms (Chapter 8 of IC Joshi), Indian Climatology (Chapter 11), and METAR/TAF decoding (Chapter 12) are the highest-yield topics. Frontal weather sequences and icing conditions are also tested consistently.',
+        a: 'Based on review by the ProPilotLicence captain panel: Thunderstorms (Chapter 13 of IC Joshi), Indian Climatology (Chapter 19), and METAR/TAF decoding (Chapter 25) are the highest-yield topics. Frontal weather sequences and icing conditions are also tested consistently.',
       },
       {
         q: 'Is the DGCA Meteorology paper difficult?',

@@ -186,7 +186,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const airbusSubject = subjects.find(s => s.code === 'A320FAMILY')
   const airbusTopics = ((airbusTopicsRes.data as { name: string }[]) || []).map(t => formatAtaTopic(t.name))
 
-  const totalQuestions = subjects.reduce((a, s) => a + s.questionCount, 0)
+  // If the live per-subject counts failed, show the shared module's last known total.
+  const totalQuestions = subjects.reduce((a, s) => a + s.questionCount, 0) || (await questionTotalsOrFallback()).all
   const bookCount = bookCountRes.count ?? 0
   const subscribed = isSubscribed(profileRes?.data as Parameters<typeof isSubscribed>[0])
   const examType = user?.user_metadata?.exam_type ?? null
@@ -244,7 +245,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
               <div>
                 <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>
-                  {totalQuestions > 0 ? `${(totalQuestions / 1000).toFixed(1).replace(/\.0$/, '')}k+` : '4,100+'}
+                  {`${(totalQuestions / 1000).toFixed(1).replace(/\.0$/, '')}k+`}
                 </div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginTop: 3 }}>questions</div>
               </div>

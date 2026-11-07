@@ -93,7 +93,7 @@ function oneLine(topics: string, max = 90): string {
 const chapterNotes = (weightOf: Map<number, SyllabusChapter['weight']>): { number: number; title: string; body: React.ReactNode }[] => [
   {
     number: 13,
-    title: 'Thunderstorms',
+    title: 'Thunderstorm',
     body: <>
       This is the single most heavily tested topic in the DGCA Meteorology paper. Expect four to six questions per paper on thunderstorm formation, types, stages of development, and associated hazards — icing, turbulence, windshear, lightning, hail, and microburst activity. The DGCA tests this topic in depth because the consequences of thunderstorm encounters are severe and the decisions pilots make around convective activity are operationally critical.
       <br /><br />

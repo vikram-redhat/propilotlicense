@@ -65,14 +65,14 @@ export default async function DgcaCplBooksPost() {
             <strong>Aviation Meteorology</strong> by Group Captain IC Joshi (IAF, Retd.) is one prescribed Indian text that covers Indian climatology, the monsoon system, and subcontinent-specific weather phenomena in the depth the DGCA tests.
           </p>
           <p>
-            This is the most important book distinction for Meteorology candidates: international textbooks (ATPL Oxford, JAA ground studies) are thorough on European and North Atlantic weather however, slightly light on Indian climatology. The DGCA Meteorology paper regularly includes questions from Chapter 11 (Indian Climatology) and Chapter 8 (Thunderstorms), both of which Joshi covers in depth.
+            This is the most important book distinction for Meteorology candidates: international textbooks (ATPL Oxford, JAA ground studies) are thorough on European and North Atlantic weather however, slightly light on Indian climatology. The DGCA Meteorology paper regularly includes questions from Chapter 19 (Indian Climatology) and Chapter 13 (Thunderstorms), both of which Joshi covers in depth.
           </p>
           <SubSection title="Chapters to prioritise">
             <ChapterList items={[
-              ['Chapter 8 — Thunderstorms', 'The highest-yield chapter in the entire Meteorology paper. Study every section.'],
-              ['Chapter 11 — Indian Climatology', 'The chapter that separates candidates using Joshi from those using international texts only.'],
-              ['Chapter 12 — Aviation Weather Reports and Forecasts', 'METAR decoding questions appear in nearly every paper.'],
-              ['Chapter 7 — Air Masses and Fronts', 'Frontal sequences produce consistent questions.'],
+              ['Chapter 13 — Thunderstorms', 'The highest-yield chapter in the entire Meteorology paper. Study every section.'],
+              ['Chapter 19 — Indian Climatology', 'The chapter that separates candidates using Joshi from those using international texts only.'],
+              ['Chapter 25 — Aviation Weather Reports and Forecasts', 'METAR decoding questions appear in nearly every paper.'],
+              ['Chapter 14 — Air Masses and Fronts', 'Frontal sequences produce consistent questions.'],
             ]} />
           </SubSection>
           <p>
