@@ -5,6 +5,11 @@ import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
 import { buildMetadata } from '@/lib/metadata'
+import { unstable_cache } from 'next/cache'
+import { getBookBySlug } from '@/lib/books'
+import { chapterPageHref } from '@/lib/chapter-pages'
+import { countChapterQuestions } from '@/lib/chapter-question-counts'
+import { createServiceClient } from '@/lib/supabase'
 
 export const metadata = buildMetadata({
   title: 'How to Prepare for the DGCA CPL Meteorology Exam — Complete Study Guide | ProPilotLicence',
@@ -12,6 +17,126 @@ export const metadata = buildMetadata({
     'A complete guide to preparing for the DGCA CPL Aviation Meteorology paper. Which book to use, which chapters matter most, how to approach Indian climatology, and what to expect on exam day.',
   path: '/guides/dgca-exam-guides/dgca-cpl-meteorology-preparation',
 })
+
+const BOOK_SLUG = 'ic-joshi-aviation-meteorology'
+
+type SyllabusChapter = {
+  number: number
+  name: string
+  weight: 'High' | 'Medium' | 'Low' | null
+  topics: string | null
+  questions: number
+  href: string | null
+}
+
+// The chapter table and every tier list on this page come from the IC Joshi 2019
+// chapters (the syllabus map) and the Captain Panel's exam_weight, so they can't drift
+// from the book page and chapter pages. Question counts use the practice picker's rule.
+// Cached for an hour like the book page (this page reads auth cookies, so page-level
+// revalidate alone wouldn't cache it). Throws on a database error.
+const loadSyllabus = unstable_cache(async (): Promise<SyllabusChapter[]> => {
+  const entry = getBookBySlug(BOOK_SLUG)
+  if (!entry || !('sourceBookId' in entry)) throw new Error('IC Joshi book entry missing')
+  const supabase = createServiceClient()
+  const [bookRes, chaptersRes] = await Promise.all([
+    supabase.from('source_books').select('id, subject_id').eq('id', entry.sourceBookId).single(),
+    supabase.from('chapters').select('id, chapter_number, chapter_name, exam_weight, syllabus_topics')
+      .eq('book_id', entry.sourceBookId).order('chapter_number'),
+  ])
+  if (bookRes.error) throw new Error(`Meteorology guide: ${bookRes.error.message}`)
+  if (chaptersRes.error) throw new Error(`Meteorology guide: ${chaptersRes.error.message}`)
+  const counts = await countChapterQuestions(supabase, {
+    subjectId: bookRes.data.subject_id, bookId: bookRes.data.id,
+    chapterIds: chaptersRes.data.map(c => c.id), country: 'IN',
+  })
+  return chaptersRes.data.map(c => ({
+    number: c.chapter_number,
+    name: c.chapter_name,
+    weight: c.exam_weight ?? null,
+    topics: c.syllabus_topics ?? null,
+    questions: counts[c.id] ?? 0,
+    href: chapterPageHref(BOOK_SLUG, c.chapter_number),
+  }))
+}, ['met-guide-syllabus'], { revalidate: 3600 })
+
+// "1 to 7, 13 and 21": runs of three or more collapse to "a to b".
+function chapterList(numbers: number[]): string {
+  const parts: string[] = []
+  for (let i = 0; i < numbers.length;) {
+    let j = i
+    while (j + 1 < numbers.length && numbers[j + 1] === numbers[j] + 1) j++
+    if (j - i >= 2) parts.push(`${numbers[i]} to ${numbers[j]}`)
+    else for (let k = i; k <= j; k++) parts.push(String(numbers[k]))
+    i = j + 1
+  }
+  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0] ?? ''
+}
+
+// "10 (Optical Phenomenon), 17 (Mountain Waves) and 22 (…)"
+function namedChapterList(chapters: SyllabusChapter[]): string {
+  const parts = chapters.map(c => `${c.number} (${c.name})`)
+  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0] ?? ''
+}
+
+// One table line: cut at the last "; " before the limit.
+function oneLine(topics: string, max = 90): string {
+  if (topics.length <= max) return topics
+  const cut = topics.lastIndexOf('; ', max)
+  return `${topics.slice(0, cut > 0 ? cut : max).trim()} …`
+}
+
+// Editorial notes from the Captain Panel, by IC Joshi 2019 chapter number. The page
+// shows each under the tier the chapter's exam_weight puts it in.
+const CHAPTER_NOTES: { number: number; title: string; body: React.ReactNode }[] = [
+  {
+    number: 13,
+    title: 'Thunderstorms',
+    body: <>
+      This is the single most heavily tested topic in the DGCA Meteorology paper. Expect four to six questions per paper on thunderstorm formation, types, stages of development, and associated hazards — icing, turbulence, windshear, lightning, hail, and microburst activity. The DGCA tests this topic in depth because the consequences of thunderstorm encounters are severe and the decisions pilots make around convective activity are operationally critical.
+      <br /><br />
+      Know the three stages of thunderstorm development (cumulus, mature, dissipating) and what characterises each. Know the difference between single-cell, multicell, and supercell thunderstorms. Know the specific hazards associated with each stage and how altitude affects them. This is not a chapter to skim.
+    </>,
+  },
+  {
+    number: 19,
+    title: 'Indian Climatology',
+    body: <>
+      This chapter is where the DGCA Meteorology paper diverges most sharply from international syllabi, and where the most preventable mark losses occur. Candidates who studied from Oxford or Jeppesen alone walk into the exam well-prepared for general meteorology and underprepared for three to five questions that are specific to Indian weather systems.
+      <br /><br />
+      What the DGCA tests from Chapter 19: the southwest monsoon mechanism (onset, progression, withdrawal), the northeast monsoon, western disturbances and their seasonal timing, the role of the Himalayas in Indian weather patterns, the ITCZ position over the subcontinent through the year, and seasonal visibility and fog patterns over northern India. These are not obscure topics — they are predictable fixtures of the paper.
+    </>,
+  },
+  {
+    number: 14,
+    title: 'Air Masses and Fronts',
+    body: <>
+      Frontal weather sequences are tested reliably — what weather to expect before a warm front, what changes at the front passage, what follows behind a cold front. The DGCA tests these sequences in both directions: given weather conditions, identify the frontal type; given a frontal type, describe the expected weather sequence. Know both.
+      <br /><br />
+      Occlusions — warm and cold — are also tested and are a common source of confusion. The distinction between a warm occlusion and a cold occlusion, and the weather associated with each, is specific enough that candidates who have not studied it precisely will guess.
+    </>,
+  },
+  {
+    number: 6,
+    title: 'Wind',
+    body: <>
+      {'Geostrophic wind, gradient wind, surface friction effects, and jet streams are all tested. Jet stream characteristics — altitude, seasonal variation, location — appear consistently. Wind shear definitions and their operational implications are tested specifically.'}
+    </>,
+  },
+  {
+    number: 12,
+    title: 'Icing',
+    body: <>
+      {'Rime, clear, and mixed icing — conditions for each type\'s formation. The effect of icing on lift, drag, stall speed, and instrument readings. Freezing rain is tested specifically for its icing severity (clear ice, most dangerous). Anti-icing vs de-icing distinction.'}
+    </>,
+  },
+  {
+    number: 2,
+    title: 'Atmospheric Pressure',
+    body: <>
+      {'Altimeter settings — QNH, QFE, QNE — and the conditions under which each is used. Pressure altitude and density altitude. The DGCA tests altimeter setting questions in both Meteorology and Navigation.'}
+    </>,
+  },
+]
 
 const FAQS = [
   {
@@ -37,7 +162,14 @@ const FAQS = [
 ]
 
 export default async function MeteorologyPrepPost() {
-  const { isLoggedIn, name } = await getHeaderAuthState()
+  const [{ isLoggedIn, name }, syllabus] = await Promise.all([getHeaderAuthState(), loadSyllabus()])
+  const tier = (w: SyllabusChapter['weight']) => syllabus.filter(c => c.weight === w)
+  const high = tier('High'), medium = tier('Medium'), low = tier('Low'), unrated = tier(null)
+  const highList = chapterList(high.map(c => c.number))
+  const weightOf = new Map(syllabus.map(c => [c.number, c.weight]))
+  // Editorial notes for some chapters, shown under whichever tier the panel's weight puts
+  // the chapter in (in this order within a tier).
+  const notesIn = (w: SyllabusChapter['weight']) => CHAPTER_NOTES.filter(n => weightOf.get(n.number) === w)
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -45,7 +177,7 @@ export default async function MeteorologyPrepPost() {
         description="A complete guide to preparing for the DGCA CPL Aviation Meteorology paper. Which book to use, which chapters matter most, how to approach Indian climatology, and what to expect on exam day."
         url="https://www.propilotlicence.com/guides/dgca-exam-guides/dgca-cpl-meteorology-preparation"
         publishedAt="2026-06-15"
-        updatedAt="2026-06-15"
+        updatedAt="2026-11-08"
       />
       <FAQSchema faqs={FAQS} />
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
@@ -116,7 +248,7 @@ export default async function MeteorologyPrepPost() {
           </ol>
           <Prose>
             <p>
-              Do not run mock exams until you have completed all twelve chapters. Mock exams measure readiness — they do not build it. Running mocks on incomplete syllabus coverage produces demoralising scores that misrepresent your actual potential.
+              Do not run mock exams until you have completed all 26 chapters. Mock exams measure readiness — they do not build it. Running mocks on incomplete syllabus coverage produces demoralising scores that misrepresent your actual potential.
             </p>
           </Prose>
         </Section>
@@ -126,52 +258,26 @@ export default async function MeteorologyPrepPost() {
         <Section title="Chapter priority: where the marks are">
           <Prose>
             <p>
-              Not all twelve chapters of IC Joshi carry equal weight in the DGCA paper. Based on review by the ProPilotLicence captain panel, here is an honest assessment of where to spend your time.
+              Not all 26 chapters of IC Joshi carry equal weight in the DGCA paper. Based on review by the ProPilotLicence captain panel, here is an honest assessment of where to spend your time.
             </p>
           </Prose>
 
+          <ChapterTable chapters={syllabus} />
+
           <PriorityLabel colour="var(--clr-correct)" bg="var(--clr-correct-bg)">Highest priority — study these first and revisit before the exam</PriorityLabel>
-
-          <ChapterEntry number={13} title="Thunderstorms">
-            This is the single most heavily tested topic in the DGCA Meteorology paper. Expect four to six questions per paper on thunderstorm formation, types, stages of development, and associated hazards — icing, turbulence, windshear, lightning, hail, and microburst activity. The DGCA tests this topic in depth because the consequences of thunderstorm encounters are severe and the decisions pilots make around convective activity are operationally critical.
-            <br /><br />
-            Know the three stages of thunderstorm development (cumulus, mature, dissipating) and what characterises each. Know the difference between single-cell, multicell, and supercell thunderstorms. Know the specific hazards associated with each stage and how altitude affects them. This is not a chapter to skim.
-          </ChapterEntry>
-
-          <ChapterEntry number={19} title="Indian Climatology">
-            This chapter is where the DGCA Meteorology paper diverges most sharply from international syllabi, and where the most preventable mark losses occur. Candidates who studied from Oxford or Jeppesen alone walk into the exam well-prepared for general meteorology and underprepared for three to five questions that are specific to Indian weather systems.
-            <br /><br />
-            What the DGCA tests from Chapter 19: the southwest monsoon mechanism (onset, progression, withdrawal), the northeast monsoon, western disturbances and their seasonal timing, the role of the Himalayas in Indian weather patterns, the ITCZ position over the subcontinent through the year, and seasonal visibility and fog patterns over northern India. These are not obscure topics — they are predictable fixtures of the paper.
-          </ChapterEntry>
-
-          <ChapterEntry number={25} title="Aviation Weather Reports and Forecasts">
-            METAR and TAF decoding questions appear in almost every DGCA Meteorology paper. The DGCA tests your ability to decode a METAR accurately and interpret its content — cloud base, visibility, weather phenomena, wind. Know the format cold: the order of groups, the units, the codes for weather phenomena (TSRA, RASN, FG, BR, and so on), and the cavok conditions.
-            <br /><br />
-            TAF decoding is also tested, as are SIGMET and AIRMET definitions. The skill tested here is practical interpretation — you will be given a METAR string and asked what it means, not asked to define what a METAR is.
-          </ChapterEntry>
-
-          <ChapterEntry number={14} title="Air Masses and Fronts">
-            Frontal weather sequences are tested reliably — what weather to expect before a warm front, what changes at the front passage, what follows behind a cold front. The DGCA tests these sequences in both directions: given weather conditions, identify the frontal type; given a frontal type, describe the expected weather sequence. Know both.
-            <br /><br />
-            Occlusions — warm and cold — are also tested and are a common source of confusion. The distinction between a warm occlusion and a cold occlusion, and the weather associated with each, is specific enough that candidates who have not studied it precisely will guess.
-          </ChapterEntry>
+          <Prose><p>The Captain Panel rates Chapters {highList} High.</p></Prose>
+          {notesIn('High').map(n => <ChapterEntry key={n.number} number={n.number} title={n.title}>{n.body}</ChapterEntry>)}
 
           <PriorityLabel colour="var(--clr-amber)" bg="var(--clr-amber-light)">Medium priority — study thoroughly</PriorityLabel>
-
-          {[
-            [6, 'Wind', 'Geostrophic wind, gradient wind, surface friction effects, and jet streams are all tested. Jet stream characteristics — altitude, seasonal variation, location — appear consistently. Wind shear definitions and their operational implications are tested specifically.'],
-            [5, 'Humidity, Clouds and Fog', 'Cloud type classification (ICAO classification by altitude and form) is tested. Fog types — radiation, advection, steam, upslope — and their formation conditions are reliable sources of questions. Know the difference between mist and fog (visibility threshold), and between fog and low cloud.'],
-            [12, 'Icing', 'Rime, clear, and mixed icing — conditions for each type\'s formation. The effect of icing on lift, drag, stall speed, and instrument readings. Freezing rain is tested specifically for its icing severity (clear ice, most dangerous). Anti-icing vs de-icing distinction.'],
-            [2, 'Atmospheric Pressure', 'Altimeter settings — QNH, QFE, QNE — and the conditions under which each is used. Pressure altitude and density altitude. The DGCA tests altimeter setting questions in both Meteorology and Navigation.'],
-          ].map(([num, title, notes]) => (
-            <ChapterEntry key={String(num)} number={Number(num)} title={String(title)}>{String(notes)}</ChapterEntry>
-          ))}
+          <Prose><p>Rated Medium: Chapters {chapterList(medium.map(c => c.number))}.</p></Prose>
+          {notesIn('Medium').map(n => <ChapterEntry key={n.number} number={n.number} title={n.title}>{n.body}</ChapterEntry>)}
 
           <PriorityLabel colour="var(--clr-text-med)" bg="var(--clr-surf-alt)">Lower priority — understand the concepts, do not over-invest</PriorityLabel>
           <Prose>
             <p>
-              Chapters 1 (The Atmosphere), 3 (Temperature), 11 (Precipitation), and 16 (Turbulence) produce questions but at lower frequency than the chapters above. Study them in sequence — do not skip them — but do not spend disproportionate time on them at the expense of Chapters 13, 19, and 25.
+              Chapters {namedChapterList(low)} produce questions but at lower frequency than the chapters above. Study them in sequence — do not skip them — but do not spend disproportionate time on them at the expense of Chapters {highList}.
             </p>
+            {unrated.length > 0 && <p>Not yet rated: Chapters {namedChapterList(unrated)}.</p>}
           </Prose>
         </Section>
 
@@ -217,7 +323,7 @@ export default async function MeteorologyPrepPost() {
             {[
               ['Days 7–4 before the exam', 'Run one full-subject mock exam per day. After each mock, identify every question answered incorrectly and return to the source chapter. Do not simply read the correct answer — read the section of the text book that covers the concept, so you understand why the correct answer is correct rather than memorising the answer to that specific question.'],
               ['Days 3–2 before the exam', 'Stop full mock exams. Switch to chapter-specific sessions on your weakest chapters only — the ones where your mock performance was lowest. Use the ProPilotLicence chapter filter to drill exclusively those chapters.'],
-              ['Day 1 before the exam', 'Light revision only. Review your notes on Chapter 13 (Thunderstorms), Chapter 19 (Indian Climatology), and Chapter 25 (METAR/TAF) — the three highest-yield chapters. Do not attempt new questions. Get eight hours of sleep.'],
+              ['Day 1 before the exam', `Light revision only. Review your notes on the High-weight chapters, Chapters ${highList}. Do not attempt new questions. Get eight hours of sleep.`],
             ].map(([label, text]) => (
               <div key={label} style={{ padding: '14px 16px', background: 'var(--clr-surf-alt)', border: '1px solid var(--clr-border)', borderRadius: 10 }}>
                 <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--clr-primary)', marginBottom: 6 }}>{label}</div>
@@ -336,6 +442,49 @@ function ChapterEntry({ number, title, children }: { number: number; title: stri
         <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--clr-text)' }}>{title}</div>
       </div>
       <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--clr-text-med)', paddingLeft: 44 }}>{children}</div>
+    </div>
+  )
+}
+
+// All 26 IC Joshi 2019 chapters with the panel's weight, syllabus topics and live
+// question counts. Scrolls sideways on a phone rather than squashing.
+function ChapterTable({ chapters }: { chapters: SyllabusChapter[] }) {
+  const th: React.CSSProperties = { textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--clr-text-med)', padding: '10px 12px', background: 'var(--clr-surf-alt)', borderBottom: '1px solid var(--clr-border)', whiteSpace: 'nowrap' }
+  const td: React.CSSProperties = { padding: '10px 12px', borderBottom: '1px solid var(--clr-border)', verticalAlign: 'top', fontSize: 14, lineHeight: 1.5, color: 'var(--clr-text)' }
+  return (
+    <div>
+      <div style={{ overflowX: 'auto', border: '1px solid var(--clr-border)', borderRadius: 10 }}>
+        <table style={{ width: '100%', minWidth: 640, borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={th}>Chapter</th>
+              <th style={th}>Exam weight</th>
+              <th style={th}>What DGCA asks</th>
+              <th style={{ ...th, textAlign: 'right' }}>Questions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {chapters.map(c => (
+              <tr key={c.number}>
+                <td style={{ ...td, fontWeight: 600, minWidth: 170 }}>
+                  {c.number}.{' '}
+                  {c.href
+                    ? <Link href={c.href} style={{ color: 'var(--clr-primary)', textDecoration: 'underline', textUnderlineOffset: 2 }}>{c.name}</Link>
+                    : c.name}
+                </td>
+                <td style={{ ...td, whiteSpace: 'nowrap', fontWeight: c.weight === 'High' ? 700 : 400, color: c.weight === 'High' ? 'var(--clr-wrong)' : c.weight ? 'var(--clr-text)' : 'var(--clr-text-med)' }}>
+                  {c.weight ?? 'Not yet rated'}
+                </td>
+                <td style={{ ...td, color: 'var(--clr-text-med)' }} title={c.topics ?? undefined}>{c.topics ? oneLine(c.topics) : '—'}</td>
+                <td style={{ ...td, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{c.questions.toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p style={{ fontSize: 13, color: 'var(--clr-text-med)', fontStyle: 'italic', marginTop: 8 }}>
+        Exam weight is the ProPilotLicence Captain Panel&apos;s judgement of how heavily DGCA tests each chapter.
+      </p>
     </div>
   )
 }
