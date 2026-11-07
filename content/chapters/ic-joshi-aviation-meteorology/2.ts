@@ -13,7 +13,7 @@ export const CHAPTER_2: ChapterPageContent = {
   metaDescription: 'IC Joshi Aviation Meteorology Chapter 2, Atmospheric Pressure. QNH, QFE, QFF and QNE, altimeter errors, transition procedures, four worked numericals and practice questions.',
   excerpt: 'Atmospheric Pressure is a High-weight chapter and home to the numericals. Get QNH, QFE, QFF and QNE exact, understand why temperature changes the altimeter, and these become the easiest marks in the paper.',
   publishedAt: '2026-11-05',
-  updatedAt: '2026-11-05',
+  updatedAt: '2026-11-07',
   reviewedBy: 'ProPilotLicence Captain Panel',
 
   // Fixed sample questions (re-picked 2026-11-07): IC Joshi-sourced, active, syllabus
@@ -138,7 +138,7 @@ export const CHAPTER_2: ChapterPageContent = {
     <div class="diagram-label">Diagram: what the altimeter reads on the ground with each setting</div>
     <div class="diagram-inner">
       <svg viewBox="0 0 720 300" role="img">
-        <title>An aerodrome at 600 ft elevation. With QFE set the altimeter reads zero, with QNH it reads 600 ft, and with 1013.25 hPa set it reads the aerodrome's pressure altitude, which is QNE.</title>
+        <title>An aerodrome at 600 ft elevation. With QFE set the altimeter reads zero, with QNH it reads 600 ft, and with the standard setting (QNE, 1013.25 hPa) it reads the aerodrome's pressure altitude.</title>
         <!-- MSL -->
         <line x1="20" y1="250" x2="700" y2="250" stroke="#1a4fc4" stroke-width="1.5"/>
         <text x="24" y="268" font-family="Inter,sans-serif" font-size="10" fill="#1a4fc4">Mean sea level</text>
@@ -178,7 +178,7 @@ export const CHAPTER_2: ChapterPageContent = {
       <tr><td class="mono">QFE</td><td>Pressure at aerodrome level (officially, at the runway threshold or aerodrome reference point)</td><td>Zero</td></tr>
       <tr><td class="mono">QNH</td><td>Aerodrome pressure reduced to mean sea level using the <strong>ISA</strong> temperature</td><td>Aerodrome elevation</td></tr>
       <tr><td class="mono">QFF</td><td>Aerodrome pressure reduced to mean sea level using the <strong>actual</strong> temperature. Plotted on synoptic charts, not set on an altimeter.</td><td>Not used for altimetry</td></tr>
-      <tr><td class="mono">QNE</td><td>The altimeter reading on the ground with 1013.25 hPa set</td><td>The aerodrome's pressure altitude</td></tr>
+      <tr><td class="mono">QNE</td><td>The standard setting, 1013.25 hPa. Set above the transition altitude, so the altimeter reads flight levels.</td><td>With it set on the ground, the altimeter reads the aerodrome's pressure altitude.</td></tr>
     </tbody>
   </table>
 
@@ -265,7 +265,7 @@ export const CHAPTER_2: ChapterPageContent = {
   <p>An aerodrome has an elevation of 540 ft and a QFE of 995 hPa. At 27 ft per hPa, 540 ft is 20 hPa. QNH is higher than QFE for an aerodrome above sea level, so <strong>QNH = 995 + 20 = 1015 hPa</strong>.</p>
 
   <h3>2. Pressure altitude</h3>
-  <p>The same aerodrome, with QNH 1003 hPa. The difference from standard is 1013 − 1003 = 10 hPa, which is 270 ft. Lower pressure means a higher pressure altitude, so <strong>pressure altitude = 540 + 270 = 810 ft</strong>. With 1013.25 set on the ground, the altimeter reads 810 ft, which is the QNE.</p>
+  <p>The same aerodrome, with QNH 1003 hPa. The difference from standard is 1013 − 1003 = 10 hPa, which is 270 ft. Lower pressure means a higher pressure altitude, so <strong>pressure altitude = 540 + 270 = 810 ft</strong>. With the standard setting (QNE, 1013.25 hPa) set on the ground, the altimeter reads 810 ft, the aerodrome's pressure altitude.</p>
 
   <h3>3. True altitude after a pressure change</h3>
   <p>An aircraft departs with QNH 1013 set and holds 3,000 ft on the altimeter into an area where QNH is 993. The altimeter is now over-reading by 20 × 27 = 540 ft. <strong>True altitude ≈ 2,460 ft.</strong></p>
@@ -310,6 +310,10 @@ export const CHAPTER_2: ChapterPageContent = {
   <div class="trap">
     <div class="wrong">✗ "Pressure falls by the same amount for every 1,000 ft of height."</div>
     <div class="right">✓ It falls fastest near the surface and more slowly with height: about 27 ft per hPa at sea level, about 50 ft per hPa at 18,000 ft.</div>
+  </div>
+  <div class="trap">
+    <div class="wrong">✗ "QNE, the standard setting and 1013.25 hPa are different settings."</div>
+    <div class="right">✓ They are the same thing. With it set, the altimeter shows pressure altitude, read as a flight level.</div>
   </div>
 `,
 
