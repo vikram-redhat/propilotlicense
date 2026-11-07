@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { getBookBySlug } from '@/lib/books'
 import { countChapterQuestions } from '@/lib/chapter-question-counts'
 import { createServiceClient } from '@/lib/supabase'
+import { SUBJECTS } from '@/lib/subjects'
 import { isSyllabusBook } from '@/lib/syllabus'
 
 // Live question counts for page copy, so no page carries a hand-typed total.
@@ -11,18 +12,18 @@ import { isSyllabusBook } from '@/lib/syllabus'
 // cached value at all (first request after a deploy) and the database fails: ISR pages
 // then keep their last good render; per-request pages use the *OrFallback helpers.
 
-type SubjectCount = { code: string | null; licenceTypes: string[]; count: number }
+type SubjectCount = { code: string | null; count: number }
 
 // Active questions per subject — the homepage's rule.
 export const subjectQuestionCounts = unstable_cache(async (): Promise<SubjectCount[]> => {
   const supabase = createServiceClient()
-  const { data: subjects, error } = await supabase.from('subjects').select('id, code, licence_types').eq('active', true)
+  const { data: subjects, error } = await supabase.from('subjects').select('id, code').eq('active', true)
   if (error) throw new Error(`Subject counts: ${error.message}`)
   const counts = await Promise.all(subjects.map(s =>
     supabase.from('questions').select('id', { count: 'exact', head: true }).eq('active', true).eq('subject_id', s.id)))
   return subjects.map((s, i) => {
     if (counts[i].error) throw new Error(`Subject counts: ${counts[i].error!.message}`)
-    return { code: s.code, licenceTypes: s.licence_types ?? [], count: counts[i].count ?? 0 }
+    return { code: s.code, count: counts[i].count ?? 0 }
   })
 }, ['subject-question-counts'], { revalidate: 3600 })
 
@@ -52,12 +53,16 @@ export const bookQuestionTotal = unstable_cache(async (slug: string): Promise<nu
   return count ?? 0
 }, ['book-question-total'], { revalidate: 3600 })
 
+// The five CPL theory subjects (lib/subjects.ts). subjects.licence_types can't be used:
+// every subject, A320 included, is tagged CPL and ATPL.
+const CPL_CODES: ReadonlySet<string> = new Set(SUBJECTS.map(s => s.code))
+
 export async function questionTotals() {
   const subjects = await subjectQuestionCounts()
   const sum = (rows: SubjectCount[]) => rows.reduce((a, s) => a + s.count, 0)
   return {
     all: sum(subjects),
-    cpl: sum(subjects.filter(s => s.licenceTypes.includes('CPL'))),
+    cpl: sum(subjects.filter(s => s.code != null && CPL_CODES.has(s.code))),
     a320: sum(subjects.filter(s => s.code === 'A320FAMILY')),
     bySubject: Object.fromEntries(subjects.filter(s => s.code).map(s => [s.code!, s.count])) as Record<string, number>,
   }
