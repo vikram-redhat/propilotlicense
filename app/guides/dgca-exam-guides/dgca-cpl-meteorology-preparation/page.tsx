@@ -33,7 +33,7 @@ const chapterNotes = (weightOf: Map<number, SyllabusChapter['weight']>): { numbe
     number: 13,
     title: 'Thunderstorm',
     body: <>
-      This is the single most heavily tested topic in the DGCA Meteorology paper. Expect four to six questions per paper on thunderstorm formation, types, stages of development, and associated hazards — icing, turbulence, windshear, lightning, hail, and microburst activity. The DGCA tests this topic in depth because the consequences of thunderstorm encounters are severe and the decisions pilots make around convective activity are operationally critical.
+      This is one of the most heavily tested topics in the DGCA Meteorology paper. Expect four to six questions per paper on thunderstorm formation, types, stages of development, and associated hazards — icing, turbulence, windshear, lightning, hail, and microburst activity. The DGCA tests this topic in depth because the consequences of thunderstorm encounters are severe and the decisions pilots make around convective activity are operationally critical.
       <br /><br />
       Know the three stages of thunderstorm development (cumulus, mature, dissipating) and what characterises each. Know the difference between single-cell, multicell, and supercell thunderstorms. Know the specific hazards associated with each stage and how altitude affects them. This is not a chapter to skim.
     </>,

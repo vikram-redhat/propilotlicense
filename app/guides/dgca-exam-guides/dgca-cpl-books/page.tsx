@@ -26,6 +26,8 @@ export default async function DgcaCplBooksPost() {
   // IC Joshi priorities follow the Captain Panel's exam weights: the High chapters, with
   // an editorial note for those that have one.
   const joshiHigh = (joshiSyllabus ?? []).filter(c => c.weight === 'High')
+  // Shown below the High list while Climatology India isn't itself rated High.
+  const climatology = joshiSyllabus?.find(c => c.number === 19)
   const count = (n: number | null) => (n != null ? `${n.toLocaleString()} ` : '')
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
@@ -78,6 +80,9 @@ export default async function DgcaCplBooksPost() {
             {joshiSyllabus ? <>
               <p>The ProPilotLicence Captain Panel rates Chapters {chapterList(joshiHigh.map(c => c.number))} High exam weight.</p>
               <ChapterList items={joshiHigh.filter(c => JOSHI_NOTES[c.number]).map(c => [`Chapter ${c.number} — ${c.name}`, JOSHI_NOTES[c.number]] as [string, string])} />
+              {(climatology?.weight === 'Medium' || climatology?.weight === 'Low') && (
+                <p>Chapter 19, Climatology India, is rated {climatology.weight}, but it is the chapter that separates candidates using Joshi from those using international texts only.</p>
+              )}
             </> : (
               <p><Link href="/books/ic-joshi-aviation-meteorology" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'none' }}>See the IC Joshi chapter breakdown, with the panel&apos;s exam weights →</Link></p>
             )}
@@ -186,7 +191,7 @@ export default async function DgcaCplBooksPost() {
 
 // Editorial notes for IC Joshi chapters, shown when the chapter is rated High.
 const JOSHI_NOTES: Record<number, string> = {
-  13: 'The highest-yield chapter in the entire Meteorology paper. Study every section.',
+  13: 'A High-weight chapter that draws on stability, clouds, icing and winds. Study every section.',
   19: 'The chapter that separates candidates using Joshi from those using international texts only.',
   14: 'Frontal sequences produce consistent questions.',
 }
