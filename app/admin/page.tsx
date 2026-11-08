@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import AnswerBalance from './AnswerBalance'
 import { Question, Subject, Chapter } from '@/lib/types'
 import { IconPlus, IconSparkles, IconEdit, IconTrash, IconCheck, IconBook } from '@tabler/icons-react'
 
@@ -145,6 +146,8 @@ export default function AdminPage() {
             </div>
           ))}
         </div>
+
+        <AnswerBalance />
 
         {/* Filter bar — row 1 */}
         <div className="flex flex-wrap gap-2 mb-2">
