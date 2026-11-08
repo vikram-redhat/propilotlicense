@@ -17,7 +17,7 @@ export default function A320ProceduresHubPage() {
     <SeriesHubPage series={getSeries('a320-procedures')!} upcoming={upcoming}>
       Looking for how the systems themselves work? The A320 Systems Series — hydraulics, flight controls,
       autoflight and more — lives in{' '}
-      <Link href="/guides/dgca-exam-guides" style={{ color: 'var(--clr-primary)', textDecoration: 'none', fontWeight: 600 }}>DGCA Exam Guides</Link>.
+      <Link href="/guides/a320-systems" style={{ color: 'var(--clr-primary)', textDecoration: 'none', fontWeight: 600 }}>A320 Systems</Link>.
     </SeriesHubPage>
   )
 }

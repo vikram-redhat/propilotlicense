@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
+import Breadcrumbs from '@/components/Breadcrumbs'
 import SiteFooter from '@/components/SiteFooter'
 import { CourseSchema } from '@/components/schema/CourseSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
@@ -85,13 +86,11 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
       <main style={{ maxWidth: 800, margin: '0 auto', padding: '48px 20px 96px' }}>
 
         {/* Breadcrumb */}
-        <nav style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 24 }}>
-          <Link href="/subjects" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>Subjects</Link>
-          <span style={{ margin: '0 6px' }}>›</span>
-          <Link href={`/subjects/${book.subjectSlug}`} style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>{book.subjectTitle}</Link>
-          <span style={{ margin: '0 6px' }}>›</span>
-          <span>{book.authorShort}</span>
-        </nav>
+        <Breadcrumbs items={[
+          { name: 'Subjects', href: '/subjects' },
+          { name: book.subjectTitle, href: `/subjects/${book.subjectSlug}` },
+          { name: book.authorShort },
+        ]} />
 
         <div style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: 'var(--clr-primary)', background: 'var(--clr-pri-light)', border: '1px solid var(--clr-border)', borderRadius: 4, padding: '2px 8px', marginBottom: 12, textTransform: 'uppercase' }}>
           DGCA prescribed textbook

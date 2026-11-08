@@ -68,34 +68,35 @@ export default async function SubjectsPage() {
 
         {/* ATPL — Airbus A320 */}
         <div style={{ ...sectionLabel, marginTop: 40 }}>ATPL — Airbus A320 Family</div>
-        <Link
-          href="/login?next=/atpl"
-          style={{ display: 'block', textDecoration: 'none', background: 'var(--clr-pri-light)', border: '1.5px solid var(--clr-primary)', borderRadius: 12, padding: '20px 24px' }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 17, fontWeight: 700, color: 'var(--clr-text)' }}>
-                  Airbus A320 Family
-                </span>
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', background: 'var(--clr-primary)', color: '#fff', padding: '2px 7px', borderRadius: 5 }}>
-                  New
-                </span>
+        {/* Logged in: the card goes to the ATPL hub, as before. Logged out: it goes to the
+            A320 Systems guides, with a separate Practise link through login. */}
+        <div style={{ background: 'var(--clr-pri-light)', border: '1.5px solid var(--clr-primary)', borderRadius: 12, padding: '20px 24px' }}>
+          <Link href={isLoggedIn ? '/atpl' : '/guides/a320-systems'} style={{ display: 'block', textDecoration: 'none' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 17, fontWeight: 700, color: 'var(--clr-text)' }}>
+                    Airbus A320 Family
+                  </span>
+                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', background: 'var(--clr-primary)', color: '#fff', padding: '2px 7px', borderRadius: 5 }}>
+                    New
+                  </span>
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--clr-text-med)' }}>320 / 319 / 321 · XLR · NEO · CEO</div>
               </div>
-              <div style={{ fontSize: 13, color: 'var(--clr-text-med)' }}>320 / 319 / 321 · XLR · NEO · CEO</div>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--clr-primary)', fontFamily: 'var(--font-outfit),sans-serif' }}>{totals.a320.toLocaleString()}</div>
+                <div style={{ fontSize: 11, color: 'var(--clr-text-med)', marginTop: 1 }}>practice questions</div>
+              </div>
             </div>
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--clr-primary)', fontFamily: 'var(--font-outfit),sans-serif' }}>{totals.a320.toLocaleString()}</div>
-              <div style={{ fontSize: 11, color: 'var(--clr-text-med)', marginTop: 1 }}>practice questions</div>
-            </div>
-          </div>
-          <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: '14px 0 0' }}>
-            Full ATPL question bank covering every ATA chapter — Air Conditioning, Pressurisation, Autoflight, Electrical, Flight Controls, Fuel, Hydraulics, Ice &amp; Rain Protection, Landing Gear, Engines, APU, and more. Questions verified by active airline captains currently flying the A320 family.
-          </p>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--clr-primary)', marginTop: 14 }}>
+            <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: '14px 0 0' }}>
+              Full ATPL question bank covering every ATA chapter — Air Conditioning, Pressurisation, Autoflight, Electrical, Flight Controls, Fuel, Hydraulics, Ice &amp; Rain Protection, Landing Gear, Engines, APU, and more. Questions verified by active airline captains currently flying the A320 family.
+            </p>
+          </Link>
+          <Link href={isLoggedIn ? '/atpl' : '/login?next=/atpl'} style={{ display: 'inline-block', fontSize: 14, fontWeight: 700, color: 'var(--clr-primary)', marginTop: 14, textDecoration: 'none' }}>
             Practise A320 questions →
-          </div>
-        </Link>
+          </Link>
+        </div>
 
         {/* Captain verification (kept as-is, moved above the CTA) */}
         <div style={{ marginTop: 40, padding: '24px', background: 'var(--clr-pri-light)', borderRadius: 12 }}>

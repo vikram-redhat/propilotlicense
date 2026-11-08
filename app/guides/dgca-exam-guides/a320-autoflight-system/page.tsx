@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
+import { Breadcrumb } from '@/components/guides/ArticleKit'
 import { getHeaderAuthState } from '@/lib/supabase-server'
 import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import SiteFooter from '@/components/SiteFooter'
@@ -32,11 +33,7 @@ export default async function A320AutoflightPost() {
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
 
         {/* Breadcrumb */}
-        <nav style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 24 }}>
-          <Link href="/guides/dgca-exam-guides" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>DGCA Exam Guides</Link>
-          <span style={{ margin: '0 6px' }}>›</span>
-          <span>A320 Autoflight System</span>
-        </nav>
+        <Breadcrumb seriesSlug="a320-systems" seriesLabel="A320 Systems" current="A320 Autoflight System" />
 
         {/* Eyebrow */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>

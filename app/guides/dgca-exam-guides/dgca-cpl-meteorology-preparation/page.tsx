@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
+import { Breadcrumb } from '@/components/guides/ArticleKit'
 import { getHeaderAuthState } from '@/lib/supabase-server'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
@@ -134,11 +135,7 @@ export default async function MeteorologyPrepPost() {
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px 96px' }}>
 
         {/* Breadcrumb */}
-        <nav style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 24 }}>
-          <Link href="/guides/dgca-exam-guides" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>DGCA Exam Guides</Link>
-          <span style={{ margin: '0 6px' }}>›</span>
-          <span>DGCA CPL Meteorology Preparation</span>
-        </nav>
+        <Breadcrumb seriesSlug="dgca-exam-guides" seriesLabel="DGCA Exam Guides" current="DGCA CPL Meteorology Preparation" />
 
         <div style={{ fontSize: 12, color: 'var(--clr-text-med)', marginBottom: 16, display: 'flex', gap: 10, alignItems: 'center' }}>
           <span>Reviewed by ProPilotLicence Captain Panel</span>

@@ -31,7 +31,7 @@ export default async function A320HydraulicSystemPage() {
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px 0' }}>
-        <Breadcrumb seriesSlug="dgca-exam-guides" seriesLabel="DGCA Exam Guides" current="A320 Hydraulic System" />
+        <Breadcrumb seriesSlug="a320-systems" seriesLabel="A320 Systems" current="A320 Hydraulic System" />
       </div>
 
       <main className={styles.wrap} style={{ paddingTop: 8 }}>

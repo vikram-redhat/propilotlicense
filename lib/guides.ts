@@ -19,6 +19,9 @@ export type GuidePost = {
 
 export type GuideSeries = {
   slug: string
+  // URL segment the articles live under, when it differs from the section's own slug
+  // (the A320 Systems articles kept their original /guides/dgca-exam-guides/ URLs).
+  articleBase?: string
   navLabel: string
   title: string
   description: string
@@ -117,6 +120,30 @@ export const GUIDE_SERIES: GuideSeries[] = [
           'The DGCA Meteorology paper catches candidates who studied from international textbooks and skipped Indian climatology. This guide covers exactly what to study, in what order, and where most marks are lost.',
         reviewedBy: 'ProPilotLicence Captain Panel',
       },
+    ],
+  },
+  {
+    // A320 Systems Series (lib/a320-series.ts lists the upcoming ones). The articles
+    // keep their original URLs under /guides/dgca-exam-guides/.
+    slug: 'a320-systems',
+    articleBase: 'dgca-exam-guides',
+    navLabel: 'A320 Systems',
+    title: 'A320 Systems',
+    description:
+      'How the A320 family systems work, for type rating and ATPL candidates — hydraulics, flight controls, autoflight and more, reviewed by the ProPilotLicence captain panel.',
+    posts: [
+      {
+        slug: 'a320-hydraulic-system',
+        title: 'A320 Hydraulic System — Complete Guide: Systems, Services, Failures and Effects',
+        metaTitle: 'A320 Hydraulic System: Green, Blue, Yellow, PTU and RAT',
+        metaDescription:
+          'Every service powered by each system, how the PTU and RAT work, and exactly what is lost in each failure case. Animated diagrams, type rating and ATPL level.',
+        publishedAt: '2026-07-16',
+        updatedAt: '2026-07-16',
+        excerpt:
+          'Three independent 3,000 PSI circuits. No single failure removes all hydraulic power — but each failure cascades through flight controls, braking, landing gear, flaps and slats. Exactly what is lost and what remains, system by system.',
+        reviewedBy: 'ProPilotLicence Captain Panel',
+      },
       {
         slug: 'a320-autoflight-system',
         title: 'A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic',
@@ -139,18 +166,6 @@ export const GUIDE_SERIES: GuideSeries[] = [
         updatedAt: '2026-07-15',
         excerpt:
           'The A320 does not have a direct mechanical connection between the sidestick and the control surfaces except in Direct Law. The pilot inputs a demand; computers decide how to meet it. What changes between Normal, Alternate and Direct law is the envelope protections the computers provide.',
-        reviewedBy: 'ProPilotLicence Captain Panel',
-      },
-      {
-        slug: 'a320-hydraulic-system',
-        title: 'A320 Hydraulic System — Complete Guide: Systems, Services, Failures and Effects',
-        metaTitle: 'A320 Hydraulic System: Green, Blue, Yellow, PTU and RAT',
-        metaDescription:
-          'Every service powered by each system, how the PTU and RAT work, and exactly what is lost in each failure case. Animated diagrams, type rating and ATPL level.',
-        publishedAt: '2026-07-16',
-        updatedAt: '2026-07-16',
-        excerpt:
-          'Three independent 3,000 PSI circuits. No single failure removes all hydraulic power — but each failure cascades through flight controls, braking, landing gear, flaps and slats. Exactly what is lost and what remains, system by system.',
         reviewedBy: 'ProPilotLicence Captain Panel',
       },
     ],
@@ -180,6 +195,10 @@ export const GUIDE_SERIES: GuideSeries[] = [
   },
 ]
 
+export function postHref(series: GuideSeries, post: GuidePost): string {
+  return `/guides/${series.articleBase ?? series.slug}/${post.slug}`
+}
+
 export function getSeries(slug: string): GuideSeries | undefined {
   return GUIDE_SERIES.find(s => s.slug === slug)
 }
@@ -194,7 +213,7 @@ export function seriesNavItems(seriesSlug: string, currentSlug: string) {
   const series = getSeries(seriesSlug)
   const items = (series?.posts ?? []).map((post, i) => ({
     label: `${i + 1}. ${post.seriesNavLabel ?? post.title}`,
-    href: `/guides/${seriesSlug}/${post.slug}`,
+    href: postHref(series!, post),
     state: (post.slug === currentSlug ? 'current' : 'link') as 'current' | 'link',
   }))
   const upcoming = (SERIES_NAV_UPCOMING[seriesSlug] ?? []).map(u => ({ label: u.label, state: 'upcoming' as const }))

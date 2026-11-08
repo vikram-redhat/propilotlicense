@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
+import Breadcrumbs from '@/components/Breadcrumbs'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
@@ -102,18 +103,9 @@ export default async function ChapterPage({ params }: Params) {
 
   const bookUrl = `${SITE}/books/${bookSlug}`
   const url = `${SITE}/books/${bookSlug}/${page.slug}`
-  const bookLabel = `${bookEntry.authorShort}, ${bookEntry.title}`
   const h1 = page.head.match(/<h1>([\s\S]*?)<\/h1>/)?.[1].trim() ?? page.metaTitle
   const practiceHref = `/practice/chapter/${bookSlug}/${page.chapterNumber}`
 
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: bookLabel, item: bookUrl },
-      { '@type': 'ListItem', position: 2, name: `Chapter ${chapter.chapter_number}`, item: url },
-    ],
-  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
@@ -131,18 +123,17 @@ export default async function ChapterPage({ params }: Params) {
           url: bookUrl,
         }}
       />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <FAQSchema faqs={faqsFromHtml(page.faq)} />
       <LandingHeader isLoggedIn={false} name={null} />
 
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px 0' }}>
-        <nav style={{ fontSize: 13, color: 'var(--clr-text-med)' }}>
-          <span>Books</span>
-          <span style={{ margin: '0 6px' }}>›</span>
-          <Link href={`/books/${bookSlug}`} style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>{bookLabel}</Link>
-          <span style={{ margin: '0 6px' }}>›</span>
-          <span>Chapter {chapter.chapter_number}</span>
-        </nav>
+        {/* Continues the book page's trail: Subjects › subject › book › chapter */}
+        <Breadcrumbs style={{ marginBottom: 0 }} items={[
+          { name: 'Subjects', href: '/subjects' },
+          { name: bookEntry.subjectTitle, href: `/subjects/${bookEntry.subjectSlug}` },
+          { name: bookEntry.authorShort, href: `/books/${bookSlug}` },
+          { name: `Chapter ${chapter.chapter_number}: ${chapter.chapter_name}` },
+        ]} />
       </div>
 
       <main className={styles.wrap} style={{ paddingTop: 16 }}>

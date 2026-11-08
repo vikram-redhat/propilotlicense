@@ -31,7 +31,7 @@ export default async function A320FlightControlsPage() {
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px 0' }}>
-        <Breadcrumb seriesSlug="dgca-exam-guides" seriesLabel="DGCA Exam Guides" current="A320 Flight Controls" />
+        <Breadcrumb seriesSlug="a320-systems" seriesLabel="A320 Systems" current="A320 Flight Controls" />
       </div>
 
       <main className={styles.wrap} style={{ paddingTop: 8 }}>

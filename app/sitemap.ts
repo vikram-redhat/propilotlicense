@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { SUBJECTS } from '@/lib/subjects'
 import { BOOKS } from '@/lib/books'
-import { GUIDE_SERIES } from '@/lib/guides'
+import { GUIDE_SERIES, postHref } from '@/lib/guides'
 import { allChapterPages } from '@/lib/chapter-pages'
 
 const BASE = 'https://www.propilotlicence.com'
@@ -42,7 +42,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const guidePostPages: MetadataRoute.Sitemap = GUIDE_SERIES.flatMap((series) =>
     series.posts.map((post) => ({
-      url: `${BASE}/guides/${series.slug}/${post.slug}`,
+      url: `${BASE}${postHref(series, post)}`,
       lastModified: post.updatedAt,
       changeFrequency: 'monthly' as const,
       priority: 0.75,

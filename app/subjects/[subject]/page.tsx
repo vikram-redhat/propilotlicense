@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
+import Breadcrumbs from '@/components/Breadcrumbs'
 import SiteFooter from '@/components/SiteFooter'
 import { CourseSchema } from '@/components/schema/CourseSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
@@ -39,11 +40,33 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
   const high = subject.primaryBookSlug === IC_JOSHI_SLUG
     ? (await loadIcJoshiSyllabus()).filter(c => c.weight === 'High')
     : null
-  const topics: readonly string[] = high ? high.map(c => c.name) : subject.topicsHighYield
+  // Chapter names link to their chapter page where one exists (same rule as the
+  // related-chapter links on chapter pages).
+  const topics: { name: string; href: string | null }[] = high
+    ? high.map(c => ({ name: c.name, href: c.href }))
+    : subject.topicsHighYield.map(name => ({ name, href: null }))
   const faqs = subject.faqs.map(f => ({
     q: f.q,
     a: high ? f.a.replace('{{HIGH_CHAPTERS}}', `Chapters ${namedChapterList(high)}`) : f.a,
   }))
+  // Visible FAQ answers: the same text as the schema, with chapter names linked.
+  const linkStyle = { color: 'var(--clr-primary)', textDecoration: 'underline', textUnderlineOffset: 2 }
+  const faqBody = subject.faqs.map(f => {
+    if (!high || !f.a.includes('{{HIGH_CHAPTERS}}')) return null
+    const [before, after] = f.a.split('{{HIGH_CHAPTERS}}')
+    return (
+      <>
+        {before}Chapters{' '}
+        {high.map((c, i) => (
+          <span key={c.number}>
+            {i > 0 && (i === high.length - 1 ? ' and ' : ', ')}
+            {c.number} ({c.href ? <Link href={c.href} style={linkStyle}>{c.name}</Link> : c.name})
+          </span>
+        ))}
+        {after}
+      </>
+    )
+  })
 
   const url = `https://www.propilotlicence.com/subjects/${subject.slug}`
 
@@ -56,11 +79,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
       <main style={{ maxWidth: 800, margin: '0 auto', padding: '48px 20px 96px' }}>
 
         {/* Breadcrumb */}
-        <nav style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 24 }}>
-          <Link href="/subjects" style={{ color: 'var(--clr-text-med)', textDecoration: 'none' }}>Subjects</Link>
-          <span style={{ margin: '0 6px' }}>›</span>
-          <span>{subject.title}</span>
-        </nav>
+        <Breadcrumbs items={[{ name: 'Subjects', href: '/subjects' }, { name: subject.title }]} />
 
         <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 32, fontWeight: 700, color: 'var(--clr-text)', letterSpacing: '-0.5px', lineHeight: 1.2, marginBottom: 12 }}>
           DGCA CPL {subject.title}
@@ -90,14 +109,12 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
             High-yield topics
           </h2>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {topics.map((t) => (
-              <span
-                key={t}
-                style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-primary)', background: 'var(--clr-pri-light)', borderRadius: 20, padding: '4px 12px', border: '1px solid var(--clr-border)' }}
-              >
-                {t}
-              </span>
-            ))}
+            {topics.map((t) => {
+              const chip = { fontSize: 13, fontWeight: 500, color: 'var(--clr-primary)', background: 'var(--clr-pri-light)', borderRadius: 20, padding: '4px 12px', border: '1px solid var(--clr-border)' }
+              return t.href
+                ? <Link key={t.name} href={t.href} style={{ ...chip, textDecoration: 'underline', textUnderlineOffset: 2 }}>{t.name}</Link>
+                : <span key={t.name} style={chip}>{t.name}</span>
+            })}
           </div>
         </section>
 
@@ -147,7 +164,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
                 style={{ padding: '20px 0', borderBottom: i < faqs.length - 1 ? '1px solid var(--clr-border)' : 'none' }}
               >
                 <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--clr-text)', marginBottom: 8 }}>{faq.q}</div>
-                <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--clr-text-med)' }}>{faq.a}</div>
+                <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--clr-text-med)' }}>{faqBody[i] ?? faq.a}</div>
               </div>
             ))}
           </div>

@@ -13,7 +13,8 @@ export type A320Series = {
   items: A320SeriesItem[]
 }
 
-// Systems series — lives inside the dgca-exam-guides guide series.
+// Systems series — its own guide section (a320-systems, /guides/a320-systems); the
+// articles keep their original URLs under /guides/dgca-exam-guides/.
 export const A320_SYSTEMS_SERIES: A320Series = {
   label: 'A320 Systems Series',
   guideSeries: 'dgca-exam-guides',
