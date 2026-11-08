@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { isDeadLicencePath } from '@/lib/licence-routes'
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -65,6 +66,11 @@ export async function proxy(request: NextRequest) {
   const hasBypass = !!bypassSecret && bypassCookie === bypassSecret
 
   if (!user && !isAuthRoute && !isPublicRoute && !isApiRoute && !hasBypass) {
+    // A path that can only 404 at /[licence] (e.g. /foo/bar, /cpl/not-a-subject): serve
+    // that 404 rather than a login redirect. /__not-found renders the licence layout's 404.
+    if (isDeadLicencePath(pathname)) {
+      return NextResponse.rewrite(new URL('/__not-found', request.url))
+    }
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(loginUrl)

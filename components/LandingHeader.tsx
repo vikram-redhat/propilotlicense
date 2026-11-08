@@ -89,12 +89,19 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
               </button>
               {guidesMenuOpen && (
                 <div style={{ position: 'absolute', left: 0, marginTop: 12, width: 200, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
-                  {GUIDE_SERIES.map((series, i) => (
+                  <Link
+                    href="/guides"
+                    onClick={() => setGuidesMenuOpen(false)}
+                    style={{ display: 'block', padding: '10px 16px', fontSize: 14, fontWeight: 600, color: 'var(--clr-text)', textDecoration: 'none' }}
+                  >
+                    All guides
+                  </Link>
+                  {GUIDE_SERIES.map((series) => (
                     <Link
                       key={series.slug}
                       href={`/guides/${series.slug}`}
                       onClick={() => setGuidesMenuOpen(false)}
-                      style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none', borderTop: i > 0 ? '1px solid var(--clr-surf-alt)' : 'none' }}
+                      style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none', borderTop: '1px solid var(--clr-surf-alt)' }}
                     >
                       {series.navLabel}
                     </Link>
