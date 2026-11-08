@@ -11,6 +11,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
 import * as dotenv from 'dotenv'
+import { shuffleGeneratedQuestion } from '../lib/option-shuffle'
 dotenv.config({ path: '.env.local' })
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -779,11 +780,13 @@ EXPLANATION: 5–6 lines in the authoritative voice of "${bookTitle}". Textbook 
 CITATION: Best estimate of chapter and page in "${bookTitle}". Always provide a number — never "unknown".
 
 Return ONLY a valid JSON array, no markdown, no preamble:
-[{"question_text":"...","options":{"A":"...","B":"...","C":"...","D":"..."},"correct_option":"B","explanation":"...","source_chapter":"Chapter 4","source_page":"Page 67","difficulty":"${difficulty}"}]`
+[{"question_text":"...","options":{"A":"...","B":"...","C":"...","D":"..."},"correct_option":"A|B|C|D","explanation":"...","source_chapter":"Chapter 4","source_page":"Page 67","difficulty":"${difficulty}"}]`
     }],
   })
   const text = response.content[0].type === 'text' ? response.content[0].text : ''
-  return JSON.parse(text.trim())
+  // The model favours B; spread correct answers evenly across A–D (lib/option-shuffle.ts).
+  const parsed = JSON.parse(text.trim())
+  return Array.isArray(parsed) ? parsed.map(shuffleGeneratedQuestion) : parsed
 }
 
 async function buildChapterMap(bookId: string): Promise<Map<string, string>> {

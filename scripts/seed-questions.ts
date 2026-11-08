@@ -21,6 +21,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
 import * as dotenv from 'dotenv'
 import { resolve } from 'path'
+import { shuffleGeneratedQuestion } from '../lib/option-shuffle'
 
 dotenv.config({ path: resolve(process.cwd(), '.env.local') })
 
@@ -100,7 +101,7 @@ Each element must have exactly this shape:
     "C": "Third option text",
     "D": "Fourth option text"
   },
-  "correct_option": "B",
+  "correct_option": "A|B|C|D",
   "explanation": "Full 5–6 line paragraph explanation in textbook style...",
   "source_chapter": "Chapter 4",
   "source_page": "Page 67",
@@ -116,7 +117,8 @@ Each element must have exactly this shape:
 
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
     const questions = JSON.parse(text.trim())
-    return Array.isArray(questions) ? questions : [questions]
+    // The model favours B; spread correct answers evenly across A–D (lib/option-shuffle.ts).
+    return (Array.isArray(questions) ? questions : [questions]).map(shuffleGeneratedQuestion)
   } catch (err) {
     console.error(`    ✗ Failed to generate/parse for topic "${topic}" (${difficulty}):`, err)
     return []
