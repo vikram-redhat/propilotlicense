@@ -13,7 +13,7 @@ export const CHAPTER_2: ChapterPageContent = {
   metaDescription: 'IC Joshi Aviation Meteorology Chapter 2, Atmospheric Pressure. QNH, QFE, QFF and QNE, altimeter errors, transition procedures, four worked numericals and practice questions.',
   excerpt: 'Atmospheric Pressure is a High-weight chapter and home to the numericals. Get QNH, QFE, QFF and QNE exact, understand why temperature changes the altimeter, and these become the easiest marks in the paper.',
   publishedAt: '2026-11-05',
-  updatedAt: '2026-11-07',
+  updatedAt: '2026-11-08',
   reviewedBy: 'ProPilotLicence Captain Panel',
 
   // Fixed sample questions (re-picked 2026-11-07): IC Joshi-sourced, active, syllabus
@@ -178,7 +178,7 @@ export const CHAPTER_2: ChapterPageContent = {
       <tr><td class="mono">QFE</td><td>Pressure at aerodrome level (officially, at the runway threshold or aerodrome reference point)</td><td>Zero</td></tr>
       <tr><td class="mono">QNH</td><td>Aerodrome pressure reduced to mean sea level using the <strong>ISA</strong> temperature</td><td>Aerodrome elevation</td></tr>
       <tr><td class="mono">QFF</td><td>Aerodrome pressure reduced to mean sea level using the <strong>actual</strong> temperature. Plotted on synoptic charts, not set on an altimeter.</td><td>Not used for altimetry</td></tr>
-      <tr><td class="mono">QNE</td><td>The standard setting, 1013.25 hPa. Set above the transition altitude, so the altimeter reads flight levels.</td><td>With it set on the ground, the altimeter reads the aerodrome's pressure altitude.</td></tr>
+      <tr><td class="mono">QNE</td><td>The standard setting, 1013.25 hPa, set above the transition altitude so the altimeter reads flight levels. Strictly, in the Q code, QNE is the altimeter reading on the ground at an aerodrome with 1013.25 set, which is the aerodrome's pressure altitude. Both uses appear in exam questions.</td><td>With it set on the ground, the altimeter reads the aerodrome's pressure altitude.</td></tr>
     </tbody>
   </table>
 
@@ -312,8 +312,8 @@ export const CHAPTER_2: ChapterPageContent = {
     <div class="right">✓ It falls fastest near the surface and more slowly with height: about 27 ft per hPa at sea level, about 50 ft per hPa at 18,000 ft.</div>
   </div>
   <div class="trap">
-    <div class="wrong">✗ "QNE, the standard setting and 1013.25 hPa are different settings."</div>
-    <div class="right">✓ They are the same thing. With it set, the altimeter shows pressure altitude, read as a flight level.</div>
+    <div class="wrong">✗ "QNE can only mean the standard setting."</div>
+    <div class="right">✓ It's used for the setting, and strictly for the reading on the ground with 1013.25 set. Read the question to see which is meant.</div>
   </div>
 `,
 
