@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createServiceClient } from '@/lib/supabase'
 import { isAdminRequest } from '@/lib/admin-auth'
+import { shuffleGeneratedQuestion } from '@/lib/option-shuffle'
 
 export const maxDuration = 120
 
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
     avoidBlock +
     `\nCRITICAL: Return ONLY a valid JSON array. No markdown fences, no preamble, no trailing text.\n\n` +
     `Each element:\n` +
-    `{"question_text":"...","options":{"A":"...","B":"...","C":"...","D":"..."},"correct_option":"B",` +
+    `{"question_text":"...","options":{"A":"...","B":"...","C":"...","D":"..."},"correct_option":"A|B|C|D",` +
     `"explanation":"...","source_chapter":"Chapter 4","source_page":"Page 67",` +
     `"difficulty":"${difficulty}","citation_verified":${citationVerifiedValue}}`
 
@@ -105,7 +106,10 @@ export async function POST(req: Request) {
   // ── Parse the model output (may be truncated if it hit the token limit) ──
   const text = response.content[0]?.type === 'text' ? response.content[0].text : ''
   try {
-    const questions = JSON.parse(text.trim())
+    // The model favours B for the correct answer; shuffle each question's options so new
+    // questions are spread evenly across A–D (lib/option-shuffle.ts).
+    const parsed = JSON.parse(text.trim())
+    const questions = Array.isArray(parsed) ? parsed.map(shuffleGeneratedQuestion) : parsed
     return Response.json({
       questions,
       source: citationVerifiedValue ? 'pdf_chunk' : 'memory',
