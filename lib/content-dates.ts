@@ -3,27 +3,33 @@ import { createServiceClient } from '@/lib/supabase'
 import { isSyllabusBook } from '@/lib/syllabus'
 
 // When the database-built parts of the subject and book pages last changed, for the
-// sitemap's lastmod. Questions have no edited-at column, so a question counts from when it
-// was created (it changes the page's question count); a book's chapters count from
-// chapters.verified_at (weights, topics). Cached for an hour, like lib/live-counts.ts.
+// sitemap's lastmod. Questions have no edited-at column, so a question counts from the
+// later of when it was created (it changes the page's question count) and when it was last
+// reviewed (last_reviewed_at); a book's chapters count from chapters.verified_at (weights,
+// topics). Cached for an hour, like lib/live-counts.ts.
 
 export type DbContentDates = {
   bySubjectCode: Record<string, string> // newest active question per subject
   byBookId: Record<string, string> // newest active question or chapter change per book
 }
 
-async function newestQuestion(filter: { subject_id?: string; source_book_id?: string }): Promise<string | undefined> {
-  const supabase = createServiceClient()
-  let q = supabase.from('questions').select('created_at').eq('active', true)
-  if (filter.subject_id) q = q.eq('subject_id', filter.subject_id)
-  if (filter.source_book_id) q = q.eq('source_book_id', filter.source_book_id)
-  const { data, error } = await q.order('created_at', { ascending: false }).limit(1)
-  if (error) throw new Error(`Content dates: ${error.message}`)
-  return data[0]?.created_at
-}
-
 const latest = (...dates: (string | null | undefined)[]) =>
   dates.filter((d): d is string => !!d).sort().at(-1)
+
+// The newest created_at or last_reviewed_at among the active questions matching filter.
+async function newestQuestion(filter: { subject_id?: string; source_book_id?: string }): Promise<string | undefined> {
+  const supabase = createServiceClient()
+  const newest = async (column: 'created_at' | 'last_reviewed_at') => {
+    let q = supabase.from('questions').select(column).eq('active', true).not(column, 'is', null)
+    if (filter.subject_id) q = q.eq('subject_id', filter.subject_id)
+    if (filter.source_book_id) q = q.eq('source_book_id', filter.source_book_id)
+    const { data, error } = await q.order(column, { ascending: false }).limit(1)
+    if (error) throw new Error(`Content dates: ${error.message}`)
+    return (data[0] as Record<string, string> | undefined)?.[column]
+  }
+  const [created, reviewed] = await Promise.all([newest('created_at'), newest('last_reviewed_at')])
+  return latest(created, reviewed)
+}
 
 export const dbContentDates = unstable_cache(async (bookIds: string[]): Promise<DbContentDates> => {
   const supabase = createServiceClient()

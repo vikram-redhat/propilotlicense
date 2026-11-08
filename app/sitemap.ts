@@ -19,7 +19,8 @@ const STATIC_PAGE_UPDATED = {
   terms: '2026-06-29',
 }
 
-// Refresh hourly so new questions and chapter changes reach the subject and book dates.
+// Refresh hourly so new and reviewed questions and chapter changes reach the subject and
+// book dates.
 export const revalidate = 3600
 
 const bookIdOf = (b: (typeof BOOKS)[number]) => ('sourceBookId' in b ? b.sourceBookId : b.questionsBookId)
