@@ -8,6 +8,7 @@ import { FAQSchema } from '@/components/schema/FAQSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { bookQuestionTotalOrNull } from '@/lib/live-counts'
 import { chapterList, loadIcJoshiSyllabus, namedChapterList, type SyllabusChapter } from '@/lib/ic-joshi-syllabus'
+import { getPost } from '@/lib/guides'
 
 export const metadata = buildMetadata({
   title: 'How to Prepare for the DGCA CPL Meteorology Exam — Complete Study Guide | ProPilotLicence',
@@ -17,8 +18,10 @@ export const metadata = buildMetadata({
 })
 
 const BOOK_SLUG = 'ic-joshi-aviation-meteorology'
-// Article dateModified; the visible "Updated" line is generated from it.
-const DATE_MODIFIED = '2026-11-08'
+// Dates come from the guide registry, so the Article schema and the sitemap agree.
+const POST = getPost('dgca-exam-guides', 'dgca-cpl-meteorology-preparation')!
+// The visible "Updated" line is generated from it.
+const DATE_MODIFIED = POST.updatedAt
 
 // One table line: cut at the last "; " before the limit.
 function oneLine(topics: string, max = 90): string {
@@ -126,7 +129,7 @@ export default async function MeteorologyPrepPost() {
         title="How to Prepare for the DGCA CPL Meteorology Exam — Complete Study Guide"
         description="A complete guide to preparing for the DGCA CPL Aviation Meteorology paper. Which book to use, which chapters matter most, how to approach Indian climatology, and what to expect on exam day."
         url="https://www.propilotlicence.com/guides/dgca-exam-guides/dgca-cpl-meteorology-preparation"
-        publishedAt="2026-06-15"
+        publishedAt={POST.publishedAt}
         updatedAt={DATE_MODIFIED}
       />
       <FAQSchema faqs={FAQS} />

@@ -8,6 +8,10 @@ import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { Section, SubSection } from '@/components/guides/ArticleKit'
+import { getPost } from '@/lib/guides'
+
+// Dates come from the guide registry, so the Article schema and the sitemap agree.
+const POST = getPost('dgca-exam-guides', 'dgca-cpl-books')!
 
 export const metadata = buildMetadata({
   title: 'Which Books to Study for DGCA CPL Exams — Complete 2026 Guide | ProPilotLicence',
@@ -36,8 +40,8 @@ export default async function DgcaCplBooksPost() {
         title="Which Books Should I Study for the DGCA CPL Theory Exams? (2026 Guide)"
         description="The complete guide to DGCA-prescribed textbooks for CPL theory exams. Which books to buy for Meteorology, Air Regulations, Navigation, Technical General, and Radio Aids."
         url="https://www.propilotlicence.com/guides/dgca-exam-guides/dgca-cpl-books"
-        publishedAt="2026-06-01"
-        updatedAt="2026-06-01"
+        publishedAt={POST.publishedAt}
+        updatedAt={POST.updatedAt}
       />
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 
@@ -50,7 +54,7 @@ export default async function DgcaCplBooksPost() {
         <div style={{ fontSize: 12, color: 'var(--clr-text-med)', marginBottom: 16, display: 'flex', gap: 10, alignItems: 'center' }}>
           <span>Reviewed by ProPilotLicence Captain Panel</span>
           <span>·</span>
-          <span>Updated June 2026</span>
+          <span>Updated {new Date(POST.updatedAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' })}</span>
         </div>
 
         <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 30, fontWeight: 700, color: 'var(--clr-text)', letterSpacing: '-0.5px', lineHeight: 1.2, marginBottom: 16 }}>

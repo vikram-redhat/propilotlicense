@@ -25,6 +25,9 @@ export type GuideSeries = {
   navLabel: string
   title: string
   description: string
+  // Last change to the section page's own text or to which articles it lists. The
+  // sitemap uses the later of this and the newest article's publishedAt.
+  updatedAt: string
   posts: GuidePost[]
 }
 
@@ -35,6 +38,7 @@ export const GUIDE_SERIES: GuideSeries[] = [
     title: 'Become a Pilot in India',
     description:
       'Practical, unsentimental guides for aviation professionals considering the transition to commercial pilot. Honest costs, realistic timelines, and what your existing background gives you — and what it does not.',
+    updatedAt: '2026-07-09',
     posts: [
       {
         slug: 'cabin-crew-to-pilot',
@@ -95,6 +99,7 @@ export const GUIDE_SERIES: GuideSeries[] = [
     navLabel: 'DGCA Exam Guides',
     title: 'DGCA Exam Guides',
     description: 'Guides written for CPL and ATPL candidates, reviewed by the ProPilotLicence captain panel.',
+    updatedAt: '2026-11-08',
     posts: [
       {
         slug: 'dgca-cpl-books',
@@ -103,7 +108,7 @@ export const GUIDE_SERIES: GuideSeries[] = [
         metaDescription:
           'The complete guide to DGCA-prescribed textbooks for CPL theory exams. Which books to buy for Meteorology, Air Regulations, Navigation, Technical General, and Radio Aids.',
         publishedAt: '2026-06-01',
-        updatedAt: '2026-06-01',
+        updatedAt: '2026-11-08',
         excerpt:
           'The DGCA prescribes specific textbooks for each subject. This guide covers the books that actually matter for exam preparation — subject by subject — based on review by active airline captains.',
         reviewedBy: 'ProPilotLicence Captain Panel',
@@ -115,7 +120,7 @@ export const GUIDE_SERIES: GuideSeries[] = [
         metaDescription:
           'A complete guide to preparing for the DGCA CPL Aviation Meteorology paper. Which book to use, which chapters matter most, how to approach Indian climatology, and what to expect on exam day.',
         publishedAt: '2026-06-15',
-        updatedAt: '2026-06-15',
+        updatedAt: '2026-11-08',
         excerpt:
           'The DGCA Meteorology paper catches candidates who studied from international textbooks and skipped Indian climatology. This guide covers exactly what to study, in what order, and where most marks are lost.',
         reviewedBy: 'ProPilotLicence Captain Panel',
@@ -131,6 +136,7 @@ export const GUIDE_SERIES: GuideSeries[] = [
     title: 'A320 Systems',
     description:
       'How the A320 family systems work, for type rating and ATPL candidates — hydraulics, flight controls, autoflight and more, reviewed by the ProPilotLicence captain panel.',
+    updatedAt: '2026-11-08',
     posts: [
       {
         slug: 'a320-hydraulic-system',
@@ -139,7 +145,7 @@ export const GUIDE_SERIES: GuideSeries[] = [
         metaDescription:
           'Every service powered by each system, how the PTU and RAT work, and exactly what is lost in each failure case. Animated diagrams, type rating and ATPL level.',
         publishedAt: '2026-07-16',
-        updatedAt: '2026-07-16',
+        updatedAt: '2026-11-01',
         excerpt:
           'Three independent 3,000 PSI circuits. No single failure removes all hydraulic power — but each failure cascades through flight controls, braking, landing gear, flaps and slats. Exactly what is lost and what remains, system by system.',
         reviewedBy: 'ProPilotLicence Captain Panel',
@@ -151,7 +157,7 @@ export const GUIDE_SERIES: GuideSeries[] = [
         metaDescription:
           'How the FMGS, FCU and FMA work together. Managed versus selected guidance, AP and A/THR modes, and mode reversions. Diagrams at type rating level.',
         publishedAt: '2026-07-05',
-        updatedAt: '2026-07-05',
+        updatedAt: '2026-11-01',
         excerpt:
           'The A320 autoflight system does not merely fly the aircraft — it communicates its intentions through the FMA on every mode change. Pilots who understand that conversation rarely get surprised.',
         reviewedBy: 'ProPilotLicence Captain Panel',
@@ -163,7 +169,7 @@ export const GUIDE_SERIES: GuideSeries[] = [
         metaDescription:
           'Every Normal law protection listed, what Alternate law keeps and loses with and without protections, and Direct law handling technique. ECAM messages and diagrams.',
         publishedAt: '2026-07-15',
-        updatedAt: '2026-07-15',
+        updatedAt: '2026-11-01',
         excerpt:
           'The A320 does not have a direct mechanical connection between the sidestick and the control surfaces except in Direct Law. The pilot inputs a demand; computers decide how to meet it. What changes between Normal, Alternate and Direct law is the envelope protections the computers provide.',
         reviewedBy: 'ProPilotLicence Captain Panel',
@@ -178,6 +184,7 @@ export const GUIDE_SERIES: GuideSeries[] = [
     title: 'A320 Operations and Procedures',
     description:
       'Operating technique for A320 type rating and ATPL candidates — how the aircraft is handled and the crew works, rather than how its systems are built. ECAM, circuits and approaches, reviewed by the ProPilotLicence captain panel.',
+    updatedAt: '2026-10-15',
     posts: [
       {
         slug: 'a320-ecam-handling',

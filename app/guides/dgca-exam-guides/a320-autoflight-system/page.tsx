@@ -9,6 +9,10 @@ import { buildMetadata } from '@/lib/metadata'
 import { Section, SubSection, Prose, Callout, DataTable, CtaBlock } from '@/components/guides/ArticleKit'
 import A320SeriesNav from '@/components/guides/A320SeriesNav'
 import A320InlineCta from '@/components/guides/A320InlineCta'
+import { getPost } from '@/lib/guides'
+
+// Dates come from the guide registry, so the Article schema and the sitemap agree.
+const POST = getPost('a320-systems', 'a320-autoflight-system')!
 
 export const metadata = buildMetadata({
   title: 'A320 Autoflight: FMA, Managed vs Selected, AP and A/THR',
@@ -25,8 +29,8 @@ export default async function A320AutoflightPost() {
         title="A320 Autoflight System — AP, FD, ATHR, FCU and FMA Logic"
         description="A complete guide to the A320 autoflight system. Autopilot modes, Flight Director, Autothrust, FCU operation, FMA logic, and managed vs selected guidance — explained for ATPL and type rating candidates."
         url="https://www.propilotlicence.com/guides/dgca-exam-guides/a320-autoflight-system"
-        publishedAt="2026-07-05"
-        updatedAt="2026-07-05"
+        publishedAt={POST.publishedAt}
+        updatedAt={POST.updatedAt}
       />
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 

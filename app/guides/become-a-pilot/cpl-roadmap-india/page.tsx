@@ -4,11 +4,14 @@ import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { seriesNavItems, getSeries } from '@/lib/guides'
+import { seriesNavItems, getSeries, getPost } from '@/lib/guides'
 import {
   Breadcrumb, ArticleHeader, SeriesNav, Section, SubSection, Prose, Callout,
   DataTable, FinancialTable, StepList, Roadmap, ComparisonGrid, CtaBlock, Disclaimer,
 } from '@/components/guides/ArticleKit'
+
+// Dates come from the guide registry, so the Article schema and the sitemap agree.
+const POST = getPost('become-a-pilot', 'cpl-roadmap-india')!
 
 export const metadata = buildMetadata({
   title: 'How to Become a Pilot in India — The Complete CPL Roadmap | ProPilotLicence',
@@ -28,8 +31,8 @@ export default async function CplRoadmapIndiaPost() {
         title="How to Become a Pilot in India — The Complete CPL Roadmap"
         description="The complete step-by-step guide to becoming a commercial pilot in India. From 12th standard to CPL — eligibility, medicals, SPL, flight training, DGCA theory exams, costs, timelines, and training abroad."
         url="https://www.propilotlicence.com/guides/become-a-pilot/cpl-roadmap-india"
-        publishedAt="2026-07-09"
-        updatedAt="2026-07-09"
+        publishedAt={POST.publishedAt}
+        updatedAt={POST.updatedAt}
       />
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 

@@ -1,6 +1,7 @@
 export const SUBJECTS = [
   {
     slug: 'aviation-meteorology',
+    updatedAt: '2026-11-08', // last change to this subject page's own content; the sitemap also counts new questions
     title: 'Aviation Meteorology',
     shortTitle: 'Meteorology',
     code: 'MET', // subjects.code; question count is live (lib/live-counts.ts)
@@ -35,6 +36,7 @@ export const SUBJECTS = [
   },
   {
     slug: 'air-regulations',
+    updatedAt: '2026-11-08',
     title: 'Air Regulations',
     shortTitle: 'Air Regulations',
     code: 'REG', // subjects.code; question count is live (lib/live-counts.ts)
@@ -67,6 +69,7 @@ export const SUBJECTS = [
   },
   {
     slug: 'air-navigation',
+    updatedAt: '2026-11-08',
     title: 'Air Navigation',
     shortTitle: 'Navigation',
     code: 'NAV', // subjects.code; question count is live (lib/live-counts.ts)
@@ -95,6 +98,7 @@ export const SUBJECTS = [
   },
   {
     slug: 'technical-general',
+    updatedAt: '2026-11-08',
     title: 'Technical General',
     shortTitle: 'Technical General',
     code: 'TECH', // subjects.code; question count is live (lib/live-counts.ts)
@@ -123,6 +127,7 @@ export const SUBJECTS = [
   },
   {
     slug: 'radio-aids-instruments',
+    updatedAt: '2026-11-08',
     title: 'Radio Aids and Instruments',
     shortTitle: 'Radio Aids',
     code: 'RADIOAIDSINSTRUMENTS', // subjects.code; question count is live (lib/live-counts.ts)

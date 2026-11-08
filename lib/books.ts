@@ -1,6 +1,7 @@
 export const BOOKS = [
   {
     slug: 'ic-joshi-aviation-meteorology',
+    updatedAt: '2026-11-08', // last change to this book page's own content; the sitemap also counts chapter and question changes
     title: 'Aviation Meteorology',
     author: 'Group Captain IC Joshi (IAF, Retd.)',
     authorShort: 'IC Joshi',
@@ -47,6 +48,7 @@ export const BOOKS = [
   },
   {
     slug: 'rk-bali-air-regulations',
+    updatedAt: '2026-11-08',
     title: 'Air Regulations for CPL/ATPL',
     author: 'Wing Commander RK Bali (IAF, Retd.)',
     authorShort: 'RK Bali',

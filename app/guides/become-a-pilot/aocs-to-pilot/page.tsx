@@ -4,11 +4,14 @@ import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { seriesNavItems, getSeries } from '@/lib/guides'
+import { seriesNavItems, getSeries, getPost } from '@/lib/guides'
 import {
   Breadcrumb, ArticleHeader, SeriesNav, Section, Prose, Callout,
   DataTable, FinancialTable, StepList, SubjectAdvantageGrid, RoleGrid, CtaBlock, Disclaimer,
 } from '@/components/guides/ArticleKit'
+
+// Dates come from the guide registry, so the Article schema and the sitemap agree.
+const POST = getPost('become-a-pilot', 'aocs-to-pilot')!
 
 export const metadata = buildMetadata({
   title: 'Aviation Operations Staff to Pilot in India — Complete Transition Guide | ProPilotLicence',
@@ -28,8 +31,8 @@ export default async function AocsToPilotPost() {
         title="Aviation Operations Staff to Pilot in India — The Complete Transition Guide"
         description="A practical guide for aviation operations staff — ground ops, flight dispatch, load control, crew scheduling — considering the transition to commercial pilot in India. What your ops background gives you, and what it does not."
         url="https://www.propilotlicence.com/guides/become-a-pilot/aocs-to-pilot"
-        publishedAt="2026-07-07"
-        updatedAt="2026-07-07"
+        publishedAt={POST.publishedAt}
+        updatedAt={POST.updatedAt}
       />
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 

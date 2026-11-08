@@ -11,6 +11,10 @@ import A320InlineCta from '@/components/guides/A320InlineCta'
 import { A320_PROCEDURES_SERIES } from '@/lib/a320-series'
 import { ARTICLE_HEAD, ARTICLE_BODY, ARTICLE_BODY_2 } from './articleBody'
 import styles from './styles.module.css'
+import { getPost } from '@/lib/guides'
+
+// Dates come from the guide registry, so the Article schema and the sitemap agree.
+const POST = getPost('a320-procedures', 'a320-ecam-handling')!
 
 export const metadata = buildMetadata({
   title: 'A320 ECAM Handling Philosophy — Alert Levels & Task Sharing | ProPilotLicence',
@@ -27,8 +31,8 @@ export default async function A320EcamHandlingPage() {
         title="A320 ECAM Handling Philosophy — Alert Levels, Task Sharing and Actions"
         description="The complete A320 ECAM handling guide for type rating and ATPL candidates. Display architecture, alert levels, aural warnings, flight phase inhibition, PF/PM task sharing, STATUS page, and ECAM versus QRH."
         url="https://www.propilotlicence.com/guides/a320-procedures/a320-ecam-handling"
-        publishedAt="2026-10-15"
-        updatedAt="2026-10-15"
+        publishedAt={POST.publishedAt}
+        updatedAt={POST.updatedAt}
       />
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 

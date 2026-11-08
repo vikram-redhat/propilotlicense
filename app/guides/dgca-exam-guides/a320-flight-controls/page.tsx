@@ -9,6 +9,10 @@ import A320SeriesNav from '@/components/guides/A320SeriesNav'
 import A320InlineCta from '@/components/guides/A320InlineCta'
 import { ARTICLE_HEAD, ARTICLE_BODY, ARTICLE_BODY_2 } from './articleBody'
 import styles from './styles.module.css'
+import { getPost } from '@/lib/guides'
+
+// Dates come from the guide registry, so the Article schema and the sitemap agree.
+const POST = getPost('a320-systems', 'a320-flight-controls')!
 
 export const metadata = buildMetadata({
   title: 'A320 Flight Controls: Normal, Alternate and Direct Law',
@@ -25,8 +29,8 @@ export default async function A320FlightControlsPage() {
         title="A320 Flight Controls — Fly-by-Wire, Normal Law, Alternate Law, Direct Law and the Sidestick"
         description="The complete A320 flight controls guide for ATPL and type rating candidates. Fly-by-wire architecture, ELAC/SEC/FAC computers, Normal, Alternate and Direct law, sidestick priority logic and dual input handling."
         url="https://www.propilotlicence.com/guides/dgca-exam-guides/a320-flight-controls"
-        publishedAt="2026-07-15"
-        updatedAt="2026-07-15"
+        publishedAt={POST.publishedAt}
+        updatedAt={POST.updatedAt}
       />
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 

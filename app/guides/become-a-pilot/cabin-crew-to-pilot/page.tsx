@@ -4,11 +4,14 @@ import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import SiteFooter from '@/components/SiteFooter'
 import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
-import { seriesNavItems, getSeries } from '@/lib/guides'
+import { seriesNavItems, getSeries, getPost } from '@/lib/guides'
 import {
   Breadcrumb, ArticleHeader, SeriesNav, Section, Prose, Callout,
   DataTable, FinancialTable, StepList, CtaBlock, Disclaimer, ReadyBox,
 } from '@/components/guides/ArticleKit'
+
+// Dates come from the guide registry, so the Article schema and the sitemap agree.
+const POST = getPost('become-a-pilot', 'cabin-crew-to-pilot')!
 
 export const metadata = buildMetadata({
   title: 'Cabin Crew to Pilot in India — The Complete Transition Guide | ProPilotLicence',
@@ -28,8 +31,8 @@ export default async function CabinCrewToPilotPost() {
         title="Cabin Crew to Pilot in India — The Complete Transition Guide"
         description="A practical, unsentimental guide to transitioning from cabin crew to commercial pilot in India. Costs, timeline, medical requirements, age realities, and what nobody tells you before you start."
         url="https://www.propilotlicence.com/guides/become-a-pilot/cabin-crew-to-pilot"
-        publishedAt="2026-07-07"
-        updatedAt="2026-07-07"
+        publishedAt={POST.publishedAt}
+        updatedAt={POST.updatedAt}
       />
       <LandingHeader isLoggedIn={isLoggedIn} name={name} />
 
