@@ -1,18 +1,22 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { trackEvent } from '@/lib/analytics'
 import { useRouter } from 'next/navigation'
 
 // Starts a chapter practice session (same request as the subject picker's book +
 // chapter option) and goes straight into it. Chapter practice is a paid scope, so free
 // accounts get an upgrade message instead.
-export default function StartChapterSession({ subjectId, sourceBookId, chapterId, licence, chapterLabel, backHref }: {
+export default function StartChapterSession({ subjectId, subjectCode, sourceBookId, chapterId, chapterNumber, licence, chapterLabel, backHref, sourcePage }: {
   subjectId: string
+  subjectCode: string | null
+  chapterNumber: number
   sourceBookId: string
   chapterId: string
   licence: string
   chapterLabel: string
   backHref: string
+  sourcePage: string
 }) {
   const router = useRouter()
   const started = useRef(false)
@@ -32,11 +36,18 @@ export default function StartChapterSession({ subjectId, sourceBookId, chapterId
     })
       .then(async res => {
         const data = await res.json().catch(() => ({}))
-        if (res.ok && data.sessionId) router.replace(`/session/${data.sessionId}`)
+        if (res.ok && data.sessionId) {
+          // source_page: the chapter page whose CTA leads here (this page only starts the session).
+          trackEvent('practice_start', {
+            licence, subject: subjectCode ?? undefined, chapter: chapterNumber, mode: 'practice', scope: 'book_chapter',
+            source_page: sourcePage,
+          })
+          router.replace(`/session/${data.sessionId}`)
+        }
         else setProblem(String(data.error ?? '').startsWith('free_tier') ? 'upgrade' : 'error')
       })
       .catch(() => setProblem('error'))
-  }, [subjectId, sourceBookId, chapterId, licence, router])
+  }, [subjectId, subjectCode, sourceBookId, chapterId, chapterNumber, licence, sourcePage, router])
 
   const box: React.CSSProperties = { maxWidth: 460, margin: '96px auto', padding: '28px 24px', textAlign: 'center', background: 'var(--clr-surface)', border: '1px solid var(--clr-border)', borderRadius: 14 }
   const primary: React.CSSProperties = { display: 'inline-block', background: 'var(--clr-primary)', color: '#fff', fontWeight: 600, fontSize: 14, padding: '10px 20px', borderRadius: 8, textDecoration: 'none' }

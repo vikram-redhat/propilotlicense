@@ -1,7 +1,8 @@
 'use client'
-import { useEffect, useState, useCallback, use } from 'react'
+import { useEffect, useState, useCallback, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { scoreBand, trackEvent } from '@/lib/analytics'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
 
 const LIGHTS = 15
@@ -90,7 +91,26 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     load()
   }, [id, router])
 
-  const submitExam = useCallback(() => { router.push(`/results/${id}`) }, [id, router])
+  // practice_complete fires once per session per browser (a resumed session can be
+  // submitted again). Question count and a score band only — never the exact score.
+  const completeSent = useRef(false)
+  const submitExam = useCallback(() => {
+    if (!completeSent.current && sessionState && questions.length) {
+      completeSent.current = true
+      const key = `ga_practice_complete_${id}`
+      let seen = false
+      try { seen = sessionStorage.getItem(key) === '1'; sessionStorage.setItem(key, '1') } catch { /* storage blocked */ }
+      if (!seen) {
+        const correct = Object.values(sessionState.answers).filter(a => a.isCorrect).length
+        trackEvent('practice_complete', {
+          questions: questions.length,
+          score_band: scoreBand(Math.round((correct / questions.length) * 100)),
+          mode: session?.mode,
+        })
+      }
+    }
+    router.push(`/results/${id}`)
+  }, [id, router, sessionState, questions, session?.mode])
 
   useEffect(() => {
     if (session?.mode !== 'mock' || timeLeft === null) return

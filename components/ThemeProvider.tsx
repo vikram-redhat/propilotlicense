@@ -1,5 +1,6 @@
 'use client'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { trackEvent } from '@/lib/analytics'
 
 export type Palette = 'A' | 'B'
 
@@ -22,6 +23,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setPalette(next)
     document.documentElement.dataset.palette = next
     localStorage.setItem('palette', next)
+    trackEvent('theme_toggle', { theme: next === 'A' ? 'runway_blue' : 'golden_hour' })
   }
 
   return <ThemeCtx.Provider value={{ palette, toggle }}>{children}</ThemeCtx.Provider>

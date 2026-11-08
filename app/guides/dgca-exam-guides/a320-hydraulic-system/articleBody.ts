@@ -500,7 +500,7 @@ export const ARTICLE_BODY_2 = String.raw`
   <div class="cta-block">
     <h3>Practise A320 questions</h3>
     <p>ProPilotLicence has {{TOTAL_QUESTIONS}} DGCA ATPL and CPL practice questions — including a full A320 question bank covering every ATA chapter, verified by active airline captains. Free to start.</p>
-    <a class="cta-btn" href="/login?next=/atpl">Practise A320 questions →</a>
+    <a class="cta-btn" data-cta="guide" href="/login?next=/atpl">Practise A320 questions →</a>
   </div>
 
   <div class="disclaimer">

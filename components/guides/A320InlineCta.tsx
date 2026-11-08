@@ -18,6 +18,7 @@ export default async function A320InlineCta() {
       </div>
       <Link
         href="/login?next=/atpl"
+        data-cta="guide"
         style={{
           flexShrink: 0, background: 'var(--clr-primary)', color: '#fff', fontWeight: 700, fontSize: 13,
           padding: '9px 18px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap',

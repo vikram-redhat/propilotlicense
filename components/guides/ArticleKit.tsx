@@ -388,7 +388,7 @@ export function CtaBlock({ title, body, href, label }: { title: string; body: st
     <div style={{ background: 'var(--clr-hero)', borderRadius: 14, padding: '28px 32px', margin: '16px 0', textAlign: 'center' }}>
       <h3 style={{ color: '#fff', fontSize: 18, fontWeight: 700, marginBottom: 8, fontFamily: 'var(--font-outfit),sans-serif' }}>{title}</h3>
       <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, marginBottom: 20 }}>{body}</p>
-      <Link href={href} style={{ display: 'inline-block', background: '#fff', color: 'var(--clr-hero)', fontWeight: 700, fontSize: 14, padding: '11px 28px', borderRadius: 8, textDecoration: 'none' }}>
+      <Link href={href} data-cta="guide" style={{ display: 'inline-block', background: '#fff', color: 'var(--clr-hero)', fontWeight: 700, fontSize: 14, padding: '11px 28px', borderRadius: 8, textDecoration: 'none' }}>
         {label}
       </Link>
     </div>

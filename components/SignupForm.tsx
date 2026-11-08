@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { pathOnly, referrerPath } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 
 function Logo() {
@@ -9,6 +10,12 @@ function Logo() {
       ProPilot<span style={{ color: 'var(--clr-amber)' }}>Licence</span>
     </div>
   )
+}
+
+// The page the visitor signed up from, for GA4 sign_up: the next= path if there is one,
+// otherwise the previous page on this site.
+function signupFrom(next: string): string {
+  return pathOnly(next !== '/' ? next : undefined) ?? referrerPath() ?? '/signup'
 }
 
 export default function SignupForm({ next }: { next: string }) {
@@ -26,7 +33,7 @@ export default function SignupForm({ next }: { next: string }) {
     if (password !== confirm) { setError('Passwords do not match.'); return }
     setLoading(true)
     setError('')
-    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next || '/')}`
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next || '/')}&from=${encodeURIComponent(signupFrom(next))}`
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -42,7 +49,7 @@ export default function SignupForm({ next }: { next: string }) {
 
   async function handleGoogle() {
     setGoogleLoading(true)
-    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next || '/')}`
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next || '/')}&from=${encodeURIComponent(signupFrom(next))}`
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: callbackUrl },

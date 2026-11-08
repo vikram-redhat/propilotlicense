@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest, after } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
 import { sendWelcomeEmail } from '@/lib/email'
 import { hubForExamType } from '@/lib/hub'
+import { AUTH_EVENT_COOKIE, pathOnly, type AuthEvent } from '@/lib/analytics'
 
 // Best-effort welcome email on a user's first confirmed sign-in (email confirmation or
 // OAuth). Idempotent via profiles.welcome_email_sent_at, so it sends exactly once and
@@ -104,6 +105,19 @@ export async function GET(request: NextRequest) {
         // ATPL users to /atpl instead of the hardcoded /cpl.
         response.headers.set('location', new URL(hubForExamType(user.user_metadata?.exam_type as string | undefined), origin).toString())
       }
+
+      // GA4 sign_up / login: a redirect can't call gtag, so leave a short-lived cookie that
+      // GoogleAnalytics.tsx sends (once) on the next page. First confirmed sign-in = no
+      // welcome email stamped yet — the same test the welcome email uses. No personal data:
+      // provider name and a path only.
+      const { data: profile } = await createServiceClient()
+        .from('profiles').select('welcome_email_sent_at').eq('id', user.id).maybeSingle()
+      const authEvent: AuthEvent = {
+        event: profile?.welcome_email_sent_at ? 'login' : 'sign_up',
+        method: (user.app_metadata?.provider as string | undefined) ?? 'email',
+        from: pathOnly(searchParams.get('from')) ?? pathOnly(next),
+      }
+      response.cookies.set(AUTH_EVENT_COOKIE, encodeURIComponent(JSON.stringify(authEvent)), { path: '/', maxAge: 300, sameSite: 'lax' })
 
       const name = (user.user_metadata?.full_name as string | undefined) ?? user.email?.split('@')[0] ?? null
       after(() => maybeSendWelcome(user.id, user.email!, name))

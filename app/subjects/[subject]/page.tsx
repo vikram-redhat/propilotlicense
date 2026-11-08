@@ -146,6 +146,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
           </p>
           <Link
             href="/login"
+            data-cta="subject_page"
             style={{ display: 'inline-block', background: 'var(--clr-amber)', color: '#fff', fontWeight: 700, fontSize: 15, padding: '12px 28px', borderRadius: 8, textDecoration: 'none', fontFamily: 'var(--font-outfit),sans-serif' }}
           >
             Practise free

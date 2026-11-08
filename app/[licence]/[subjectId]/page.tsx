@@ -2,6 +2,7 @@
 import { useEffect, useState, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { pathOnly, trackEvent } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook, Profile } from '@/lib/types'
 import { isSubscribed } from '@/lib/subscription'
@@ -191,6 +192,14 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
     })
     const data = await res.json()
     if (data.sessionId) {
+      trackEvent('practice_start', {
+        licence: licence.toLowerCase(),
+        subject: isNavOrRai ? 'NAV+RAI' : subject?.code,
+        chapter: effectiveScope === 'book_chapter' ? chapters.find(c => c.id === selectedChapterId)?.chapter_number : undefined,
+        mode: isNavOrRai ? 'mock' : mode,
+        scope: isNavOrRai ? 'nav_rai_combined' : effectiveScope,
+        source_page: pathOnly(window.location.pathname),
+      })
       router.push(`/session/${data.sessionId}`)
     } else {
       const msg =

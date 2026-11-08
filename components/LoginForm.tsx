@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { trackEvent } from '@/lib/analytics'
 import { useRouter } from 'next/navigation'
 import { hubForExamType } from '@/lib/hub'
 import { supabase } from '@/lib/supabase'
@@ -38,6 +39,7 @@ export default function LoginForm({ next }: { next: string }) {
     if (!isAdmin && (dest === '/cpl' || dest === '/atpl')) {
       dest = hubForExamType(data.user?.user_metadata?.exam_type as string | undefined)
     }
+    trackEvent('login', { method: 'email' })
     router.push(dest)
     router.refresh()
   }

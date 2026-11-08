@@ -174,9 +174,9 @@ export default async function DgcaCplBooksPost() {
             ProPilotLicence has {roundedTotal(totals.cpl)} questions sourced from DGCA-prescribed textbooks, organised by subject and chapter, and reviewed by active airline captains.
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
-            <Link href="/books/ic-joshi-aviation-meteorology" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>IC Joshi — Meteorology →</Link>
-            <Link href="/books/rk-bali-air-regulations" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>RK Bali — Air Regulations →</Link>
-            <Link href="/subjects" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>All subjects →</Link>
+            <Link href="/books/ic-joshi-aviation-meteorology" data-cta="guide" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>IC Joshi — Meteorology →</Link>
+            <Link href="/books/rk-bali-air-regulations" data-cta="guide" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>RK Bali — Air Regulations →</Link>
+            <Link href="/subjects" data-cta="guide" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>All subjects →</Link>
           </div>
         </div>
       </main>

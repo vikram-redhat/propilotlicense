@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { trackEvent } from '@/lib/analytics'
 
 declare global {
   interface Window {
@@ -88,6 +89,10 @@ export default function CheckoutButton({
 
       const { orderId } = await orderRes.json()
 
+      // GA4 ecommerce: plan and value only (no user details).
+      const item = { item_id: plan, item_name: `${plan === '90days' ? '90' : '30'} Day Access`, price: amount, quantity: 1 }
+      trackEvent('begin_checkout', { currency, value: amount, plan, items: [item] })
+
       // 2. Open Razorpay checkout modal
       const options: RazorpayOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
@@ -110,6 +115,7 @@ export default function CheckoutButton({
           })
 
           if (verifyRes.ok) {
+            trackEvent('purchase', { transaction_id: orderId, currency, value: amount, plan, items: [item] })
             router.push('/checkout/success')
           } else {
             alert('Payment verification failed. Please contact support.')

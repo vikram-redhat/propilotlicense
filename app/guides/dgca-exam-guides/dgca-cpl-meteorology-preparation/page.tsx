@@ -333,10 +333,10 @@ export default async function MeteorologyPrepPost() {
             {bankTotal != null ? `${bankTotal.toLocaleString()} questions` : 'Questions'} from IC Joshi and related books, organised mostly by chapter. First 10 free, no sign-up required.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Link href="/subjects/aviation-meteorology" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Aviation Meteorology subject page →</Link>
-            <Link href="/books/ic-joshi-aviation-meteorology" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>IC Joshi chapter breakdown →</Link>
-            <Link href="/pricing" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Pricing →</Link>
-            <Link href="/guides/dgca-exam-guides/dgca-cpl-books" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Which books to study →</Link>
+            <Link href="/subjects/aviation-meteorology" data-cta="guide" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Aviation Meteorology subject page →</Link>
+            <Link href="/books/ic-joshi-aviation-meteorology" data-cta="guide" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>IC Joshi chapter breakdown →</Link>
+            <Link href="/pricing" data-cta="guide" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Pricing →</Link>
+            <Link href="/guides/dgca-exam-guides/dgca-cpl-books" data-cta="guide" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Which books to study →</Link>
           </div>
         </div>
       </main>

@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { pathOnly, trackEvent } from '@/lib/analytics'
 import { useRouter } from 'next/navigation'
 
 interface Props {
@@ -33,6 +34,7 @@ export default function CompositeCard({ metId, navId, raiId, regId, subscribed }
     })
     const data = await res.json()
     if (data.sessionId) {
+      trackEvent('practice_start', { licence: 'cpl', subject: 'composite', mode, scope: 'composite', source_page: pathOnly(window.location.pathname) })
       router.push(`/session/${data.sessionId}`)
     } else {
       alert(data.error || 'Failed to start session')

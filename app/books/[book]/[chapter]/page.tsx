@@ -195,7 +195,7 @@ export default async function ChapterPage({ params }: Params) {
         <div className="cta-block">
           <h3>Practise Chapter {chapter.chapter_number}: {chapter.chapter_name}</h3>
           <p>{questionCount.toLocaleString()} questions on this chapter, each citing its source book. Free to start.</p>
-          <Link className="cta-btn" href={practiceHref}>Practise Chapter {chapter.chapter_number} →</Link>
+          <Link className="cta-btn" data-cta="chapter_page" href={practiceHref}>Practise Chapter {chapter.chapter_number} →</Link>
         </div>
 
         <div dangerouslySetInnerHTML={{ __html: page.disclaimer }} />

@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import { getBookBySlug } from '@/lib/books'
+import { chapterPageHref } from '@/lib/chapter-pages'
 import { hubForExamType } from '@/lib/hub'
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
@@ -21,7 +22,7 @@ export default async function PracticeChapterPage({ params }: { params: Promise<
 
   const supabase = createServiceClient()
   const [{ data: book }, { data: ch }] = await Promise.all([
-    supabase.from('source_books').select('id, subject_id').eq('id', bookEntry.sourceBookId).single(),
+    supabase.from('source_books').select('id, subject_id, subject:subjects(code)').eq('id', bookEntry.sourceBookId).single(),
     supabase.from('chapters').select('id, chapter_number, chapter_name')
       .eq('book_id', bookEntry.sourceBookId).eq('chapter_number', chapterNumber).single(),
   ])
@@ -31,11 +32,14 @@ export default async function PracticeChapterPage({ params }: { params: Promise<
   return (
     <StartChapterSession
       subjectId={book.subject_id}
+      subjectCode={(book.subject as unknown as { code: string | null } | null)?.code ?? null}
+      chapterNumber={ch.chapter_number}
       sourceBookId={book.id}
       chapterId={ch.id}
       licence={licence}
       chapterLabel={`Chapter ${ch.chapter_number}: ${ch.chapter_name}`}
       backHref={`/books/${bookSlug}`}
+      sourcePage={chapterPageHref(bookSlug, chapterNumber) ?? `/books/${bookSlug}`}
     />
   )
 }
