@@ -20,7 +20,15 @@ export type SyllabusChapter = {
 // "highest-yield" claim and chapter table on the site renders from this, so none can drift
 // from the book page and chapter pages. Cached for an hour; a failed refresh serves the
 // last good value. Throws only with nothing cached and the database down.
-export const loadIcJoshiSyllabus = unstable_cache(async (): Promise<SyllabusChapter[]> => {
+//
+// Chapter page links are added after the cache: they come from code (lib/chapter-pages.ts),
+// and the data cache outlives deploys, so a newly published chapter links at once.
+export async function loadIcJoshiSyllabus(): Promise<SyllabusChapter[]> {
+  const chapters = await loadChapterRows()
+  return chapters.map(c => ({ ...c, href: chapterPageHref(BOOK_SLUG, c.number) }))
+}
+
+const loadChapterRows = unstable_cache(async (): Promise<Omit<SyllabusChapter, 'href'>[]> => {
   const entry = getBookBySlug(BOOK_SLUG)
   if (!entry || !('sourceBookId' in entry)) throw new Error('IC Joshi book entry missing')
   const supabase = createServiceClient()
@@ -41,7 +49,6 @@ export const loadIcJoshiSyllabus = unstable_cache(async (): Promise<SyllabusChap
     weight: c.exam_weight ?? null,
     topics: c.syllabus_topics ?? null,
     questions: counts[c.id] ?? 0,
-    href: chapterPageHref(BOOK_SLUG, c.chapter_number),
   }))
 }, ['ic-joshi-syllabus'], { revalidate: 3600 })
 
