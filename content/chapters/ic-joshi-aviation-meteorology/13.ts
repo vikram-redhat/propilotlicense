@@ -13,7 +13,7 @@ export const CHAPTER_13: ChapterPageContent = {
   metaDescription: "IC Joshi Aviation Meteorology Chapter 13, Thunderstorm. What DGCA asks, the three stages, conditions for formation, hazards, nor'westers, avoidance rules and practice questions.",
   excerpt: 'Thunderstorm is a High-weight chapter in IC Joshi. Know the three stages, the three ingredients, and exactly which hazards occur when, and most DGCA thunderstorm questions answer themselves.',
   publishedAt: '2026-11-04',
-  updatedAt: '2026-11-08',
+  updatedAt: '2026-11-10',
   reviewedBy: 'ProPilotLicence Captain Panel',
 
   // Fixed sample questions (re-picked 2026-11-07): IC Joshi-sourced, active, syllabus
@@ -234,6 +234,7 @@ export const CHAPTER_13: ChapterPageContent = {
   related: String.raw`
   <h2>Related chapters</h2>
   <ul class="related">
+    <li><a href="#">Chapter 1, Atmosphere</a>: the tropopause, which caps most thunderstorm tops.</li>
     <li><a href="#">Chapter 6, Winds</a>: squalls, gusts and wind shear.</li>
     <li><a href="#">Chapter 8, Clouds</a>: the cumulonimbus as a cloud type, separate from the storm process.</li>
     <li><a href="#">Chapter 9, Stability of Atmosphere</a>: conditional instability, the reason thunderstorms form at all.</li>

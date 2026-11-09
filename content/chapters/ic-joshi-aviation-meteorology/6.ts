@@ -13,7 +13,7 @@ export const CHAPTER_6: ChapterPageContent = {
   metaDescription: "IC Joshi Aviation Meteorology Chapter 6, Winds. Coriolis, geostrophic and gradient wind, Buys Ballot's law, surface versus upper winds, thermal wind, local winds, monsoon and practice questions.",
   excerpt: 'Winds is a High-weight chapter built on four forces. Know which are in balance and how they change with latitude, height and temperature, and the rest of the chapter follows.',
   publishedAt: '2026-11-05',
-  updatedAt: '2026-11-05',
+  updatedAt: '2026-11-10',
   reviewedBy: 'ProPilotLicence Captain Panel',
 
   // Fixed sample questions (re-picked 2026-11-07): IC Joshi-sourced, active, syllabus
@@ -296,6 +296,7 @@ export const CHAPTER_6: ChapterPageContent = {
   related: String.raw`
   <h2>Related chapters</h2>
   <ul class="related">
+    <li><a href="#">Chapter 1, Atmosphere</a>: the tropopause and the ISA, the reference levels for upper winds.</li>
     <li><a href="#">Chapter 2, Atmospheric Pressure</a>: the pressure gradient that drives the wind.</li>
     <li><a href="#">Chapter 13, Thunderstorm</a>: squalls, gust fronts and microbursts.</li>
     <li><a href="#">Chapter 15, Jet Streams</a>: where the thermal wind leads.</li>
