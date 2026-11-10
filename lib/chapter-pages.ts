@@ -5,6 +5,7 @@
 import { CHAPTER_1 } from '@/content/chapters/ic-joshi-aviation-meteorology/1'
 import { CHAPTER_2 } from '@/content/chapters/ic-joshi-aviation-meteorology/2'
 import { CHAPTER_6 } from '@/content/chapters/ic-joshi-aviation-meteorology/6'
+import { CHAPTER_7 } from '@/content/chapters/ic-joshi-aviation-meteorology/7'
 import { CHAPTER_13 } from '@/content/chapters/ic-joshi-aviation-meteorology/13'
 
 export interface ChapterPageContent {
@@ -25,7 +26,7 @@ export interface ChapterPageContent {
 }
 
 const PAGES: Record<string, ChapterPageContent[]> = {
-  'ic-joshi-aviation-meteorology': [CHAPTER_1, CHAPTER_2, CHAPTER_6, CHAPTER_13],
+  'ic-joshi-aviation-meteorology': [CHAPTER_1, CHAPTER_2, CHAPTER_6, CHAPTER_7, CHAPTER_13],
 }
 
 export function chapterPagesForBook(bookSlug: string): ChapterPageContent[] {
