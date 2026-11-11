@@ -1,7 +1,8 @@
 // Classify Air Regulations questions into the 22 RK Bali chapters (Eleventh Revised
 // Edition, 2018, Captain Panel list), the Air Regulations syllabus map. Copied from
 // scripts/classify-syllabus-chapters.mjs (Meteorology): same model, prompt shape, batch
-// tool and source masking, with two Captain Panel rules added for chapters 14 and 19.
+// tool and source masking, with two Captain Panel rules added for chapters 14 and 19, and
+// a 14/15 tie-break (licensing to 15 even under Indian rules) added after the first pilot.
 //
 //   node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --seed-bvn
 //
@@ -184,6 +185,7 @@ Guidance:
 - Judge by the concept being tested, not by incidental words. A question about a radio report that happens to mention a runway tests communications, not aerodromes.
 - Several topics appear in more than one chapter (for example wake turbulence, flight plans, documents, ADIZ). Choose the chapter where the question's core concept is taught in depth.
 - Chapter 14 (National Law) covers Indian national law under both the old and new frameworks: the Aircraft Act, 1934 and the Aircraft Rules, 1937, and the Bharatiya Vayuyan Adhiniyam, 2024 and the Bharatiya Vayuyan Niyam, 2026. Questions on Indian rules, offences, documents, crew conduct and DGCA powers go to chapter 14, even if the topic also appears in an ICAO Annex.
+- Tie-break between chapters 14 and 15: licence requirements, licence validity, medicals, ratings and licence privileges go to chapter 15 (Personnel Licensing), even when the question is under Indian rules. Everything else on Indian law goes to chapter 14.
 - Chapter 19 (Communications) covers METAR, TAF and SIGMET in this subject. Questions on these reports and codes belong in chapter 19; don't send them elsewhere.
 - Confidence: "high" = clearly belongs to one chapter; "medium" = one chapter is best but another is plausible; "low" = weak fit or genuinely spans several chapters.
 - Reason: 15 words or fewer, naming the concept that decided it.

@@ -1,0 +1,9 @@
+{
+  "model": "claude-sonnet-4-6",
+  "input": 30125,
+  "output": 3711,
+  "cacheWrite": 2556,
+  "cacheRead": 10224,
+  "calls": 5,
+  "cost_usd": 0.1586922
+}
