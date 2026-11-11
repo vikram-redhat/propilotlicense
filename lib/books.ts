@@ -81,7 +81,7 @@ export const BOOKS = [
       },
       {
         q: 'How often does the Air Regulations syllabus change?',
-        a: 'DGCA Civil Aviation Requirements are updated regularly. In 2024–25, significant updates included amendments to drone regulations and RTR(A) licensing. The ProPilotLicence captain panel reviews Air Regulations questions specifically for currency.',
+        a: 'DGCA’s Civil Aviation Requirements are updated regularly, but the biggest recent change is to national law. The [Bharatiya Vayuyan Adhiniyam, 2024](/guides/dgca-exam-guides/bharatiya-vayuyan-adhiniyam-2024) replaced the Aircraft Act, 1934 from 1 January 2025, and the [Bharatiya Vayuyan Niyam, 2026](/guides/dgca-exam-guides/bharatiya-vayuyan-niyam-2026) replaces the Aircraft Rules, 1937 from 1 January 2027. DGCA papers are already moving to the new law. The ProPilotLicence Captain Panel reviews Air Regulations questions for currency, and our national law questions now cite the new rules.',
       },
       {
         q: 'Can I practise just the CARs-related questions separately from ICAO Annex questions?',
