@@ -9,6 +9,7 @@ import { ArticleSchema } from '@/components/schema/ArticleSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { Section, SubSection } from '@/components/guides/ArticleKit'
 import { getPost } from '@/lib/guides'
+import BvnNotice from '@/components/BvnNotice'
 
 // Dates come from the guide registry, so the Article schema and the sitemap agree.
 const POST = getPost('dgca-exam-guides', 'dgca-cpl-books')!
@@ -98,6 +99,7 @@ export default async function DgcaCplBooksPost() {
         </Section>
 
         <Section title="Air Regulations — RK Bali">
+          <BvnNotice style={{ marginBottom: 16 }} />
           <p>
             <strong>Air Regulations for CPL/ATPL</strong> by Wing Commander RK Bali (IAF, Retd.) is the standard prescribed text for the DGCA Air Regulations paper. It covers all 18 ICAO Annexes as applicable to Indian operations, DGCA Civil Aviation Requirements, Rules of the Air, licensing, and ATC procedures.
           </p>

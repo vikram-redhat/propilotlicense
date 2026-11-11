@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { isDeadLicencePath } from '@/lib/licence-routes'
+import { INDEXNOW_KEY_PATH } from '@/lib/indexnow'
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -60,7 +61,9 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/books') ||
     pathname.startsWith('/guides') ||
     pathname === '/sitemap.xml' ||
-    pathname === '/robots.txt'
+    pathname === '/robots.txt' ||
+    pathname === INDEXNOW_KEY_PATH ||
+    pathname.startsWith('/downloads/')
 
   const bypassCookie = request.cookies.get('admin_bypass')?.value
   const hasBypass = !!bypassSecret && bypassCookie === bypassSecret

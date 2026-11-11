@@ -13,6 +13,7 @@ import { createServiceClient } from '@/lib/supabase'
 import { isSubscribed } from '@/lib/subscription'
 import { hubForExamType } from '@/lib/hub'
 import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
+import BvnNotice from '@/components/BvnNotice'
 
 export async function generateMetadata(): Promise<Metadata> {
   const total = roundedTotal((await questionTotalsOrFallback()).all)
@@ -305,6 +306,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
       {/* ── Content section (full-bleed, padding-based) ── */}
       <div className="px-5 sm:px-9 lg:px-[60px] pt-7 sm:pt-8 lg:pt-[44px] pb-[88px] sm:pb-20 lg:pb-[88px]">
+
+        <BvnNotice variant="line" style={{ marginBottom: 20 }} />
 
         {/* Subjects grid */}
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: 'var(--clr-text-med)', marginBottom: 10 }}>Subjects covered</p>

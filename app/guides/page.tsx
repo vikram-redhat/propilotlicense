@@ -4,6 +4,8 @@ import SiteFooter from '@/components/SiteFooter'
 import { buildMetadata } from '@/lib/metadata'
 import { getHeaderAuthState } from '@/lib/supabase-server'
 import { GUIDE_SERIES } from '@/lib/guides'
+import { Fragment } from 'react'
+import BvnNotice from '@/components/BvnNotice'
 
 export const metadata = buildMetadata({
   title: 'Guides — DGCA Exam Prep & Career Advice | ProPilotLicence',
@@ -28,21 +30,24 @@ export default async function GuidesIndexPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {GUIDE_SERIES.map(series => (
-            <Link
-              key={series.slug}
-              href={`/guides/${series.slug}`}
-              style={{ display: 'block', textDecoration: 'none', border: '1px solid var(--clr-border)', borderRadius: 12, padding: '22px 24px', background: 'var(--clr-surface)' }}
-            >
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--clr-primary)', marginBottom: 8 }}>
-                {series.posts.length} article{series.posts.length !== 1 ? 's' : ''}
-              </div>
-              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', lineHeight: 1.3, marginBottom: 8 }}>
-                {series.title}
-              </div>
-              <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.6, margin: 0 }}>
-                {series.description}
-              </p>
-            </Link>
+            <Fragment key={series.slug}>
+              {/* Featured at the top of DGCA Exam Guides */}
+              {series.slug === 'dgca-exam-guides' && <BvnNotice />}
+              <Link
+                href={`/guides/${series.slug}`}
+                style={{ display: 'block', textDecoration: 'none', border: '1px solid var(--clr-border)', borderRadius: 12, padding: '22px 24px', background: 'var(--clr-surface)' }}
+              >
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--clr-primary)', marginBottom: 8 }}>
+                  {series.posts.length} article{series.posts.length !== 1 ? 's' : ''}
+                </div>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', lineHeight: 1.3, marginBottom: 8 }}>
+                  {series.title}
+                </div>
+                <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.6, margin: 0 }}>
+                  {series.description}
+                </p>
+              </Link>
+            </Fragment>
           ))}
         </div>
       </main>

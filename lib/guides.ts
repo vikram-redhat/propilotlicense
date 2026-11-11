@@ -99,8 +99,20 @@ export const GUIDE_SERIES: GuideSeries[] = [
     navLabel: 'DGCA Exam Guides',
     title: 'DGCA Exam Guides',
     description: 'Guides written for CPL and ATPL candidates, reviewed by the ProPilotLicence captain panel.',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-11',
     posts: [
+      {
+        slug: 'bharatiya-vayuyan-niyam-2026',
+        title: 'Bharatiya Vayuyan Niyam 2026: What Pilots and DGCA Students Need to Know',
+        metaTitle: 'Bharatiya Vayuyan Niyam 2026: What Pilots Need to Know',
+        metaDescription:
+          'Bharatiya Vayuyan Niyam 2026 replaces the Aircraft Rules 1937 from 1 January 2027. Key rules, CPL requirements and what it means for the DGCA exam.',
+        publishedAt: '2026-11-11',
+        updatedAt: '2026-11-11',
+        excerpt:
+          "India's new aviation rules replace the Aircraft Rules, 1937 from 1 January 2027. Written from the notified text: what changes for pilots, CPL requirements, and what it means for the DGCA Air Regulations exam.",
+        reviewedBy: 'ProPilotLicence Captain Panel',
+      },
       {
         slug: 'dgca-cpl-books',
         title: 'Which Books Should I Study for the DGCA CPL Theory Exams? (2026 Guide)',

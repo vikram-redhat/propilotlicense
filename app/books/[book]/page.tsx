@@ -11,6 +11,7 @@ import { createServiceClient } from '@/lib/supabase'
 import { chapterPageHref } from '@/lib/chapter-pages'
 import { bookQuestionTotal } from '@/lib/live-counts'
 import { isSyllabusBook } from '@/lib/syllabus'
+import BvnNotice from '@/components/BvnNotice'
 
 // Books with a sourceBookId read their chapter list from the database; re-fetch hourly.
 export const revalidate = 3600
@@ -122,6 +123,8 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
             </div>
           ))}
         </div>
+
+        {book.slug === 'rk-bali-air-regulations' && <BvnNotice style={{ marginBottom: 24 }} />}
 
         {/* Chapter breakdown */}
         <section style={{ marginBottom: 48 }}>
