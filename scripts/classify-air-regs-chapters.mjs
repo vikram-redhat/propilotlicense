@@ -2,7 +2,8 @@
 // Edition, 2018, Captain Panel list), the Air Regulations syllabus map. Copied from
 // scripts/classify-syllabus-chapters.mjs (Meteorology): same model, prompt shape, batch
 // tool and source masking, with two Captain Panel rules added for chapters 14 and 19, and
-// a 14/15 tie-break (licensing to 15 even under Indian rules) added after the first pilot.
+// a 14/15 tie-break (licensing to 15 even under Indian rules) added after the first pilot,
+// and rules for airworthiness (16) and "what an Annex covers" (2) added for the full run.
 //
 //   node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --seed-bvn
 //
@@ -22,7 +23,13 @@
 // and each question's text, options and explanation, with book names masked. It never
 // sees the source book or source chapter.
 //
-// No --full mode yet: the full run waits for approval of the pilot.
+//   node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --full
+//
+// --full (approved 2026-11-11): every active Air Regulations question with no
+// syllabus_chapter_id gets the classifier's chapter (source 'ai'). Seeded and reviewed
+// questions are skipped. Resumable: every classified question is appended to
+// air_regs_classification_full.jsonl and skipped on the next run; the database write is
+// also guarded to fill only empty syllabus_chapter_id, so nothing is overwritten.
 
 import fs from 'node:fs'
 import Anthropic from '@anthropic-ai/sdk'
@@ -101,7 +108,7 @@ async function loadQuestions() {
   const [questions, books] = await Promise.all([
     selectAll(() => supabase
       .from('questions')
-      .select('id, question_text, explanation, source_book_id, external_ref')
+      .select('id, question_text, explanation, source_book_id, external_ref, syllabus_chapter_id')
       .eq('subject_id', AIR_REGS_SUBJECT_ID)
       .eq('active', true)
       .order('id')),
@@ -186,6 +193,8 @@ Guidance:
 - Several topics appear in more than one chapter (for example wake turbulence, flight plans, documents, ADIZ). Choose the chapter where the question's core concept is taught in depth.
 - Chapter 14 (National Law) covers Indian national law under both the old and new frameworks: the Aircraft Act, 1934 and the Aircraft Rules, 1937, and the Bharatiya Vayuyan Adhiniyam, 2024 and the Bharatiya Vayuyan Niyam, 2026. Questions on Indian rules, offences, documents, crew conduct and DGCA powers go to chapter 14, even if the topic also appears in an ICAO Annex.
 - Tie-break between chapters 14 and 15: licence requirements, licence validity, medicals, ratings and licence privileges go to chapter 15 (Personnel Licensing), even when the question is under Indian rules. Everything else on Indian law goes to chapter 14.
+- Airworthiness topics (the Certificate of Airworthiness, maintenance, AME certification and release to service, modifications) go to chapter 16, even when the question is under Indian rules.
+- A question about what an ICAO Annex covers (its subject or scope) goes to chapter 2. A question about an Annex's actual requirement goes to the chapter for that topic.
 - Chapter 19 (Communications) covers METAR, TAF and SIGMET in this subject. Questions on these reports and codes belong in chapter 19; don't send them elsewhere.
 - Confidence: "high" = clearly belongs to one chapter; "medium" = one chapter is best but another is plausible; "low" = weak fit or genuinely spans several chapters.
 - Reason: 15 words or fewer, naming the concept that decided it.
@@ -310,11 +319,46 @@ function writePilotCsv(path, results, chapters) {
   fs.writeFileSync(path, lines.join('\n') + '\n')
 }
 
+// ── Full run ─────────────────────────────────────────────────────────────────
+
+const CHECKPOINT = 'air_regs_classification_full.jsonl'
+
+function readCheckpoint() {
+  if (!fs.existsSync(CHECKPOINT)) return new Map()
+  return new Map(fs.readFileSync(CHECKPOINT, 'utf8').split('\n').filter(Boolean)
+    .map(line => JSON.parse(line)).map(r => [r.id, r]))
+}
+
+// Only fills empty values: seeded, reviewed and already-classified rows are never touched.
+async function writeResults(results, byNumber) {
+  const records = results.map(r => ({ id: r.question.id, chapter: r.chapter, confidence: r.confidence, reason: r.reason }))
+  for (let i = 0; i < records.length; i += 10) {
+    await Promise.all(records.slice(i, i + 10).map(async r => {
+      // Retry transient network failures ("fetch failed"); the update is idempotent.
+      for (let attempt = 1; ; attempt++) {
+        const { error } = await supabase
+          .from('questions')
+          .update({
+            syllabus_chapter_id: byNumber.get(r.chapter).id,
+            syllabus_chapter_confidence: r.confidence,
+            syllabus_chapter_source: 'ai',
+          })
+          .eq('id', r.id)
+          .is('syllabus_chapter_id', null)
+        if (!error) return
+        if (attempt >= 4) throw new Error(`Update ${r.id}: ${error.message}`)
+        await new Promise(res => setTimeout(res, 1000 * 2 ** attempt))
+      }
+    }))
+  }
+  fs.appendFileSync(CHECKPOINT, records.map(r => JSON.stringify(r)).join('\n') + '\n')
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 const mode = process.argv[2]
-if (!['--seed-bvn', '--pilot'].includes(mode)) {
-  console.error('Usage: node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --seed-bvn | --pilot')
+if (!['--seed-bvn', '--pilot', '--full'].includes(mode)) {
+  console.error('Usage: node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --seed-bvn | --pilot | --full')
   process.exit(1)
 }
 
@@ -338,6 +382,32 @@ if (mode === '--seed-bvn') {
 }
 
 anthropic = new Anthropic({ maxRetries: 4 })
+
+if (mode === '--full') {
+  const chapters = await loadChaptersFromDb()
+  const byNumber = new Map(chapters.map(c => [c.chapter_number, c]))
+  const done = readCheckpoint()
+  const questions = await loadQuestions()
+  const todo = questions.filter(q => q.syllabus_chapter_id == null && !done.has(q.id))
+  console.log(`${questions.length} active Air Regulations questions; ${done.size} already in checkpoint; ${todo.length} to classify`)
+  if (todo.length) {
+    const system = systemPrompt(chapters)
+    const batches = []
+    for (let i = 0; i < todo.length; i += BATCH_SIZE) batches.push(todo.slice(i, i + BATCH_SIZE))
+    await writeResults(await classifyBatch(system, batches[0]), byNumber) // warms the cache
+    for (let i = 1; i < batches.length; i += CONCURRENCY) {
+      const group = batches.slice(i, i + CONCURRENCY)
+      await Promise.all(group.map(async b => writeResults(await classifyBatch(system, b), byNumber)))
+      console.log(`  ${Math.min(i + CONCURRENCY, batches.length)}/${batches.length} batches · $${cost().toFixed(2)}`)
+    }
+  }
+  const usagePath = 'air_regs_classification_full.usage.json'
+  const prev = fs.existsSync(usagePath) ? JSON.parse(fs.readFileSync(usagePath, 'utf8')).runs ?? [] : []
+  fs.writeFileSync(usagePath, JSON.stringify({ model: MODEL, runs: [...prev, { at: new Date().toISOString(), ...usage, cost_usd: cost() }] }, null, 2))
+  console.log(`Tokens: input ${usage.input}, output ${usage.output}, cache write ${usage.cacheWrite}, cache read ${usage.cacheRead}, ${usage.calls} calls — $${cost().toFixed(2)}`)
+  process.exit(0)
+}
+
 const chapters = loadChaptersFromCsv()
 const questions = await loadQuestions()
 console.log(`${questions.length} active Air Regulations questions`)
