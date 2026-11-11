@@ -3,7 +3,7 @@ import { isVisibleForCountry } from '@/lib/countries'
 import { chapterColumnFor } from '@/lib/syllabus'
 
 // Active questions per chapter of a book, as chapter practice draws them: the column
-// from chapterColumnFor (syllabus chapter for IC Joshi, the book's own chapter otherwise)
+// from chapterColumnFor (syllabus chapter for IC Joshi and RK Bali, the book's own chapter otherwise)
 // and the same country rule as /api/session/start. Used by the practice picker
 // (/api/session/chapter-counts) and the public chapter pages, so they always agree.
 // Pass a service-role client. Throws on a database error.

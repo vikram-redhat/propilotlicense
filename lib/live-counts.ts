@@ -3,7 +3,7 @@ import { getBookBySlug } from '@/lib/books'
 import { countChapterQuestions } from '@/lib/chapter-question-counts'
 import { createServiceClient } from '@/lib/supabase'
 import { SUBJECTS } from '@/lib/subjects'
-import { isSyllabusBook } from '@/lib/syllabus'
+import { isSyllabusBook, SYLLABUS_BOOK_IDS } from '@/lib/syllabus'
 
 // Live question counts for page copy, so no page carries a hand-typed total.
 //
@@ -27,7 +27,7 @@ export const subjectQuestionCounts = unstable_cache(async (): Promise<SubjectCou
   })
 }, ['subject-question-counts'], { revalidate: 3600 })
 
-// What a book's whole-book practice draws. A syllabus book (IC Joshi): every question on
+// What a book's whole-book practice draws. A syllabus book (IC Joshi, RK Bali): every question on
 // its syllabus chapters, from any source book (the sum the practice picker shows an
 // Indian student). Any other book: the active questions that cite it.
 export const bookQuestionTotal = unstable_cache(async (slug: string): Promise<number> => {
@@ -51,7 +51,7 @@ export const bookQuestionTotal = unstable_cache(async (slug: string): Promise<nu
     .eq('active', true).eq('source_book_id', bookId)
   if (error) throw new Error(`Question count for ${slug}: ${error.message}`)
   return count ?? 0
-}, ['book-question-total'], { revalidate: 3600 })
+}, ['book-question-total', ...SYLLABUS_BOOK_IDS], { revalidate: 3600 })
 
 // The five CPL theory subjects (lib/subjects.ts). subjects.licence_types can't be used:
 // every subject, A320 included, is tagged CPL and ATPL.

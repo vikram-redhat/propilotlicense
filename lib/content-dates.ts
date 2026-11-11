@@ -1,6 +1,6 @@
 import { unstable_cache } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase'
-import { isSyllabusBook } from '@/lib/syllabus'
+import { isSyllabusBook, SYLLABUS_BOOK_IDS } from '@/lib/syllabus'
 
 // When the database-built parts of the subject and book pages last changed, for the
 // sitemap's lastmod. Questions have no edited-at column, so a question counts from the
@@ -57,7 +57,7 @@ export const dbContentDates = unstable_cache(async (bookIds: string[]): Promise<
     bySubjectCode: Object.fromEntries(subjects.filter((s, i) => s.code && subjectDates[i]).map(s => [s.code!, bySubjectId[s.id]!])),
     byBookId,
   }
-}, ['db-content-dates'], { revalidate: 3600 })
+}, ['db-content-dates', ...SYLLABUS_BOOK_IDS], { revalidate: 3600 })
 
 // The later of a page's own content date and any database dates, as YYYY-MM-DD.
 export function laterDate(...dates: (string | null | undefined)[]): string {

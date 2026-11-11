@@ -47,7 +47,7 @@ async function loadChapters(book: Book): Promise<{ chapters: ChapterRow[]; editi
 // A syllabus book's questions come from all source books, so the copy says they are
 // organised by its chapters rather than sourced from it.
 function bySyllabus(book: Book): boolean {
-  return 'sourceBookId' in book && isSyllabusBook(book.sourceBookId)
+  return isSyllabusBook('sourceBookId' in book ? book.sourceBookId : book.questionsBookId)
 }
 
 export function generateStaticParams() {

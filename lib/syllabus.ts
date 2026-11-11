@@ -16,9 +16,11 @@ export function isSyllabusMapBook(bookId: string | null | undefined): boolean {
 // draws from syllabus_chapter_id — all books' questions on that topic — while each
 // question keeps showing its own source citation; their practice counts and book totals
 // follow the same rule. A map book joins this list once its subject's full
-// classification run is approved (RK Bali: not yet).
+// classification run is approved. Cached totals (lib/live-counts.ts, lib/content-dates.ts)
+// include this list in their cache keys, so a change here takes effect on deploy.
 export const SYLLABUS_BOOK_IDS: ReadonlySet<string> = new Set([
   'd05dc941-d49b-4fb3-aab8-a1759e518e8b', // IC Joshi — Aviation Meteorology
+  '15db3a2f-0718-4f98-beeb-177d9b92a4a4', // RK Bali — Air Regulations (full run approved 2026-11-11)
 ])
 
 export function isSyllabusBook(bookId: string | null | undefined): boolean {
