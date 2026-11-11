@@ -368,6 +368,7 @@ function ReviewCard({ q, index, outcome, editing, syllabusChapters, onReviewed, 
                     {q.chapter && ` · Ch.${q.chapter.chapter_number} — ${q.chapter.chapter_name}`}
                     {!q.chapter && q.source_chapter && ` · ${q.source_chapter}`}
                     {q.source_page && ` · ${q.source_page}`}
+                    {q.external_ref && <span className="font-mono text-slate-600"> · {q.external_ref}</span>}
                     <span className={q.citation_verified ? 'text-teal-600 font-medium' : 'text-orange-500 font-medium'}>
                       {q.citation_verified ? ' · citation verified' : ' · citation approximate'}
                     </span>

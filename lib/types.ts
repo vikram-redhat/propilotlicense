@@ -59,6 +59,9 @@ export interface SourceBook {
   pdf_processed: boolean
   pdf_processed_at: string | null
   pdf_processing_error: string | null
+  // added by scripts/migrate_source_kind_external_ref.sql — 'legal' for a primary legal
+  // source (rules, Acts), which gets its own citation disclaimer
+  source_kind?: 'textbook' | 'legal'
 }
 
 export interface PdfChunk {
@@ -97,6 +100,7 @@ export interface Question {
   syllabus_chapter_id?: string | null
   syllabus_chapter_confidence?: 'high' | 'medium' | 'low' | null
   syllabus_chapter_source?: 'rule' | 'ai' | 'reviewed' | null
+  external_ref?: string | null // e.g. BVN26-001; added by scripts/migrate_source_kind_external_ref.sql
   options?: QuestionOption[]
   subject?: Subject
   topic?: Topic

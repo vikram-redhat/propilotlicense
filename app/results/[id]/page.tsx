@@ -351,7 +351,9 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                             )}
                           </p>
                           <p className="text-xs text-slate-300 italic mt-1">
-                            Source reference only. Question content is original and does not reproduce text from this publication.
+                            {book.source_kind === 'legal'
+                              ? 'Cited from the notified Gazette text. Questions are original and test the rule; they do not reproduce it.'
+                              : 'Source reference only. Question content is original and does not reproduce text from this publication.'}
                           </p>
                         </div>
                       )}
