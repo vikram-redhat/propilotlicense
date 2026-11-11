@@ -69,7 +69,7 @@ export const BOOKS = [
       // weights; [text](href) is a link. The FAQPage schema gets the same text, links as text.
       {
         q: 'Which RK Bali chapters are most important for the DGCA Air Regulations exam?',
-        a: 'The ProPilotLicence Captain Panel rates {{HIGH_CHAPTERS}} as High exam weight. {{MEDIUM_CHAPTERS}} are rated Medium.',
+        a: 'The ProPilotLicence Captain Panel rates {{HIGH_CHAPTERS}} as High exam weight. {{MEDIUM_CHAPTERS}} are rated Medium. Two areas where candidates lose marks disproportionately are communication failure procedures (Chapter 13) and the exact Annex 13 accident and incident definitions (Chapter 20).',
       },
       {
         q: 'Which edition of RK Bali should I use?',
