@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/supabase'
 import { isAdminRequest } from '@/lib/admin-auth'
-import { SYLLABUS_BOOK_IDS } from '@/lib/syllabus'
+import { SYLLABUS_MAP_BOOK_IDS } from '@/lib/syllabus'
 
 const BATCH_SIZE = 20
 
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
     // the subject it covers.
     supabase.from('chapters')
       .select('id, chapter_number, chapter_name, book_id, book:source_books(subject_id)')
-      .in('book_id', [...SYLLABUS_BOOK_IDS])
+      .in('book_id', [...SYLLABUS_MAP_BOOK_IDS])
       .order('chapter_number'),
   ])
 
