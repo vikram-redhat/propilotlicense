@@ -1,0 +1,14 @@
+{
+  "model": "claude-sonnet-4-6",
+  "runs": [
+    {
+      "at": "2026-11-11T09:46:27.048Z",
+      "input": 783628,
+      "output": 95942,
+      "cacheWrite": 2645,
+      "cacheRead": 325335,
+      "calls": 124,
+      "cost_usd": 3.89753325
+    }
+  ]
+}
