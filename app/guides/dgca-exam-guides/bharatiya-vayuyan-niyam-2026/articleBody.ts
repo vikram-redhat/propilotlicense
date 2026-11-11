@@ -3,6 +3,8 @@
 // - the byline's "Updated" date, filled from the registry's updatedAt ({{UPDATED}});
 // - the Gazette PDF link, added to the Key facts table and the "Where can I read the full
 //   text?" answer (data-cta="bvn-pdf");
+// - links to the Adhiniyam guide from the standfirst, the framework table's Act row and
+//   the first Related link;
 // - real hrefs on the Related links and the CTA (data-cta="bvn-guide"). The CTA goes to
 //   Air Regulations practice; logged-out visitors are sent to /login?next= by proxy.ts.
 // The editorial content goes to the Captain Panel for review: don't edit it here.
@@ -10,7 +12,7 @@ export const ARTICLE_HTML = String.raw`
   <div class="eyebrow">DGCA Exam Guides · Air Regulations</div>
   <h1>Bharatiya Vayuyan Niyam 2026: What Pilots and DGCA Students Need to Know</h1>
 
-  <p class="standfirst">India has replaced the Aircraft Rules, 1937. The Bharatiya Vayuyan Niyam, 2026 was notified on 26 October 2026 and comes into force on 1 January 2027, under the Bharatiya Vayuyan Adhiniyam, 2024, which replaced the Aircraft Act, 1934. This guide is written from the notified text. It covers what the new rules contain, what changes for pilots and student pilots, and what it means for the DGCA Air Regulations exam, with the rule number for every requirement.</p>
+  <p class="standfirst">India has replaced the Aircraft Rules, 1937. The Bharatiya Vayuyan Niyam, 2026 was notified on 26 October 2026 and comes into force on 1 January 2027, under the <a href="/guides/dgca-exam-guides/bharatiya-vayuyan-adhiniyam-2024" data-cta="bvn-guide">Bharatiya Vayuyan Adhiniyam, 2024</a>, which replaced the Aircraft Act, 1934. This guide is written from the notified text. It covers what the new rules contain, what changes for pilots and student pilots, and what it means for the DGCA Air Regulations exam, with the rule number for every requirement.</p>
 
   <div class="byline">
     <strong>ProPilotLicence Editorial</strong>
@@ -47,7 +49,7 @@ export const ARTICLE_HTML = String.raw`
   <table class="data-table">
     <thead><tr><th>Layer</th><th>Old</th><th>New</th><th>What it does</th></tr></thead>
     <tbody>
-      <tr><td><strong>Act</strong> (Parliament)</td><td>Aircraft Act, 1934</td><td>Bharatiya Vayuyan Adhiniyam, 2024, in force from 1 January 2025</td><td>Gives the government the power to regulate aviation and make rules</td></tr>
+      <tr><td><strong>Act</strong> (Parliament)</td><td>Aircraft Act, 1934</td><td><a href="/guides/dgca-exam-guides/bharatiya-vayuyan-adhiniyam-2024" data-cta="bvn-guide">Bharatiya Vayuyan Adhiniyam, 2024</a>, in force from 1 January 2025</td><td>Gives the government the power to regulate aviation and make rules</td></tr>
       <tr><td><strong>Rules</strong> (Central Government)</td><td>Aircraft Rules, 1937</td><td>Bharatiya Vayuyan Niyam, 2026, in force from 1 January 2027</td><td>The legal requirements: registration, airworthiness, licensing, aerodromes, operations, penalties</td></tr>
       <tr><td><strong>CARs</strong> (DGCA)</td><td>Civil Aviation Requirements</td><td>Continue under the new rules</td><td>The technical detail the rules hand to DGCA, such as FDTL limits and medical standards</td></tr>
     </tbody>
@@ -257,6 +259,7 @@ export const ARTICLE_HTML = String.raw`
 
   <h2>Related</h2>
   <ul class="related">
+    <li><a href="/guides/dgca-exam-guides/bharatiya-vayuyan-adhiniyam-2024" data-cta="bvn-guide">Bharatiya Vayuyan Adhiniyam 2024: the new Aircraft Act explained for pilots</a></li>
     <li><a href="/subjects/air-regulations" data-cta="bvn-guide">Air Regulations: practice questions</a></li>
     <li><a href="/books/rk-bali-air-regulations" data-cta="bvn-guide">RK Bali, Air Regulations: chapter guide</a></li>
     <li><a href="/guides/dgca-exam-guides/dgca-cpl-books" data-cta="bvn-guide">Which books should I study for the DGCA CPL theory exams?</a></li>

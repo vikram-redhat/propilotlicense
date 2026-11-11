@@ -114,6 +114,18 @@ export const GUIDE_SERIES: GuideSeries[] = [
         reviewedBy: 'ProPilotLicence Captain Panel',
       },
       {
+        slug: 'bharatiya-vayuyan-adhiniyam-2024',
+        title: 'Bharatiya Vayuyan Adhiniyam 2024: The New Aircraft Act Explained for Pilots',
+        metaTitle: 'Bharatiya Vayuyan Adhiniyam 2024: Guide for DGCA Students',
+        metaDescription:
+          'Bharatiya Vayuyan Adhiniyam 2024 replaced the Aircraft Act 1934 from 1 January 2025. Key sections, regulators, penalties and appeals for the DGCA exam.',
+        publishedAt: '2026-11-11',
+        updatedAt: '2026-11-11',
+        excerpt:
+          'The Act that replaced the Aircraft Act, 1934: its 43 sections, the regulators, the powers and penalties DGCA students are examined on, and what changed.',
+        reviewedBy: 'ProPilotLicence Captain Panel',
+      },
+      {
         slug: 'dgca-cpl-books',
         title: 'Which Books Should I Study for the DGCA CPL Theory Exams? (2026 Guide)',
         metaTitle: 'Which Books to Study for DGCA CPL Exams — Complete 2026 Guide | ProPilotLicence',

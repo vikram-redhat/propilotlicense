@@ -1,9 +1,11 @@
 import Link from 'next/link'
 
-// Points readers of national aviation law at the Bharatiya Vayuyan Niyam guide. Used on
+// Points readers of national aviation law at the Bharatiya Vayuyan Niyam guide, then the
+// Adhiniyam (2024 Act) guide. Used on
 // the Air Regulations subject page, the RK Bali book page, the CPL Books guide, the
 // /guides index and (as a single line) the homepage.
 export const BVN_GUIDE_PATH = '/guides/dgca-exam-guides/bharatiya-vayuyan-niyam-2026'
+export const BVA_GUIDE_PATH = '/guides/dgca-exam-guides/bharatiya-vayuyan-adhiniyam-2024'
 
 export default function BvnNotice({ variant = 'block', style }: { variant?: 'block' | 'line'; style?: React.CSSProperties }) {
   const text = (
@@ -12,6 +14,10 @@ export default function BvnNotice({ variant = 'block', style }: { variant?: 'blo
       the Bharatiya Vayuyan Niyam, 2026 replaces the Aircraft Rules, 1937.{' '}
       <Link href={BVN_GUIDE_PATH} data-cta="bvn-notice" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 2 }}>
         What it means for pilots and the DGCA exam →
+      </Link>
+      {' '}
+      <Link href={BVA_GUIDE_PATH} data-cta="bvn-notice" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 2 }}>
+        and the 2024 Act →
       </Link>
     </>
   )
