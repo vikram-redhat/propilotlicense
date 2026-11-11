@@ -25,7 +25,7 @@ export const ARTICLE_HTML = String.raw`
   <table class="data-table">
     <tbody>
       <tr><td><strong>Full name</strong></td><td>The Bharatiya Vayuyan Adhiniyam, 2024</td></tr>
-      <tr><td><strong>Act number</strong></td><td class="mono">No. 16 of 2024. <a href="/downloads/bharatiya-vayuyan-adhiniyam-2024.pdf" data-cta="bva-pdf" type="application/pdf">Download the Act (PDF, Gazette of India, 11 December 2024)</a></td></tr>
+      <tr><td><strong>Act number</strong></td><td class="mono">No. 16 of 2024<br><a href="/downloads/bharatiya-vayuyan-adhiniyam-2024.pdf" data-cta="bva-pdf" type="application/pdf">Download the Act (PDF, Gazette of India, 11 December 2024)</a></td></tr>
       <tr><td><strong>Presidential assent</strong></td><td class="mono">11 December 2024</td></tr>
       <tr><td><strong>In force from</strong></td><td class="mono">1 January 2025</td></tr>
       <tr><td><strong>Replaces</strong></td><td>The Aircraft Act, 1934 (22 of 1934), repealed by section 43</td></tr>
