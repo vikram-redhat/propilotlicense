@@ -33,7 +33,7 @@ export const subjectQuestionCounts = unstable_cache(async (): Promise<SubjectCou
 export const bookQuestionTotal = unstable_cache(async (slug: string): Promise<number> => {
   const book = getBookBySlug(slug)
   if (!book) throw new Error(`Unknown book ${slug}`)
-  const bookId = 'sourceBookId' in book ? book.sourceBookId : book.questionsBookId
+  const bookId = book.sourceBookId
   const supabase = createServiceClient()
   if (isSyllabusBook(bookId)) {
     const [bookRes, chaptersRes] = await Promise.all([

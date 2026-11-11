@@ -13,10 +13,10 @@ import { bookQuestionTotal } from '@/lib/live-counts'
 import { isSyllabusBook } from '@/lib/syllabus'
 import BvnNotice from '@/components/BvnNotice'
 
-// Books with a sourceBookId read their chapter list from the database; re-fetch hourly.
+// Chapter lists are read from the database; re-fetch hourly.
 export const revalidate = 3600
 
-type ChapterRow = { number: number; title: string; notes?: string; weight?: string | null }
+type ChapterRow = { number: number; title: string; weight: string | null }
 
 const WEIGHT_STYLE: Record<string, { color: string; background: string }> = {
   High:   { color: '#fff',                background: 'var(--clr-primary)' },
@@ -28,9 +28,6 @@ const WEIGHT_STYLE: Record<string, { color: string; background: string }> = {
 // list: at build that fails the deploy, and on revalidation Next keeps serving the
 // last good page.
 async function loadChapters(book: Book): Promise<{ chapters: ChapterRow[]; edition: string | null }> {
-  if (!('sourceBookId' in book)) {
-    return { chapters: book.chapterBreakdown.map(ch => ({ ...ch })), edition: null }
-  }
   const supabase = createServiceClient()
   const [chaptersRes, bookRes] = await Promise.all([
     supabase.from('chapters').select('*').eq('book_id', book.sourceBookId).order('sort_order'),
@@ -47,7 +44,34 @@ async function loadChapters(book: Book): Promise<{ chapters: ChapterRow[]; editi
 // A syllabus book's questions come from all source books, so the copy says they are
 // organised by its chapters rather than sourced from it.
 function bySyllabus(book: Book): boolean {
-  return isSyllabusBook('sourceBookId' in book ? book.sourceBookId : book.questionsBookId)
+  return isSyllabusBook(book.sourceBookId)
+}
+
+// "Chapters 2, 4 and 5" (or "Chapter 2") for the chapters with this exam weight.
+function chapterList(chapters: ChapterRow[], weight: string): string {
+  const numbers = chapters.filter(c => c.weight === weight).map(c => c.number)
+  if (numbers.length < 2) return `Chapter ${numbers.join('')}`
+  return `Chapters ${numbers.slice(0, -1).join(', ')} and ${numbers.at(-1)}`
+}
+
+// A book FAQ answer with its chapter lists filled from the database. [text](href) marks a
+// link: the page renders it, the FAQPage schema gets the text alone, so the two match.
+function faqAnswer(a: string, chapters: ChapterRow[]): string {
+  return a
+    .replace('{{HIGH_CHAPTERS}}', chapterList(chapters, 'High'))
+    .replace('{{MEDIUM_CHAPTERS}}', chapterList(chapters, 'Medium'))
+}
+const LINK = /\[([^\]]+)\]\(([^)]+)\)/g
+const faqText = (a: string) => a.replace(LINK, '$1')
+function FaqAnswer({ text }: { text: string }) {
+  const parts: React.ReactNode[] = []
+  let last = 0
+  for (const m of text.matchAll(LINK)) {
+    parts.push(text.slice(last, m.index), <Link key={m.index} href={m[2]} style={{ color: 'var(--clr-primary)', textDecoration: 'underline', textUnderlineOffset: 2 }}>{m[1]}</Link>)
+    last = m.index + m[0].length
+  }
+  parts.push(text.slice(last))
+  return <>{parts}</>
 }
 
 export function generateStaticParams() {
@@ -72,6 +96,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
   const book = getBookBySlug(slug)
   if (!book) notFound()
   const [{ chapters, edition }, questionCount] = await Promise.all([loadChapters(book), bookQuestionTotal(book.slug)])
+  const faqs = book.faqs.map(f => ({ q: f.q, a: faqAnswer(f.a, chapters) }))
 
   const url = `https://www.propilotlicence.com/books/${book.slug}`
   const courseDescription = bySyllabus(book)
@@ -81,7 +106,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <CourseSchema name={`${book.title} — DGCA ${book.subjectTitle}`} description={courseDescription} url={url} />
-      <FAQSchema faqs={[...book.faqs]} />
+      <FAQSchema faqs={faqs.map(f => ({ q: f.q, a: faqText(f.a) }))} />
       <LandingHeader isLoggedIn={false} name={null} />
 
       <main style={{ maxWidth: 800, margin: '0 auto', padding: '48px 20px 96px' }}>
@@ -146,7 +171,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
                     Ch {ch.number}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--clr-text)', marginBottom: ch.notes ? 4 : 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--clr-text)' }}>
                       {(() => {
                         const href = chapterPageHref(book.slug, ch.number)
                         return href
@@ -154,7 +179,6 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
                           : ch.title
                       })()}
                     </div>
-                    {ch.notes && <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--clr-text-med)' }}>{ch.notes}</div>}
                   </div>
                   {ch.weight && WEIGHT_STYLE[ch.weight] && (
                     <div style={{ fontSize: 11, fontWeight: 600, borderRadius: 999, padding: '2px 9px', flexShrink: 0, marginTop: 2, ...WEIGHT_STYLE[ch.weight] }}>
@@ -228,13 +252,13 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
             Frequently asked questions
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {book.faqs.map((faq, i) => (
+            {faqs.map((faq, i) => (
               <div
                 key={i}
-                style={{ padding: '20px 0', borderBottom: i < book.faqs.length - 1 ? '1px solid var(--clr-border)' : 'none' }}
+                style={{ padding: '20px 0', borderBottom: i < faqs.length - 1 ? '1px solid var(--clr-border)' : 'none' }}
               >
                 <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--clr-text)', marginBottom: 8 }}>{faq.q}</div>
-                <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--clr-text-med)' }}>{faq.a}</div>
+                <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--clr-text-med)' }}><FaqAnswer text={faq.a} /></div>
               </div>
             ))}
           </div>

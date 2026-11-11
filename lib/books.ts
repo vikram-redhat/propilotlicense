@@ -48,40 +48,36 @@ export const BOOKS = [
   },
   {
     slug: 'rk-bali-air-regulations',
-    updatedAt: '2026-11-08',
+    updatedAt: '2026-11-11',
     title: 'Air Regulations for CPL/ATPL',
     author: 'Wing Commander RK Bali (IAF, Retd.)',
     authorShort: 'RK Bali',
     publisher: 'Sterling Book House',
     subjectSlug: 'air-regulations',
     subjectTitle: 'Air Regulations',
-    // Question count (lib/live-counts.ts) is the active questions citing this book.
-    questionsBookId: '15db3a2f-0718-4f98-beeb-177d9b92a4a4',
+    // Chapter list is read from the chapters table (Captain Panel verified, 2018 edition).
+    sourceBookId: '15db3a2f-0718-4f98-beeb-177d9b92a4a4',
     dgcaPrescribed: true,
     description:
       'The standard DGCA-prescribed reference for the CPL and ATPL Air Regulations examination. Covers all 18 ICAO Annexes as applicable to Indian operations, DGCA Civil Aviation Requirements, Rules of the Air, licensing, and ATC procedures.',
-    chapterBreakdown: [
-      { number: 1, title: 'Introduction to Air Law', notes: 'Sources of air law, ICAO structure, the Chicago Convention. The DGCA tests the relationship between ICAO SARPs and domestic regulation.' },
-      { number: 2, title: 'ICAO and International Conventions', notes: 'Chicago, Tokyo, Hague, Montreal Conventions. Know what each covers, not just that it exists.' },
-      { number: 3, title: 'Aircraft Nationality and Registration', notes: 'Straightforward chapter — reliable source of easy marks. Know the Indian nationality mark (VT-).' },
-      { number: 4, title: 'Airworthiness', notes: 'Certificate of Airworthiness validity and conditions under which it lapses are tested consistently.' },
-      { number: 5, title: 'Licensing', notes: 'Most consistently tested chapter. CPL vs ATPL privileges, recency requirements, medical classes — know them precisely.' },
-      { number: 6, title: 'Rules of the Air', notes: 'Right-of-way hierarchy and VFR minima by airspace class appear in virtually every paper.' },
-      { number: 7, title: 'Air Traffic Services', notes: 'Communication failure procedures are tested specifically — the sequence and transponder code matter.' },
-      { number: 8, title: 'Aerodromes', notes: 'Visual aid identification (runway markings, holding position signs, runway guard lights) appears regularly.' },
-      { number: 9, title: 'Facilitation', notes: 'Lighter chapter in exam weight but produces straightforward marks when studied.' },
-      { number: 10, title: 'Search and Rescue', notes: 'SAR phases (uncertainty, alert, distress) and their trigger conditions are tested reliably.' },
-      { number: 11, title: 'Aircraft Accident Investigation', notes: 'Annex 13 definitions are tested exactly — learn the difference between accident, serious incident, and incident word-for-word.' },
-      { number: 12, title: 'Civil Aviation Requirements (CARs)', notes: 'Where regulatory currency matters most. ProPilotLicence questions in this section are reviewed against current DGCA CARs.' },
-    ],
     faqs: [
       {
         q: 'Is RK Bali sufficient for the DGCA Air Regulations exam?',
         a: 'Bali covers the syllabus comprehensively and is sufficient for most of the paper. For regulatory content updated after your edition of Bali, supplement with current DGCA CARs available free on the DGCA website. ProPilotLicence questions are reviewed against current CARs.',
       },
+      // {{HIGH_CHAPTERS}} and {{MEDIUM_CHAPTERS}} are filled from the chapters table's exam
+      // weights; [text](href) is a link. The FAQPage schema gets the same text, links as text.
       {
-        q: 'Which chapters of RK Bali are most heavily tested?',
-        a: 'Chapter 5 (Licensing) and Chapter 6 (Rules of the Air) are the most consistently tested. Chapter 7 (Air Traffic Services), specifically communication failure procedures, produces questions candidates lose marks on disproportionately. Chapter 11 (Accident Investigation) definitions are tested exactly — learn the Annex 13 definitions precisely.',
+        q: 'Which RK Bali chapters are most important for the DGCA Air Regulations exam?',
+        a: 'The ProPilotLicence Captain Panel rates {{HIGH_CHAPTERS}} as High exam weight. {{MEDIUM_CHAPTERS}} are rated Medium.',
+      },
+      {
+        q: 'Which edition of RK Bali should I use?',
+        a: 'The Eleventh Revised Edition, 2018. Its chapters are the ones our Air Regulations practice is organised by.',
+      },
+      {
+        q: 'Does RK Bali cover the Bharatiya Vayuyan Adhiniyam and Niyam?',
+        a: 'No. The 2018 edition predates the Bharatiya Vayuyan Adhiniyam, 2024 and the Bharatiya Vayuyan Niyam, 2026, which replace the Aircraft Act, 1934 and the Aircraft Rules, 1937. Use RK Bali for the ICAO material, and our guides to the [Adhiniyam](/guides/dgca-exam-guides/bharatiya-vayuyan-adhiniyam-2024) and the [Niyam](/guides/dgca-exam-guides/bharatiya-vayuyan-niyam-2026) for national law. Chapter 14 practice includes questions on the new rules.',
       },
       {
         q: 'How often does the Air Regulations syllabus change?',
@@ -103,7 +99,7 @@ export const BOOKS = [
       correctIndex: 3,
       explanation:
         'Under ICAO Annex 2, the right of way hierarchy (highest to lowest priority) is: aircraft in distress → balloons → gliders → airships → aircraft towing → powered aircraft. A powered aircraft has the lowest priority, meaning it must give way to all other categories. This is frequently tested because candidates instinctively assume powered aircraft have priority over slower or less manoeuvrable types. The rule is the opposite.',
-      sourceChapter: 6,
+      sourceChapter: 4, // 2018 edition numbering
       sourceChapterTitle: 'Rules of the Air',
     },
   },

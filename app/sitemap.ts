@@ -23,7 +23,7 @@ const STATIC_PAGE_UPDATED = {
 // book dates.
 export const revalidate = 3600
 
-const bookIdOf = (b: (typeof BOOKS)[number]) => ('sourceBookId' in b ? b.sourceBookId : b.questionsBookId)
+const bookIdOf = (b: (typeof BOOKS)[number]) => b.sourceBookId
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // On a database error the subject and book pages fall back to their own content dates.
