@@ -3,6 +3,7 @@ import { useEffect, useState, use } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { pathOnly, trackEvent } from '@/lib/analytics'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
 import { IconCheck, IconX, IconMinus, IconBook, IconBook2 } from '@tabler/icons-react'
 import SiteFooter from '@/components/SiteFooter'
@@ -22,6 +23,8 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const [subjectMap, setSubjectMap] = useState<Record<string, string>>({})
   const [codeMap, setCodeMap] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
+  const [startingRest, setStartingRest] = useState(false)
+  const [restError, setRestError] = useState('')
 
   useEffect(() => {
     async function load() {
@@ -134,8 +137,38 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const correct = Object.values(sessionState.answers).filter(a => a.isCorrect).length
   const incorrect = answeredCount - correct
   const skipped = total - answeredCount
-  const score = total > 0 ? Math.round((correct / total) * 100) : 0
+  // A practice session is scored on the questions answered (it can be ended early);
+  // a mock exam on every question, as the real paper is.
+  const isPractice = session.mode === 'practice'
+  const scored = (qs: Question[]) => isPractice ? qs.filter(q => sessionState.answers[q.id]) : qs
+  const scoreBase = isPractice ? answeredCount : total
+  const score = scoreBase > 0 ? Math.round((correct / scoreBase) * 100) : 0
   const passed = score >= 70
+  const nothingAnswered = isPractice && answeredCount === 0
+
+  async function practiseTheRest() {
+    if (!session) return
+    setStartingRest(true)
+    setRestError('')
+    const res = await fetch('/api/session/rest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: session.id }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (data.sessionId) {
+      trackEvent('practice_start', {
+        licence: session.licence_type.toLowerCase(),
+        mode: session.mode,
+        scope: session.scope,
+        source_page: pathOnly(window.location.pathname),
+      })
+      router.push(`/session/${data.sessionId}`)
+    } else {
+      setRestError(String(data.error ?? '').startsWith('free_tier') ? 'Practising these needs a paid plan.' : (data.error || 'Could not start the session.'))
+      setStartingRest(false)
+    }
+  }
 
   const incorrectQs = questions.filter(q => {
     const a = sessionState.answers[q.id]
@@ -168,6 +201,12 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
       <main className="flex-1 px-4 py-8">
         <div className="max-w-3xl mx-auto space-y-6">
           {/* Score card */}
+          {nothingAnswered ? (
+            <div className="rounded-2xl p-8 text-center border" style={{ backgroundColor: 'var(--clr-surf-alt)', borderColor: 'var(--clr-border)' }}>
+              <div className="text-xl font-bold" style={{ color: 'var(--clr-text)' }}>No questions answered</div>
+              <p className="text-sm mt-2" style={{ color: 'var(--clr-text-med)' }}>Answer a few to see your score.</p>
+            </div>
+          ) : (
           <div
             className="rounded-2xl p-8 text-center border"
             style={passed
@@ -181,16 +220,36 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
             <div className="text-xl font-bold" style={{ color: passed ? '#27500A' : '#791F1F' }}>
               {passed ? 'PASS' : 'FAIL'}
             </div>
+            {isPractice && (
+              <p className="text-base font-semibold mt-2" style={{ color: passed ? '#27500A' : '#791F1F' }}>
+                {correct} of {answeredCount} correct{skipped > 0 && ` · ${answeredCount} of ${total} answered`}
+              </p>
+            )}
             <p className="text-sm mt-2" style={{ color: passed ? '#3a6b10' : '#9b3232' }}>
               {passed ? 'Well done! You scored above the 70% pass threshold.' : 'Keep practising — you need 70% to pass.'}
             </p>
           </div>
+          )}
+
+          {skipped > 0 && (
+            <div>
+              <button
+                onClick={practiseTheRest}
+                disabled={startingRest}
+                className="w-full py-3 rounded-xl font-semibold text-white transition-all"
+                style={{ backgroundColor: 'var(--clr-amber)', opacity: startingRest ? 0.6 : 1, cursor: startingRest ? 'not-allowed' : 'pointer' }}
+              >
+                {startingRest ? 'Starting…' : `Practise the rest (${skipped} question${skipped === 1 ? '' : 's'}) →`}
+              </button>
+              {restError && <p className="text-sm mt-2 text-center" style={{ color: '#B83232' }}>{restError}</p>}
+            </div>
+          )}
 
           {/* Per-subject breakdown for nav_rai_combined */}
           {session.scope === 'nav_rai_combined' && Object.keys(subjectMap).length > 0 && (
             <div style={{ background: '#fff', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '16px 20px' }}>
               {Object.entries(subjectMap).map(([sid, sName]) => {
-                const subQs = questions.filter(q => q.subject_id === sid)
+                const subQs = scored(questions.filter(q => q.subject_id === sid))
                 const subCorrect = subQs.filter(q => sessionState.answers[q.id]?.isCorrect).length
                 const subPct = subQs.length > 0 ? Math.round((subCorrect / subQs.length) * 100) : 0
                 return (
@@ -216,7 +275,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
             return (
               <div style={{ background: '#fff', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '16px 20px' }}>
                 {groups.map((g, i) => {
-                  const gQs = questions.filter(q => g.codes.includes(codeMap[q.subject_id ?? '']))
+                  const gQs = scored(questions.filter(q => g.codes.includes(codeMap[q.subject_id ?? ''])))
                   const gCorrect = gQs.filter(q => sessionState.answers[q.id]?.isCorrect).length
                   const gPct = gQs.length > 0 ? Math.round((gCorrect / gQs.length) * 100) : 0
                   return (

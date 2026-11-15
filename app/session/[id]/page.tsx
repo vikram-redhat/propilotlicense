@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { scoreBand, trackEvent } from '@/lib/analytics'
+import { endSession } from '@/lib/session-end'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
 
 const LIGHTS = 15
@@ -26,6 +26,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const [timeLeft, setTimeLeft]       = useState<number | null>(null)
   const [flagged, setFlagged]         = useState<Set<string>>(new Set())
   const [userId, setUserId]           = useState<string | null>(null)
+  const [confirmEnd, setConfirmEnd]   = useState(false)
+  const [ending, setEnding]           = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -91,30 +93,20 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     load()
   }, [id, router])
 
-  // practice_complete fires once per session per browser (a resumed session can be
-  // submitted again). Question count and a score band only — never the exact score.
-  const completeSent = useRef(false)
-  const submitExam = useCallback(() => {
-    if (!completeSent.current && sessionState && questions.length) {
-      completeSent.current = true
-      const key = `ga_practice_complete_${id}`
-      let seen = false
-      try { seen = sessionStorage.getItem(key) === '1'; sessionStorage.setItem(key, '1') } catch { /* storage blocked */ }
-      if (!seen) {
-        const correct = Object.values(sessionState.answers).filter(a => a.isCorrect).length
-        trackEvent('practice_complete', {
-          questions: questions.length,
-          score_band: scoreBand(Math.round((correct / questions.length) * 100)),
-          mode: session?.mode,
-        })
-      }
-    }
+  // Every way a session ends: the last question, the mock timer, Submit (mock) and End
+  // session (practice). endedEarly: questions were left unanswered by choice.
+  const endingRef = useRef(false)
+  const finish = useCallback(async (endedEarly: boolean) => {
+    if (endingRef.current || !session) return
+    endingRef.current = true
+    setEnding(true)
+    await endSession({ sessionId: id, endedEarly, questions: questions.length, mode: session.mode })
     router.push(`/results/${id}`)
-  }, [id, router, sessionState, questions, session?.mode])
+  }, [id, router, questions.length, session])
 
   useEffect(() => {
     if (session?.mode !== 'mock' || timeLeft === null) return
-    if (timeLeft <= 0) { submitExam(); return }
+    if (timeLeft <= 0) { finish(false); return }
     const t = setTimeout(() => setTimeLeft(t => (t ?? 1) - 1), 1000)
     return () => clearTimeout(t)
   })
@@ -139,7 +131,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   function goNext() {
     if (!sessionState || !questions.length) return
     const nextIndex = sessionState.currentIndex + 1
-    if (nextIndex >= questions.length) { submitExam(); return }
+    if (nextIndex >= questions.length) { finish(false); return }
     setSessionState(prev => prev ? { ...prev, currentIndex: nextIndex } : prev)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -207,13 +199,31 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
+      {confirmEnd && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[300] px-4" onClick={() => setConfirmEnd(false)}>
+          <div role="dialog" aria-modal="true" aria-labelledby="end-session-title" style={{ background: 'var(--clr-surface)', borderRadius: 16, padding: 24, maxWidth: 360, width: '100%', boxShadow: '0 12px 40px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
+            <h3 id="end-session-title" style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--clr-text)', marginBottom: 6 }}>End session?</h3>
+            <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.55, marginBottom: 20 }}>
+              You&apos;ve answered {answeredCount} of {questions.length}. You&apos;ll see your results for {answeredCount === 1 ? 'that one' : `those ${answeredCount}`}.
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => { setConfirmEnd(false); finish(answeredCount < questions.length) }} disabled={ending} style={{ flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', background: 'var(--clr-primary)', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                End session
+              </button>
+              <button onClick={() => setConfirmEnd(false)} style={{ flex: 1, padding: '10px 0', borderRadius: 10, border: '1px solid var(--clr-border)', background: 'var(--clr-surface)', color: 'var(--clr-text-med)', fontSize: 14, cursor: 'pointer' }}>
+                Keep going
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Sticky sub-nav ── */}
       <div style={{ position: 'sticky', top: 0, zIndex: 150, background: 'var(--clr-surface)', borderBottom: '1px solid var(--clr-border)' }}>
         <div className="px-5 sm:px-9 lg:px-[60px]" style={{ paddingTop: 12, paddingBottom: 12 }}>
           {/* Top row: breadcrumb + Q counter */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
               <button
                 onClick={() => router.back()}
                 style={{ fontSize: 12, color: 'var(--clr-text-med)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 3 }}
@@ -222,15 +232,18 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                 Session
               </button>
               <span style={{ color: 'var(--clr-border)', fontSize: 14 }}>›</span>
-              <span style={{ fontSize: 12, color: 'var(--clr-text)', fontWeight: 500 }}>{subjectName}</span>
+              <span style={{ fontSize: 12, color: 'var(--clr-text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{subjectName}</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, marginLeft: 12 }}>
+              {!isMock && answeredCount > 0 && (
+                <button onClick={() => setConfirmEnd(true)} disabled={ending} style={{ fontSize: 11, background: 'var(--clr-surface)', color: 'var(--clr-text)', border: '1px solid var(--clr-border)', padding: '4px 10px', borderRadius: 7, cursor: 'pointer', fontWeight: 600 }}>End session</button>
+              )}
               {isMock && (
                 <>
                   <span style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 12, fontWeight: 600, color: (timeLeft ?? 0) <= 60 ? '#B83232' : 'var(--clr-text-med)', background: (timeLeft ?? 0) <= 60 ? '#FDEAEA' : 'var(--clr-surf-alt)', padding: '3px 8px', borderRadius: 6 }}>
                     {formatTime(timeLeft ?? 0)}
                   </span>
-                  <button onClick={submitExam} style={{ fontSize: 11, background: '#B83232', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 7, cursor: 'pointer', fontWeight: 600 }}>Submit</button>
+                  <button onClick={() => finish(answeredCount < questions.length)} disabled={ending} style={{ fontSize: 11, background: '#B83232', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 7, cursor: 'pointer', fontWeight: 600 }}>Submit</button>
                 </>
               )}
               <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 12, fontWeight: 600, color: 'var(--clr-text-med)' }}>

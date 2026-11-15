@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
-import { isSubscribed } from '@/lib/subscription'
+import { freeTierError, isSubscribed } from '@/lib/subscription'
 import { isVisibleForCountry } from '@/lib/countries'
 import { chapterColumnFor } from '@/lib/syllabus'
 
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   if (scope !== 'composite' && !questionCount) {
     return Response.json({ error: 'Missing questionCount' }, { status: 400 })
   }
-  if (scope !== 'composite' && ![10, 50, 100].includes(questionCount)) {
+  if (scope !== 'composite' && ![10, 20, 50, 100].includes(questionCount)) {
     return Response.json({ error: 'Invalid question count' }, { status: 400 })
   }
 
@@ -61,9 +61,8 @@ export async function POST(req: Request) {
   const subscribed = isAdmin || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
 
   if (!subscribed) {
-    if (scope !== 'combined') return Response.json({ error: 'free_tier_scope' }, { status: 403 })
-    if (questionCount > 10)   return Response.json({ error: 'free_tier_count' }, { status: 403 })
-    if (mode === 'mock')      return Response.json({ error: 'free_tier_mode' },  { status: 403 })
+    const blocked = freeTierError({ scope, questionCount, mode })
+    if (blocked) return Response.json({ error: blocked }, { status: 403 })
   }
 
   // nav_rai_combined — 50 NAV + 50 RAI questions interleaved

@@ -1,6 +1,6 @@
 // Local, read-only analytics checks with the GA4 / Search Console service account.
 //
-//   node scripts/analytics/report.mjs realtime   GA4: are cta_click, sign_up and practice_start
+//   node scripts/analytics/report.mjs realtime   GA4: are cta_click, sign_up, practice_start and practice_complete
 //                                                 arriving, and with which parameters?
 //   node scripts/analytics/report.mjs baseline   Search Console: last-28-day baseline for the
 //                                                 tracked pages, saved as a dated CSV
@@ -26,6 +26,7 @@ const EVENTS = {
   cta_click: ['cta_location', 'page_path', 'link_url'],
   sign_up: ['method', 'signup_page'],
   practice_start: ['licence', 'subject', 'chapter', 'mode', 'scope', 'source_page'],
+  practice_complete: ['questions', 'answered', 'score_band', 'mode', 'ended_early'],
 }
 // GA4 built-in dimensions that some of those parameters fill.
 const BUILT_IN = { link_url: 'linkUrl', method: 'method' }

@@ -13,7 +13,7 @@ import UserMenu from '@/components/UserMenu'
 type Scope = 'topic' | 'book' | 'book_chapter' | 'combined'
 type Mode = 'practice' | 'mock'
 type Difficulty = 'all' | 'basic' | 'advanced'
-type QuestionCount = 10 | 50 | 100
+type QuestionCount = 10 | 20 | 50 | 100
 
 function UpgradeModal({ onClose }: { onClose: () => void }) {
   return (
@@ -132,7 +132,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       if (!userSubscribed) {
         setScope('combined'); setMode('practice'); setDifficulty('all'); setQuestionCount(10)
       } else {
-        setQuestionCount(50)
+        setQuestionCount(20)
         if (tops && tops.length > 0) setSelectedTopicId(tops[0].id)
       }
       setLoading(false)
@@ -451,6 +451,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
               <div style={{ display: 'flex', gap: 7, marginBottom: 28 }}>
                 {([
                   { val: 10 as QuestionCount, pro: false },
+                  { val: 20 as QuestionCount, pro: true },
                   { val: 50 as QuestionCount, pro: true },
                   { val: 100 as QuestionCount, pro: true },
                 ]).map(({ val, pro }) => {

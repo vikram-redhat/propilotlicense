@@ -7,6 +7,8 @@ import SubjectIcon from '@/components/SubjectIcon'
 import SiteHeader from '@/components/SiteHeader'
 import SiteFooter from '@/components/SiteFooter'
 import CompositeCard from '@/components/CompositeCard'
+import ContinueSessionCard from '@/components/ContinueSessionCard'
+import { getContinueSession } from '@/lib/continue-session'
 import { notFound } from 'next/navigation'
 
 const VALID_LICENCES = ['cpl', 'atpl']
@@ -52,7 +54,10 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
   const { data: { user } } = await authClient.auth.getUser()
   const examType = (user?.user_metadata?.exam_type as string) || null
 
-  const subjects = await getSubjectsForLicence(licence)
+  const [subjects, continueSession] = await Promise.all([
+    getSubjectsForLicence(licence),
+    user ? getContinueSession(user.id) : null,
+  ])
   const licenceUpper = licence.toUpperCase()
 
   // Fetch subscription status for Composite modal
@@ -87,6 +92,7 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
         </section>
 
         <main className="flex-1 px-5 sm:px-9 lg:px-[60px] py-8">
+          {continueSession && <ContinueSessionCard session={continueSession} />}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: 680 }}>
 
             {/* Air Regulations card */}
@@ -156,6 +162,7 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
       </section>
 
       <main className="flex-1 px-5 sm:px-9 lg:px-[60px] py-8">
+        {continueSession && <ContinueSessionCard session={continueSession} />}
         {subjects.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--clr-text-med)' }}>
             <p style={{ fontSize: 16 }}>No subjects available yet.</p>
