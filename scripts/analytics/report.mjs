@@ -5,20 +5,24 @@
 //   node scripts/analytics/report.mjs baseline   Search Console: last-28-day baseline for the
 //                                                 tracked pages, saved as a dated CSV
 //
-// The key stays outside the repo (default ~/.config/propilotlicence/ga-sc.json, or GA_SC_KEY).
+// The key: GA_SC_KEY, else ~/.config/propilotlicence/ga-sc.json, else .config/propilotlicence/ga-sc.json
+// in the repo folder (git-ignored).
 // Never copy it into the repo, print it, or add it to Vercel. GA4 property: GA4_PROPERTY_ID or
 // --property=<id>; without one the script uses the only property the account can see.
 // No dependencies: the service-account token is signed here with node:crypto.
 
 import { createSign } from 'node:crypto'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const KEY_PATH = process.env.GA_SC_KEY ?? join(homedir(), '.config/propilotlicence/ga-sc.json')
+const REPO = join(dirname(fileURLToPath(import.meta.url)), '../..')
+const KEY_PATH = process.env.GA_SC_KEY
+  ?? [join(homedir(), '.config/propilotlicence/ga-sc.json'), join(REPO, '.config/propilotlicence/ga-sc.json')].find(existsSync)
+  ?? join(homedir(), '.config/propilotlicence/ga-sc.json')
 const SITE = 'https://www.propilotlicence.com'
-const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), 'baselines')
+const OUT_DIR = join(REPO, 'scripts/analytics/baselines')
 
 // The events to check and the parameters each should carry (lib/analytics.ts and its callers).
 const EVENTS = {

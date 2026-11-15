@@ -48,5 +48,6 @@ syllabus_seed_disagreements.csv
 scripts/data/backup_option_rebalance_20261108.json
 scripts/data/option_rebalance_plan_20261108.json
 
-# GA4 / Search Console service-account key: kept in ~/.config/propilotlicence, never in the repo
+# GA4 / Search Console service-account key: never committed
 ga-sc.json
+/.config/
