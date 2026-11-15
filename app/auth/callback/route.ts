@@ -117,7 +117,8 @@ export async function GET(request: NextRequest) {
         method: (user.app_metadata?.provider as string | undefined) ?? 'email',
         from: pathOnly(searchParams.get('from')) ?? pathOnly(next),
       }
-      response.cookies.set(AUTH_EVENT_COOKIE, encodeURIComponent(JSON.stringify(authEvent)), { path: '/', maxAge: 300, sameSite: 'lax' })
+      // Plain JSON: Next URL-encodes cookie values itself, and the page decodes once.
+      response.cookies.set(AUTH_EVENT_COOKIE, JSON.stringify(authEvent), { path: '/', maxAge: 300, sameSite: 'lax' })
 
       const name = (user.user_metadata?.full_name as string | undefined) ?? user.email?.split('@')[0] ?? null
       after(() => maybeSendWelcome(user.id, user.email!, name))
