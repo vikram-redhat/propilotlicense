@@ -47,3 +47,6 @@ syllabus_seed_disagreements.csv
 # Option-letter rebalance backup and plan (2026-11-08): large, kept locally
 scripts/data/backup_option_rebalance_20261108.json
 scripts/data/option_rebalance_plan_20261108.json
+
+# GA4 / Search Console service-account key: kept in ~/.config/propilotlicence, never in the repo
+ga-sc.json
