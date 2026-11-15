@@ -5,22 +5,19 @@
 //   node scripts/analytics/report.mjs baseline   Search Console: last-28-day baseline for the
 //                                                 tracked pages, saved as a dated CSV
 //
-// The key: GA_SC_KEY, else ~/.config/propilotlicence/ga-sc.json, else .config/propilotlicence/ga-sc.json
-// in the repo folder (git-ignored).
+// The key: ~/.config/propilotlicence/ga-sc.json in the home folder, or GA_SC_KEY.
 // Never copy it into the repo, print it, or add it to Vercel. GA4 property: 545687826 (propilotlicence.com),
 // or GA4_PROPERTY_ID / --property=<id> for another.
 // No dependencies: the service-account token is signed here with node:crypto.
 
 import { createSign } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '../..')
-const KEY_PATH = process.env.GA_SC_KEY
-  ?? [join(homedir(), '.config/propilotlicence/ga-sc.json'), join(REPO, '.config/propilotlicence/ga-sc.json')].find(existsSync)
-  ?? join(homedir(), '.config/propilotlicence/ga-sc.json')
+const KEY_PATH = process.env.GA_SC_KEY ?? join(homedir(), '.config/propilotlicence/ga-sc.json')
 const SITE = 'https://www.propilotlicence.com'
 const OUT_DIR = join(REPO, 'scripts/analytics/baselines')
 
