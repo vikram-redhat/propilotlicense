@@ -31,7 +31,7 @@ export default function StartChapterSession({ subjectId, subjectCode, sourceBook
       body: JSON.stringify({
         subjectId, licenceType: licence.toUpperCase(),
         scope: 'book_chapter', sourceBookId, chapterId,
-        mode: 'practice', difficulty: 'all', questionCount: 50,
+        mode: 'practice', difficulty: 'all', questionCount: 20, // the picker's default length
       }),
     })
       .then(async res => {
