@@ -26,7 +26,7 @@ export default function ContinueSessionCard({ session }: { session: ContinueSess
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
         <Link
-          href={session.continueHref}
+          href={`/session/${session.id}`}
           data-cta="continue-session"
           style={{ padding: '9px 18px', borderRadius: 10, background: 'var(--clr-primary)', color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}
         >

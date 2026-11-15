@@ -64,7 +64,7 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
     const { data: profile } = await svc.from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single()
     subscribed = isSubscribed(profile as Parameters<typeof isSubscribed>[0])
   }
-  const continueSession = user ? await getContinueSession(user.id, subscribed) : null
+  const continueSession = user ? await getContinueSession(user.id) : null
 
   // Composite view — only on /cpl for Composite exam type users
   if (examType === 'Composite' && licence.toLowerCase() === 'cpl') {

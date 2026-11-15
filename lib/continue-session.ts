@@ -1,9 +1,6 @@
 import { createServiceClient } from '@/lib/supabase'
-import { chapterPracticeHref, isChapterTaster } from '@/lib/chapter-taster'
 
-// continueHref: the session itself, or for a free chapter taster the chapter practice route,
-// which shows the upgrade message (one taster per chapter).
-export type ContinueSession = { id: string; label: string; answered: number; total: number; mode: string; continueHref: string }
+export type ContinueSession = { id: string; label: string; answered: number; total: number; mode: string }
 
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
 
@@ -11,7 +8,9 @@ const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
 // ago, at least one question answered and some left. Only the most recent session counts —
 // an older unfinished one never shows. Null until scripts/migrate_session_end.sql is run
 // (without sessions.ended_at an ended session can't be told from an unfinished one).
-export async function getContinueSession(userId: string, subscribed: boolean): Promise<ContinueSession | null> {
+// A free chapter taster resumes like any session: only a new session on that chapter is
+// blocked (lib/chapter-taster.ts).
+export async function getContinueSession(userId: string): Promise<ContinueSession | null> {
   const supabase = createServiceClient()
   const { data: s } = await supabase
     .from('sessions').select('*').eq('user_id', userId)
@@ -45,6 +44,5 @@ export async function getContinueSession(userId: string, subscribed: boolean): P
     s.scope === 'topic' ? topic :
     undefined
 
-  const continueHref = (isChapterTaster(s.scope, subscribed) && chapterPracticeHref(s.source_book_id, chapter)) || `/session/${s.id}`
-  return { id: s.id, label: detail ? `${name}, ${detail}` : name, answered, total, mode: s.mode, continueHref }
+  return { id: s.id, label: detail ? `${name}, ${detail}` : name, answered, total, mode: s.mode }
 }
