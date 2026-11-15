@@ -1,8 +1,9 @@
 import { BOOKS } from '@/lib/books'
 
 // Chapter taster: a free account gets one 10-question session per chapter, ever, on any
-// book with chapter practice. A second attempt at the same chapter gets the upgrade
-// message. Counted from the sessions table (user + chapter_id); no column of its own.
+// book with chapter practice. An unfinished taster can be resumed; a new session on the
+// same chapter gets the upgrade message. Counted from the sessions table (user +
+// chapter_id); no column of its own.
 // A session is a taster when it's a chapter session and the student isn't subscribed —
 // so a student who later subscribes sees it as an ordinary chapter session.
 
