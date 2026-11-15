@@ -7,8 +7,8 @@
 //
 // The key: GA_SC_KEY, else ~/.config/propilotlicence/ga-sc.json, else .config/propilotlicence/ga-sc.json
 // in the repo folder (git-ignored).
-// Never copy it into the repo, print it, or add it to Vercel. GA4 property: GA4_PROPERTY_ID or
-// --property=<id>; without one the script uses the only property the account can see.
+// Never copy it into the repo, print it, or add it to Vercel. GA4 property: 545687826 (propilotlicence.com),
+// or GA4_PROPERTY_ID / --property=<id> for another.
 // No dependencies: the service-account token is signed here with node:crypto.
 
 import { createSign } from 'node:crypto'
@@ -85,7 +85,7 @@ const gaData = (path, body) => call(GA, `https://analyticsdata.googleapis.com/v1
 
 async function propertyId() {
   const arg = process.argv.find(a => a.startsWith('--property='))?.split('=')[1]
-  const id = arg ?? process.env.GA4_PROPERTY_ID
+  const id = arg ?? process.env.GA4_PROPERTY_ID ?? '545687826'
   if (id) return id.replace(/^properties\//, '')
   const { accountSummaries = [] } = await call(GA, 'https://analyticsadmin.googleapis.com/v1beta/accountSummaries')
   const props = accountSummaries.flatMap(a => a.propertySummaries ?? [])
