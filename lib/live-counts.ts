@@ -53,6 +53,25 @@ export const bookQuestionTotal = unstable_cache(async (slug: string): Promise<nu
   return count ?? 0
 }, ['book-question-total', ...SYLLABUS_BOOK_IDS], { revalidate: 3600 })
 
+// What chapter practice draws for one chapter of a book, as the practice picker counts it for
+// an Indian student (the same rule as bookQuestionTotal).
+export const bookChapterQuestionTotal = unstable_cache(async (slug: string, chapterNumber: number): Promise<number> => {
+  const book = getBookBySlug(slug)
+  if (!book) throw new Error(`Unknown book ${slug}`)
+  const bookId = book.sourceBookId
+  const supabase = createServiceClient()
+  const [bookRes, chapterRes] = await Promise.all([
+    supabase.from('source_books').select('subject_id').eq('id', bookId).single(),
+    supabase.from('chapters').select('id').eq('book_id', bookId).eq('chapter_number', chapterNumber).single(),
+  ])
+  if (bookRes.error) throw new Error(`Question count for ${slug} chapter ${chapterNumber}: ${bookRes.error.message}`)
+  if (chapterRes.error) throw new Error(`Question count for ${slug} chapter ${chapterNumber}: ${chapterRes.error.message}`)
+  const counts = await countChapterQuestions(supabase, {
+    subjectId: bookRes.data.subject_id, bookId, chapterIds: [chapterRes.data.id], country: 'IN',
+  })
+  return counts[chapterRes.data.id] ?? 0
+}, ['book-chapter-question-total', ...SYLLABUS_BOOK_IDS], { revalidate: 3600 })
+
 // The five CPL theory subjects (lib/subjects.ts). subjects.licence_types can't be used:
 // every subject, A320 included, is tagged CPL and ATPL.
 const CPL_CODES: ReadonlySet<string> = new Set(SUBJECTS.map(s => s.code))
@@ -89,6 +108,15 @@ export async function questionTotalsOrFallback() {
 export async function bookQuestionTotalOrNull(slug: string): Promise<number | null> {
   try {
     return await bookQuestionTotal(slug)
+  } catch (e) {
+    console.error(e)
+    return null
+  }
+}
+
+export async function bookChapterQuestionTotalOrNull(slug: string, chapterNumber: number): Promise<number | null> {
+  try {
+    return await bookChapterQuestionTotal(slug, chapterNumber)
   } catch (e) {
     console.error(e)
     return null

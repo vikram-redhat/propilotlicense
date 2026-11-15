@@ -1,10 +1,12 @@
+import { Fragment } from 'react'
 import Link from 'next/link'
 import LandingHeader from '@/components/LandingHeader'
 import SiteFooter from '@/components/SiteFooter'
 import { buildMetadata } from '@/lib/metadata'
 import { SUBJECTS } from '@/lib/subjects'
 import { getHeaderAuthState } from '@/lib/supabase-server'
-import { questionTotalsOrFallback } from '@/lib/live-counts'
+import { bookChapterQuestionTotalOrNull, questionTotalsOrFallback } from '@/lib/live-counts'
+import HumanPerformanceCard, { HUMAN_PERFORMANCE } from '@/components/HumanPerformanceCard'
 
 export const metadata = buildMetadata({
   title: 'DGCA CPL & ATPL Exam Subjects — Practice Questions | ProPilotLicence',
@@ -24,7 +26,11 @@ const sectionLabel = {
 }
 
 export default async function SubjectsPage() {
-  const [{ isLoggedIn, name, examType }, totals] = await Promise.all([getHeaderAuthState(), questionTotalsOrFallback()])
+  const [{ isLoggedIn, name, examType }, totals, hpCount] = await Promise.all([
+    getHeaderAuthState(),
+    questionTotalsOrFallback(),
+    bookChapterQuestionTotalOrNull(HUMAN_PERFORMANCE.bookSlug, HUMAN_PERFORMANCE.chapter),
+  ])
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <LandingHeader isLoggedIn={isLoggedIn} name={name} examType={examType} />
@@ -41,8 +47,8 @@ export default async function SubjectsPage() {
         <div style={sectionLabel}>CPL Theory Subjects</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {SUBJECTS.map((s) => (
+            <Fragment key={s.slug}>
             <Link
-              key={s.slug}
               href={`/subjects/${s.slug}`}
               style={{ display: 'block', textDecoration: 'none', background: 'var(--clr-surface)', border: '1px solid var(--clr-border)', borderRadius: 12, padding: '20px 24px' }}
             >
@@ -63,6 +69,9 @@ export default async function SubjectsPage() {
                 </div>
               </div>
             </Link>
+            {/* Human Performance is part of Air Regulations: listed straight after it */}
+            {s.code === 'REG' && <HumanPerformanceCard count={hpCount} variant="card" />}
+            </Fragment>
           ))}
         </div>
 

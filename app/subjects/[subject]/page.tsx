@@ -7,7 +7,8 @@ import { CourseSchema } from '@/components/schema/CourseSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { SUBJECTS, getSubjectBySlug } from '@/lib/subjects'
-import { questionTotals } from '@/lib/live-counts'
+import { bookChapterQuestionTotalOrNull, questionTotals } from '@/lib/live-counts'
+import HumanPerformanceCard, { HUMAN_PERFORMANCE } from '@/components/HumanPerformanceCard'
 import { BOOK_SLUG as IC_JOSHI_SLUG, loadIcJoshiSyllabus, namedChapterList } from '@/lib/ic-joshi-syllabus'
 import BvnNotice from '@/components/BvnNotice'
 
@@ -34,6 +35,8 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
   const subject = getSubjectBySlug(slug)
   if (!subject) notFound()
   const questionCount = (await questionTotals()).bySubject[subject.code] ?? 0
+  const isAirRegs = subject.slug === 'air-regulations'
+  const hpCount = isAirRegs ? await bookChapterQuestionTotalOrNull(HUMAN_PERFORMANCE.bookSlug, HUMAN_PERFORMANCE.chapter) : null
 
   // Meteorology: high-yield topics and the FAQ's chapter list follow the Captain Panel's
   // exam weights (High chapters, the book's names). The same FAQ array feeds the visible
@@ -85,10 +88,11 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
         <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 32, fontWeight: 700, color: 'var(--clr-text)', letterSpacing: '-0.5px', lineHeight: 1.2, marginBottom: 12 }}>
           DGCA CPL {subject.title}
         </h1>
-        {subject.slug === 'air-regulations' && <BvnNotice style={{ marginBottom: 16 }} />}
+        {isAirRegs && <BvnNotice style={{ marginBottom: 16 }} />}
         <p style={{ fontSize: 16, color: 'var(--clr-text-med)', lineHeight: 1.65, marginBottom: 32 }}>
           {subject.description}
         </p>
+        {isAirRegs && <HumanPerformanceCard count={hpCount} variant="highlight" />}
 
         {/* Stats strip */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40 }}>
