@@ -3,6 +3,7 @@ import { createAuthClient } from '@/lib/supabase-server'
 import { freeTierError, isSubscribed } from '@/lib/subscription'
 import { isVisibleForCountry } from '@/lib/countries'
 import { chapterColumnFor } from '@/lib/syllabus'
+import { isChapterTaster, TASTER_QUESTIONS, TASTER_USED_ERROR } from '@/lib/chapter-taster'
 
 const weights = {
   all:      { basic: 1,   advanced: 1   },
@@ -25,7 +26,9 @@ function filterByCountry<T extends CountryTaggedQuestion>(rows: T[], country: st
 }
 
 export async function POST(req: Request) {
-  const { subjectId, licenceType, scope, topicId, sourceBookId, chapterId, mode, difficulty, questionCount, pairedSubjectId } = await req.json()
+  const body = await req.json()
+  const { subjectId, licenceType, scope, topicId, sourceBookId, chapterId, mode, difficulty, pairedSubjectId } = body
+  let questionCount: number = body.questionCount
 
   if (!scope || !mode || !difficulty) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
@@ -60,7 +63,17 @@ export async function POST(req: Request) {
   const isAdmin    = user.user_metadata?.is_admin === true
   const subscribed = isAdmin || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
 
-  if (!subscribed) {
+  // A free account's chapter session is a taster (lib/chapter-taster.ts): 10 questions,
+  // chosen as for a paid chapter session, once per chapter.
+  const taster = isChapterTaster(scope, subscribed) && !!chapterId && mode === 'practice'
+  if (taster) {
+    const { count: used, error: usedError } = await supabase
+      .from('sessions').select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id).eq('scope', 'book_chapter').eq('chapter_id', chapterId)
+    if (usedError) return Response.json({ error: usedError.message }, { status: 500 })
+    if (used) return Response.json({ error: TASTER_USED_ERROR }, { status: 403 })
+    questionCount = TASTER_QUESTIONS
+  } else if (!subscribed) {
     const blocked = freeTierError({ scope, questionCount, mode })
     if (blocked) return Response.json({ error: blocked }, { status: 403 })
   }
@@ -302,5 +315,5 @@ export async function POST(req: Request) {
     return Response.json({ error: sessionError.message }, { status: 500 })
   }
 
-  return Response.json({ sessionId: session.id })
+  return Response.json({ sessionId: session.id, taster })
 }

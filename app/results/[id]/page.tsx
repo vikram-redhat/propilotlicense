@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { pathOnly, trackEvent } from '@/lib/analytics'
+import { isSubscribed } from '@/lib/subscription'
+import { chapterPracticeHref, isChapterTaster } from '@/lib/chapter-taster'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
 import { IconCheck, IconX, IconMinus, IconBook, IconBook2 } from '@tabler/icons-react'
 import SiteFooter from '@/components/SiteFooter'
@@ -25,6 +27,9 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const [loading, setLoading] = useState(true)
   const [startingRest, setStartingRest] = useState(false)
   const [restError, setRestError] = useState('')
+  // A free chapter taster (lib/chapter-taster.ts): the upgrade panel, and Practise the rest
+  // goes to the upgrade message (restHref) instead of starting a session.
+  const [taster, setTaster] = useState<{ chapterName: string; questions: number | null; restHref: string | null } | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -63,6 +68,19 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           supabase.from('chapters').select('chapter_number, chapter_name').eq('id', sess.chapter_id).single(),
         ])
         if (bk && ch) bookChapterDisplayName = `${bk.author || bk.title} · Ch ${ch.chapter_number} ${ch.chapter_name}`
+
+        const { data: { user } } = await supabase.auth.getUser()
+        const { data: profile } = user ? await supabase.from('profiles').select('*').eq('id', user.id).single() : { data: null }
+        const subscribed = user?.user_metadata?.is_admin === true || isSubscribed(profile)
+        if (ch && isChapterTaster(sess.scope, subscribed)) {
+          const counts = await fetch(`/api/session/chapter-counts?subjectId=${sess.subject_id}&bookId=${sess.source_book_id}`)
+            .then(res => res.ok ? res.json() : null).catch(() => null)
+          setTaster({
+            chapterName: ch.chapter_name,
+            questions: counts?.counts?.[sess.chapter_id] ?? null,
+            restHref: chapterPracticeHref(sess.source_book_id, ch.chapter_number),
+          })
+        }
       }
 
       if (qs) {
@@ -231,7 +249,17 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           </div>
           )}
 
-          {skipped > 0 && (
+          {skipped > 0 && taster?.restHref && (
+            <Link
+              href={taster.restHref}
+              className="block w-full py-3 rounded-xl font-semibold text-white text-center"
+              style={{ backgroundColor: 'var(--clr-amber)' }}
+            >
+              Practise the rest ({skipped} question{skipped === 1 ? '' : 's'}) →
+            </Link>
+          )}
+
+          {skipped > 0 && !taster?.restHref && (
             <div>
               <button
                 onClick={practiseTheRest}
@@ -420,6 +448,19 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                   )
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Free chapter taster: upgrade panel after the review */}
+          {taster && (
+            <div style={{ background: 'var(--clr-pri-light)', border: '1.5px solid var(--clr-primary)', borderRadius: 14, padding: '18px 20px' }}>
+              <Link
+                href="/pricing"
+                data-cta="chapter-taster-upgrade"
+                style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 16, fontWeight: 700, color: 'var(--clr-primary)', textDecoration: 'none' }}
+              >
+                Practise all {taster.questions != null ? `${taster.questions.toLocaleString()} ` : ''}questions on {taster.chapterName} →
+              </Link>
             </div>
           )}
 

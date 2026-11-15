@@ -1,10 +1,13 @@
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
+import { isSubscribed } from '@/lib/subscription'
+import { isChapterTaster } from '@/lib/chapter-taster'
 
 // Ends a session: the student reached the last question, the mock timer ran out, or they
 // pressed End session / Submit. Records when it ended, whether questions were left
 // unanswered, and how many were answered (scripts/migrate_session_end.sql). Returns the
-// answered and correct counts, which the client sends to GA4 as practice_complete.
+// answered and correct counts and whether it was a chapter taster, which the client sends
+// to GA4 as practice_complete.
 export async function POST(req: Request) {
   const { sessionId, endedEarly } = await req.json()
   if (!sessionId) return Response.json({ error: 'Missing sessionId' }, { status: 400 })
@@ -14,11 +17,16 @@ export async function POST(req: Request) {
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = createServiceClient()
-  const { data: session } = await supabase.from('sessions').select('id, user_id').eq('id', sessionId).maybeSingle()
+  const { data: session } = await supabase.from('sessions').select('id, user_id, scope').eq('id', sessionId).maybeSingle()
   if (!session || session.user_id !== user.id) return Response.json({ error: 'Not found' }, { status: 404 })
 
-  const { data: answers, error } = await supabase.from('session_answers').select('is_correct').eq('session_id', sessionId)
+  const [{ data: answers, error }, { data: profile }] = await Promise.all([
+    supabase.from('session_answers').select('is_correct').eq('session_id', sessionId),
+    supabase.from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single(),
+  ])
   if (error) return Response.json({ error: error.message }, { status: 500 })
+  const subscribed = user.user_metadata?.is_admin === true || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
+  const taster = isChapterTaster(session.scope, subscribed)
   const answered = answers.length
   const correct = answers.filter(a => a.is_correct).length
 
@@ -33,5 +41,5 @@ export async function POST(req: Request) {
     return Response.json({ error: updateError.message }, { status: 500 })
   }
 
-  return Response.json({ answered, correct, recorded })
+  return Response.json({ answered, correct, recorded, taster })
 }

@@ -15,13 +15,14 @@ export async function endSession({ sessionId, endedEarly, questions, mode }: {
 }): Promise<void> {
   let answered: number | undefined
   let correct = 0
+  let taster = false
   try {
     const res = await fetch('/api/session/end', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionId, endedEarly }),
     })
-    if (res.ok) ({ answered, correct } = await res.json())
+    if (res.ok) ({ answered, correct, taster } = await res.json())
   } catch { /* network error: still go to the results */ }
   if (answered === undefined) return
 
@@ -35,5 +36,6 @@ export async function endSession({ sessionId, endedEarly, questions, mode }: {
     score_band: answered > 0 ? scoreBand(Math.round((correct / answered) * 100)) : undefined,
     mode,
     ended_early: endedEarly,
+    taster: taster ? true : undefined, // a free chapter taster (lib/chapter-taster.ts)
   })
 }

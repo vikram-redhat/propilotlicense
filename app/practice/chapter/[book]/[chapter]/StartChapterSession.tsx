@@ -2,11 +2,13 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { trackEvent } from '@/lib/analytics'
+import { TASTER_USED_ERROR } from '@/lib/chapter-taster'
 import { useRouter } from 'next/navigation'
 
 // Starts a chapter practice session (same request as the subject picker's book +
-// chapter option) and goes straight into it. Chapter practice is a paid scope, so free
-// accounts get an upgrade message instead.
+// chapter option) and goes straight into it. Chapter practice is a paid scope: a free
+// account gets one 10-question taster per chapter (lib/chapter-taster.ts), then the
+// upgrade message.
 export default function StartChapterSession({ subjectId, subjectCode, sourceBookId, chapterId, chapterNumber, licence, chapterLabel, backHref, sourcePage }: {
   subjectId: string
   subjectCode: string | null
@@ -21,6 +23,7 @@ export default function StartChapterSession({ subjectId, subjectCode, sourceBook
   const router = useRouter()
   const started = useRef(false)
   const [problem, setProblem] = useState<'upgrade' | 'error' | null>(null)
+  const [tasterUsed, setTasterUsed] = useState(false)
 
   useEffect(() => {
     if (started.current) return // StrictMode runs effects twice in development
@@ -40,11 +43,14 @@ export default function StartChapterSession({ subjectId, subjectCode, sourceBook
           // source_page: the chapter page whose CTA leads here (this page only starts the session).
           trackEvent('practice_start', {
             licence, subject: subjectCode ?? undefined, chapter: chapterNumber, mode: 'practice', scope: 'book_chapter',
-            source_page: sourcePage,
+            source_page: sourcePage, taster: data.taster === true ? true : undefined,
           })
           router.replace(`/session/${data.sessionId}`)
         }
-        else setProblem(String(data.error ?? '').startsWith('free_tier') ? 'upgrade' : 'error')
+        else {
+          setTasterUsed(data.error === TASTER_USED_ERROR)
+          setProblem(String(data.error ?? '').startsWith('free_tier') ? 'upgrade' : 'error')
+        }
       })
       .catch(() => setProblem('error'))
   }, [subjectId, subjectCode, sourceBookId, chapterId, chapterNumber, licence, sourcePage, router])
@@ -59,6 +65,7 @@ export default function StartChapterSession({ subjectId, subjectCode, sourceBook
         {!problem && <p style={{ fontSize: 15, color: 'var(--clr-text-med)' }}>Starting {chapterLabel}…</p>}
         {problem === 'upgrade' && (
           <>
+            {tasterUsed && <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--clr-text)', marginBottom: 10 }}>You&apos;ve used your free session for this chapter.</p>}
             <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', marginBottom: 8 }}>Chapter practice is a paid feature</h1>
             <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.6, marginBottom: 20 }}>
               Upgrade to practise {chapterLabel} on its own. With a free account you can practise 10 mixed questions from the whole subject.
