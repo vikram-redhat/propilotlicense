@@ -1,21 +1,20 @@
 import Link from 'next/link'
+import { HUMAN_PERFORMANCE } from '@/lib/human-performance'
 
 // Human Performance is a chapter of Air Regulations (in RK Bali), not a subject of its
 // own, so students searching for "human factors" don't find it in the subject list. This
-// card points them to its chapter practice: logged-out visitors go through login and come
-// back (proxy.ts). Shown on /subjects and near the top of the Air Regulations page.
+// card points them to its subject page (/subjects/human-performance). Shown on /subjects
+// and near the top of the Air Regulations page.
 //
-// The chapter is identified by its record, not its number: the number (for the practice
-// link and the page text) is read from the database, so renumbering the book's chapters
-// needs no code change. If that lookup fails, the card links to the book page instead.
-export const HUMAN_PERFORMANCE = { bookSlug: 'rk-bali-air-regulations', chapterId: '6f00dd46-63a4-4027-884d-148b2bb8575f' } as const
+// The chapter number in the text and the count come from the chapter record
+// (lib/human-performance.ts); if that lookup fails the card shows neither.
 const TITLE = 'Human Performance and Limitations (Human Factors)'
 
 export default function HumanPerformanceCard({ chapter, variant }: {
   chapter: { number: number; questions: number } | null
   variant: 'card' | 'highlight'
 }) {
-  const href = chapter ? `/practice/chapter/${HUMAN_PERFORMANCE.bookSlug}/${chapter.number}` : `/books/${HUMAN_PERFORMANCE.bookSlug}`
+  const href = HUMAN_PERFORMANCE.subjectPath
   const where = chapter ? `Part of Air Regulations · RK Bali chapter ${chapter.number}` : 'Part of Air Regulations · RK Bali'
 
   if (variant === 'card') {
@@ -57,7 +56,7 @@ export default function HumanPerformanceCard({ chapter, variant }: {
         {chapter && ` · ${chapter.questions.toLocaleString()} practice questions`}
       </div>
       <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--clr-primary)', marginTop: 8 }}>
-        Practise Human Performance →
+        Human Performance practice questions →
       </div>
     </Link>
   )

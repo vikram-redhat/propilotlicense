@@ -9,6 +9,7 @@ import { buildMetadata } from '@/lib/metadata'
 import { BOOKS, getBookBySlug, type Book } from '@/lib/books'
 import { createServiceClient } from '@/lib/supabase'
 import { chapterPageHref } from '@/lib/chapter-pages'
+import { chapterOwnPage } from '@/lib/human-performance'
 import { bookQuestionTotal } from '@/lib/live-counts'
 import { isSyllabusBook } from '@/lib/syllabus'
 import BvnNotice from '@/components/BvnNotice'
@@ -16,7 +17,7 @@ import BvnNotice from '@/components/BvnNotice'
 // Chapter lists are read from the database; re-fetch hourly.
 export const revalidate = 3600
 
-type ChapterRow = { number: number; title: string; weight: string | null }
+type ChapterRow = { id: string; number: number; title: string; weight: string | null }
 
 const WEIGHT_STYLE: Record<string, { color: string; background: string }> = {
   High:   { color: '#fff',                background: 'var(--clr-primary)' },
@@ -36,7 +37,7 @@ async function loadChapters(book: Book): Promise<{ chapters: ChapterRow[]; editi
   if (chaptersRes.error) throw new Error(`Chapters for ${book.slug}: ${chaptersRes.error.message}`)
   if (!chaptersRes.data?.length) throw new Error(`No chapters found for ${book.slug}`)
   return {
-    chapters: chaptersRes.data.map(c => ({ number: c.chapter_number, title: c.chapter_name, weight: c.exam_weight ?? null })),
+    chapters: chaptersRes.data.map(c => ({ id: c.id, number: c.chapter_number, title: c.chapter_name, weight: c.exam_weight ?? null })),
     edition: bookRes.data?.edition ?? null,
   }
 }
@@ -173,7 +174,8 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--clr-text)' }}>
                       {(() => {
-                        const href = chapterPageHref(book.slug, ch.number)
+                        // A chapter page, or a page of its own (RK Bali's Human Performance)
+                        const href = chapterPageHref(book.slug, ch.number) ?? chapterOwnPage(ch.id)
                         return href
                           ? <Link href={href} style={{ color: 'var(--clr-primary)', textDecoration: 'underline', textUnderlineOffset: 2 }}>{ch.title}</Link>
                           : ch.title

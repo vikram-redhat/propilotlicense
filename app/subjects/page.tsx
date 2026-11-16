@@ -6,7 +6,8 @@ import { buildMetadata } from '@/lib/metadata'
 import { SUBJECTS } from '@/lib/subjects'
 import { getHeaderAuthState } from '@/lib/supabase-server'
 import { bookChapterPracticeOrNull, questionTotalsOrFallback } from '@/lib/live-counts'
-import HumanPerformanceCard, { HUMAN_PERFORMANCE } from '@/components/HumanPerformanceCard'
+import HumanPerformanceCard from '@/components/HumanPerformanceCard'
+import { HUMAN_PERFORMANCE } from '@/lib/human-performance'
 
 export const metadata = buildMetadata({
   title: 'DGCA CPL & ATPL Exam Subjects — Practice Questions | ProPilotLicence',

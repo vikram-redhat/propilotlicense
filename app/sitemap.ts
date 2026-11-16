@@ -4,6 +4,7 @@ import { BOOKS } from '@/lib/books'
 import { GUIDE_SERIES, postHref } from '@/lib/guides'
 import { allChapterPages } from '@/lib/chapter-pages'
 import { dbContentDates, laterDate, type DbContentDates } from '@/lib/content-dates'
+import { HUMAN_PERFORMANCE } from '@/lib/human-performance'
 
 const BASE = 'https://www.propilotlicence.com'
 
@@ -16,6 +17,7 @@ const STATIC_PAGE_UPDATED = {
   guides: '2026-07-07', // the hub's own text; its lastmod also follows the sections it lists
   pricing: '2026-07-18',
   privacy: '2026-06-29',
+  humanPerformance: '2026-11-16', // /subjects/human-performance; its lastmod also follows the RK Bali book's questions
   terms: '2026-06-29',
 }
 
@@ -54,6 +56,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'monthly' as const,
     priority: 0.8,
   }))
+  const hpBook = BOOKS.find(b => b.slug === HUMAN_PERFORMANCE.bookSlug)!
+  subjectPages.push({
+    url: `${BASE}${HUMAN_PERFORMANCE.subjectPath}`,
+    lastModified: laterDate(STATIC_PAGE_UPDATED.humanPerformance, db.byBookId[bookIdOf(hpBook)]),
+    changeFrequency: 'monthly',
+    priority: 0.8,
+  })
 
   // A book page lists its chapter pages, so a chapter page edit counts too.
   const bookPages: MetadataRoute.Sitemap = BOOKS.map((b) => ({
