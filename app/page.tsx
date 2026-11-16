@@ -117,8 +117,8 @@ const FEATURES = [
         <path d="M3.5 13.5l4-4.5 3 3 4-5.5" stroke="var(--clr-amber)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    title: 'Adaptive difficulty',
-    desc: 'Sessions adapt to your revision stage — start easy, ramp up.',
+    title: 'Practise your way',
+    desc: 'Pick a subject, a book or a single chapter, choose basic or advanced questions, and end a session whenever you like to see your score.',
   },
 ]
 
