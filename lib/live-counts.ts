@@ -72,7 +72,9 @@ export const bookChapterPractice = unstable_cache(async (slug: string, chapterId
     subjectId: bookRes.data.subject_id, bookId, chapterIds: [chapterId], country: 'IN',
   })
   return { number: chapterRes.data.chapter_number, questions: counts[chapterId] ?? 0 }
-}, ['book-chapter-practice', ...SYLLABUS_BOOK_IDS], { revalidate: 3600 })
+  // The key's date part was changed on 2026-11-16 so the deploy dropped entries cached before
+  // RK Bali's chapters were renumbered (Human Performance 22 -> 23); change it again to do the same.
+}, ['book-chapter-practice', '2026-11-16', ...SYLLABUS_BOOK_IDS], { revalidate: 3600 })
 
 // The five CPL theory subjects (lib/subjects.ts). subjects.licence_types can't be used:
 // every subject, A320 included, is tagged CPL and ATPL.
