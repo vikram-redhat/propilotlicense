@@ -7,7 +7,7 @@ import { CourseSchema } from '@/components/schema/CourseSchema'
 import { FAQSchema } from '@/components/schema/FAQSchema'
 import { buildMetadata } from '@/lib/metadata'
 import { SUBJECTS, getSubjectBySlug } from '@/lib/subjects'
-import { bookChapterQuestionTotalOrNull, questionTotals } from '@/lib/live-counts'
+import { bookChapterPracticeOrNull, questionTotals } from '@/lib/live-counts'
 import HumanPerformanceCard, { HUMAN_PERFORMANCE } from '@/components/HumanPerformanceCard'
 import { BOOK_SLUG as IC_JOSHI_SLUG, loadIcJoshiSyllabus, namedChapterList } from '@/lib/ic-joshi-syllabus'
 import BvnNotice from '@/components/BvnNotice'
@@ -36,7 +36,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
   if (!subject) notFound()
   const questionCount = (await questionTotals()).bySubject[subject.code] ?? 0
   const isAirRegs = subject.slug === 'air-regulations'
-  const hpCount = isAirRegs ? await bookChapterQuestionTotalOrNull(HUMAN_PERFORMANCE.bookSlug, HUMAN_PERFORMANCE.chapter) : null
+  const hp = isAirRegs ? await bookChapterPracticeOrNull(HUMAN_PERFORMANCE.bookSlug, HUMAN_PERFORMANCE.chapterId) : null
 
   // Meteorology: high-yield topics and the FAQ's chapter list follow the Captain Panel's
   // exam weights (High chapters, the book's names). The same FAQ array feeds the visible
@@ -92,7 +92,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
         <p style={{ fontSize: 16, color: 'var(--clr-text-med)', lineHeight: 1.65, marginBottom: 32 }}>
           {subject.description}
         </p>
-        {isAirRegs && <HumanPerformanceCard count={hpCount} variant="highlight" />}
+        {isAirRegs && <HumanPerformanceCard chapter={hp} variant="highlight" />}
 
         {/* Stats strip */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40 }}>

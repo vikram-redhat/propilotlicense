@@ -53,24 +53,26 @@ export const bookQuestionTotal = unstable_cache(async (slug: string): Promise<nu
   return count ?? 0
 }, ['book-question-total', ...SYLLABUS_BOOK_IDS], { revalidate: 3600 })
 
-// What chapter practice draws for one chapter of a book, as the practice picker counts it for
-// an Indian student (the same rule as bookQuestionTotal).
-export const bookChapterQuestionTotal = unstable_cache(async (slug: string, chapterNumber: number): Promise<number> => {
+// One chapter of a book, found by its chapter record (numbers can change when a book's
+// chapters are corrected): its current number, for the practice link and page text, and
+// what chapter practice draws for it, as the practice picker counts it for an Indian
+// student (the same rule as bookQuestionTotal).
+export const bookChapterPractice = unstable_cache(async (slug: string, chapterId: string): Promise<{ number: number; questions: number }> => {
   const book = getBookBySlug(slug)
   if (!book) throw new Error(`Unknown book ${slug}`)
   const bookId = book.sourceBookId
   const supabase = createServiceClient()
   const [bookRes, chapterRes] = await Promise.all([
     supabase.from('source_books').select('subject_id').eq('id', bookId).single(),
-    supabase.from('chapters').select('id').eq('book_id', bookId).eq('chapter_number', chapterNumber).single(),
+    supabase.from('chapters').select('id, chapter_number').eq('book_id', bookId).eq('id', chapterId).single(),
   ])
-  if (bookRes.error) throw new Error(`Question count for ${slug} chapter ${chapterNumber}: ${bookRes.error.message}`)
-  if (chapterRes.error) throw new Error(`Question count for ${slug} chapter ${chapterNumber}: ${chapterRes.error.message}`)
+  if (bookRes.error) throw new Error(`Chapter ${chapterId} of ${slug}: ${bookRes.error.message}`)
+  if (chapterRes.error) throw new Error(`Chapter ${chapterId} of ${slug}: ${chapterRes.error.message}`)
   const counts = await countChapterQuestions(supabase, {
-    subjectId: bookRes.data.subject_id, bookId, chapterIds: [chapterRes.data.id], country: 'IN',
+    subjectId: bookRes.data.subject_id, bookId, chapterIds: [chapterId], country: 'IN',
   })
-  return counts[chapterRes.data.id] ?? 0
-}, ['book-chapter-question-total', ...SYLLABUS_BOOK_IDS], { revalidate: 3600 })
+  return { number: chapterRes.data.chapter_number, questions: counts[chapterId] ?? 0 }
+}, ['book-chapter-practice', ...SYLLABUS_BOOK_IDS], { revalidate: 3600 })
 
 // The five CPL theory subjects (lib/subjects.ts). subjects.licence_types can't be used:
 // every subject, A320 included, is tagged CPL and ATPL.
@@ -114,9 +116,9 @@ export async function bookQuestionTotalOrNull(slug: string): Promise<number | nu
   }
 }
 
-export async function bookChapterQuestionTotalOrNull(slug: string, chapterNumber: number): Promise<number | null> {
+export async function bookChapterPracticeOrNull(slug: string, chapterId: string): Promise<{ number: number; questions: number } | null> {
   try {
-    return await bookChapterQuestionTotal(slug, chapterNumber)
+    return await bookChapterPractice(slug, chapterId)
   } catch (e) {
     console.error(e)
     return null

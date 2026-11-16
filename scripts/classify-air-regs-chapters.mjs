@@ -1,4 +1,4 @@
-// Classify Air Regulations questions into the 22 RK Bali chapters (Eleventh Revised
+// Classify Air Regulations questions into the 23 RK Bali chapters (Eleventh Revised
 // Edition, 2018, Captain Panel list), the Air Regulations syllabus map. Copied from
 // scripts/classify-syllabus-chapters.mjs (Meteorology): same model, prompt shape, batch
 // tool and source masking, with two Captain Panel rules added for chapters 14 and 19, and
@@ -30,6 +30,15 @@
 // questions are skipped. Resumable: every classified question is appended to
 // air_regs_classification_full.jsonl and skipped on the next run; the database write is
 // also guarded to fill only empty syllabus_chapter_id, so nothing is overwritten.
+//
+//   node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --security
+//
+// --security (2026-11-16, after chapter 22 Security was added from the book's contents
+// page): every active Air Regulations question that mentions security, unlawful
+// interference, hijacking, sabotage, bombs, Annex 17 or BCAS (question, options or
+// explanation), classified against the 23 chapters in the CSV, including ones already
+// assigned. Reads the database, writes nothing to it; results go to
+// security_air_regs_classification.csv with each question's current chapter.
 
 import fs from 'node:fs'
 import Anthropic from '@anthropic-ai/sdk'
@@ -40,7 +49,7 @@ const BATCH_SIZE = 20
 const CONCURRENCY = 4
 const AIR_REGS_SUBJECT_ID = 'f27577f4-72cd-4f9b-9ec0-fedf966dd9d2'
 const RK_BALI_BOOK_ID = '15db3a2f-0718-4f98-beeb-177d9b92a4a4'
-const CHAPTER_COUNT = 22
+const CHAPTER_COUNT = 23 // chapter 22 Security added 2026-11-16 (scripts/rk_bali_add_security_chapter_20261116.sql)
 const BVN_SEED = JSON.parse(fs.readFileSync('scripts/data/bvn26-rk-bali-chapters.json', 'utf8'))
 const FLAGGED_IDS = new Set(JSON.parse(fs.readFileSync('scripts/data/air-regs-repealed-law-flags.json', 'utf8')).ids)
 // claude-sonnet-4-6, $ per million tokens
@@ -357,8 +366,8 @@ async function writeResults(results, byNumber) {
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 const mode = process.argv[2]
-if (!['--seed-bvn', '--pilot', '--full'].includes(mode)) {
-  console.error('Usage: node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --seed-bvn | --pilot | --full')
+if (!['--seed-bvn', '--pilot', '--full', '--security'].includes(mode)) {
+  console.error('Usage: node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --seed-bvn | --pilot | --full | --security')
   process.exit(1)
 }
 
@@ -405,6 +414,45 @@ if (mode === '--full') {
   const prev = fs.existsSync(usagePath) ? JSON.parse(fs.readFileSync(usagePath, 'utf8')).runs ?? [] : []
   fs.writeFileSync(usagePath, JSON.stringify({ model: MODEL, runs: [...prev, { at: new Date().toISOString(), ...usage, cost_usd: cost() }] }, null, 2))
   console.log(`Tokens: input ${usage.input}, output ${usage.output}, cache write ${usage.cacheWrite}, cache read ${usage.cacheRead}, ${usage.calls} calls — $${cost().toFixed(2)}`)
+  process.exit(0)
+}
+
+if (mode === '--security') {
+  const chapters = loadChaptersFromCsv()
+  const byNumber = new Map(chapters.map(c => [c.chapter_number, c]))
+  const SECURITY = /\b(security|unlawful interference|hijack\w*|sabotag\w*|bombs?|annex\s*17|bcas)\b/gi
+  const questions = await loadQuestions()
+  const options = new Map()
+  for (let i = 0; i < questions.length; i += 200) {
+    for (const [id, opts] of await loadOptions(questions.slice(i, i + 200).map(q => q.id))) options.set(id, opts)
+  }
+  const matches = questions.map(q => {
+    const text = [q.question_text, q.explanation, ...(options.get(q.id) ?? []).map(o => o.option_text)].join(' ')
+    return { ...q, keywords: [...new Set((text.match(SECURITY) ?? []).map(k => k.toLowerCase()))] }
+  }).filter(q => q.keywords.length)
+  console.log(`${questions.length} active Air Regulations questions; ${matches.length} mention a security term`)
+
+  const { data: current, error } = await supabase.from('chapters').select('id, chapter_name').eq('book_id', RK_BALI_BOOK_ID)
+  if (error) throw new Error(error.message)
+  const currentName = new Map(current.map(c => [c.id, c.chapter_name]))
+  const results = await classifyAll(systemPrompt(chapters), matches)
+
+  const header = ['question_id', 'source_book', 'question_text', 'keywords', 'current_chapter', 'proposed_chapter', 'moves', 'confidence', 'reason']
+  const lines = [header.join(',')]
+  for (const r of results) {
+    const q = r.question
+    const proposed = byNumber.get(r.chapter).chapter_name
+    const now = q.syllabus_chapter_id ? currentName.get(q.syllabus_chapter_id) ?? '(other book)' : '(none)'
+    lines.push([
+      q.id, q.source_book ? `${q.source_book.author ?? ''} — ${q.source_book.title}` : '(no book)',
+      (q.question_text ?? '').replace(/\s+/g, ' ').slice(0, 120), q.keywords.join('; '),
+      now, `${r.chapter} ${proposed}`, now === proposed ? 'no' : 'yes', r.confidence, r.reason,
+    ].map(csvCell).join(','))
+  }
+  fs.writeFileSync('security_air_regs_classification.csv', lines.join('\n') + '\n')
+  fs.writeFileSync('security_air_regs_classification.usage.json', JSON.stringify({ model: MODEL, ...usage, cost_usd: cost() }, null, 2))
+  console.log(`Wrote security_air_regs_classification.csv (${results.length} rows)`)
+  console.log(`Tokens: input ${usage.input}, output ${usage.output}, cache write ${usage.cacheWrite}, cache read ${usage.cacheRead}, ${usage.calls} calls — $${cost().toFixed(3)}`)
   process.exit(0)
 }
 

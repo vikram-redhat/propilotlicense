@@ -5,7 +5,7 @@ import SiteFooter from '@/components/SiteFooter'
 import { buildMetadata } from '@/lib/metadata'
 import { SUBJECTS } from '@/lib/subjects'
 import { getHeaderAuthState } from '@/lib/supabase-server'
-import { bookChapterQuestionTotalOrNull, questionTotalsOrFallback } from '@/lib/live-counts'
+import { bookChapterPracticeOrNull, questionTotalsOrFallback } from '@/lib/live-counts'
 import HumanPerformanceCard, { HUMAN_PERFORMANCE } from '@/components/HumanPerformanceCard'
 
 export const metadata = buildMetadata({
@@ -26,10 +26,10 @@ const sectionLabel = {
 }
 
 export default async function SubjectsPage() {
-  const [{ isLoggedIn, name, examType }, totals, hpCount] = await Promise.all([
+  const [{ isLoggedIn, name, examType }, totals, hp] = await Promise.all([
     getHeaderAuthState(),
     questionTotalsOrFallback(),
-    bookChapterQuestionTotalOrNull(HUMAN_PERFORMANCE.bookSlug, HUMAN_PERFORMANCE.chapter),
+    bookChapterPracticeOrNull(HUMAN_PERFORMANCE.bookSlug, HUMAN_PERFORMANCE.chapterId),
   ])
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
@@ -70,7 +70,7 @@ export default async function SubjectsPage() {
               </div>
             </Link>
             {/* Human Performance is part of Air Regulations: listed straight after it */}
-            {s.code === 'REG' && <HumanPerformanceCard count={hpCount} variant="card" />}
+            {s.code === 'REG' && <HumanPerformanceCard chapter={hp} variant="card" />}
             </Fragment>
           ))}
         </div>
