@@ -12,18 +12,19 @@ import { isSyllabusBook, SYLLABUS_BOOK_IDS } from '@/lib/syllabus'
 // cached value at all (first request after a deploy) and the database fails: ISR pages
 // then keep their last good render; per-request pages use the *OrFallback helpers.
 
-type SubjectCount = { code: string | null; count: number }
+export type SubjectCount = { id: string; code: string | null; name: string; icon_name: string | null; sort_order: number; count: number }
 
-// Active questions per subject — the homepage's rule.
+// Active questions per active subject — the homepage's rule. Also carries what the public
+// subject list needs (lib/public-subjects.ts): id for practice links, name and icon.
 export const subjectQuestionCounts = unstable_cache(async (): Promise<SubjectCount[]> => {
   const supabase = createServiceClient()
-  const { data: subjects, error } = await supabase.from('subjects').select('id, code').eq('active', true)
+  const { data: subjects, error } = await supabase.from('subjects').select('id, code, name, icon_name, sort_order').eq('active', true).order('sort_order')
   if (error) throw new Error(`Subject counts: ${error.message}`)
   const counts = await Promise.all(subjects.map(s =>
     supabase.from('questions').select('id', { count: 'exact', head: true }).eq('active', true).eq('subject_id', s.id)))
   return subjects.map((s, i) => {
     if (counts[i].error) throw new Error(`Subject counts: ${counts[i].error!.message}`)
-    return { code: s.code, count: counts[i].count ?? 0 }
+    return { ...s, count: counts[i].count ?? 0 }
   })
 }, ['subject-question-counts'], { revalidate: 3600 })
 

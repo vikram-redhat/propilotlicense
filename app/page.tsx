@@ -13,13 +13,15 @@ import { createServiceClient } from '@/lib/supabase'
 import { isSubscribed } from '@/lib/subscription'
 import { hubForExamType } from '@/lib/hub'
 import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
+import { publicSubjects } from '@/lib/public-subjects'
 import BvnNotice from '@/components/BvnNotice'
 
 export async function generateMetadata(): Promise<Metadata> {
   const total = roundedTotal((await questionTotalsOrFallback()).all)
   return {
     title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
-    description: `India's most complete DGCA CPL and ATPL question bank — ${total} questions mapped to prescribed textbooks, verified by active airline captains. First 10 questions free.`,
+    // Under 160 characters (157 with "14,000+").
+    description: `India's most complete DGCA CPL and ATPL question bank: ${total} questions verified by airline captains. 10 free questions and a free session on every chapter.`,
     alternates: { canonical: 'https://www.propilotlicence.com' },
     openGraph: {
       title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
@@ -107,7 +109,7 @@ const FEATURES = [
       </svg>
     ),
     title: 'Book-cited explanations',
-    desc: 'Every answer cites the exact DGCA source book and chapter.',
+    desc: 'Answers cite the DGCA source book and chapter.',
   },
   {
     icon: (
@@ -133,62 +135,24 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const name = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? null
 
   const svc = createServiceClient()
-  type SubjectRow = { id: string; name: string; code: string; icon_name: string; sort_order: number; licence_types: string[] }
-
-  const CODE_TO_SLUG: Record<string, string> = {
-    MET:                  'aviation-meteorology',
-    REG:                  'air-regulations',
-    NAV:                  'air-navigation',
-    TECH:                 'technical-general',
-    RADIOAIDSINSTRUMENTS: 'radio-aids-instruments',
-  }
-  const NAME_TO_SLUG: Record<string, string> = {
-    'meteorology':               'aviation-meteorology',
-    'aviation meteorology':      'aviation-meteorology',
-    'air regulations':           'air-regulations',
-    'air navigation':            'air-navigation',
-    'technical general':         'technical-general',
-    'radio aids & instruments':  'radio-aids-instruments',
-    'radio aids and instruments':'radio-aids-instruments',
-  }
-
-  const [subjectsRes, bookCountRes, profileRes] = await Promise.all([
-    svc.from('subjects').select('id, name, code, icon_name, sort_order, licence_types').eq('active', true).order('sort_order'),
+  // The same subjects as /subjects, in its order; unfinished ones are left out (lib/public-subjects.ts).
+  const [shownSubjects, totals, bookCountRes, profileRes] = await Promise.all([
+    publicSubjects(),
+    questionTotalsOrFallback(),
     svc.from('source_books').select('*', { count: 'exact', head: true }),
     user ? svc.from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single() : Promise.resolve({ data: null }),
   ])
 
-  const subjectRows = (subjectsRes.data as SubjectRow[] || [])
-  const airbusRow = subjectRows.find(s => s.code === 'A320FAMILY')
-
-  // Count per subject using individual count queries (avoids the 1000-row default limit on bulk selects)
-  const [countResults, airbusTopicsRes] = await Promise.all([
-    Promise.all(
-      subjectRows.map(s =>
-        svc.from('questions').select('*', { count: 'exact', head: true }).eq('active', true).eq('subject_id', s.id)
-      )
-    ),
-    airbusRow
-      ? svc.from('topics').select('name').eq('subject_id', airbusRow.id).order('sort_order')
-      : Promise.resolve({ data: [] as { name: string }[] }),
-  ])
-
-  const subjects = subjectRows.map((s, i) => {
-    const slug = (s.code && CODE_TO_SLUG[s.code]) || NAME_TO_SLUG[s.name.toLowerCase()]
-    return {
-      ...s,
-      questionCount: countResults[i].count ?? 0,
-      href: (s.licence_types?.includes('CPL') ? '/cpl/' : '/atpl/') + s.id,
-      publicHref: slug ? `/subjects/${slug}` : '/subjects',
-    }
-  })
-
-  const regularSubjects = subjects.filter(s => s.code !== 'A320FAMILY')
-  const airbusSubject = subjects.find(s => s.code === 'A320FAMILY')
+  const regularSubjects = shownSubjects.filter(s => s.key !== 'A320FAMILY')
+  const airbusSubject = shownSubjects.find(s => s.key === 'A320FAMILY')
+  const airbusTopicsRes = airbusSubject?.subjectId
+    ? await svc.from('topics').select('name').eq('subject_id', airbusSubject.subjectId).order('sort_order')
+    : { data: [] as { name: string }[] }
   const airbusTopics = ((airbusTopicsRes.data as { name: string }[]) || []).map(t => formatAtaTopic(t.name))
 
-  // If the live per-subject counts failed, show the shared module's last known total.
-  const totalQuestions = subjects.reduce((a, s) => a + s.questionCount, 0) || (await questionTotalsOrFallback()).all
+  const totalQuestions = totals.all
+  // Human Performance is a chapter of Air Regulations, not a paper of its own: not counted.
+  const subjectCount = shownSubjects.filter(s => s.key !== 'HP').length
   const bookCount = bookCountRes.count ?? 0
   const subscribed = isSubscribed(profileRes?.data as Parameters<typeof isSubscribed>[0])
   const examType = user?.user_metadata?.exam_type ?? null
@@ -251,7 +215,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginTop: 3 }}>questions</div>
               </div>
               <div>
-                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>{subjects.length || 5}</div>
+                <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.5px' }}>{subjectCount || 6}</div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginTop: 3 }}>subjects</div>
               </div>
               <div>
@@ -314,14 +278,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4">
           {regularSubjects.map((s) => (
             <Link
-              key={s.id}
-              href={user ? s.href : s.publicHref}
+              key={s.key}
+              href={user ? s.practiceHref : s.href}
               className="hover:border-[var(--clr-primary)]"
               style={{ background: 'var(--clr-surf-alt)', border: '1px solid var(--clr-border)', borderRadius: 13, padding: 14, display: 'flex', flexDirection: 'column', gap: 8, textDecoration: 'none', transition: 'border-color 0.2s' }}
             >
-              <SubjectIcon name={s.icon_name} size={22} className="text-[var(--clr-primary)]" />
-              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 600, color: 'var(--clr-text)' }}>{s.name}</div>
-              <div style={{ fontSize: 13, color: 'var(--clr-text-med)' }}>{s.questionCount > 0 ? `${s.questionCount.toLocaleString()} questions` : 'Coming soon'}</div>
+              <SubjectIcon name={s.iconName} size={22} className="text-[var(--clr-primary)]" />
+              <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 600, color: 'var(--clr-text)' }}>{s.title}</div>
+              {s.note && <div style={{ fontSize: 12, color: 'var(--clr-text-med)', lineHeight: 1.4 }}>{s.note}</div>}
+              {s.questions != null && <div style={{ fontSize: 13, color: 'var(--clr-text-med)' }}>{s.questions.toLocaleString()} questions</div>}
             </Link>
           ))}
         </div>
@@ -332,7 +297,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: 'var(--clr-surface)', border: '1px solid var(--clr-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <SubjectIcon name={airbusSubject.icon_name} size={22} className="text-[var(--clr-primary)]" />
+                  <SubjectIcon name={airbusSubject.iconName} size={22} className="text-[var(--clr-primary)]" />
                 </div>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -343,7 +308,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 </div>
               </div>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', background: 'var(--clr-surface)', border: '1px solid var(--clr-border)', borderRadius: 8, padding: '6px 12px', whiteSpace: 'nowrap' }}>
-                {airbusSubject.questionCount > 0 ? `${airbusSubject.questionCount.toLocaleString()} questions` : 'Coming soon'}
+                {airbusSubject.questions != null ? `${airbusSubject.questions.toLocaleString()} questions` : 'Question bank'}
               </div>
             </div>
 
@@ -366,9 +331,22 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             )}
 
-            <Link href={user ? airbusSubject.href : '/login?next=/atpl'} style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
-              Practise Airbus A320 questions →
-            </Link>
+            {/* As on the /subjects card: logged in, the ATPL hub; logged out, the A320 Systems
+                guides, with a separate Practise link through login. */}
+            {user ? (
+              <Link href={airbusSubject.hrefLoggedIn} style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
+                Practise Airbus A320 questions →
+              </Link>
+            ) : (
+              <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                <Link href={airbusSubject.href} style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
+                  Read the A320 Systems guides →
+                </Link>
+                <Link href="/login?next=/atpl" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
+                  Practise A320 questions →
+                </Link>
+              </div>
+            )}
           </div>
         )}
 

@@ -4,8 +4,44 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { useTheme } from '@/components/ThemeProvider'
+import { IconPalette } from '@tabler/icons-react'
 import { GUIDE_SERIES } from '@/lib/guides'
 import { hubForExamType } from '@/lib/hub'
+
+// The Subjects menu lists the public subjects (lib/public-subjects.ts, through
+// /api/public-subjects), so a subject hidden from the homepage is hidden here too. Until
+// that answers, it shows the subjects that have pages.
+type NavSubject = { key: string; title: string; href: string; hrefLoggedIn: string }
+const DEFAULT_SUBJECTS: NavSubject[] = [
+  ['MET', 'Aviation Meteorology', '/subjects/aviation-meteorology'],
+  ['REG', 'Air Regulations', '/subjects/air-regulations'],
+  ['HP', 'Human Performance and Limitations', '/subjects/human-performance'],
+  ['NAV', 'Air Navigation', '/subjects/air-navigation'],
+  ['TECH', 'Technical General', '/subjects/technical-general'],
+  ['RADIOAIDSINSTRUMENTS', 'Radio Aids and Instruments', '/subjects/radio-aids-instruments'],
+].map(([key, title, href]) => ({ key, title, href, hrefLoggedIn: href }))
+  .concat({ key: 'A320FAMILY', title: 'Airbus A320', href: '/guides/a320-systems', hrefLoggedIn: '/atpl' })
+const NAV_BOOKS = [
+  { label: 'IC Joshi, Aviation Meteorology', href: '/books/ic-joshi-aviation-meteorology' },
+  { label: 'RK Bali, Air Regulations', href: '/books/rk-bali-air-regulations' },
+]
+// Fetched once per page load, shared by every header on the page.
+let navSubjects: Promise<NavSubject[]> | null = null
+function loadNavSubjects() {
+  navSubjects ??= fetch('/api/public-subjects')
+    .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+    .catch(() => { navSubjects = null; return DEFAULT_SUBJECTS })
+  return navSubjects
+}
+
+const menuLink = { display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--clr-text)', textDecoration: 'none', borderTop: '1px solid var(--clr-surf-alt)' } as const
+const drawerLink = { padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' } as const
+const drawerSubLink = { padding: '10px 0 10px 14px', fontSize: 15, color: 'var(--clr-text)', textDecoration: 'none', display: 'block' } as const
+const drawerToggle = { ...drawerLink, width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--clr-border)', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as const
+
+function Chevron({ size = 11, open = false }: { size?: number; open?: boolean }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true" style={{ transform: open ? 'rotate(180deg)' : undefined, transition: 'transform 0.15s' }}><path d="M6 9l6 6 6-6"/></svg>
+}
 
 interface Props {
   name: string | null
@@ -17,9 +53,13 @@ interface Props {
 export default function LandingHeader({ name: initialName, isLoggedIn: initialIsLoggedIn, subscribed, examType }: Props) {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [guidesMenuOpen, setGuidesMenuOpen] = useState(false)
+  const [subjectsMenuOpen, setSubjectsMenuOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [drawerSection, setDrawerSection] = useState<'subjects' | 'guides' | null>(null)
+  const [subjects, setSubjects] = useState<NavSubject[]>(DEFAULT_SUBJECTS)
   const menuRef = useRef<HTMLDivElement>(null)
   const guidesMenuRef = useRef<HTMLDivElement>(null)
+  const subjectsMenuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   // Some pages (statically generated ones, or ones that just haven't been wired up)
@@ -48,7 +88,14 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
   }, [supabase])
 
   useEffect(() => {
+    let live = true
+    loadNavSubjects().then(list => { if (live) setSubjects(list) })
+    return () => { live = false }
+  }, [])
+
+  useEffect(() => {
     function handleClick(e: MouseEvent) {
+      if (subjectsMenuRef.current && !subjectsMenuRef.current.contains(e.target as Node)) setSubjectsMenuOpen(false)
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setUserMenuOpen(false)
       if (guidesMenuRef.current && !guidesMenuRef.current.contains(e.target as Node)) setGuidesMenuOpen(false)
     }
@@ -65,6 +112,8 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
   const { palette, toggle: togglePalette } = useTheme()
   const firstName = (name || 'Account').split(' ')[0]
   const dashHref = hubForExamType(examTypeState)
+  const themeLabel = `Theme: ${palette === 'A' ? 'Runway Blue' : 'Golden Hour'}`
+  const closeDrawer = () => { setDrawerOpen(false); setDrawerSection(null) }
 
   return (
     <>
@@ -76,16 +125,46 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
             ProPilot<span style={{ color: 'var(--clr-amber)' }}>Licence</span>
           </Link>
 
-          {/* Desktop nav links (sm+) */}
-          <div className="hidden sm:flex" style={{ gap: 22, alignItems: 'center' }}>
-            <Link href="/subjects" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Subjects</Link>
+          {/* Desktop nav links (md+; below that the drawer, so the row never crowds) */}
+          <div className="hidden md:flex" style={{ gap: 22, alignItems: 'center' }}>
+            <div className="relative" ref={subjectsMenuRef}>
+              <button
+                onClick={() => { setSubjectsMenuOpen(o => !o); setGuidesMenuOpen(false) }}
+                aria-expanded={subjectsMenuOpen}
+                style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
+              >
+                Subjects
+                <Chevron />
+              </button>
+              {subjectsMenuOpen && (
+                <div style={{ position: 'absolute', left: 0, marginTop: 12, width: 280, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
+                  <Link href="/subjects" data-cta="nav-subjects" onClick={() => setSubjectsMenuOpen(false)} style={{ ...menuLink, fontWeight: 600, borderTop: 'none' }}>
+                    All subjects
+                  </Link>
+                  {subjects.map(sub => (
+                    <Link key={sub.key} href={isLoggedIn ? sub.hrefLoggedIn : sub.href} data-cta="nav-subjects" onClick={() => setSubjectsMenuOpen(false)} style={menuLink}>
+                      {sub.title}
+                    </Link>
+                  ))}
+                  <div style={{ padding: '10px 16px 4px', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--clr-text-med)', borderTop: '1px solid var(--clr-border)' }}>
+                    Books
+                  </div>
+                  {NAV_BOOKS.map(b => (
+                    <Link key={b.href} href={b.href} data-cta="nav-subjects" onClick={() => setSubjectsMenuOpen(false)} style={{ ...menuLink, borderTop: 'none' }}>
+                      {b.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="relative" ref={guidesMenuRef}>
               <button
-                onClick={() => setGuidesMenuOpen(o => !o)}
+                onClick={() => { setGuidesMenuOpen(o => !o); setSubjectsMenuOpen(false) }}
+                aria-expanded={guidesMenuOpen}
                 style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
               >
                 Guides
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                <Chevron />
               </button>
               {guidesMenuOpen && (
                 <div style={{ position: 'absolute', left: 0, marginTop: 12, width: 200, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
@@ -109,24 +188,26 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                 </div>
               )}
             </div>
+            <Link href="/pricing" data-cta="nav-pricing" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Pricing</Link>
             <Link href="/about" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>About</Link>
           </div>
 
           {/* Right side */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
 
-            {/* Palette toggle — desktop only */}
+            {/* Palette toggle — desktop only: an icon, named in its tooltip */}
             <button
-              className="hidden sm:flex"
+              className="hidden md:flex"
               onClick={togglePalette}
-              style={{ alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 20, border: '1px solid var(--clr-border)', background: 'transparent', fontSize: 11, fontWeight: 600, color: 'var(--clr-text-med)', cursor: 'pointer', flexShrink: 0 }}
+              aria-label={themeLabel}
+              title={themeLabel}
+              style={{ alignItems: 'center', justifyContent: 'center', width: 30, height: 30, borderRadius: '50%', border: '1px solid var(--clr-border)', background: 'transparent', color: 'var(--clr-amber)', cursor: 'pointer', padding: 0, flexShrink: 0 }}
             >
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--clr-amber)', flexShrink: 0 }} />
-              {palette === 'A' ? 'Runway Blue' : 'Golden Hour'}
+              <IconPalette size={16} aria-hidden="true" />
             </button>
 
-            {/* Desktop: auth (sm+) */}
-            <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 8 }}>
+            {/* Desktop: auth (md+) */}
+            <div className="hidden md:flex" style={{ alignItems: 'center', gap: 8 }}>
               {isLoggedIn && !subscribed && (
                 <Link href="/pricing" style={{ fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 20, border: '1px solid var(--clr-border)', color: 'var(--clr-amber)', textDecoration: 'none', letterSpacing: '0.2px' }}>Upgrade</Link>
               )}
@@ -156,11 +237,12 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
               )}
             </div>
 
-            {/* Mobile: hamburger (hidden sm+) */}
+            {/* Mobile: hamburger (hidden md+) */}
             <button
-              className="flex sm:hidden"
-              onClick={() => setDrawerOpen(o => !o)}
-              aria-label="Open menu"
+              className="flex md:hidden"
+              onClick={() => (drawerOpen ? closeDrawer() : setDrawerOpen(true))}
+              aria-label={drawerOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={drawerOpen}
               style={{ width: 36, height: 36, borderRadius: 8, border: 'none', background: 'transparent', cursor: 'pointer', padding: 0, alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
             >
               <svg width="20" height="16" viewBox="0 0 20 16" fill="none" aria-hidden="true">
@@ -178,18 +260,43 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
             style={{
               position: 'fixed', top: 54, left: 0, right: 0, zIndex: 190,
               background: 'var(--clr-surface)', borderBottom: '1px solid var(--clr-border)',
-              padding: '8px 20px 20px',
+              padding: '8px 20px 20px', maxHeight: 'calc(100dvh - 54px)', overflowY: 'auto',
               animation: 'slideDown 0.22s cubic-bezier(0.16,1,0.3,1) both',
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <Link href="/subjects" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>Subjects</Link>
-              <Link href="/guides" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>Guides</Link>
-              <Link href="/about" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: isLoggedIn ? '1px solid var(--clr-border)' : 'none', display: 'block' }}>About</Link>
+              <button onClick={() => setDrawerSection(o => (o === 'subjects' ? null : 'subjects'))} aria-expanded={drawerSection === 'subjects'} style={drawerToggle}>
+                Subjects <Chevron size={14} open={drawerSection === 'subjects'} />
+              </button>
+              {drawerSection === 'subjects' && (
+                <div style={{ borderBottom: '1px solid var(--clr-border)', paddingBottom: 6 }}>
+                  <Link href="/subjects" data-cta="nav-subjects" onClick={closeDrawer} style={{ ...drawerSubLink, fontWeight: 600 }}>All subjects</Link>
+                  {subjects.map(sub => (
+                    <Link key={sub.key} href={isLoggedIn ? sub.hrefLoggedIn : sub.href} data-cta="nav-subjects" onClick={closeDrawer} style={drawerSubLink}>{sub.title}</Link>
+                  ))}
+                  <div style={{ padding: '12px 0 4px 14px', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--clr-text-med)' }}>Books</div>
+                  {NAV_BOOKS.map(b => (
+                    <Link key={b.href} href={b.href} data-cta="nav-subjects" onClick={closeDrawer} style={drawerSubLink}>{b.label}</Link>
+                  ))}
+                </div>
+              )}
+              <button onClick={() => setDrawerSection(o => (o === 'guides' ? null : 'guides'))} aria-expanded={drawerSection === 'guides'} style={drawerToggle}>
+                Guides <Chevron size={14} open={drawerSection === 'guides'} />
+              </button>
+              {drawerSection === 'guides' && (
+                <div style={{ borderBottom: '1px solid var(--clr-border)', paddingBottom: 6 }}>
+                  <Link href="/guides" onClick={closeDrawer} style={{ ...drawerSubLink, fontWeight: 600 }}>All guides</Link>
+                  {GUIDE_SERIES.map(series => (
+                    <Link key={series.slug} href={`/guides/${series.slug}`} onClick={closeDrawer} style={drawerSubLink}>{series.navLabel}</Link>
+                  ))}
+                </div>
+              )}
+              <Link href="/pricing" data-cta="nav-pricing" onClick={closeDrawer} style={drawerLink}>Pricing</Link>
+              <Link href="/about" onClick={closeDrawer} style={{ ...drawerLink, borderBottom: isLoggedIn ? '1px solid var(--clr-border)' : 'none' }}>About</Link>
               {isLoggedIn && (
                 <>
-                  <Link href="/profile" onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', borderBottom: '1px solid var(--clr-border)', display: 'block' }}>Profile</Link>
-                  <Link href={dashHref} onClick={() => setDrawerOpen(false)} style={{ padding: '13px 0', fontSize: 16, fontWeight: 500, color: 'var(--clr-text)', textDecoration: 'none', display: 'block' }}>Practice &amp; Mock Exams</Link>
+                  <Link href="/profile" onClick={closeDrawer} style={drawerLink}>Profile</Link>
+                  <Link href={dashHref} onClick={closeDrawer} style={{ ...drawerLink, borderBottom: 'none' }}>Practice &amp; Mock Exams</Link>
                 </>
               )}
             </div>
@@ -199,21 +306,21 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                 onClick={togglePalette}
                 style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 20, border: '1px solid var(--clr-border)', background: 'transparent', fontSize: 11, fontWeight: 600, color: 'var(--clr-text-med)', cursor: 'pointer' }}
               >
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--clr-amber)', flexShrink: 0 }} />
-                {palette === 'A' ? 'Runway Blue' : 'Golden Hour'}
+                <IconPalette size={14} aria-hidden="true" style={{ color: 'var(--clr-amber)' }} />
+                {themeLabel}
               </button>
 
               {isLoggedIn ? (
                 <button onClick={signOut} style={{ fontSize: 14, fontWeight: 500, color: 'var(--clr-primary)', background: 'transparent', border: 'none', cursor: 'pointer' }}>Sign out</button>
               ) : (
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <Link href="/login" onClick={() => setDrawerOpen(false)} style={{ fontSize: 14, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Log in</Link>
-                  <Link href="/signup" onClick={() => setDrawerOpen(false)} style={{ fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: 'var(--clr-primary)', color: '#fff', textDecoration: 'none' }}>Sign up</Link>
+                  <Link href="/login" onClick={closeDrawer} style={{ fontSize: 14, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Log in</Link>
+                  <Link href="/signup" onClick={closeDrawer} style={{ fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: 'var(--clr-primary)', color: '#fff', textDecoration: 'none' }}>Sign up</Link>
                 </div>
               )}
             </div>
           </div>
-          <div onClick={() => setDrawerOpen(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 180, background: 'rgba(0,0,0,0.22)' }} />
+          <div onClick={closeDrawer} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 180, background: 'rgba(0,0,0,0.22)' }} />
         </>
       )}
     </>

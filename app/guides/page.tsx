@@ -4,7 +4,6 @@ import SiteFooter from '@/components/SiteFooter'
 import { buildMetadata } from '@/lib/metadata'
 import { getHeaderAuthState } from '@/lib/supabase-server'
 import { GUIDE_SERIES } from '@/lib/guides'
-import { Fragment } from 'react'
 import BvnNotice from '@/components/BvnNotice'
 
 export const metadata = buildMetadata({
@@ -29,11 +28,11 @@ export default async function GuidesIndexPage() {
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Above every series */}
+          <BvnNotice />
           {GUIDE_SERIES.map(series => (
-            <Fragment key={series.slug}>
-              {/* Featured at the top of DGCA Exam Guides */}
-              {series.slug === 'dgca-exam-guides' && <BvnNotice />}
               <Link
+                key={series.slug}
                 href={`/guides/${series.slug}`}
                 style={{ display: 'block', textDecoration: 'none', border: '1px solid var(--clr-border)', borderRadius: 12, padding: '22px 24px', background: 'var(--clr-surface)' }}
               >
@@ -47,7 +46,6 @@ export default async function GuidesIndexPage() {
                   {series.description}
                 </p>
               </Link>
-            </Fragment>
           ))}
         </div>
       </main>
