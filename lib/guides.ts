@@ -130,9 +130,9 @@ export const GUIDE_SERIES: GuideSeries[] = [
         title: 'Human Performance and Limitations (Human Factors) for the DGCA CPL: What to Study and Where',
         metaTitle: 'Human Factors for DGCA CPL: What to Study and Where',
         metaDescription:
-          'Human Performance and Limitations for the DGCA CPL: part of the Air Regulations paper. Which book, RK Bali chapter 23 topics, hypoxia, TUC and illusions.',
+          'Human Performance and Limitations for the DGCA CPL: part of the Air Regulations paper. Which book, RK Bali chapter 23 topics, hypoxia, illusions and vision.',
         publishedAt: '2026-11-16',
-        updatedAt: '2026-11-16',
+        updatedAt: '2026-11-17',
         excerpt:
           'Human factors is examined inside the DGCA Air Regulations paper. Which book to use, what RK Bali chapter 23 covers, and the high-yield facts on hypoxia, vision and illusions.',
         reviewedBy: 'ProPilotLicence Captain Panel',

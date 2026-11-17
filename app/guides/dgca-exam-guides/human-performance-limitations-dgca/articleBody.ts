@@ -40,7 +40,7 @@ export const ARTICLE_HTML = String.raw`
     <thead><tr><th>Topic</th><th>What to know</th></tr></thead>
     <tbody>
       <tr><td><strong>The body and flight</strong></td><td>The nervous system (central, peripheral, autonomic), the heart and circulation, blood, and respiration. Enough anatomy to explain why altitude affects performance.</td></tr>
-      <tr><td><strong>Hypoxia</strong></td><td>The four types, their causes, symptoms, time of useful consciousness, and what to do</td></tr>
+      <tr><td><strong>Hypoxia</strong></td><td>The four types, their causes, symptoms, and what to do</td></tr>
       <tr><td><strong>Hyperventilation</strong></td><td>Causes, symptoms, and how to tell it from hypoxia</td></tr>
       <tr><td><strong>Pressure effects</strong></td><td>Trapped gas, ear and sinus barotrauma, decompression sickness and its forms, flying after scuba diving</td></tr>
       <tr><td><strong>Vision</strong></td><td>The eye, rods and cones, night vision and dark adaptation, the blind spot, empty field myopia, common defects</td></tr>
@@ -67,17 +67,7 @@ export const ARTICLE_HTML = String.raw`
     </tbody>
   </table>
 
-  <h3>Time of useful consciousness (typical values)</h3>
-  <table class="data-table">
-    <thead><tr><th>Altitude</th><th>Approximate TUC</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">18,000 ft</td><td>20 to 30 minutes</td></tr>
-      <tr><td class="mono">25,000 ft</td><td>3 to 5 minutes</td></tr>
-      <tr><td class="mono">35,000 ft</td><td>30 to 60 seconds</td></tr>
-      <tr><td class="mono">40,000 ft</td><td>15 to 20 seconds</td></tr>
-    </tbody>
-  </table>
-  <p>TUC is shorter after a rapid decompression, and shorter still with exertion, smoking or fatigue.</p>
+  <p><strong>Time of useful consciousness</strong> (how long a pilot can act usefully without oxygen) varies widely with altitude, activity, fitness and how quickly the oxygen was lost. Learn the idea and the fact that it shortens sharply with altitude, rather than exact figures.</p>
 
   <h3>Other facts that are asked often</h3>
   <ul>
@@ -88,6 +78,63 @@ export const ARTICLE_HTML = String.raw`
     <li><strong>Alcohol:</strong> under rule 174 of the Bharatiya Vayuyan Niyam, 2026, crew may not drink within 12 hours of a flight, and no detectable alcohol is allowed. See our <a href="/guides/dgca-exam-guides/bharatiya-vayuyan-niyam-2026">Bharatiya Vayuyan Niyam guide</a>.</li>
     <li><strong>The SHEL model:</strong> Software, Hardware, Environment and Liveware, with the human (Liveware) at the centre.</li>
   </ul>
+
+  <h2>Spatial disorientation and illusions</h2>
+  <p>This is one of the most examined parts of the chapter. The balance organs and the eyes can both mislead, especially without a visible horizon.</p>
+  <table class="data-table">
+    <thead><tr><th>Illusion</th><th>When it happens</th><th>What the pilot feels or sees</th><th>Danger</th></tr></thead>
+    <tbody>
+      <tr><td><strong>The leans</strong></td><td>Rolling level after a prolonged, gentle turn</td><td>A bank in the opposite direction</td><td>Pilot leans or rolls back into the original turn</td></tr>
+      <tr><td><strong>Graveyard spiral</strong></td><td>A prolonged turn in cloud or at night</td><td>The turn sensation fades, so the aircraft feels level while it loses height</td><td>Pilot pulls back, tightening a descending spiral</td></tr>
+      <tr><td><strong>Graveyard spin</strong></td><td>Recovering from a spin</td><td>A spin in the opposite direction</td><td>Pilot re-enters the original spin</td></tr>
+      <tr><td><strong>Coriolis</strong></td><td>Moving the head sharply during a turn</td><td>Tumbling or rotating in another axis</td><td>Severe disorientation; the most dangerous vestibular illusion</td></tr>
+      <tr><td><strong>Somatogravic</strong></td><td>Strong forward acceleration, as on take-off or a go-around at night</td><td>Nose-up pitch (deceleration gives nose-down)</td><td>Pilot pushes the nose down towards the ground</td></tr>
+      <tr><td><strong>Inversion</strong></td><td>Abrupt level-off from a climb</td><td>Tumbling backwards</td><td>Pilot pushes forward</td></tr>
+      <tr><td><strong>Black hole approach</strong></td><td>Night approach over water or dark terrain to a lit runway</td><td>Being higher than actual</td><td>Pilot flies a low approach</td></tr>
+      <tr><td><strong>Runway width and slope</strong></td><td>Unfamiliar runways</td><td>A narrow or upsloping runway looks as if you're high; a wide or downsloping one, low</td><td>Low approach on narrow or upsloping runways; high on wide or downsloping ones</td></tr>
+      <tr><td><strong>False horizon</strong></td><td>Sloping cloud tops, or ground lights confused with stars</td><td>A tilted horizon</td><td>Pilot banks to match it</td></tr>
+      <tr><td><strong>Autokinesis</strong></td><td>Staring at a single light in the dark</td><td>The light appears to move</td><td>Pilot follows a stationary light</td></tr>
+    </tbody>
+  </table>
+  <p>The cure in every case is the same: believe the instruments, not the body.</p>
+
+  <h2>Vision in more detail</h2>
+  <ul>
+    <li><strong>The fovea</strong>, at the centre of the retina, is packed with cones: sharp, colour vision in good light. <strong>Rods</strong> are in the periphery, so at night you see a faint object better by looking slightly to one side of it (off-centre viewing).</li>
+    <li><strong>The blind spot</strong> is where the optic nerve leaves the eye. With both eyes open each covers the other's, but an object can still hide behind a windscreen pillar.</li>
+    <li><strong>Empty field myopia:</strong> with nothing to focus on, such as a hazy sky or cloud tops, the eye relaxes to focus a metre or two away, and distant traffic is missed. Scan in short, regular movements, focusing on objects in turn.</li>
+    <li><strong>Night vision</strong> is one of the first things hypoxia affects, so it degrades at lower altitudes than other faculties.</li>
+    <li><strong>Defects:</strong> myopia (short sight), hypermetropia (long sight), astigmatism, and presbyopia (loss of near focus with age, usually from the mid-40s). Colour vision defects matter because of light signals and displays.</li>
+  </ul>
+
+  <h2>Ears, pressure and decompression</h2>
+  <ul>
+    <li><strong>The Eustachian tube</strong> connects the middle ear to the throat. On the climb, expanding air escapes easily; on the descent, air must be pushed back in, so ear blocks are more common descending. Don't fly with a cold.</li>
+    <li><strong>Sinuses and teeth</strong> can also trap gas and cause pain as pressure changes.</li>
+    <li><strong>Decompression sickness</strong> is nitrogen coming out of solution in the body as pressure falls. Its forms: <strong>the bends</strong> (joint pain), <strong>the chokes</strong> (chest and breathing), <strong>the creeps</strong> (skin itching and tingling) and <strong>the staggers</strong> (nervous system: vision, balance, paralysis).</li>
+    <li><strong>Scuba diving</strong> loads the body with nitrogen, so flying soon after diving makes decompression sickness more likely. Allow the waiting period your textbook and DGCA require.</li>
+  </ul>
+
+  <h2>Sleep, fatigue and stress</h2>
+  <ul>
+    <li><strong>Circadian rhythm:</strong> the body clock runs on a cycle of about 24 hours, set by daylight. Alertness and body temperature are lowest in the early morning hours. Crossing time zones causes jet lag; flying east is usually harder to adjust to than flying west.</li>
+    <li><strong>Sleep cycles:</strong> sleep alternates between non-REM (light to deep, restorative sleep) and REM (dreaming) sleep in cycles of about 90 minutes.</li>
+    <li><strong>Fatigue</strong> is either acute (short-term, after a long day) or chronic (built up over time without enough recovery). Both slow reactions and narrow attention.</li>
+    <li><strong>Stress and performance:</strong> a moderate level of arousal gives the best performance; too little or too much reduces it (the inverted-U, or Yerkes-Dodson, relationship).</li>
+  </ul>
+
+  <h2>The SHEL model and CRM</h2>
+  <p>The SHEL model places the human, <strong>Liveware</strong>, at the centre, and looks at how well it fits the other parts of the system:</p>
+  <table class="data-table">
+    <thead><tr><th>Interface</th><th>Between the pilot and</th><th>Example of a mismatch</th></tr></thead>
+    <tbody>
+      <tr><td><strong>L–H</strong></td><td>Hardware: controls, displays, seats</td><td>A badly placed switch, or a seat that can't reach the eye datum point</td></tr>
+      <tr><td><strong>L–S</strong></td><td>Software: procedures, checklists, charts</td><td>An ambiguous checklist or a cluttered chart</td></tr>
+      <tr><td><strong>L–E</strong></td><td>Environment: noise, heat, light, altitude</td><td>Glare, cockpit noise, cold</td></tr>
+      <tr><td><strong>L–L</strong></td><td>Liveware: other people</td><td>Poor communication or a steep authority gradient between captain and first officer</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Crew resource management (CRM)</strong> is the use of all available resources (people, equipment and information) to fly safely: communication, teamwork, workload management, situational awareness and decision-making.</p>
 
   <h2>Common traps</h2>
   <div class="trap">
@@ -114,7 +161,7 @@ export const ARTICLE_HTML = String.raw`
   <h2>How to study it</h2>
   <ol>
     <li><strong>Read RK Bali Chapter 23 once, end to end.</strong> It's about 70 pages, and it's the text the Captain Panel recommends.</li>
-    <li><strong>Learn the tables above by heart:</strong> the hypoxia types, TUC values and the illusions. They're the easiest marks in the chapter.</li>
+    <li><strong>Learn the tables above by heart:</strong> the hypoxia types, the illusions and the SHEL interfaces. They're the easiest marks in the chapter.</li>
     <li><strong>Practise by topic, not just at random.</strong> Our questions are grouped under RK Bali Chapter 23, so you can practise this chapter on its own.</li>
     <li><strong>Revise it with the rest of Air Regulations.</strong> It's part of the same paper, so don't leave it to the end.</li>
   </ol>
@@ -134,8 +181,8 @@ export const ARTICLE_HTML = String.raw`
   <p class="faq-q">What are the four types of hypoxia?</p>
   <p>Hypoxic hypoxia (low oxygen partial pressure, as at altitude), anaemic hypoxia (the blood can't carry enough oxygen, for example from carbon monoxide), stagnant hypoxia (poor blood flow, for example under high g) and histotoxic hypoxia (the cells can't use oxygen, for example because of alcohol or poisons).</p>
 
-  <p class="faq-q">What is the time of useful consciousness at 25,000 feet?</p>
-  <p>About 3 to 5 minutes for a resting pilot. It is shorter after a rapid decompression or with exertion.</p>
+  <p class="faq-q">What is the somatogravic illusion?</p>
+  <p>A false sensation of pitching nose-up during strong forward acceleration, such as a take-off or go-around at night, caused by the otoliths in the inner ear. A pilot who believes it may push the nose down towards the ground.</p>
 
   <p class="faq-q">Where can I practise Human Performance questions?</p>
   <p>ProPilotLicence has {{HP_QUESTIONS}} Human Performance practice questions, grouped under RK Bali Chapter 23 within Air Regulations, each with an explanation.</p>
@@ -155,6 +202,7 @@ export const ARTICLE_HTML = String.raw`
   </div>
 
   <div class="disclaimer">
-    <strong>Note:</strong> This guide covers the topics in Chapter 23 of <em>Air Regulations for CPL/ATPL</em> by Wg Cdr RK Bali (Retd), Eleventh Revised Edition, 2018, as they relate to the DGCA Air Regulations paper. It does not reproduce the book. Time of useful consciousness values are typical figures and vary between individuals. ProPilotLicence.com is not affiliated with, endorsed by, or associated with the author or publisher. Content reviewed by the ProPilotLicence Captain Panel.
+    <strong>Note:</strong> This guide covers the topics in Chapter 23 of <em>Air Regulations for CPL/ATPL</em> by Wg Cdr RK Bali (Retd), Eleventh Revised Edition, 2018, as they relate to the DGCA Air Regulations paper. It does not reproduce the book. ProPilotLicence.com is not affiliated with, endorsed by, or associated with the author or publisher. Content reviewed by the ProPilotLicence Captain Panel.
   </div>
+
 `
