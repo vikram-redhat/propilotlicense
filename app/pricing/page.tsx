@@ -37,7 +37,7 @@ export default async function PricingPage() {
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> {FREE_TIER_LINE}</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Full explanations</li>
               <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Mock exams</li>
-              <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Book/chapter sessions</li>
+              <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Full book and chapter practice (one free 10-question session per chapter)</li>
               <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Topic sessions</li>
               <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Difficulty selection</li>
             </ul>
