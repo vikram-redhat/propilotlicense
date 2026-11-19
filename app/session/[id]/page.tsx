@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { endSession } from '@/lib/session-end'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
-import { citationLine } from '@/lib/citation'
+import { citationChapterId, citationLine } from '@/lib/citation'
 
 const LIGHTS = 15
 
@@ -62,7 +62,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
         setBooks(bkMap)
       }
 
-      const chapterIds = [...new Set(ordered.map(q => q.chapter_id).filter(Boolean))] as string[]
+      const chapterIds = [...new Set(ordered.map(q => citationChapterId(q)).filter(Boolean))] as string[]
       if (chapterIds.length > 0) {
         const { data: chs } = await supabase.from('chapters').select('id, chapter_number, chapter_name').in('id', chapterIds)
         const chMap: Record<string, { chapter_number: number; chapter_name: string }> = {}
@@ -178,7 +178,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const isLastQ     = sessionState.currentIndex === questions.length - 1
   const answeredCount = Object.keys(sessionState.answers).length
   const currentBook = currentQ?.source_book_id ? books[currentQ.source_book_id] : null
-  const currentChapter = currentQ?.chapter_id ? chapters[currentQ.chapter_id] : null
+  const currentChapterId = currentQ ? citationChapterId(currentQ) : null
+  const currentChapter = currentChapterId ? chapters[currentChapterId] : null
   const chapterLabel = currentChapter
     ? `Chapter ${currentChapter.chapter_number} — ${currentChapter.chapter_name}`
     : currentQ?.source_chapter ?? null

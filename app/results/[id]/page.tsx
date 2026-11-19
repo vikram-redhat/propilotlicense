@@ -11,7 +11,7 @@ import { IconCheck, IconX, IconMinus, IconBook, IconBook2 } from '@tabler/icons-
 import SiteFooter from '@/components/SiteFooter'
 import SiteHeader from '@/components/SiteHeader'
 import { isAdminUser } from '@/lib/roles'
-import { citationLine } from '@/lib/citation'
+import { citationChapterId, citationLine } from '@/lib/citation'
 
 export default function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -110,7 +110,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           setBooks(bkMap)
         }
 
-        const chapterIds = [...new Set(ordered.map(q => q.chapter_id).filter(Boolean))] as string[]
+        const chapterIds = [...new Set(ordered.map(q => citationChapterId(q)).filter(Boolean))] as string[]
         if (chapterIds.length > 0) {
           const { data: chs } = await supabase
             .from('chapters')
@@ -374,7 +374,8 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                   const correctOpt = q.options?.find(o => o.is_correct)
                   const userOpt = userAnswer ? q.options?.find(o => o.option_letter === userAnswer.selected) : null
                   const book = q.source_book_id ? books[q.source_book_id] : null
-                  const chapter = q.chapter_id ? chapters[q.chapter_id] : null
+                  const chapterId = citationChapterId(q)
+                  const chapter = chapterId ? chapters[chapterId] : null
                   const chapterDisplay = chapter
                     ? `Chapter ${chapter.chapter_number} — ${chapter.chapter_name}`
                     : q.source_chapter ?? null

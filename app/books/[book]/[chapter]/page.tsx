@@ -11,7 +11,7 @@ import { allChapterPages, faqsFromHtml, getChapterPage, resolveChapterLinks } fr
 import { countChapterQuestions } from '@/lib/chapter-question-counts'
 import { createServiceClient } from '@/lib/supabase'
 import styles from './styles.module.css'
-import { citationLine } from '@/lib/citation'
+import { citationChapterId, citationLine } from '@/lib/citation'
 
 // Live panel values and sample questions come from Supabase; re-fetch hourly. A DB error
 // throws, so a revalidation failure keeps serving the last good page.
@@ -47,6 +47,9 @@ type SampleQuestion = {
   options: { option_letter: string; option_text: string; is_correct: boolean }[]
   source_book: { title: string; author: string | null } | null
   chapter: { chapter_number: number; chapter_name: string } | null
+  source_book_id: string | null
+  syllabus_chapter_id: string | null
+  syllabus_chapter: { chapter_number: number; chapter_name: string } | null
 }
 
 async function loadChapterData(sourceBookId: string, chapterNumber: number, sampleIds: string[]) {
@@ -58,7 +61,7 @@ async function loadChapterData(sourceBookId: string, chapterNumber: number, samp
       .eq('book_id', sourceBookId).eq('chapter_number', chapterNumber).single(),
     supabase.from('chapters').select('id', { count: 'exact', head: true }).eq('book_id', sourceBookId),
     supabase.from('questions')
-      .select('id, question_text, explanation, source_chapter, source_page, citation_verified, options:question_options(option_letter, option_text, is_correct), source_book:source_books(title, author), chapter:chapters!chapter_id(chapter_number, chapter_name)')
+      .select('id, question_text, explanation, source_chapter, source_page, citation_verified, options:question_options(option_letter, option_text, is_correct), source_book_id, syllabus_chapter_id, source_book:source_books(title, author), chapter:chapters!chapter_id(chapter_number, chapter_name), syllabus_chapter:chapters!syllabus_chapter_id(chapter_number, chapter_name)')
       .in('id', sampleIds)
       .eq('active', true),
   ])
@@ -82,8 +85,10 @@ async function loadChapterData(sourceBookId: string, chapterNumber: number, samp
 }
 
 function citation(q: SampleQuestion) {
-  const chapterLabel = q.chapter
-    ? `Chapter ${q.chapter.chapter_number} — ${q.chapter.chapter_name}`
+  // The syllabus chapter for IC Joshi and RK Bali (lib/citation.ts), else the chapter link.
+  const record = citationChapterId(q) === q.syllabus_chapter_id && q.syllabus_chapter_id ? q.syllabus_chapter : q.chapter
+  const chapterLabel = record
+    ? `Chapter ${record.chapter_number} — ${record.chapter_name}`
     : q.source_chapter
   return citationLine({ book: q.source_book, chapterLabel, page: q.source_page, verified: q.citation_verified })
 }
