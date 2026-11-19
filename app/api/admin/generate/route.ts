@@ -109,7 +109,11 @@ export async function POST(req: Request) {
     // The model favours B for the correct answer; shuffle each question's options so new
     // questions are spread evenly across A–D (lib/option-shuffle.ts).
     const parsed = JSON.parse(text.trim())
-    const questions = Array.isArray(parsed) ? parsed.map(shuffleGeneratedQuestion) : parsed
+    // citation_verified says whether book text was behind the question: set here from what was
+    // sent, never taken from the model's reply. The review screen and the save follow it.
+    const questions = Array.isArray(parsed)
+      ? parsed.map(shuffleGeneratedQuestion).map(q => ({ ...q, citation_verified: citationVerifiedValue }))
+      : parsed
     return Response.json({
       questions,
       source: citationVerifiedValue ? 'pdf_chunk' : 'memory',

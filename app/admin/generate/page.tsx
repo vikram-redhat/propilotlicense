@@ -256,10 +256,13 @@ export default function GeneratePage() {
     setSaving(prev => ({ ...prev, [index]: true }))
 
     // The chapter by record, and a page only if it's inside that chapter (lib/generated-citation.ts).
-    // created_by is filled by the database from the admin's login.
+    // With no book text behind the question (written from the model's memory), no page at all:
+    // the model's page would only be a guess. created_by is filled by the database from the
+    // admin's login.
+    const fromBookText = q.citation_verified === true
     const citation = generatedCitation({
       bookId: bookId || null, chapters, chosenChapterId: chapterId || null,
-      sourceChapter: q.source_chapter, sourcePage: q.source_page,
+      sourceChapter: q.source_chapter, sourcePage: fromBookText ? q.source_page : null,
     })
     const { data: newQ } = await supabase
       .from('questions')
@@ -271,7 +274,7 @@ export default function GeneratePage() {
         difficulty,
         explanation: q.explanation,
         ...citation,
-        citation_verified: citationVerified,
+        citation_verified: fromBookText && citationVerified,
         source_type: 'ai',
         active: true,
       })
@@ -664,7 +667,8 @@ export default function GeneratePage() {
                           <span className="font-medium">{bookTitle}</span>
                           {bookAuthor && <span> — {bookAuthor}</span>}
                           {q.source_chapter && <span> · {q.source_chapter}{q.citation_verified ? '' : ' (approx.)'}</span>}
-                          {q.source_page && <span> · {q.source_page}{q.citation_verified ? '' : ' (approx.)'}</span>}
+                          {/* Without book text the model's page is a guess and isn't saved, so it isn't shown */}
+                          {q.source_page && q.citation_verified && <span> · {q.source_page}</span>}
                           {q.citation_verified && <span className="text-green-600 font-medium"> · exact from PDF</span>}
                         </p>
                       </div>
@@ -679,38 +683,17 @@ export default function GeneratePage() {
                     </span>
                   ) : (
                     <>
-                      {q.citation_verified ? (
-                        <button
-                          onClick={() => approve(index, true)}
-                          disabled={saving[index]}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50"
-                          style={{ backgroundColor: 'var(--clr-primary)' }}
-                        >
-                          <IconCheck size={13} />
-                          {saving[index] ? 'Saving…' : 'Approve'}
-                        </button>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => approve(index, false)}
-                            disabled={saving[index]}
-                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-medium hover:border-slate-400 disabled:opacity-50"
-                          >
-                            <IconCheck size={13} />
-                            {saving[index] ? 'Saving…' : 'Approve'}
-                          </button>
-                          <button
-                            onClick={() => approve(index, true)}
-                            disabled={saving[index]}
-                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50"
-                            style={{ backgroundColor: 'var(--clr-primary)' }}
-                          >
-                            <IconCheck size={13} />
-                            <IconCheck size={13} className="-ml-2" />
-                            {saving[index] ? 'Saving…' : 'Approve & Verify'}
-                          </button>
-                        </>
-                      )}
+                      {/* One Approve. A question with book text behind it is saved as citation
+                          verified; one written from the model's memory never is. */}
+                      <button
+                        onClick={() => approve(index, q.citation_verified === true)}
+                        disabled={saving[index]}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50"
+                        style={{ backgroundColor: 'var(--clr-primary)' }}
+                      >
+                        <IconCheck size={13} />
+                        {saving[index] ? 'Saving…' : 'Approve'}
+                      </button>
                       <button
                         onClick={() => toggleEdit(index)}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-medium hover:border-slate-300"
