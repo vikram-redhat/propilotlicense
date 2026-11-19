@@ -101,6 +101,7 @@ export const ARTICLE_HTML = String.raw`
     <li><a href="/guides/dgca-exam-guides/dgca-exam-results">DGCA exam results: how to check yours, and what to do next</a></li>
     <li><a href="/guides/dgca-exam-guides/dgca-cpl-books">Which books should I study for the DGCA CPL theory exams?</a></li>
     <li><a href="/subjects">All DGCA CPL subjects and practice questions</a></li>
+    <li><a href="/dgca-updates">All DGCA updates: exam dates, results and rule changes</a></li>
   </ul>
 
   <div class="cta-block">

@@ -7,6 +7,7 @@ import { useTheme } from '@/components/ThemeProvider'
 import { IconPalette } from '@tabler/icons-react'
 import { GUIDE_SERIES } from '@/lib/guides'
 import { hubForExamType } from '@/lib/hub'
+import UpdatesBar from '@/components/UpdatesBar'
 
 // The Subjects menu lists the public subjects (lib/public-subjects.ts, through
 // /api/public-subjects), so a subject hidden from the homepage is hidden here too. Until
@@ -21,6 +22,13 @@ const DEFAULT_SUBJECTS: NavSubject[] = [
   ['RADIOAIDSINSTRUMENTS', 'Radio Aids and Instruments', '/subjects/radio-aids-instruments'],
 ].map(([key, title, href]) => ({ key, title, href, hrefLoggedIn: href }))
   .concat({ key: 'A320FAMILY', title: 'Airbus A320', href: '/guides/a320-systems', hrefLoggedIn: '/atpl' })
+// The DGCA Updates menu: what's changing at DGCA now (the hub is /dgca-updates).
+const NAV_UPDATES = [
+  { label: 'Exam dates and centres', href: '/guides/dgca-exam-guides/dgca-exam-dates' },
+  { label: 'Exam results', href: '/guides/dgca-exam-guides/dgca-exam-results' },
+  { label: 'New rules from 2027', href: '/guides/dgca-exam-guides/bharatiya-vayuyan-niyam-2026' },
+  { label: 'The 2024 Act', href: '/guides/dgca-exam-guides/bharatiya-vayuyan-adhiniyam-2024' },
+]
 const NAV_BOOKS = [
   { label: 'IC Joshi, Aviation Meteorology', href: '/books/ic-joshi-aviation-meteorology' },
   { label: 'RK Bali, Air Regulations', href: '/books/rk-bali-air-regulations' },
@@ -55,10 +63,12 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
   const [guidesMenuOpen, setGuidesMenuOpen] = useState(false)
   const [subjectsMenuOpen, setSubjectsMenuOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [drawerSection, setDrawerSection] = useState<'subjects' | 'guides' | null>(null)
+  const [drawerSection, setDrawerSection] = useState<'subjects' | 'guides' | 'updates' | null>(null)
+  const [updatesMenuOpen, setUpdatesMenuOpen] = useState(false)
   const [subjects, setSubjects] = useState<NavSubject[]>(DEFAULT_SUBJECTS)
   const menuRef = useRef<HTMLDivElement>(null)
   const guidesMenuRef = useRef<HTMLDivElement>(null)
+  const updatesMenuRef = useRef<HTMLDivElement>(null)
   const subjectsMenuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
@@ -98,6 +108,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
       if (subjectsMenuRef.current && !subjectsMenuRef.current.contains(e.target as Node)) setSubjectsMenuOpen(false)
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setUserMenuOpen(false)
       if (guidesMenuRef.current && !guidesMenuRef.current.contains(e.target as Node)) setGuidesMenuOpen(false)
+      if (updatesMenuRef.current && !updatesMenuRef.current.contains(e.target as Node)) setUpdatesMenuOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
@@ -125,11 +136,12 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
             ProPilot<span style={{ color: 'var(--clr-amber)' }}>Licence</span>
           </Link>
 
-          {/* Desktop nav links (md+; below that the drawer, so the row never crowds) */}
-          <div className="hidden md:flex" style={{ gap: 22, alignItems: 'center' }}>
+          {/* Desktop nav links (lg+, 1024px; below that the drawer: with DGCA Updates the row needs
+              about 790px logged in, more than the 768px it used to start at) */}
+          <div className="hidden lg:flex" style={{ gap: 22, alignItems: 'center' }}>
             <div className="relative" ref={subjectsMenuRef}>
               <button
-                onClick={() => { setSubjectsMenuOpen(o => !o); setGuidesMenuOpen(false) }}
+                onClick={() => { setSubjectsMenuOpen(o => !o); setGuidesMenuOpen(false); setUpdatesMenuOpen(false) }}
                 aria-expanded={subjectsMenuOpen}
                 style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
               >
@@ -159,7 +171,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
             </div>
             <div className="relative" ref={guidesMenuRef}>
               <button
-                onClick={() => { setGuidesMenuOpen(o => !o); setSubjectsMenuOpen(false) }}
+                onClick={() => { setGuidesMenuOpen(o => !o); setSubjectsMenuOpen(false); setUpdatesMenuOpen(false) }}
                 aria-expanded={guidesMenuOpen}
                 style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
               >
@@ -188,6 +200,28 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                 </div>
               )}
             </div>
+            <div className="relative" ref={updatesMenuRef}>
+              <button
+                onClick={() => { setUpdatesMenuOpen(o => !o); setSubjectsMenuOpen(false); setGuidesMenuOpen(false) }}
+                aria-expanded={updatesMenuOpen}
+                style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}
+              >
+                DGCA Updates
+                <Chevron />
+              </button>
+              {updatesMenuOpen && (
+                <div style={{ position: 'absolute', left: 0, marginTop: 12, width: 230, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
+                  {NAV_UPDATES.map((u, i) => (
+                    <Link key={u.href} href={u.href} data-cta="nav-updates" onClick={() => setUpdatesMenuOpen(false)} style={{ ...menuLink, ...(i === 0 ? { borderTop: 'none' } : {}) }}>
+                      {u.label}
+                    </Link>
+                  ))}
+                  <Link href="/dgca-updates" data-cta="nav-updates" onClick={() => setUpdatesMenuOpen(false)} style={{ ...menuLink, fontWeight: 600, borderTop: '1px solid var(--clr-border)' }}>
+                    All DGCA updates
+                  </Link>
+                </div>
+              )}
+            </div>
             <Link href="/pricing" data-cta="nav-pricing" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Pricing</Link>
             <Link href="/about" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>About</Link>
           </div>
@@ -197,7 +231,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
 
             {/* Palette toggle — desktop only: an icon, named in its tooltip */}
             <button
-              className="hidden md:flex"
+              className="hidden lg:flex"
               onClick={togglePalette}
               aria-label={themeLabel}
               title={themeLabel}
@@ -206,8 +240,8 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
               <IconPalette size={16} aria-hidden="true" />
             </button>
 
-            {/* Desktop: auth (md+) */}
-            <div className="hidden md:flex" style={{ alignItems: 'center', gap: 8 }}>
+            {/* Desktop: auth (lg+) */}
+            <div className="hidden lg:flex" style={{ alignItems: 'center', gap: 8 }}>
               {isLoggedIn && !subscribed && (
                 <Link href="/pricing" style={{ fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 20, border: '1px solid var(--clr-border)', color: 'var(--clr-amber)', textDecoration: 'none', letterSpacing: '0.2px' }}>Upgrade</Link>
               )}
@@ -237,9 +271,9 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
               )}
             </div>
 
-            {/* Mobile: hamburger (hidden md+) */}
+            {/* Mobile and tablet: hamburger (hidden lg+) */}
             <button
-              className="flex md:hidden"
+              className="flex lg:hidden"
               onClick={() => (drawerOpen ? closeDrawer() : setDrawerOpen(true))}
               aria-label={drawerOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={drawerOpen}
@@ -252,6 +286,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
           </div>
         </div>
       </nav>
+      <UpdatesBar />
 
       {/* Mobile drawer + backdrop */}
       {drawerOpen && (
@@ -289,6 +324,17 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                   {GUIDE_SERIES.map(series => (
                     <Link key={series.slug} href={`/guides/${series.slug}`} onClick={closeDrawer} style={drawerSubLink}>{series.navLabel}</Link>
                   ))}
+                </div>
+              )}
+              <button onClick={() => setDrawerSection(o => (o === 'updates' ? null : 'updates'))} aria-expanded={drawerSection === 'updates'} style={drawerToggle}>
+                DGCA Updates <Chevron size={14} open={drawerSection === 'updates'} />
+              </button>
+              {drawerSection === 'updates' && (
+                <div style={{ borderBottom: '1px solid var(--clr-border)', paddingBottom: 6 }}>
+                  {NAV_UPDATES.map(u => (
+                    <Link key={u.href} href={u.href} data-cta="nav-updates" onClick={closeDrawer} style={drawerSubLink}>{u.label}</Link>
+                  ))}
+                  <Link href="/dgca-updates" data-cta="nav-updates" onClick={closeDrawer} style={{ ...drawerSubLink, fontWeight: 600 }}>All DGCA updates</Link>
                 </div>
               )}
               <Link href="/pricing" data-cta="nav-pricing" onClick={closeDrawer} style={drawerLink}>Pricing</Link>

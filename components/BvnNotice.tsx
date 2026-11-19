@@ -3,7 +3,7 @@ import Link from 'next/link'
 // Points readers of national aviation law at the Bharatiya Vayuyan Niyam guide, then the
 // Adhiniyam (2024 Act) guide. Used on
 // the Air Regulations subject page, the RK Bali book page, the CPL Books guide, the
-// /guides index and (as a single line) the homepage.
+// /guides index. (The homepage's single line gave way to the updates bar, components/UpdatesBar.tsx.)
 export const BVN_GUIDE_PATH = '/guides/dgca-exam-guides/bharatiya-vayuyan-niyam-2026'
 export const BVA_GUIDE_PATH = '/guides/dgca-exam-guides/bharatiya-vayuyan-adhiniyam-2024'
 

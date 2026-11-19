@@ -8,6 +8,7 @@ import SiteHeader from '@/components/SiteHeader'
 import SiteFooter from '@/components/SiteFooter'
 import CompositeCard from '@/components/CompositeCard'
 import ContinueSessionCard from '@/components/ContinueSessionCard'
+import DgcaUpdatesCard from '@/components/DgcaUpdatesCard'
 import { getContinueSession } from '@/lib/continue-session'
 import { notFound } from 'next/navigation'
 import { isAdminUser } from '@/lib/roles'
@@ -91,6 +92,7 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
         </section>
 
         <main className="flex-1 px-5 sm:px-9 lg:px-[60px] py-8">
+          <DgcaUpdatesCard />
           {continueSession && <ContinueSessionCard session={continueSession} />}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: 680 }}>
 
@@ -161,6 +163,7 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
       </section>
 
       <main className="flex-1 px-5 sm:px-9 lg:px-[60px] py-8">
+        {licenceUpper === 'CPL' && <DgcaUpdatesCard />}
         {continueSession && <ContinueSessionCard session={continueSession} />}
         {subjects.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--clr-text-med)' }}>

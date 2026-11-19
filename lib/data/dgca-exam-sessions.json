@@ -306,9 +306,38 @@
       "seenOn": "2026-11-19"
     }
   ],
-  "unverified": {
-    "fees": "Regular sessions Rs 2,500 per paper; OLODE Rs 5,000 per paper (secondary source; awaiting Captain Panel confirmation). Do not display until confirmed.",
-    "reattemptWait": "42 days after a failed paper (secondary source; awaiting confirmation). Do not display until confirmed."
-  },
+  "updates": [
+    {
+      "date": "2024-12-11",
+      "type": "rule",
+      "title": "Bharatiya Vayuyan Adhiniyam, 2024 receives Presidential assent",
+      "url": "/guides/dgca-exam-guides/bharatiya-vayuyan-adhiniyam-2024"
+    },
+    {
+      "date": "2025-01-01",
+      "type": "rule",
+      "title": "Bharatiya Vayuyan Adhiniyam, 2024 comes into force, replacing the Aircraft Act, 1934",
+      "url": "/guides/dgca-exam-guides/bharatiya-vayuyan-adhiniyam-2024"
+    },
+    {
+      "date": "2025-07-11",
+      "type": "rule",
+      "title": "Draft Bharatiya Vayuyan Niyam published for comment",
+      "url": "/guides/dgca-exam-guides/bharatiya-vayuyan-niyam-2026"
+    },
+    {
+      "date": "2026-10-26",
+      "type": "rule",
+      "title": "Bharatiya Vayuyan Niyam, 2026 notified (G.S.R. 957(E))",
+      "url": "/guides/dgca-exam-guides/bharatiya-vayuyan-niyam-2026"
+    },
+    {
+      "date": "2027-01-01",
+      "type": "rule",
+      "title": "Bharatiya Vayuyan Niyam, 2026 comes into force, replacing the Aircraft Rules, 1937",
+      "url": "/guides/dgca-exam-guides/bharatiya-vayuyan-niyam-2026",
+      "countdown": true
+    }
+  ],
   "resultsNote": "Only Flight Crew notices (from the Notice Board – Pilot). DGCA result notices only announce that results are declared; individual results are in each candidate's Pariksha login and are not published as a list. Older pilot result notices for 2026 (e.g. Regular Session 03, OLODE 06) were not on the pilot notice board on 19 Nov; add them if found."
 }

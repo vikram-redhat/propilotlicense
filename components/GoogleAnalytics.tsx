@@ -36,7 +36,8 @@ function PageView({ gaId }: { gaId: string }) {
 // Site-wide event plumbing that needs no per-page code:
 // - sign_up / login after the auth callback, from the cookie it leaves (fires once, the
 //   cookie is cleared as it's read)
-// - cta_click for any link marked data-cta="<location>", including links inside
+// - cta_click for any link marked data-cta="<location>" (plus data-cta-variant="<v>" as
+//   cta_variant, e.g. which updates-bar message was shown), including links inside
 //   editorial HTML rendered with dangerouslySetInnerHTML
 function SiteEvents() {
   useEffect(() => {
@@ -55,6 +56,7 @@ function SiteEvents() {
       if (!link) return
       trackEvent('cta_click', {
         cta_location: link.dataset.cta,
+        ...(link.dataset.ctaVariant ? { cta_variant: link.dataset.ctaVariant } : {}),
         page_path: pathOnly(window.location.pathname),
         link_url: pathOnly(link.getAttribute('href')),
       })

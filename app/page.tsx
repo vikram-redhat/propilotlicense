@@ -14,7 +14,6 @@ import { FREE_TIER_LINE, isSubscribed } from '@/lib/subscription'
 import { hubForExamType } from '@/lib/hub'
 import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import { publicSubjects } from '@/lib/public-subjects'
-import BvnNotice from '@/components/BvnNotice'
 
 export async function generateMetadata(): Promise<Metadata> {
   const total = roundedTotal((await questionTotalsOrFallback()).all)
@@ -271,12 +270,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {/* ── Content section (full-bleed, padding-based) ── */}
       <div className="px-5 sm:px-9 lg:px-[60px] pt-7 sm:pt-8 lg:pt-[44px] pb-[88px] sm:pb-20 lg:pb-[88px]">
 
-        <BvnNotice variant="line" style={{ marginBottom: 4 }} />
-        <p style={{ fontSize: 14, lineHeight: 1.6, margin: '0 0 20px' }}>
-          <Link href="/guides/dgca-exam-guides/dgca-exam-dates" data-cta="home-exam-dates" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 2 }}>
-            Next DGCA exam dates →
-          </Link>
-        </p>
+        {/* What's current at DGCA is the updates bar under the header (components/UpdatesBar.tsx). */}
 
         {/* Subjects grid */}
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: 'var(--clr-text-med)', marginBottom: 10 }}>Subjects covered</p>

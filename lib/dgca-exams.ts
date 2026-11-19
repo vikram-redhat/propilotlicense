@@ -1,14 +1,14 @@
 import raw from '@/lib/data/dgca-exam-sessions.json'
 
-// DGCA exam sessions, venues and result notices, from lib/data/dgca-exam-sessions.json:
-// DGCA's published calendar and the Pariksha notice board, kept current by hand after the
-// weekly notice check (app/api/cron/dgca-notices) emails what changed. The exam dates and
-// results guides render from it.
+// DGCA exam sessions, venues, result notices and other dated updates, from
+// lib/data/dgca-exam-sessions.json: DGCA's published calendar and the Pariksha notice board,
+// kept current by hand after the weekly notice check (app/api/cron/dgca-notices) emails what
+// changed. The exam dates and results guides, the DGCA Updates hub, the updates bar and the
+// dashboard card render from it (the last three through lib/dgca-updates.ts).
 //
-// The file's "unverified" block (fees, resit waiting period) waits for Captain Panel
-// confirmation and must not be displayed: it is left out of the typed data below, so no
-// page can read it. Keep this module server-side (pages, sitemap), so the block never
-// reaches a client bundle either.
+// Everything in that file is public, so pages and the browser may import it. Details waiting
+// for Captain Panel confirmation (fees, resit waiting period) are kept apart, in
+// lib/data/dgca-exam-unverified.json, which nothing imports.
 
 export type SessionType = 'regular' | 'olode' | 'fir_afir'
 
@@ -37,7 +37,12 @@ export type ExamData = {
   sessions: ExamSession[]
   venues: { session: string; url: string; centres: { city: string; centre: string }[] }
   results: ResultNotice[]
+  updates: DgcaUpdate[]
 }
+
+// Dated events that aren't exam sessions or results (rule changes). countdown: show the days
+// to go while it's in the future (the updates bar and the dashboard card).
+export type DgcaUpdate = { date: string; type: 'rule'; title: string; url: string; countdown?: boolean }
 
 const data = raw as typeof raw & ExamData
 export const DGCA_EXAMS: ExamData = {
@@ -47,6 +52,7 @@ export const DGCA_EXAMS: ExamData = {
   sessions: [...data.sessions].sort((a, b) => a.examStart.localeCompare(b.examStart)),
   venues: data.venues,
   results: data.results,
+  updates: [...(data.updates as DgcaUpdate[])].sort((a, b) => a.date.localeCompare(b.date)),
 }
 
 export const SESSION_TYPE_LABEL: Record<SessionType, string> = {

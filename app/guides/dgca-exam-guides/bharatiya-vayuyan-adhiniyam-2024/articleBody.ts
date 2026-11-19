@@ -207,6 +207,7 @@ export const ARTICLE_HTML = String.raw`
     <li><a href="/guides/dgca-exam-guides/bharatiya-vayuyan-niyam-2026" data-cta="bva-guide">Bharatiya Vayuyan Niyam 2026: what pilots and DGCA students need to know</a></li>
     <li><a href="/subjects/air-regulations" data-cta="bva-guide">Air Regulations: practice questions</a></li>
     <li><a href="/books/rk-bali-air-regulations" data-cta="bva-guide">RK Bali, Air Regulations: chapter guide</a></li>
+    <li><a href="/dgca-updates">All DGCA updates: exam dates, results and rule changes</a></li>
   </ul>
 
   <div class="cta-block">

@@ -263,6 +263,7 @@ export const ARTICLE_HTML = String.raw`
     <li><a href="/subjects/air-regulations" data-cta="bvn-guide">Air Regulations: practice questions</a></li>
     <li><a href="/books/rk-bali-air-regulations" data-cta="bvn-guide">RK Bali, Air Regulations: chapter guide</a></li>
     <li><a href="/guides/dgca-exam-guides/dgca-cpl-books" data-cta="bvn-guide">Which books should I study for the DGCA CPL theory exams?</a></li>
+    <li><a href="/dgca-updates">All DGCA updates: exam dates, results and rule changes</a></li>
   </ul>
 
   <div class="cta-block">
