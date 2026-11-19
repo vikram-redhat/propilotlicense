@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook, GeneratedQuestion } from '@/lib/types'
 import { IconSparkles, IconCheck, IconTrash, IconEdit, IconBook2 } from '@tabler/icons-react'
+import { generatedCitation, type CitationChapter } from '@/lib/generated-citation'
 
 const BATCH_SIZE = 5
 
@@ -39,7 +40,7 @@ export default function GeneratePage() {
   const [chapterId, setChapterId] = useState('')
   const [chapterName, setChapterName] = useState('')
   const [chapterNumber, setChapterNumber] = useState(0)
-  const [chapters, setChapters] = useState<{ id: string; chapter_number: number; chapter_name: string }[]>([])
+  const [chapters, setChapters] = useState<(CitationChapter & { chapter_name: string })[]>([])
   const [difficulty, setDifficulty] = useState<'basic' | 'advanced'>('basic')
   const [count, setCount] = useState(10)
   const [context, setContext] = useState('')
@@ -82,7 +83,7 @@ export default function GeneratePage() {
     if (!bookId) { setChapters([]); setChapterId(''); setChapterName(''); setChapterNumber(0); return }
     supabase
       .from('chapters')
-      .select('id, chapter_number, chapter_name')
+      .select('*') // page_start/page_end may not exist until scripts/migrate_chapter_pages_and_created_by.sql has run
       .eq('book_id', bookId)
       .order('sort_order')
       .then(({ data }) => setChapters(data || []))
@@ -139,6 +140,9 @@ export default function GeneratePage() {
   }
 
   async function startGeneration() {
+    // Tell the model the chapter's pages, when known, so its page estimates land inside them.
+    const chosen = chapters.find(c => c.id === chapterId)
+    const pageRangeNote = chosen?.page_start != null && chosen?.page_end != null ? `, pages ${chosen.page_start}–${chosen.page_end}` : ''
     setCheckState('idle')
     setGenerating(true)
     setGenerated([])
@@ -187,7 +191,7 @@ export default function GeneratePage() {
                 topicName: topicId ? topicName : null,
                 focusLine: bookId
                   ? chapterId
-                    ? `Chapter: ${chapterNumber} — ${chapterName} (from "${bookTitle}")`
+                    ? `Chapter: ${chapterNumber} — ${chapterName} (from "${bookTitle}")${pageRangeNote}`
                     : `Book: "${bookTitle}" — cover all chapters`
                   : topicId
                     ? `Topic: ${topicName} — draw from all books`
@@ -251,6 +255,12 @@ export default function GeneratePage() {
     const q = generated[index]
     setSaving(prev => ({ ...prev, [index]: true }))
 
+    // The chapter by record, and a page only if it's inside that chapter (lib/generated-citation.ts).
+    // created_by is filled by the database from the admin's login.
+    const citation = generatedCitation({
+      bookId: bookId || null, chapters, chosenChapterId: chapterId || null,
+      sourceChapter: q.source_chapter, sourcePage: q.source_page,
+    })
     const { data: newQ } = await supabase
       .from('questions')
       .insert({
@@ -260,8 +270,7 @@ export default function GeneratePage() {
         question_text: q.question_text,
         difficulty,
         explanation: q.explanation,
-        source_chapter: q.source_chapter || null,
-        source_page: q.source_page || null,
+        ...citation,
         citation_verified: citationVerified,
         source_type: 'ai',
         active: true,

@@ -39,6 +39,16 @@
 // explanation), classified against the 23 chapters in the CSV, including ones already
 // assigned. Reads the database, writes nothing to it; results go to
 // security_air_regs_classification.csv with each question's current chapter.
+//
+//   node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --generated-20261118
+//
+// --generated-20261118 (approved 2026-11-19): the 40 questions made with the admin Generate
+// tool on 18 November for "Chapter 18", saved with no chapter record. Classified against all
+// 23 chapters; each gets the classifier's chapter as its syllabus chapter (source 'ai') and as
+// its citation chapter (chapter_id and "Chapter N"), and its page number is cleared (the pages
+// it was given, 303-331, aren't in chapter 18, which starts at p. 461). Backs the 40 up to
+// scripts/data/backup_generated_40_20261119.json first; writes only rows still without a
+// syllabus chapter; results go to generated_40_classification.csv.
 
 import fs from 'node:fs'
 import Anthropic from '@anthropic-ai/sdk'
@@ -366,8 +376,8 @@ async function writeResults(results, byNumber) {
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 const mode = process.argv[2]
-if (!['--seed-bvn', '--pilot', '--full', '--security'].includes(mode)) {
-  console.error('Usage: node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --seed-bvn | --pilot | --full | --security')
+if (!['--seed-bvn', '--pilot', '--full', '--security', '--generated-20261118'].includes(mode)) {
+  console.error('Usage: node --env-file=.env.local scripts/classify-air-regs-chapters.mjs --seed-bvn | --pilot | --full | --security | --generated-20261118')
   process.exit(1)
 }
 
@@ -452,6 +462,41 @@ if (mode === '--security') {
   fs.writeFileSync('security_air_regs_classification.csv', lines.join('\n') + '\n')
   fs.writeFileSync('security_air_regs_classification.usage.json', JSON.stringify({ model: MODEL, ...usage, cost_usd: cost() }, null, 2))
   console.log(`Wrote security_air_regs_classification.csv (${results.length} rows)`)
+  console.log(`Tokens: input ${usage.input}, output ${usage.output}, cache write ${usage.cacheWrite}, cache read ${usage.cacheRead}, ${usage.calls} calls — $${cost().toFixed(3)}`)
+  process.exit(0)
+}
+
+if (mode === '--generated-20261118') {
+  const chapters = await loadChaptersFromDb()
+  const byNumber = new Map(chapters.map(c => [c.chapter_number, c]))
+  const { data: rows, error } = await supabase
+    .from('questions')
+    .select('id, question_text, explanation, source_book_id, external_ref, syllabus_chapter_id, syllabus_chapter_confidence, syllabus_chapter_source, chapter_id, source_chapter, source_page, created_at')
+    .eq('subject_id', AIR_REGS_SUBJECT_ID).eq('active', true).eq('source_book_id', RK_BALI_BOOK_ID)
+    .is('syllabus_chapter_id', null).gte('created_at', '2026-11-18T00:00:00Z').lt('created_at', '2026-11-19T00:00:00Z')
+  if (error) throw new Error(error.message)
+  if (rows.length !== 40) throw new Error(`Expected the 40 generated questions, found ${rows.length}`)
+  const backup = 'scripts/data/backup_generated_40_20261119.json'
+  if (!fs.existsSync(backup)) fs.writeFileSync(backup, JSON.stringify(rows.map(({ question_text, explanation, external_ref, ...r }) => r), null, 2))
+  console.log(`Backed up ${rows.length} rows to ${backup}`)
+
+  const results = await classifyAll(systemPrompt(chapters), rows.map(q => ({ ...q, source_book: null })))
+  let written = 0
+  for (const r of results) {
+    const ch = byNumber.get(r.chapter)
+    const { data, error: e } = await supabase.from('questions').update({
+      syllabus_chapter_id: ch.id, syllabus_chapter_confidence: r.confidence, syllabus_chapter_source: 'ai',
+      chapter_id: ch.id, source_chapter: `Chapter ${r.chapter}`, source_page: null,
+    }).eq('id', r.question.id).is('syllabus_chapter_id', null).select('id')
+    if (e) throw new Error(`Update ${r.question.id}: ${e.message}`)
+    written += data.length
+  }
+  const lines = [['question_id', 'question_text', 'chapter', 'confidence', 'reason'].join(',')]
+  for (const r of results.sort((a, b) => a.chapter - b.chapter)) {
+    lines.push([r.question.id, (r.question.question_text ?? '').replace(/\s+/g, ' ').slice(0, 120), `${r.chapter} ${byNumber.get(r.chapter).chapter_name}`, r.confidence, r.reason].map(csvCell).join(','))
+  }
+  fs.writeFileSync('generated_40_classification.csv', lines.join('\n') + '\n')
+  console.log(`Classified ${results.length}, wrote ${written}; results in generated_40_classification.csv`)
   console.log(`Tokens: input ${usage.input}, output ${usage.output}, cache write ${usage.cacheWrite}, cache read ${usage.cacheRead}, ${usage.calls} calls — $${cost().toFixed(3)}`)
   process.exit(0)
 }
