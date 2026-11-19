@@ -75,9 +75,18 @@ function daysToGo(n: number): string {
 
 // ── Updates bar: the first rule that applies ─────────────────────────────────
 
-export type BarMessage = { rule: 1 | 2 | 3 | 4 | 5; text: string; href: string }
+// Rules are checked in this order: 1, 2, 3, 6, 4, 5, 7. The numbers are what cta_variant
+// records, so 6 and 7 were added on 2026-11-19 without renumbering 4 and 5.
+export type BarMessage = { rule: 1 | 2 | 3 | 4 | 5 | 6 | 7; text: string; href: string }
 
-export function updatesBarMessage(today: string): BarMessage | null {
+export function updatesBarMessage(today: string): BarMessage {
+  return barRule(today) ?? {
+    // 7. Nothing else applies (no session to come in the data): never leave the bar empty.
+    rule: 7, text: `DGCA’s ${today.slice(0, 4)} exam calendar: latest dates →`, href: EXAM_DATES_PATH,
+  }
+}
+
+function barRule(today: string): BarMessage | null {
   // 1. A result declared in the last 7 days
   const result = pilotResults()
     .map(r => ({ r, date: r.noticeDate ?? r.seenOn }))
@@ -100,6 +109,9 @@ export function updatesBarMessage(today: string): BarMessage | null {
     const when = days <= 0 ? 'is under way' : days === 1 ? 'starts tomorrow' : `starts in ${days} days`
     return { rule: 3, text: `${shortSessionName(soon)} ${when} (${rangeNoYear(soon)}) →`, href: EXAM_DATES_PATH }
   }
+  // 6. A rule change that came into force in the last month (1-31 January 2027 for the Niyam)
+  const inForce = DGCA_EXAMS.updates.find(u => u.countdown && u.date <= today && daysBetween(u.date, today) <= 30)
+  if (inForce) return { rule: 6, text: 'The new Bharatiya Vayuyan rules are now in force: what changed for pilots →', href: inForce.url }
   // 4. A rule change still to come, with a countdown
   const rule = DGCA_EXAMS.updates.find(u => u.countdown && u.date > today)
   if (rule) {

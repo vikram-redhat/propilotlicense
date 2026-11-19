@@ -40,7 +40,7 @@ export default function UpdatesBar() {
     window.dispatchEvent(new Event(EVENT))
   }
 
-  if (!message || dismissed) return null
+  if (dismissed) return null
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: PRE_PAINT }} />
