@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
-import { freeTierError, isSubscribed } from '@/lib/subscription'
+import { FREE_DAILY_ERROR, freeTierError, isSubscribed, startOfTodayInIndia } from '@/lib/subscription'
 import { isVisibleForCountry } from '@/lib/countries'
 import { chapterColumnFor } from '@/lib/syllabus'
 import { isChapterTaster, TASTER_QUESTIONS, TASTER_USED_ERROR } from '@/lib/chapter-taster'
@@ -77,6 +77,13 @@ export async function POST(req: Request) {
   } else if (!subscribed) {
     const blocked = freeTierError({ scope, questionCount, mode })
     if (blocked) return Response.json({ error: blocked }, { status: 403 })
+    // One mixed-practice session a day (lib/subscription.ts). Resuming today's session
+    // doesn't come through here, and chapter tasters (scope book_chapter) don't count.
+    const { count: today, error: todayError } = await supabase
+      .from('sessions').select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id).eq('scope', 'combined').gte('created_at', startOfTodayInIndia())
+    if (todayError) return Response.json({ error: todayError.message }, { status: 500 })
+    if (today) return Response.json({ error: FREE_DAILY_ERROR }, { status: 403 })
   }
 
   // nav_rai_combined — 50 NAV + 50 RAI questions interleaved

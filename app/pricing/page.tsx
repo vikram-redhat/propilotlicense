@@ -5,6 +5,7 @@ import PriceTag, { DiscountTag } from '@/components/PriceTag'
 import { buildMetadata } from '@/lib/metadata'
 import { getHeaderAuthState } from '@/lib/supabase-server'
 import { hubForExamType } from '@/lib/hub'
+import { FREE_TIER_LINE } from '@/lib/subscription'
 
 export const metadata = buildMetadata({
   title: 'Pricing — ProPilotLicence DGCA Exam Prep',
@@ -33,7 +34,7 @@ export default async function PricingPage() {
             <ul className="space-y-2.5 text-sm mb-8">
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Practice mode</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Combined paper only</li>
-              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> 10 questions per session</li>
+              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> {FREE_TIER_LINE}</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Full explanations</li>
               <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Mock exams</li>
               <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Book/chapter sessions</li>

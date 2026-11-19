@@ -13,6 +13,7 @@ import { chapterOwnPage } from '@/lib/human-performance'
 import { bookQuestionTotal } from '@/lib/live-counts'
 import { isSyllabusBook } from '@/lib/syllabus'
 import BvnNotice from '@/components/BvnNotice'
+import { FREE_TIER_LINE } from '@/lib/subscription'
 
 // Chapter lists are read from the database; re-fetch hourly.
 export const revalidate = 3600
@@ -237,7 +238,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
             Practise all {questionCount.toLocaleString()} questions {bySyllabus(book) ? `on ${book.authorShort}’s chapters` : `from ${book.authorShort}`}
           </div>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.72)', marginBottom: 20 }}>
-            Organised by chapter. Reviewed by active airline captains. First 10 questions free.
+            Organised by chapter. Reviewed by active airline captains. {FREE_TIER_LINE}
           </p>
           <Link
             href="/login"

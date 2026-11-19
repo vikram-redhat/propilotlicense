@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { pathOnly, trackEvent } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook, Profile } from '@/lib/types'
-import { isSubscribed } from '@/lib/subscription'
+import { FREE_DAILY_ERROR, FREE_DAILY_LINE, FREE_TIER_LINE, isSubscribed } from '@/lib/subscription'
 import { isVisibleForCountry } from '@/lib/countries'
 import { isSyllabusBook } from '@/lib/syllabus'
 import UserMenu from '@/components/UserMenu'
@@ -16,18 +16,24 @@ type Mode = 'practice' | 'mock'
 type Difficulty = 'all' | 'basic' | 'advanced'
 type QuestionCount = 10 | 20 | 50 | 100
 
-function UpgradeModal({ onClose }: { onClose: () => void }) {
+// The upgrade message. A free account that has used today's mixed session (the server's
+// free_tier_daily) sees that line on top, and its upgrade link is tracked as
+// cta_location "free-daily-limit".
+function UpgradeModal({ onClose, dailyLimit }: { onClose: () => void; dailyLimit?: boolean }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4" onClick={onClose}>
       <div className="bg-white rounded-2xl p-7 max-w-sm w-full shadow-xl" onClick={e => e.stopPropagation()}>
+        {dailyLimit && (
+          <p className="text-sm font-semibold mb-3" style={{ color: 'var(--clr-text)' }}>{FREE_DAILY_LINE}</p>
+        )}
         <div className="text-3xl mb-3">🔒</div>
         <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--clr-text)' }}>Unlock full access</h3>
         <p className="text-sm mb-5 leading-relaxed" style={{ color: 'var(--clr-text-med)' }}>
-          This feature requires a paid plan. Get unlimited questions, mock exams,
-          book/chapter sessions, and difficulty selection.
+          {!dailyLimit && 'This feature requires a paid plan. '}Get unlimited questions, mock exams,
+          book/chapter sessions, and difficulty selection. Free accounts get {FREE_TIER_LINE}
         </p>
         <div className="flex gap-2">
-          <Link href="/pricing" className="flex-1 text-center rounded-xl py-2.5 text-sm font-semibold text-white" style={{ backgroundColor: 'var(--clr-primary)', textDecoration: 'none' }}>
+          <Link href="/pricing" {...(dailyLimit ? { 'data-cta': 'free-daily-limit' } : {})} className="flex-1 text-center rounded-xl py-2.5 text-sm font-semibold text-white" style={{ backgroundColor: 'var(--clr-primary)', textDecoration: 'none' }}>
             View plans from ₹250 →
           </Link>
           <button onClick={onClose} className="px-4 py-2.5 rounded-xl text-sm border" style={{ color: 'var(--clr-text-med)', borderColor: 'var(--clr-border)' }}>
@@ -87,6 +93,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const [loading, setLoading]     = useState(true)
   const [starting, setStarting]   = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [dailyLimitHit, setDailyLimitHit] = useState(false)
 
   const [chapters, setChapters]               = useState<{ id: string; chapter_number: number; chapter_name: string }[]>([])
   // Questions per chapter as practice would draw them; null until loaded (or if it fails,
@@ -160,7 +167,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const effectiveScope: Scope = scope === 'book' && selectedChapterId ? 'book_chapter' : scope
   const canStart = scope === 'topic' ? !!selectedTopicId : scope === 'book' ? !!selectedBookId : true
 
-  function locked() { setShowUpgrade(true) }
+  function locked() { setDailyLimitHit(false); setShowUpgrade(true) }
 
   function selectScope(s: 'topic' | 'book' | 'combined') {
     if ((s === 'topic' || s === 'book') && !subscribed) { locked(); return }
@@ -202,6 +209,10 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
         source_page: pathOnly(window.location.pathname),
       })
       router.push(`/session/${data.sessionId}`)
+    } else if (data.error === FREE_DAILY_ERROR) {
+      setDailyLimitHit(true)
+      setShowUpgrade(true)
+      setStarting(false)
     } else {
       const msg =
         data.error === 'free_tier_scope'  ? 'Upgrade to access this scope.' :
@@ -231,7 +242,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
-      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+      {showUpgrade && <UpgradeModal dailyLimit={dailyLimitHit} onClose={() => setShowUpgrade(false)} />}
 
       {/* Nav */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 200, background: 'var(--clr-surface)', borderBottom: '1px solid var(--clr-border)' }}>
@@ -261,7 +272,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px 100px' }}>
         {!subscribed && (
           <div style={{ marginBottom: 20, padding: '10px 14px', background: 'var(--clr-amber-light)', border: '1px solid var(--clr-amber)', borderRadius: 10, fontSize: 13, color: '#9A6000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <span><strong>Free plan:</strong> Combined paper · 10 questions · Practice only</span>
+            <span><strong>Free plan:</strong> {FREE_TIER_LINE}</span>
             <Link href="/pricing" style={{ fontSize: 12, fontWeight: 700, color: 'var(--clr-primary)', textDecoration: 'none', whiteSpace: 'nowrap' }}>Upgrade →</Link>
           </div>
         )}

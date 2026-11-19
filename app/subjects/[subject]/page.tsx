@@ -12,6 +12,7 @@ import HumanPerformanceCard from '@/components/HumanPerformanceCard'
 import { HUMAN_PERFORMANCE } from '@/lib/human-performance'
 import { BOOK_SLUG as IC_JOSHI_SLUG, loadIcJoshiSyllabus, namedChapterList } from '@/lib/ic-joshi-syllabus'
 import BvnNotice from '@/components/BvnNotice'
+import { FREE_TIER_LINE } from '@/lib/subscription'
 
 // Question counts are live; re-render hourly (a failed refresh keeps the last good page).
 export const revalidate = 3600
@@ -149,7 +150,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
             Start practising {subject.shortTitle}
           </div>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.72)', marginBottom: 20 }}>
-            {questionCount.toLocaleString()} practice questions, reviewed by active airline captains. First 10 free, no sign-up required.
+            {questionCount.toLocaleString()} practice questions, reviewed by active airline captains. {FREE_TIER_LINE}
           </p>
           <Link
             href="/login"

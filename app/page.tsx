@@ -10,7 +10,7 @@ import SubjectIcon from '@/components/SubjectIcon'
 import { WebSiteSchema } from '@/components/schema/WebSiteSchema'
 import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
-import { isSubscribed } from '@/lib/subscription'
+import { FREE_TIER_LINE, isSubscribed } from '@/lib/subscription'
 import { hubForExamType } from '@/lib/hub'
 import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import { publicSubjects } from '@/lib/public-subjects'
@@ -20,8 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const total = roundedTotal((await questionTotalsOrFallback()).all)
   return {
     title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',
-    // Under 160 characters (157 with "14,000+").
-    description: `India's most complete DGCA CPL and ATPL question bank: ${total} questions verified by airline captains. 10 free questions and a free session on every chapter.`,
+    // Under 160 characters (147 with "14,000+"). The free-tier wording is lib/subscription.ts's.
+    description: `DGCA CPL and ATPL question bank: ${total} questions verified by airline captains. ${FREE_TIER_LINE}`,
     alternates: { canonical: 'https://www.propilotlicence.com' },
     openGraph: {
       title: 'ProPilotLicence — DGCA CPL & ATPL Theory Exam Prep',

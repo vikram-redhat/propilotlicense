@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { trackEvent } from '@/lib/analytics'
 import { TASTER_USED_ERROR } from '@/lib/chapter-taster'
+import { FREE_TIER_LINE } from '@/lib/subscription'
 import { useRouter } from 'next/navigation'
 
 // Starts a chapter practice session (same request as the subject picker's book +
@@ -68,7 +69,7 @@ export default function StartChapterSession({ subjectId, subjectCode, sourceBook
             {tasterUsed && <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--clr-text)', marginBottom: 10 }}>You&apos;ve used your free session for this chapter.</p>}
             <h1 style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', marginBottom: 8 }}>Chapter practice is a paid feature</h1>
             <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.6, marginBottom: 20 }}>
-              Upgrade to practise {chapterLabel} on its own. With a free account you get 10 mixed questions from the whole subject, and one free 10-question session on each chapter.
+              Upgrade to practise {chapterLabel} on its own. With a free account you get {FREE_TIER_LINE}
             </p>
             <Link href="/pricing" style={primary}>See plans</Link>
             <Link href={`/${licence}/${subjectId}`} style={secondary}>Practise free</Link>

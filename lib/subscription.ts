@@ -18,6 +18,21 @@ export function daysRemaining(profile: Profile | null): number | null {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 }
 
+// How the free tier is described everywhere it's offered (homepage, pricing, upgrade
+// messages): keep them in step with the rules below and in lib/chapter-taster.ts.
+export const FREE_TIER_LINE = '10 free questions every day, plus a free session on every chapter.'
+
+// A free account gets one mixed-practice session a day, the day running midnight to midnight
+// India time (chapter tasters don't count). /api/session/start refuses a second with this.
+export const FREE_DAILY_ERROR = 'free_tier_daily'
+export const FREE_DAILY_LINE = 'You’ve used today’s free session. Come back tomorrow, or upgrade for unlimited practice.'
+
+// The start of today in India (midnight IST), as an ISO instant.
+export function startOfTodayInIndia(now = new Date()): string {
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
+  return new Date(`${day}T00:00:00+05:30`).toISOString()
+}
+
 // What a free account may start: the combined paper, up to 10 questions, practice mode.
 // Returns the error code for the first rule a session breaks, or null if it's allowed.
 // Used by every route that creates a session (start, practise the rest).

@@ -9,6 +9,7 @@ import { buildMetadata } from '@/lib/metadata'
 import { bookQuestionTotalOrNull } from '@/lib/live-counts'
 import { chapterList, loadIcJoshiSyllabus, namedChapterList, type SyllabusChapter } from '@/lib/ic-joshi-syllabus'
 import { getPost } from '@/lib/guides'
+import { FREE_TIER_LINE } from '@/lib/subscription'
 
 export const metadata = buildMetadata({
   title: 'How to Prepare for the DGCA CPL Meteorology Exam — Complete Study Guide | ProPilotLicence',
@@ -333,7 +334,7 @@ export default async function MeteorologyPrepPost() {
             Practise DGCA Meteorology questions
           </div>
           <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: 0 }}>
-            {bankTotal != null ? `${bankTotal.toLocaleString()} questions` : 'Questions'} from IC Joshi and related books, organised mostly by chapter. First 10 free, no sign-up required.
+            {bankTotal != null ? `${bankTotal.toLocaleString()} questions` : 'Questions'} from IC Joshi and related books, organised mostly by chapter. {FREE_TIER_LINE}
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Link href="/subjects/aviation-meteorology" data-cta="guide" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>Aviation Meteorology subject page →</Link>
