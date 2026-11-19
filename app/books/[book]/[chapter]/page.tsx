@@ -11,6 +11,7 @@ import { allChapterPages, faqsFromHtml, getChapterPage, resolveChapterLinks } fr
 import { countChapterQuestions } from '@/lib/chapter-question-counts'
 import { createServiceClient } from '@/lib/supabase'
 import styles from './styles.module.css'
+import { citationLine } from '@/lib/citation'
 
 // Live panel values and sample questions come from Supabase; re-fetch hourly. A DB error
 // throws, so a revalidation failure keeps serving the last good page.
@@ -81,15 +82,10 @@ async function loadChapterData(sourceBookId: string, chapterNumber: number, samp
 }
 
 function citation(q: SampleQuestion) {
-  if (!q.source_book) return null
   const chapterLabel = q.chapter
     ? `Chapter ${q.chapter.chapter_number} — ${q.chapter.chapter_name}`
     : q.source_chapter
-  return [
-    `${q.source_book.title}${q.source_book.author ? ` — ${q.source_book.author}` : ''}`,
-    chapterLabel,
-    q.source_page,
-  ].filter(Boolean).join(' · ') + (q.citation_verified ? '' : ' (approx.)')
+  return citationLine({ book: q.source_book, chapterLabel, page: q.source_page, verified: q.citation_verified })
 }
 
 export default async function ChapterPage({ params }: Params) {

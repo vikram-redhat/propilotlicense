@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { endSession } from '@/lib/session-end'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
+import { citationLine } from '@/lib/citation'
 
 const LIGHTS = 15
 
@@ -361,10 +362,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                   <path d="M3 4.5h7M3 7h5" stroke="var(--clr-text-med)" strokeWidth="1" strokeLinecap="round"/>
                 </svg>
                 <span style={{ fontSize: 12.5, color: 'var(--clr-text-med)', fontStyle: 'italic', lineHeight: 1.5 }}>
-                  {currentBook.title}{currentBook.author ? ` — ${currentBook.author}` : ''}
-                  {chapterLabel ? ` · ${chapterLabel}` : ''}
-                  {currentQ.source_page ? ` · ${currentQ.source_page}` : ''}
-                  {!currentQ.citation_verified && ' (approx.)'}
+                  {citationLine({ book: currentBook, chapterLabel, page: currentQ.source_page, verified: currentQ.citation_verified })}
                 </span>
               </div>
             )}

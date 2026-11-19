@@ -11,6 +11,7 @@ import { IconCheck, IconX, IconMinus, IconBook, IconBook2 } from '@tabler/icons-
 import SiteFooter from '@/components/SiteFooter'
 import SiteHeader from '@/components/SiteHeader'
 import { isAdminUser } from '@/lib/roles'
+import { citationLine } from '@/lib/citation'
 
 export default function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -422,21 +423,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                             <IconBook2 size={13} className="text-slate-400 flex-shrink-0 mt-0.5" />
                           )}
                           <p className="text-xs text-slate-400 leading-relaxed">
-                            <span className="font-medium">{book.title}</span>
-                            {book.author && <span> — {book.author}</span>}
-                            {book.edition && <span> · {book.edition}</span>}
-                            {chapterDisplay && (
-                              <span>
-                                {' · '}
-                                {q.citation_verified ? chapterDisplay : `${chapterDisplay} (approx.)`}
-                              </span>
-                            )}
-                            {q.source_page && (
-                              <span>
-                                {' · '}
-                                {q.citation_verified ? q.source_page : `${q.source_page} (approx.)`}
-                              </span>
-                            )}
+                            {citationLine({ book, chapterLabel: chapterDisplay, page: q.source_page, verified: q.citation_verified, withEdition: true })}
                           </p>
                           <p className="text-xs text-slate-300 italic mt-1">
                             {book.source_kind === 'legal'
