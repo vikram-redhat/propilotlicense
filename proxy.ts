@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { isDeadLicencePath } from '@/lib/licence-routes'
 import { INDEXNOW_KEY_PATH } from '@/lib/indexnow'
+import { isAdminUser } from '@/lib/roles'
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -84,7 +85,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith('/admin')) {
-    const isAdmin = user?.user_metadata?.is_admin === true
+    const isAdmin = isAdminUser(user)
     if (!isAdmin && !hasBypass) {
       return NextResponse.redirect(new URL('/', request.url))
     }

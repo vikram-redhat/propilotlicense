@@ -1,4 +1,5 @@
 import { createAuthClient } from '@/lib/supabase-server'
+import { isAdminUser } from '@/lib/roles'
 
 export async function isAdminRequest(request: Request): Promise<boolean> {
   const bypassSecret = process.env.ADMIN_BYPASS_SECRET
@@ -11,7 +12,7 @@ export async function isAdminRequest(request: Request): Promise<boolean> {
   try {
     const supabase = await createAuthClient()
     const { data: { user } } = await supabase.auth.getUser()
-    return user?.user_metadata?.is_admin === true
+    return isAdminUser(user)
   } catch {
     return false
   }

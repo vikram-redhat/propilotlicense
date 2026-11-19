@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { createServiceClient } from '@/lib/supabase'
+import { recordGrant } from '@/lib/subscription-grants'
 
 export async function POST(req: Request) {
   const body = await req.text()
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
     return new Response('Invalid signature', { status: 400 })
   }
 
-  let event: { event: string; payload: { payment: { entity: { notes?: { plan?: string; userId?: string } } } } }
+  let event: { event: string; payload: { payment: { entity: { id: string; order_id: string; amount: number; currency: string; notes?: { plan?: string; userId?: string } } } } }
   try {
     event = JSON.parse(body)
   } catch {
@@ -28,7 +29,8 @@ export async function POST(req: Request) {
   }
 
   if (event.event === 'payment.captured') {
-    const notes = event.payload.payment.entity.notes ?? {}
+    const payment = event.payload.payment.entity
+    const notes = payment.notes ?? {}
     const plan = notes.plan as '30days' | '90days' | undefined
     const userId = notes.userId
 
@@ -41,7 +43,7 @@ export async function POST(req: Request) {
     expiresAt.setDate(expiresAt.getDate() + days)
 
     const supabase = createServiceClient()
-    await supabase
+    const { error } = await supabase
       .from('profiles')
       .update({
         subscription_tier: 'paid',
@@ -49,6 +51,14 @@ export async function POST(req: Request) {
         subscription_expires_at: expiresAt.toISOString(),
       })
       .eq('id', userId)
+    if (error) {
+      console.error('Webhook: subscription update failed:', error.message)
+      return new Response('Update failed', { status: 500 }) // Razorpay retries
+    }
+    await recordGrant(supabase, {
+      userId, source: 'razorpay_webhook', plan, expiresAt: expiresAt.toISOString(),
+      razorpayOrderId: payment.order_id, razorpayPaymentId: payment.id, amount: payment.amount, currency: payment.currency,
+    })
   }
 
   return new Response('OK', { status: 200 })

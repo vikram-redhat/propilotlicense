@@ -5,6 +5,7 @@ import { trackEvent } from '@/lib/analytics'
 import { useRouter } from 'next/navigation'
 import { hubForExamType } from '@/lib/hub'
 import { supabase } from '@/lib/supabase'
+import { isAdminUser } from '@/lib/roles'
 
 function Logo() {
   return (
@@ -32,7 +33,7 @@ export default function LoginForm({ next }: { next: string }) {
       setLoading(false)
       return
     }
-    const isAdmin = data.user?.user_metadata?.is_admin === true
+    const isAdmin = isAdminUser(data.user)
     let dest = next || (isAdmin ? '/admin' : '/')
     // A generic licence-hub `next` (e.g. from the homepage CTA) may not match the
     // user's exam type — send ATPL users to /atpl instead of the hardcoded /cpl.

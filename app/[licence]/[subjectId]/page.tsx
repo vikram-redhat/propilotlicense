@@ -9,6 +9,7 @@ import { isSubscribed } from '@/lib/subscription'
 import { isVisibleForCountry } from '@/lib/countries'
 import { isSyllabusBook } from '@/lib/syllabus'
 import UserMenu from '@/components/UserMenu'
+import { isAdminUser } from '@/lib/roles'
 
 type Scope = 'topic' | 'book' | 'book_chapter' | 'combined'
 type Mode = 'practice' | 'mock'
@@ -106,7 +107,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
-      const adminUser = user?.user_metadata?.is_admin === true
+      const adminUser = isAdminUser(user)
       setIsAdmin(adminUser)
       const [{ data: sub }, { data: tops }, { data: bks }, profileRes] = await Promise.all([
         supabase.from('subjects').select('*').eq('id', subjectId).single(),

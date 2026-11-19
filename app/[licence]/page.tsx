@@ -10,6 +10,7 @@ import CompositeCard from '@/components/CompositeCard'
 import ContinueSessionCard from '@/components/ContinueSessionCard'
 import { getContinueSession } from '@/lib/continue-session'
 import { notFound } from 'next/navigation'
+import { isAdminUser } from '@/lib/roles'
 
 const VALID_LICENCES = ['cpl', 'atpl']
 
@@ -58,7 +59,7 @@ export default async function LicencePage({ params }: { params: Promise<{ licenc
   const licenceUpper = licence.toUpperCase()
 
   // Fetch subscription status for Composite modal
-  let subscribed = user?.user_metadata?.is_admin === true
+  let subscribed = isAdminUser(user)
   if (!subscribed && user) {
     const svc = createServiceClient()
     const { data: profile } = await svc.from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single()

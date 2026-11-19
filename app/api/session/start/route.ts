@@ -4,6 +4,7 @@ import { freeTierError, isSubscribed } from '@/lib/subscription'
 import { isVisibleForCountry } from '@/lib/countries'
 import { chapterColumnFor } from '@/lib/syllabus'
 import { isChapterTaster, TASTER_QUESTIONS, TASTER_USED_ERROR } from '@/lib/chapter-taster'
+import { isAdminUser } from '@/lib/roles'
 
 const weights = {
   all:      { basic: 1,   advanced: 1   },
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
     .single()
 
   const studentCountry = profile?.country ?? null
-  const isAdmin    = user.user_metadata?.is_admin === true
+  const isAdmin    = isAdminUser(user)
   const subscribed = isAdmin || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
 
   // A free account's chapter session is a taster (lib/chapter-taster.ts): 10 questions,

@@ -10,6 +10,7 @@ import { Session, Question, SessionState, SourceBook } from '@/lib/types'
 import { IconCheck, IconX, IconMinus, IconBook, IconBook2 } from '@tabler/icons-react'
 import SiteFooter from '@/components/SiteFooter'
 import SiteHeader from '@/components/SiteHeader'
+import { isAdminUser } from '@/lib/roles'
 
 export default function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -71,7 +72,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
 
         const { data: { user } } = await supabase.auth.getUser()
         const { data: profile } = user ? await supabase.from('profiles').select('*').eq('id', user.id).single() : { data: null }
-        const subscribed = user?.user_metadata?.is_admin === true || isSubscribed(profile)
+        const subscribed = isAdminUser(user) || isSubscribed(profile)
         if (ch && isChapterTaster(sess.scope, subscribed)) {
           const counts = await fetch(`/api/session/chapter-counts?subjectId=${sess.subject_id}&bookId=${sess.source_book_id}`)
             .then(res => res.ok ? res.json() : null).catch(() => null)

@@ -1,10 +1,12 @@
 import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
+import { recordGrant } from '@/lib/subscription-grants'
+import { isAdminUser } from '@/lib/roles'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const authClient = await createAuthClient()
   const { data: { user } } = await authClient.auth.getUser()
-  if (!user?.user_metadata?.is_admin) return Response.json({ error: 'Unauthorized' }, { status: 403 })
+  if (!isAdminUser(user)) return Response.json({ error: 'Unauthorized' }, { status: 403 })
 
   const { id } = await params
   const supabase = createServiceClient()
@@ -29,7 +31,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const authClient = await createAuthClient()
   const { data: { user } } = await authClient.auth.getUser()
-  if (!user?.user_metadata?.is_admin) return Response.json({ error: 'Unauthorized' }, { status: 403 })
+  if (!isAdminUser(user)) return Response.json({ error: 'Unauthorized' }, { status: 403 })
 
   const { id } = await params
   const body = await req.json()
@@ -45,6 +47,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (Object.keys(profileUpdate).length > 0) {
     const { error } = await supabase.from('profiles').update(profileUpdate).eq('id', id)
     if (error) return Response.json({ error: error.message }, { status: 500 })
+    // Record any change to paid access, and which admin made it.
+    if ('subscription_tier' in body || 'subscription_plan' in body || 'subscription_expires_at' in body) {
+      const { data: p } = await supabase.from('profiles').select('subscription_tier, subscription_plan, subscription_expires_at').eq('id', id).single()
+      await recordGrant(supabase, {
+        userId: id, source: 'admin', tier: p?.subscription_tier ?? null, plan: p?.subscription_plan ?? null,
+        expiresAt: p?.subscription_expires_at ?? null, grantedBy: user!.id,
+      })
+    }
   }
 
   // Sync exam_type change to auth user metadata so the proxy sees it immediately

@@ -2,6 +2,7 @@ import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
 import { isSubscribed } from '@/lib/subscription'
 import { isChapterTaster } from '@/lib/chapter-taster'
+import { isAdminUser } from '@/lib/roles'
 
 // Ends a session: the student reached the last question, the mock timer ran out, or they
 // pressed End session / Submit. Records when it ended, whether questions were left
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
     supabase.from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single(),
   ])
   if (error) return Response.json({ error: error.message }, { status: 500 })
-  const subscribed = user.user_metadata?.is_admin === true || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
+  const subscribed = isAdminUser(user) || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
   const taster = isChapterTaster(session.scope, subscribed)
   const answered = answers.length
   const correct = answers.filter(a => a.is_correct).length

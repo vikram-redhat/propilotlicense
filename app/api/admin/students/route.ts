@@ -1,10 +1,11 @@
 import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
+import { isAdminUser } from '@/lib/roles'
 
 export async function GET() {
   const authClient = await createAuthClient()
   const { data: { user } } = await authClient.auth.getUser()
-  if (!user?.user_metadata?.is_admin) {
+  if (!isAdminUser(user)) {
     return Response.json({ error: 'Unauthorized' }, { status: 403 })
   }
 

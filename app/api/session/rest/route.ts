@@ -1,6 +1,7 @@
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
 import { freeTierError, isSubscribed } from '@/lib/subscription'
+import { isAdminUser } from '@/lib/roles'
 
 // "Practise the rest": a new session with the same settings, made of the questions the
 // student left unanswered in an earlier session, in their original order. No new question
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
 
   const { data: profile } = await supabase
     .from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single()
-  const subscribed = user.user_metadata?.is_admin === true || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
+  const subscribed = isAdminUser(user) || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
   if (!subscribed) {
     const blocked = freeTierError({ scope: from.scope, questionCount: rest.length, mode: from.mode })
     if (blocked) return Response.json({ error: blocked }, { status: 403 })
