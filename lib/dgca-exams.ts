@@ -1,0 +1,158 @@
+import raw from '@/lib/data/dgca-exam-sessions.json'
+
+// DGCA exam sessions, venues and result notices, from lib/data/dgca-exam-sessions.json:
+// DGCA's published calendar and the Pariksha notice board, kept current by hand after the
+// weekly notice check (app/api/cron/dgca-notices) emails what changed. The exam dates and
+// results guides render from it.
+//
+// The file's "unverified" block (fees, resit waiting period) waits for Captain Panel
+// confirmation and must not be displayed: it is left out of the typed data below, so no
+// page can read it. Keep this module server-side (pages, sitemap), so the block never
+// reaches a client bundle either.
+
+export type SessionType = 'regular' | 'olode' | 'fir_afir'
+
+export type ExamSession = {
+  id: string
+  type: SessionType
+  name: string
+  examStart: string // YYYY-MM-DD
+  examEnd: string
+  portalOpen: string | null
+  portalClose: string | null
+}
+
+export type ResultNotice = {
+  session: string // ExamSession id
+  label: string
+  url: string
+  noticeDate: string | null
+  seenOn: string
+}
+
+export type ExamData = {
+  lastCheckedAgainstDGCA: string
+  source: string
+  calendars: { year: number; status: 'published' | 'not_published'; url: string | null; note: string | null }[]
+  sessions: ExamSession[]
+  venues: { session: string; url: string; centres: { city: string; centre: string }[] }
+  results: ResultNotice[]
+}
+
+const data = raw as typeof raw & ExamData
+export const DGCA_EXAMS: ExamData = {
+  lastCheckedAgainstDGCA: data.lastCheckedAgainstDGCA,
+  source: data.source,
+  calendars: data.calendars,
+  sessions: [...data.sessions].sort((a, b) => a.examStart.localeCompare(b.examStart)),
+  venues: data.venues,
+  results: data.results,
+}
+
+export const SESSION_TYPE_LABEL: Record<SessionType, string> = {
+  regular: 'Regular',
+  olode: 'On-demand (OLODE)',
+  fir_afir: 'FIR/AFIR oral',
+}
+
+// Today's date in India (YYYY-MM-DD): sessions and portal windows roll over at midnight IST.
+export function todayInIndia(now = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
+}
+
+function parts(iso: string) {
+  const [y, m, d] = iso.split('-').map(Number)
+  return { y, m, d }
+}
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+// "19 November 2026"
+export function formatLongDate(iso: string): string {
+  const { y, m, d } = parts(iso)
+  return `${d} ${MONTHS_LONG[m - 1]} ${y}`
+}
+
+// "19 Nov 2026", or "19 Nov" without the year
+export function formatShortDate(iso: string, withYear = true): string {
+  const { y, m, d } = parts(iso)
+  return `${d} ${MONTHS[m - 1]}${withYear ? ` ${y}` : ''}`
+}
+
+// "18–20 Nov 2026", "28 Nov – 2 Dec 2026", "29 Dec 2026 – 2 Jan 2027"
+export function formatRange(start: string, end: string): string {
+  const a = parts(start), b = parts(end)
+  if (start === end) return formatShortDate(start)
+  if (a.y !== b.y) return `${formatShortDate(start)} – ${formatShortDate(end)}`
+  if (a.m !== b.m) return `${formatShortDate(start, false)} – ${formatShortDate(end)}`
+  return `${a.d}–${b.d} ${MONTHS[b.m - 1]} ${b.y}`
+}
+
+// "15 to 19 December 2026", for running text
+export function formatRangeLong(start: string, end: string): string {
+  const a = parts(start), b = parts(end)
+  if (a.y !== b.y) return `${formatLongDate(start)} to ${formatLongDate(end)}`
+  if (a.m !== b.m) return `${a.d} ${MONTHS_LONG[a.m - 1]} to ${formatLongDate(end)}`
+  return `${a.d} to ${formatLongDate(end)}`
+}
+
+export function portalStatus(s: ExamSession, today: string): string {
+  if (!s.portalOpen || !s.portalClose) return 'Check the Pariksha notice board'
+  if (today < s.portalOpen) return `Opens ${formatShortDate(s.portalOpen, false)}`
+  if (today <= s.portalClose) return `Open until ${formatShortDate(s.portalClose, false)}`
+  return 'Closed'
+}
+
+// The next sessions still to finish (examEnd today or later), soonest first.
+export function upcomingSessions(today: string, type?: SessionType): ExamSession[] {
+  return DGCA_EXAMS.sessions.filter(s => s.examEnd >= today && (!type || s.type === type))
+}
+
+export function sessionById(id: string): ExamSession | undefined {
+  return DGCA_EXAMS.sessions.find(s => s.id === id)
+}
+
+// Calendar years: the current year in India (or the latest published one before it), and the
+// year after it.
+export function calendarYears(today: string) {
+  const year = Number(today.slice(0, 4))
+  const published = DGCA_EXAMS.calendars.filter(c => c.status === 'published' && c.year <= year).sort((a, b) => b.year - a.year)
+  const current = published[0] ?? null
+  const nextYear = (current?.year ?? year) + 1
+  const next = DGCA_EXAMS.calendars.find(c => c.year === nextYear && c.status === 'published') ?? null
+  return { current, next, nextYear }
+}
+
+export function sessionsInYear(year: number): ExamSession[] {
+  return DGCA_EXAMS.sessions.filter(s => s.examStart.startsWith(`${year}-`))
+}
+
+// Result notices, newest session first.
+export function latestResults(): (ResultNotice & { sessionEnd: string | null })[] {
+  return DGCA_EXAMS.results
+    .map(r => ({ ...r, sessionEnd: sessionById(r.session)?.examEnd ?? null }))
+    .sort((a, b) => (b.sessionEnd ?? b.noticeDate ?? b.seenOn).localeCompare(a.sessionEnd ?? a.noticeDate ?? a.seenOn))
+}
+
+// Sessions whose exams have started (so are finished or under way) and ended no more than
+// 60 days ago, with no result notice yet.
+export function awaitingResults(today: string): ExamSession[] {
+  const t = new Date(`${today}T00:00:00Z`)
+  t.setUTCDate(t.getUTCDate() - 60)
+  const cutoff = t.toISOString().slice(0, 10)
+  const declared = new Set(DGCA_EXAMS.results.map(r => r.session))
+  return DGCA_EXAMS.sessions
+    .filter(s => s.examStart <= today && s.examEnd >= cutoff && !declared.has(s.id))
+    .sort((a, b) => b.examStart.localeCompare(a.examStart))
+}
+
+// The two guides that render from this data. Their dateModified (and sitemap lastmod) is the
+// later of their registry updatedAt (an editorial change) and lastCheckedAgainstDGCA.
+export const DGCA_EXAM_GUIDE_SLUGS: ReadonlySet<string> = new Set(['dgca-exam-dates', 'dgca-exam-results'])
+export function dgcaExamGuideUpdatedAt(registryUpdatedAt: string): string {
+  return registryUpdatedAt > DGCA_EXAMS.lastCheckedAgainstDGCA ? registryUpdatedAt : DGCA_EXAMS.lastCheckedAgainstDGCA
+}
+
+export function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}

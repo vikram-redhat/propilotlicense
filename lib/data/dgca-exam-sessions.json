@@ -1,0 +1,314 @@
+{
+  "lastCheckedAgainstDGCA": "2026-11-19",
+  "source": "https://pariksha.dgca.gov.in/home",
+  "calendars": [
+    {
+      "year": 2026,
+      "status": "published",
+      "url": "https://pariksha.dgca.gov.in/PDFViewer.jsp?pdf=027F234C1243D44B5BF5C787082CDCC8",
+      "note": "DGCA says the dates are tentative and may change for gazetted holidays or festivals."
+    },
+    {
+      "year": 2027,
+      "status": "not_published",
+      "url": null,
+      "note": null
+    }
+  ],
+  "sessions": [
+    {
+      "id": "olod-01-2026",
+      "type": "olode",
+      "name": "OLODE Session 01 of 2026",
+      "examStart": "2026-01-21",
+      "examEnd": "2026-01-23",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-01-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 01 of 2026",
+      "examStart": "2026-01-28",
+      "examEnd": "2026-01-30",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "olod-02-2026",
+      "type": "olode",
+      "name": "OLODE Session 02 of 2026",
+      "examStart": "2026-02-04",
+      "examEnd": "2026-02-06",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-02-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 02 of 2026",
+      "examStart": "2026-02-18",
+      "examEnd": "2026-02-20",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "reg-01-2026",
+      "type": "regular",
+      "name": "Regular Session 01 of 2026",
+      "examStart": "2026-03-10",
+      "examEnd": "2026-03-14",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-03-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 03 of 2026",
+      "examStart": "2026-03-18",
+      "examEnd": "2026-03-20",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "olod-03-2026",
+      "type": "olode",
+      "name": "OLODE Session 03 of 2026",
+      "examStart": "2026-04-22",
+      "examEnd": "2026-04-24",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-04-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 04 of 2026",
+      "examStart": "2026-04-27",
+      "examEnd": "2026-04-29",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-05-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 05 of 2026",
+      "examStart": "2026-05-13",
+      "examEnd": "2026-05-15",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "olod-04-2026",
+      "type": "olode",
+      "name": "OLODE Session 04 of 2026",
+      "examStart": "2026-05-20",
+      "examEnd": "2026-05-22",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "reg-02-2026",
+      "type": "regular",
+      "name": "Regular Session 02 of 2026",
+      "examStart": "2026-06-16",
+      "examEnd": "2026-06-20",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-06-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 06 of 2026",
+      "examStart": "2026-06-22",
+      "examEnd": "2026-06-24",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "olod-05-2026",
+      "type": "olode",
+      "name": "OLODE Session 05 of 2026",
+      "examStart": "2026-07-15",
+      "examEnd": "2026-07-17",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-07-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 07 of 2026",
+      "examStart": "2026-07-20",
+      "examEnd": "2026-07-22",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-08-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 08 of 2026",
+      "examStart": "2026-08-12",
+      "examEnd": "2026-08-14",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "olod-06-2026",
+      "type": "olode",
+      "name": "OLODE Session 06 of 2026",
+      "examStart": "2026-08-19",
+      "examEnd": "2026-08-21",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-09-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 09 of 2026",
+      "examStart": "2026-09-16",
+      "examEnd": "2026-09-18",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "reg-03-2026",
+      "type": "regular",
+      "name": "Regular Session 03 of 2026",
+      "examStart": "2026-09-22",
+      "examEnd": "2026-09-26",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-10-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 10 of 2026",
+      "examStart": "2026-10-21",
+      "examEnd": "2026-10-23",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "olod-07-2026",
+      "type": "olode",
+      "name": "OLODE Session 07 of 2026",
+      "examStart": "2026-10-28",
+      "examEnd": "2026-10-30",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "olod-08-2026",
+      "type": "olode",
+      "name": "OLODE Session 08 of 2026",
+      "examStart": "2026-11-18",
+      "examEnd": "2026-11-20",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-11-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 11 of 2026",
+      "examStart": "2026-11-25",
+      "examEnd": "2026-11-27",
+      "portalOpen": "2026-11-04",
+      "portalClose": "2026-11-19"
+    },
+    {
+      "id": "reg-04-2026",
+      "type": "regular",
+      "name": "Regular Session 04 of 2026",
+      "examStart": "2026-12-15",
+      "examEnd": "2026-12-19",
+      "portalOpen": null,
+      "portalClose": null
+    },
+    {
+      "id": "fir-12-2026",
+      "type": "fir_afir",
+      "name": "FIR/AFIR Oral Session 12 of 2026",
+      "examStart": "2026-12-21",
+      "examEnd": "2026-12-23",
+      "portalOpen": "2026-11-04",
+      "portalClose": "2026-12-15"
+    }
+  ],
+  "fata": {
+    "note": "FATA examinations are held twice a month, once every fortnight."
+  },
+  "venues": {
+    "session": "olod-08-2026",
+    "url": "https://pariksha.dgca.gov.in/PDFViewer.jsp?pdf=04DEA993346C3A73FDC56A5122AC67E7",
+    "centres": [
+      {
+        "city": "Bengaluru",
+        "centre": "Chinni Towers (address-only listing)"
+      },
+      {
+        "city": "Bhopal",
+        "centre": "Sneh Institute of Nursing College"
+      },
+      {
+        "city": "Mumbai",
+        "centre": "Thakur Shyamnarayan Degree College"
+      },
+      {
+        "city": "Kolkata",
+        "centre": "NIELIT Kolkata, Salt Lake Campus"
+      },
+      {
+        "city": "Hyderabad",
+        "centre": "NIELIT Hyderabad"
+      },
+      {
+        "city": "Lucknow",
+        "centre": "Sultan Foundation HAAME Campus"
+      },
+      {
+        "city": "Chennai",
+        "centre": "Mahalakshmi Tech Campus"
+      },
+      {
+        "city": "New Delhi",
+        "centre": "Central Examination Organisation, O/o DGCA, R.K. Puram"
+      },
+      {
+        "city": "New Delhi",
+        "centre": "Rapid Online Solutions"
+      },
+      {
+        "city": "Pune",
+        "centre": "NetQuiz Assessment Solutions"
+      },
+      {
+        "city": "Gurugram",
+        "centre": "DPG Degree College"
+      },
+      {
+        "city": "Noida",
+        "centre": "Mangalmay Institute of Management and Technology"
+      }
+    ]
+  },
+  "results": [
+    {
+      "session": "olod-07-2026",
+      "label": "OLODE Session 07 of 2026 (Flight Crew and RTR Restricted)",
+      "url": "https://pariksha.dgca.gov.in/PDFViewer.jsp?pdf=C8503A582ECA84F53DF11BA51761E1EB",
+      "noticeDate": "2026-11-03",
+      "seenOn": "2026-11-19"
+    },
+    {
+      "session": "fir-10-2026",
+      "label": "FIR(A)/AFIR(A) Oral, Regular Session 10 of 2026",
+      "url": "https://pariksha.dgca.gov.in/PDFViewer.jsp?pdf=D4842F8558F5C7A9B6340F8602C04D2E",
+      "noticeDate": null,
+      "seenOn": "2026-11-19"
+    }
+  ],
+  "unverified": {
+    "fees": "Regular sessions Rs 2,500 per paper; OLODE Rs 5,000 per paper (secondary source; awaiting Captain Panel confirmation). Do not display until confirmed.",
+    "reattemptWait": "42 days after a failed paper (secondary source; awaiting confirmation). Do not display until confirmed."
+  },
+  "resultsNote": "Only Flight Crew notices (from the Notice Board – Pilot). DGCA result notices only announce that results are declared; individual results are in each candidate's Pariksha login and are not published as a list. Older pilot result notices for 2026 (e.g. Regular Session 03, OLODE 06) were not on the pilot notice board on 19 Nov; add them if found."
+}

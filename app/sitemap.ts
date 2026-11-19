@@ -5,6 +5,7 @@ import { GUIDE_SERIES, postHref } from '@/lib/guides'
 import { allChapterPages } from '@/lib/chapter-pages'
 import { dbContentDates, laterDate, type DbContentDates } from '@/lib/content-dates'
 import { HUMAN_PERFORMANCE } from '@/lib/human-performance'
+import { DGCA_EXAM_GUIDE_SLUGS, dgcaExamGuideUpdatedAt } from '@/lib/dgca-exams'
 
 const BASE = 'https://www.propilotlicence.com'
 
@@ -83,11 +84,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.72,
   }))
 
-  // The same updatedAt the article's Article schema sends as dateModified.
+  // The same updatedAt the article's Article schema sends as dateModified (for the exam dates
+  // and results guides, the later of it and the data file's last DGCA check).
   const guidePostPages: MetadataRoute.Sitemap = GUIDE_SERIES.flatMap((series) =>
     series.posts.map((post) => ({
       url: `${BASE}${postHref(series, post)}`,
-      lastModified: post.updatedAt,
+      lastModified: DGCA_EXAM_GUIDE_SLUGS.has(post.slug) ? dgcaExamGuideUpdatedAt(post.updatedAt) : post.updatedAt,
       changeFrequency: 'monthly' as const,
       priority: 0.75,
     }))

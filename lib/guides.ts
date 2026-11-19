@@ -137,6 +137,33 @@ export const GUIDE_SERIES: GuideSeries[] = [
           'Human factors is examined inside the DGCA Air Regulations paper. Which book to use, what RK Bali chapter 23 covers, and the high-yield facts on hypoxia, vision and illusions.',
         reviewedBy: 'ProPilotLicence Captain Panel',
       },
+      // The exam dates and results guides render from lib/data/dgca-exam-sessions.json: their
+      // dateModified and sitemap lastmod follow its lastCheckedAgainstDGCA (app/sitemap.ts), so
+      // updatedAt here only needs changing when the editorial text changes.
+      {
+        slug: 'dgca-exam-dates',
+        title: 'DGCA Exam Dates: Next Sessions, Portal Windows, Centres and How to Apply',
+        metaTitle: 'DGCA Exam Dates 2026–27: Sessions, Centres and How to Apply',
+        metaDescription:
+          'Next DGCA pilot exam dates, Pariksha portal windows, regular vs on-demand (OLODE) sessions, exam centres and how to apply. Checked against DGCA weekly.',
+        publishedAt: '2026-11-19',
+        updatedAt: '2026-11-19',
+        excerpt:
+          'When the next DGCA pilot exams are, when the Pariksha portal opens and closes, where the centres are, and regular versus on-demand sessions.',
+        reviewedBy: 'ProPilotLicence Captain Panel',
+      },
+      {
+        slug: 'dgca-exam-results',
+        title: 'DGCA Exam Results: Latest Sessions, How to Check Yours, and What to Do Next',
+        metaTitle: 'DGCA Exam Results: Latest Sessions and How to Check',
+        metaDescription:
+          "Latest DGCA pilot exam results with links to DGCA's notices, how to check your result on the Pariksha portal, and what to do if you failed a paper.",
+        publishedAt: '2026-11-19',
+        updatedAt: '2026-11-19',
+        excerpt:
+          'The latest DGCA pilot exam results, how to check yours on the Pariksha portal, and what to do next if you didn\'t pass.',
+        reviewedBy: 'ProPilotLicence Captain Panel',
+      },
       {
         slug: 'dgca-cpl-books',
         title: 'Which Books Should I Study for the DGCA CPL Theory Exams? (2026 Guide)',

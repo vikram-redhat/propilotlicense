@@ -160,3 +160,14 @@ export async function sendFlagResolvedEmail({ to, name, questionText }: { to: st
   }
   return true
 }
+
+// Operational emails to the site owner (the weekly DGCA notice check). Throws when the email
+// can't be sent, so the caller can log the run as not emailed.
+export const OWNER_EMAIL = process.env.OWNER_ALERT_EMAIL || 'vikram@craftbits.com'
+
+export async function sendOwnerEmail({ subject, html, text }: { subject: string; html: string; text: string }): Promise<void> {
+  const resend = client()
+  if (!resend) throw new Error('RESEND_API_KEY not set')
+  const { error } = await resend.emails.send({ from: FROM, to: OWNER_EMAIL, subject, html, text })
+  if (error) throw new Error(`Resend: ${error.message}`)
+}
