@@ -135,10 +135,11 @@ export function latestResults(): (ResultNotice & { sessionEnd: string | null })[
 }
 
 // Sessions whose exams have started (so are finished or under way) and ended no more than
-// 60 days ago, with no result notice yet.
+// 30 days ago, with no result notice yet. Older sessions' results will be out, even if the
+// notice has already scrolled off DGCA's notice board.
 export function awaitingResults(today: string): ExamSession[] {
   const t = new Date(`${today}T00:00:00Z`)
-  t.setUTCDate(t.getUTCDate() - 60)
+  t.setUTCDate(t.getUTCDate() - 30)
   const cutoff = t.toISOString().slice(0, 10)
   const declared = new Set(DGCA_EXAMS.results.map(r => r.session))
   return DGCA_EXAMS.sessions
