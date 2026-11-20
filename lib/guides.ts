@@ -118,7 +118,7 @@ export const GUIDE_SERIES: GuideSeries[] = [
         title: 'Bharatiya Vayuyan Adhiniyam 2024: The New Aircraft Act Explained for Pilots',
         metaTitle: 'Bharatiya Vayuyan Adhiniyam 2024: Guide for DGCA Students',
         metaDescription:
-          'Bharatiya Vayuyan Adhiniyam 2024 replaced the Aircraft Act 1934 from 1 January 2025. Key sections, regulators, penalties and appeals for the DGCA exam.',
+          'Download the Bharatiya Vayuyan Adhiniyam 2024 PDF and see what the new Aircraft Act means for pilots: key sections, penalties, and free practice questions.',
         publishedAt: '2026-11-11',
         updatedAt: '2026-11-20',
         excerpt:

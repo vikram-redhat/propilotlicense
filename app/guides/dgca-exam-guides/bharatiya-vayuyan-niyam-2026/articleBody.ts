@@ -230,7 +230,7 @@ export const ARTICLE_HTML = String.raw`
   <p>Licences, certificates and approvals granted under the 1937 Rules are saved by rule 220, so far as they're consistent with the Act. A pilot licensed before 1 January 2027 doesn't lose the licence when the new rules start. Radio telephone operator certificates issued by the Department of Telecommunications or DGCA stay valid to their expiry, and are renewed under the new rules without re-examination (rule 219).</p>
 
   <h2>How ProPilotLicence is handling the change</h2>
-  <p>We’ve written {{NEW_RULES_COUNT}} practice questions on the Adhiniyam and the Niyam, each citing its rule and reviewed by our Captain Panel, and we’re moving national law practice onto the new rules. Questions on ICAO material are unaffected.</p>
+  <p>We’ve written {{NEW_RULES_COUNT}} practice questions on the Bharatiya Vayuyan Niyam, each citing its rule and reviewed by our Captain Panel, and we’re moving national law practice onto the new rules. Questions on ICAO material are unaffected.</p>
 
   <h2>Frequently asked questions</h2>
 
@@ -276,7 +276,7 @@ export const ARTICLE_HTML = String.raw`
 
   <div class="cta-block">
     <h3>Practise the new rules</h3>
-    <p>Questions on the Adhiniyam and Niyam, each citing its rule. Free to start.</p>
+    <p>Questions on the new Bharatiya Vayuyan rules, each citing its rule. Free to start.</p>
     <a class="cta-btn" href="{{NEW_RULES_HREF}}" data-cta="niyam-bottom">Practise the new rules →</a>
   </div>
 

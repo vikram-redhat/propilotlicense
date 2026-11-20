@@ -217,7 +217,7 @@ export const ARTICLE_HTML = String.raw`
 
   <div class="cta-block">
     <h3>Practise the new rules</h3>
-    <p>Questions on the Adhiniyam and Niyam, each citing its rule. Free to start.</p>
+    <p>Questions on the new Bharatiya Vayuyan rules, each citing its rule. Free to start.</p>
     <a class="cta-btn" href="{{NEW_RULES_HREF}}" data-cta="adhiniyam-bottom">Practise the new rules →</a>
   </div>
 
