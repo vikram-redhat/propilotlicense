@@ -4,9 +4,10 @@ import { isSyllabusBook } from '@/lib/syllabus'
 // Books students see: only those with at least one active question to practise, by the rule
 // whole-book practice draws on (lib/live-counts.ts bookQuestionTotal): a syllabus book (IC Joshi,
 // RK Bali) has questions on its syllabus chapters from any book; any other book, active
-// questions that cite it. Used by the practice picker's book list, the licence hub's per-subject
-// book counts and the homepage's source-book count; the admin screens still list every book.
-// Works with the browser or the service client.
+// questions that cite it. Used through lib/live-counts.ts activeBooks (the practice picker's
+// book list, the licence hub's per-subject book counts, the homepage's source-book count);
+// the admin screens still list every book. Needs the service client: students can read only
+// the questions in their own sessions.
 export async function withActiveQuestions<B extends { id: string }>(supabase: SupabaseClient, books: B[]): Promise<B[]> {
   const syllabus = books.filter(b => isSyllabusBook(b.id)).map(b => b.id)
   const { data: chapters } = syllabus.length

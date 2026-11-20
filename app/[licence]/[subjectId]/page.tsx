@@ -7,7 +7,6 @@ import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook, Profile } from '@/lib/types'
 import { FREE_DAILY_ERROR, FREE_DAILY_LINE, FREE_TIER_LINE, isSubscribed } from '@/lib/subscription'
 import { isSyllabusBook } from '@/lib/syllabus'
-import { withActiveQuestions } from '@/lib/active-books'
 import UserMenu from '@/components/UserMenu'
 import { isAdminUser } from '@/lib/roles'
 
@@ -124,7 +123,9 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       ])
       // Every book with active questions, whatever the student's country (no country filter
       // since 20 Nov 2026; empty books left out since 21 Nov 2026, lib/active-books.ts).
-      const shownBooks = await withActiveQuestions(supabase, bks || [])
+      // If the list can't be fetched, show every book.
+      const active: string[] | null = await fetch('/api/books/active').then(r => r.ok ? r.json() : null).then(d => d?.ids ?? null).catch(() => null)
+      const shownBooks = (bks || []).filter(b => !active || active.includes(b.id))
 
       setSubject(sub)
       setTopics(tops || [])
