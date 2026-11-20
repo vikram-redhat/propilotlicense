@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { referrerPath, trackEvent } from '@/lib/analytics'
@@ -9,16 +9,20 @@ import { FREE_TIER_LINE } from '@/lib/subscription'
 // Starts a "New rules 2026" session (lib/new-rules.ts) and goes straight into it: the whole
 // set for a paid account; for a free account, its one 10-question session (or that session
 // again while it's unfinished), then the upgrade message.
-export default function StartNewRulesSession({ licence }: { licence: string }) {
+// One start request per visit (the server page's `visit` key), shared at module level: the
+// component can mount twice in one visit (seen in production: two sessions a second apart
+// for one click), and a useRef guard doesn't survive a remount.
+const starts = new Map<string, Promise<{ ok: boolean; data: Record<string, unknown> }>>()
+const trackedVisits = new Set<string>()
+
+export default function StartNewRulesSession({ licence, visit }: { licence: string; visit: string }) {
   const router = useRouter()
-  const started = useRef(false)
   const [problem, setProblem] = useState<'upgrade' | 'error' | null>(null)
   const [used, setUsed] = useState(false)
 
   useEffect(() => {
-    if (started.current) return // StrictMode runs effects twice in development
-    started.current = true
-    fetch('/api/session/start', {
+    let live = true
+    if (!starts.has(visit)) starts.set(visit, fetch('/api/session/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -26,11 +30,14 @@ export default function StartNewRulesSession({ licence }: { licence: string }) {
         scope: 'book', sourceBookId: NEW_RULES_BOOK_ID,
         mode: 'practice', difficulty: 'all', questionCount: 10,
       }),
-    })
-      .then(async res => {
-        const data = await res.json().catch(() => ({}))
-        if (res.ok && data.sessionId) {
-          if (!data.resumed) {
+    }).then(async res => ({ ok: res.ok, data: await res.json().catch(() => ({})) })))
+    const first = starts.get(visit)!
+    first
+      .then(({ ok, data }) => {
+        if (!live) return
+        if (ok && data.sessionId) {
+          if (!data.resumed && !trackedVisits.has(visit)) {
+            trackedVisits.add(visit)
             trackEvent('practice_start', {
               licence, subject: 'REG', mode: 'practice', scope: 'new_rules',
               source_page: referrerPath(), taster: data.taster === true ? true : undefined,
@@ -42,8 +49,9 @@ export default function StartNewRulesSession({ licence }: { licence: string }) {
           setProblem(String(data.error ?? '').startsWith('free_tier') ? 'upgrade' : 'error')
         }
       })
-      .catch(() => setProblem('error'))
-  }, [licence, router])
+      .catch(() => { if (live) setProblem('error') })
+    return () => { live = false }
+  }, [licence, router, visit])
 
   const box: React.CSSProperties = { maxWidth: 460, margin: '96px auto', padding: '28px 24px', textAlign: 'center', background: 'var(--clr-surface)', border: '1px solid var(--clr-border)', borderRadius: 14 }
   const primary: React.CSSProperties = { display: 'inline-block', background: 'var(--clr-primary)', color: '#fff', fontWeight: 600, fontSize: 14, padding: '10px 20px', borderRadius: 8, textDecoration: 'none' }

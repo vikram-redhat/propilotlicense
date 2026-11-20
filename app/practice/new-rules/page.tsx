@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { redirect } from 'next/navigation'
 import { hubForExamType } from '@/lib/hub'
 import { createAuthClient } from '@/lib/supabase-server'
@@ -13,5 +14,6 @@ export default async function PracticeNewRulesPage() {
   const { data: { user } } = await authClient.auth.getUser()
   if (!user) redirect(`/signup?next=${encodeURIComponent(NEW_RULES_PATH)}`)
   const licence = hubForExamType(user.user_metadata?.exam_type as string | undefined).slice(1) // 'cpl' | 'atpl'
-  return <StartNewRulesSession licence={licence} />
+  // A key per visit: the starter sends one start request per key (StartNewRulesSession).
+  return <StartNewRulesSession licence={licence} visit={randomUUID()} />
 }
