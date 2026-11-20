@@ -1,6 +1,7 @@
 'use client'
 import CheckoutButton from './CheckoutButton'
 import { getRegion } from '@/lib/detect-region'
+import { amount as formatAmount } from '@/components/PriceTag'
 
 // ponytail: no toggle — reads saved region, shows correct price
 export default function RegionCheckout({
@@ -19,7 +20,7 @@ export default function RegionCheckout({
   const isIndia = getRegion() === 'IN'
   const amount = isIndia ? amountInr : amountUsd
   const currency = isIndia ? 'INR' : 'USD' as const
-  const amountDisplay = isIndia ? `₹${amountInr}` : `$${amountUsd}`
+  const amountDisplay = isIndia ? `₹${formatAmount(amountInr)}` : `$${formatAmount(amountUsd)}`
 
   return (
     <>

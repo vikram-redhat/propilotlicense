@@ -1,12 +1,15 @@
 'use client'
 import { getRegion } from '@/lib/detect-region'
 
+// Whole amounts as they are ($3), others to two decimals ($6.50). Also used by checkout.
+export const amount = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(2)
+
 // ponytail: show only the main price for the current region, no alternate currency subtext
 export default function PriceTag({ inr, usd }: { inr: number; usd: number }) {
   const isIndia = getRegion() === 'IN'
   return (
     <p className="text-3xl font-bold text-slate-900 mb-1">
-      {isIndia ? `₹${inr}` : `$${usd}`}
+      {isIndia ? `₹${amount(inr)}` : `$${amount(usd)}`}
     </p>
   )
 }

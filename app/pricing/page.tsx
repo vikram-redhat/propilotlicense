@@ -5,7 +5,6 @@ import PriceTag, { DiscountTag } from '@/components/PriceTag'
 import { buildMetadata } from '@/lib/metadata'
 import { getHeaderAuthState } from '@/lib/supabase-server'
 import { hubForExamType } from '@/lib/hub'
-import { FREE_TIER_LINE } from '@/lib/subscription'
 
 export const metadata = buildMetadata({
   title: 'Pricing — ProPilotLicence DGCA Exam Prep',
@@ -29,16 +28,15 @@ export default async function PricingPage() {
           {/* Free */}
           <div className="bg-white border border-slate-200 rounded-2xl p-6">
             <p className="text-sm font-medium text-slate-500 mb-1">Free</p>
-            <p className="text-3xl font-bold text-slate-900 mb-1">₹0</p>
+            <PriceTag inr={0} usd={0} />
             <p className="text-sm text-slate-400 mb-6">forever</p>
             <ul className="space-y-2.5 text-sm mb-8">
-              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Practice mode</li>
-              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Combined paper only</li>
-              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> {FREE_TIER_LINE}</li>
-              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Full explanations</li>
+              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> One 10-question mixed session a day</li>
+              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> One free 10-question session on every chapter</li>
+              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> One free session on the new Bharatiya Vayuyan rules</li>
+              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Full explanations with source citations</li>
               <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Mock exams</li>
-              <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Full book and chapter practice (one free 10-question session per chapter)</li>
-              <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Topic sessions</li>
+              <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Full book, chapter and topic practice</li>
               <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Difficulty selection</li>
             </ul>
             <Link
@@ -63,6 +61,7 @@ export default async function PricingPage() {
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> By topic sessions</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Basic / Advanced difficulty</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Full question bank</li>
+              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> All new-rules (Bharatiya Vayuyan) questions</li>
             </ul>
             <Link
               href="/checkout?plan=30days"
@@ -100,11 +99,10 @@ export default async function PricingPage() {
         </div>
 
         <p className="text-center text-xs text-slate-400 mt-8">
-          Payments processed securely via Razorpay · UPI · Cards · Net banking.
-          Access activates immediately after payment. No subscriptions — no auto-renewal.
+          Payments processed securely via Razorpay: UPI, cards and net banking. Access starts as soon as you pay.
         </p>
         <p className="text-center text-xs mt-6" style={{ color: 'var(--clr-text-med)' }}>
-          Every question on ProPilotLicence is verified by a panel of four or more active commercial airline captains before entering the question bank.{' '}
+          Questions are written for the DGCA syllabus and cite their source. Our Captain Panel of airline captains reviews questions and guides, starting with the most-missed.{' '}
           <Link href="/about" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'none' }}>Learn more →</Link>
         </p>
       </main>
