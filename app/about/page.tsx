@@ -49,7 +49,7 @@ export default async function AboutPage() {
         <Section title="The verification panel">
           <p>This is what makes ProPilotLicence different from every other platform in this space.</p>
           <p>
-            Every question is written to the DGCA syllabus and cites its source. Our Captain Panel of airline captains reviews questions, starting with the ones students miss most. The captains on the panel are not retired pilots consulting from memory. They are currently flying commercially on Indian domestic and international routes, holding valid DGCA CPL and ATPL licences, and sitting in the left seat of aircraft you have flown on. The pilots have vast experience in flying in airspace managed by DGCA, FAA, EASA, North America, South America, AFRICA, SE ASIA, Middle East GCC, CHINA rules and guidelines. 
+            Every question is written to the DGCA syllabus and cites its source. Our Captain Panel of airline captains reviews questions, starting with the ones students miss most, and reviewed questions are marked as such. The captains on the panel are not retired pilots consulting from memory. They are currently flying commercially on Indian domestic and international routes, holding valid DGCA CPL and ATPL licences, and sitting in the left seat of aircraft you have flown on. The pilots have vast experience in flying in airspace managed by DGCA, FAA, EASA, North America, South America, AFRICA, SE ASIA, Middle East GCC, CHINA rules and guidelines. 
           </p>
           <p>When the panel reviews a question, it checks:</p>
           <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>

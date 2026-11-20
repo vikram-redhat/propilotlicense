@@ -15,6 +15,17 @@ type Mode = 'practice' | 'mock'
 type Difficulty = 'all' | 'basic' | 'advanced'
 type QuestionCount = 10 | 20 | 50 | 100
 
+// The practice picker's topic list: a topic needs MIN_TOPIC_QUESTIONS active questions to be
+// listed, except in A320 (well tagged, smaller topics), where only empty topics are hidden.
+// Until the counts load (or if they fail) every topic is listed.
+const MIN_TOPIC_QUESTIONS = 10
+const A320_CODE = 'A320FAMILY'
+function topicShown(subjectCode: string | null | undefined, counts: Record<string, number> | null, topicId: string): boolean {
+  if (!counts) return true
+  const n = counts[topicId] ?? 0
+  return subjectCode === A320_CODE ? n > 0 : n >= MIN_TOPIC_QUESTIONS
+}
+
 // The upgrade message. A free account that has used today's mixed session (the server's
 // free_tier_daily) sees that line on top, and its upgrade link is tracked as
 // cta_location "free-daily-limit".
@@ -100,6 +111,8 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const [loadedCounts, setLoadedCounts]       = useState<{ bookId: string; counts: Record<string, number> } | null>(null)
   const [scope, setScope]                     = useState<Scope>('combined')
   const [selectedTopicId, setSelectedTopicId] = useState('')
+  // Active questions per topic (/api/session/topic-counts); null until loaded, or if it fails.
+  const [topicCounts, setTopicCounts] = useState<Record<string, number> | null>(null)
   const [selectedBookId, setSelectedBookId]   = useState('')
   const [selectedChapterId, setSelectedChapterId] = useState('')
   const [mode, setMode]           = useState<Mode>('practice')
@@ -115,11 +128,12 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       const { data: { user } } = await supabase.auth.getUser()
       const adminUser = isAdminUser(user)
       setIsAdmin(adminUser)
-      const [{ data: sub }, { data: tops }, { data: bks }, profileRes] = await Promise.all([
+      const [{ data: sub }, { data: tops }, { data: bks }, profileRes, tCounts] = await Promise.all([
         supabase.from('subjects').select('*').eq('id', subjectId).single(),
         supabase.from('topics').select('*').eq('subject_id', subjectId).order('sort_order'),
         supabase.from('source_books').select('*').eq('subject_id', subjectId).order('sort_order'),
         user ? supabase.from('profiles').select('*').eq('id', user.id).single() : Promise.resolve({ data: null }),
+        user ? fetch(`/api/session/topic-counts?subjectId=${subjectId}`).then(r => r.ok ? r.json() : null).then(d => (d?.counts ?? null) as Record<string, number> | null).catch(() => null) : Promise.resolve(null),
       ])
       // Every book with active questions, whatever the student's country (no country filter
       // since 20 Nov 2026; empty books left out since 21 Nov 2026, lib/active-books.ts).
@@ -129,6 +143,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
 
       setSubject(sub)
       setTopics(tops || [])
+      setTopicCounts(tCounts)
       setBooks(shownBooks)
       setProfile(profileRes.data)
 
@@ -143,7 +158,8 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
         setScope('combined'); setMode('practice'); setDifficulty('all'); setQuestionCount(10)
       } else {
         setQuestionCount(20)
-        if (tops && tops.length > 0) setSelectedTopicId(tops[0].id)
+        const firstTopic = (tops || []).find(t => topicShown(sub?.code, tCounts, t.id))
+        if (firstTopic) setSelectedTopicId(firstTopic.id)
       }
       setLoading(false)
     }
@@ -165,6 +181,15 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
   const chapterCounts = loadedCounts?.bookId === selectedBookId ? loadedCounts.counts : null
   // Chapters with no questions are hidden once counts are known.
   const visibleChapters = chapterCounts ? chapters.filter(c => (chapterCounts[c.id] ?? 0) > 0) : chapters
+
+  // Topics with fewer than MIN_TOPIC_QUESTIONS active questions are hidden (except in A320,
+  // where only empty ones are); with none left, the "By topic" option goes too.
+  const visibleTopics = topics.filter(t => topicShown(subject?.code, topicCounts, t.id))
+  // Session lengths up to what the chosen topic has (10 is always offered).
+  const topicMax = scope === 'topic' && topicCounts && selectedTopicId ? topicCounts[selectedTopicId] ?? 0 : null
+  const lengthAllowed = (val: QuestionCount) => topicMax === null || val === 10 || val <= topicMax
+  const sessionCount: QuestionCount = lengthAllowed(questionCount) ? questionCount
+    : ([100, 50, 20, 10] as QuestionCount[]).find(lengthAllowed)!
 
   const effectiveScope: Scope = scope === 'book' && selectedChapterId ? 'book_chapter' : scope
   const canStart = scope === 'topic' ? !!selectedTopicId : scope === 'book' ? !!selectedBookId : true
@@ -192,7 +217,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
       topicId: scope === 'topic' ? selectedTopicId : null,
       sourceBookId: scope === 'book' ? selectedBookId : null,
       chapterId: effectiveScope === 'book_chapter' ? selectedChapterId : null,
-      mode, difficulty, questionCount,
+      mode, difficulty, questionCount: sessionCount,
     }
 
     const res = await fetch('/api/session/start', {
@@ -286,7 +311,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
           <div className="flex-1">
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.9px', textTransform: 'uppercase', color: 'var(--clr-text-med)', marginBottom: 10 }}>Scope</p>
 
-            {scopeCards.map(({ key, title, subtitle, requiresPro }) => {
+            {scopeCards.filter(c => c.key !== 'topic' || visibleTopics.length > 0).map(({ key, title, subtitle, requiresPro }) => {
               const isLocked = requiresPro && !subscribed
               const isSelected = scope === key
               const isOpen = isSelected && key !== 'combined'
@@ -347,7 +372,11 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                               style={{ width: '100%', padding: '10px 36px 10px 12px', borderRadius: 9, border: '1px solid var(--clr-border)', background: 'var(--clr-surface)', fontSize: 13.5, color: 'var(--clr-text)', cursor: 'pointer', outline: 'none', appearance: 'none' }}
                             >
                               <option value="">Select a topic…</option>
-                              {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                              {visibleTopics.map(t => (
+                                <option key={t.id} value={t.id}>
+                                  {t.name}{topicCounts ? ` (${topicCounts[t.id] ?? 0} question${topicCounts[t.id] === 1 ? '' : 's'})` : ''}
+                                </option>
+                              ))}
                             </select>
                             <svg style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="var(--clr-text-med)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           </div>
@@ -469,7 +498,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                   { val: 20 as QuestionCount, pro: true },
                   { val: 50 as QuestionCount, pro: true },
                   { val: 100 as QuestionCount, pro: true },
-                ]).map(({ val, pro }) => {
+                ]).filter(({ val }) => lengthAllowed(val)).map(({ val, pro }) => {
                   const isLocked = pro && !subscribed
                   return (
                     <button
@@ -477,10 +506,10 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
                       onClick={() => isLocked ? locked() : setQuestionCount(val)}
                       style={{
                         flex: 1, padding: '9px 0', borderRadius: 10,
-                        border: `1.5px solid ${questionCount === val ? 'var(--clr-primary)' : 'var(--clr-border)'}`,
-                        background: questionCount === val ? 'var(--clr-pri-light)' : 'var(--clr-surface)',
+                        border: `1.5px solid ${sessionCount === val ? 'var(--clr-primary)' : 'var(--clr-border)'}`,
+                        background: sessionCount === val ? 'var(--clr-pri-light)' : 'var(--clr-surface)',
                         fontFamily: 'var(--font-outfit),sans-serif', fontSize: 14, fontWeight: 600,
-                        color: questionCount === val ? 'var(--clr-primary)' : isLocked ? 'var(--clr-border)' : 'var(--clr-text-med)',
+                        color: sessionCount === val ? 'var(--clr-primary)' : isLocked ? 'var(--clr-border)' : 'var(--clr-text-med)',
                         cursor: isLocked ? 'default' : 'pointer',
                         opacity: isLocked ? 0.5 : 1,
                       }}

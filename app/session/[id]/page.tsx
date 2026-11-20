@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { endSession } from '@/lib/session-end'
 import { Session, Question, SessionState, SourceBook } from '@/lib/types'
 import { citationChapterId, citationLine } from '@/lib/citation'
+import ReviewedMark from '@/components/ReviewedMark'
 
 const LIGHTS = 15
 
@@ -356,6 +357,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             {currentQ?.explanation && (
               <p style={{ fontSize: 14, color: 'var(--clr-text)', lineHeight: 1.66, marginBottom: 11 }}>{currentQ.explanation}</p>
             )}
+            <ReviewedMark reviewedAt={currentQ?.last_reviewed_at} style={{ marginBottom: 11 }} />
             {currentBook && (
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7, padding: '9px 11px', background: 'var(--clr-surface)', borderRadius: 8 }}>
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>

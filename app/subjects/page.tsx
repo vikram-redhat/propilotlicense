@@ -111,7 +111,7 @@ export default async function SubjectsPage() {
         {/* Captain verification (kept as-is, moved above the CTA) */}
         <div style={{ marginTop: 40, padding: '24px', background: 'var(--clr-pri-light)', borderRadius: 12 }}>
           <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--clr-text)', margin: 0 }}>
-            Every question is written to the DGCA syllabus and cites its source. Our Captain Panel of airline captains reviews questions, starting with the ones students miss most.{' '}
+            Every question is written to the DGCA syllabus and cites its source. Our Captain Panel of airline captains reviews questions, starting with the ones students miss most, and reviewed questions are marked as such.{' '}
             <Link href="/about" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'none' }}>Learn more about the verification process →</Link>
           </p>
         </div>

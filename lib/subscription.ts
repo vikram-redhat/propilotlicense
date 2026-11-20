@@ -20,7 +20,7 @@ export function daysRemaining(profile: Profile | null): number | null {
 
 // How the free tier is described everywhere it's offered (homepage, pricing, upgrade
 // messages): keep them in step with the rules below and in lib/chapter-taster.ts.
-export const FREE_TIER_LINE = '10 free questions every day, plus a free session on every chapter.'
+export const FREE_TIER_LINE = '10 free questions every day, plus a free session on every Meteorology and Air Regulations chapter.'
 
 // A free account gets one mixed-practice session a day, the day running midnight to midnight
 // India time (chapter tasters don't count). /api/session/start refuses a second with this.

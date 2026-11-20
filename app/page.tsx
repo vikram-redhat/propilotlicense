@@ -374,7 +374,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <div style={{ fontFamily: 'var(--font-outfit),sans-serif', fontSize: 15, fontWeight: 700, color: 'var(--clr-text)' }}>Written to the syllabus, reviewed by captains</div>
           </div>
           <p style={{ fontSize: 13, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: 0 }}>
-            Every question is written to the DGCA syllabus and cites its source. Our Captain Panel of airline captains reviews questions, starting with the ones students miss most.
+            Every question is written to the DGCA syllabus and cites its source. Our Captain Panel of airline captains reviews questions, starting with the ones students miss most, and reviewed questions are marked as such.
           </p>
           <Link href="/about" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>
             About the Captain Panel →

@@ -56,7 +56,7 @@ export default async function A320AutoflightPost() {
         </p>
 
         <div style={{ fontSize: 12, color: 'var(--clr-text-med)', marginBottom: 32, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span>Reviewed by the Captain Panel — 4 active airline captains, current DGCA ATPL</span>
+          <span>Reviewed by the ProPilotLicence Captain Panel</span>
           <span>·</span>
           <span>ATPL / Type Rating</span>
         </div>

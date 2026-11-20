@@ -12,6 +12,7 @@ import SiteFooter from '@/components/SiteFooter'
 import SiteHeader from '@/components/SiteHeader'
 import { isAdminUser } from '@/lib/roles'
 import { citationChapterId, citationLine } from '@/lib/citation'
+import ReviewedMark from '@/components/ReviewedMark'
 
 export default function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -415,6 +416,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                           {q.explanation}
                         </p>
                       )}
+                      <ReviewedMark reviewedAt={q.last_reviewed_at} style={{ marginTop: 8 }} />
 
                       {book && (
                         <div className="flex items-start gap-1.5 mt-3 pt-3 border-t border-slate-100">
