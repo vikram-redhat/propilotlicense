@@ -28,7 +28,7 @@ export const BOOKS = [
       },
       {
         q: 'Is the IC Joshi question bank on ProPilotLicence up to date?',
-        a: 'All questions are reviewed by the ProPilotLicence captain panel for current accuracy against the DGCA syllabus and the 2019 edition of the book.',
+        a: 'Every question is written to the DGCA syllabus and the 2019 edition of the book, and cites its source. Our Captain Panel of airline captains reviews questions, starting with the ones students miss most.',
       },
     ],
     sampleQuestion: {

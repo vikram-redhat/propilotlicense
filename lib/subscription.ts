@@ -33,13 +33,18 @@ export function startOfTodayInIndia(now = new Date()): string {
   return new Date(`${day}T00:00:00+05:30`).toISOString()
 }
 
-// What a free account may start: the combined paper, up to 10 questions, practice mode.
-// Returns the error code for the first rule a session breaks, or null if it's allowed.
-// Used by every route that creates a session (start, practise the rest).
-export function freeTierError({ scope, questionCount, mode }: { scope: string; questionCount: number; mode: string }):
-  'free_tier_scope' | 'free_tier_count' | 'free_tier_mode' | null {
+// What a free account may start: the combined paper, up to 10 questions, practice mode,
+// all difficulties. Returns the error code for the first rule a session breaks, or null if
+// it's allowed. Used by every route that creates a session (start, practise the rest).
+export function freeTierError({ scope, questionCount, mode, difficulty }: { scope: string; questionCount: number; mode: string; difficulty: string }):
+  'free_tier_scope' | 'free_tier_count' | 'free_tier_mode' | typeof FREE_DIFFICULTY_ERROR | null {
   if (scope !== 'combined') return 'free_tier_scope'
   if (questionCount > 10) return 'free_tier_count'
   if (mode === 'mock') return 'free_tier_mode'
+  if (difficulty !== 'all') return FREE_DIFFICULTY_ERROR
   return null
 }
+
+// Difficulty selection is paid only: a free account's sessions, tasters included, draw from
+// all difficulties.
+export const FREE_DIFFICULTY_ERROR = 'free_tier_difficulty'

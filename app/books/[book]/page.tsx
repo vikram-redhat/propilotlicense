@@ -87,8 +87,8 @@ export async function generateMetadata({ params }: { params: Promise<{ book: str
   return buildMetadata({
     title: `${book.title} by ${book.authorShort} — DGCA ${book.subjectTitle} Questions | ProPilotLicence`,
     description: bySyllabus(book)
-      ? `${(await bookQuestionTotal(slug)).toLocaleString()} ${book.subjectTitle} practice questions organised by ${book.authorShort}’s chapters. Reviewed by active airline captains.`
-      : `${(await bookQuestionTotal(slug)).toLocaleString()} practice questions sourced from ${book.title} by ${book.author}. Organised by chapter. Reviewed by active airline captains.`,
+      ? `${(await bookQuestionTotal(slug)).toLocaleString()} ${book.subjectTitle} practice questions organised by ${book.authorShort}’s chapters, with explanations and source citations.`
+      : `${(await bookQuestionTotal(slug)).toLocaleString()} practice questions sourced from ${book.title} by ${book.author}. Organised by chapter, with explanations and source citations.`,
     path: `/books/${slug}`,
   })
 }
@@ -102,8 +102,8 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
 
   const url = `https://www.propilotlicence.com/books/${book.slug}`
   const courseDescription = bySyllabus(book)
-    ? `${questionCount.toLocaleString()} ${book.subjectTitle} practice questions organised by the chapters of ${book.title} by ${book.author}, reviewed by active airline captains.`
-    : `${questionCount.toLocaleString()} practice questions sourced from ${book.title} by ${book.author}, organised by chapter and reviewed by active airline captains.`
+    ? `${questionCount.toLocaleString()} ${book.subjectTitle} practice questions organised by the chapters of ${book.title} by ${book.author}, with explanations and source citations.`
+    : `${questionCount.toLocaleString()} practice questions sourced from ${book.title} by ${book.author}, organised by chapter, with explanations and source citations.`
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
@@ -238,7 +238,7 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
             Practise all {questionCount.toLocaleString()} questions {bySyllabus(book) ? `on ${book.authorShort}’s chapters` : `from ${book.authorShort}`}
           </div>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.72)', marginBottom: 20 }}>
-            Organised by chapter. Reviewed by active airline captains. {FREE_TIER_LINE}
+            Organised by chapter. Each question cites its source. {FREE_TIER_LINE}
           </p>
           <Link
             href="/login"

@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     .from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single()
   const subscribed = isAdminUser(user) || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
   if (!subscribed) {
-    const blocked = freeTierError({ scope: from.scope, questionCount: rest.length, mode: from.mode })
+    const blocked = freeTierError({ scope: from.scope, questionCount: rest.length, mode: from.mode, difficulty: from.difficulty ?? 'all' })
     if (blocked) return Response.json({ error: blocked }, { status: 403 })
   }
 

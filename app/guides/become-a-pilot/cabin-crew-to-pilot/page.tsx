@@ -224,7 +224,7 @@ export default async function CabinCrewToPilotPost() {
 
         <CtaBlock
           title="Preparing for DGCA CPL theory exams?"
-          body={`When you reach the theory examination stage, ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions organised by subject, book, and chapter — verified by a panel of active airline captains. Free to start.`}
+          body={`When you reach the theory examination stage, ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions organised by subject, book, and chapter — with explanations and source citations. Free to start.`}
           href="/subjects"
           label="Start practising →"
         />

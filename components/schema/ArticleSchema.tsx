@@ -22,7 +22,7 @@ export function ArticleSchema({ title, description, url, publishedAt, updatedAt,
     reviewedBy: {
       '@type': 'Organization',
       name: 'ProPilotLicence Captain Panel',
-      description: 'A panel of four or more active commercial airline captains holding valid DGCA CPL and ATPL licences.',
+      description: 'ProPilotLicence Captain Panel, airline captains who review questions and guides.',
     },
   }
   return (

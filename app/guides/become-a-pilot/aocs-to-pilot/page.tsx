@@ -230,7 +230,7 @@ export default async function AocsToPilotPost() {
 
         <CtaBlock
           title="Ready to start your DGCA theory preparation?"
-          body={`ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions across all five CPL subjects — organised by book and chapter, verified by active airline captains. Start with Air Regulations, where your ops background gives you the strongest advantage.`}
+          body={`ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions across all five CPL subjects — organised by book and chapter, with explanations and source citations. Start with Air Regulations, where your ops background gives you the strongest advantage.`}
           href="/subjects/air-regulations"
           label="Start with Air Regulations →"
         />

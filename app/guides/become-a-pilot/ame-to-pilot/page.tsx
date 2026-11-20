@@ -223,7 +223,7 @@ export default async function AmeToPilotPost() {
 
         <CtaBlock
           title="Ready to start your DGCA theory preparation?"
-          body={`ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions across all five CPL subjects — organised by book and chapter, verified by active airline captains. Start with Technical General, where your AME background gives you the strongest advantage.`}
+          body={`ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions across all five CPL subjects — organised by book and chapter, with explanations and source citations. Start with Technical General, where your AME background gives you the strongest advantage.`}
           href="/subjects/technical-general"
           label="Start with Technical General →"
         />

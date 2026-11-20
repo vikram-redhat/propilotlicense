@@ -33,10 +33,10 @@ function welcomeHtml(firstName: string): string {
         <tr><td style="padding:28px;">
           <p style="margin:0 0 14px;font-size:16px;line-height:1.6;color:${INK};">${greeting}</p>
           <p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:${INK_MED};">
-            Welcome aboard — your account is ready. ProPilotLicence gives you practice questions across every DGCA CPL and ATPL theory subject, organised by book and chapter and verified by active airline captains.
+            Welcome aboard — your account is ready. ProPilotLicence gives you practice questions across every DGCA CPL and ATPL theory subject, organised by book and chapter, each with an explanation and its source.
           </p>
           <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:${INK_MED};">
-            To get you started, here are our two guide series — free to read, written and reviewed by the same captain panel:
+            To get you started, here are our two guide series — free to read, reviewed by our Captain Panel of airline captains:
           </p>
 
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 8px;">

@@ -5,7 +5,7 @@ export function OrganizationSchema() {
     name: 'ProPilotLicence',
     url: 'https://www.propilotlicence.com',
     description:
-      'DGCA CPL and ATPL theory exam preparation platform. Every question reviewed by a panel of four or more active commercial airline captains before entering the question bank.',
+      'DGCA CPL and ATPL theory exam preparation platform: practice questions with explanations and source citations, from a team that includes airline captains.',
     knowsAbout: [
       'DGCA CPL examination',
       'DGCA ATPL examination',

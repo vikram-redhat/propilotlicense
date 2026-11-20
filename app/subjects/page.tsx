@@ -12,7 +12,7 @@ import { HUMAN_PERFORMANCE } from '@/lib/human-performance'
 export const metadata = buildMetadata({
   title: 'DGCA CPL & ATPL Exam Subjects — Practice Questions | ProPilotLicence',
   description:
-    'Practice questions for all DGCA CPL and ATPL theory exam subjects — plus a full Airbus A320 question bank covering every ATA chapter. Verified by active airline captains.',
+    'Practice questions for all DGCA CPL and ATPL theory exam subjects, plus a full Airbus A320 question bank covering every ATA chapter. Explanations and source citations, from a team that includes airline captains.',
   path: '/subjects',
 })
 
@@ -41,7 +41,7 @@ export default async function SubjectsPage() {
           DGCA CPL &amp; ATPL Theory Exam Subjects
         </h1>
         <p style={{ fontSize: 16, color: 'var(--clr-text-med)', lineHeight: 1.6, marginBottom: 48 }}>
-          Practice questions for all DGCA CPL and ATPL theory exam subjects — organised by book and chapter, verified by a panel of active airline captains.
+          Practice questions for all DGCA CPL and ATPL theory exam subjects, organised by book and chapter, with explanations and source citations.
         </p>
 
         {/* CPL subjects */}
@@ -100,7 +100,7 @@ export default async function SubjectsPage() {
               </div>
             </div>
             <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: '14px 0 0' }}>
-              Full ATPL question bank covering every ATA chapter — Air Conditioning, Pressurisation, Autoflight, Electrical, Flight Controls, Fuel, Hydraulics, Ice &amp; Rain Protection, Landing Gear, Engines, APU, and more. Questions verified by active airline captains currently flying the A320 family.
+              Full ATPL question bank covering every ATA chapter — Air Conditioning, Pressurisation, Autoflight, Electrical, Flight Controls, Fuel, Hydraulics, Ice &amp; Rain Protection, Landing Gear, Engines, APU, and more. Each question cites its source.
             </p>
           </Link>
           <Link href={isLoggedIn ? '/atpl' : '/login?next=/atpl'} style={{ display: 'inline-block', fontSize: 14, fontWeight: 700, color: 'var(--clr-primary)', marginTop: 14, textDecoration: 'none' }}>
@@ -111,7 +111,7 @@ export default async function SubjectsPage() {
         {/* Captain verification (kept as-is, moved above the CTA) */}
         <div style={{ marginTop: 40, padding: '24px', background: 'var(--clr-pri-light)', borderRadius: 12 }}>
           <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--clr-text)', margin: 0 }}>
-            Every question is sourced from DGCA-prescribed textbooks and verified by a panel of four or more active commercial airline captains before entering the question bank.{' '}
+            Every question is written to the DGCA syllabus and cites its source. Our Captain Panel of airline captains reviews questions, starting with the ones students miss most.{' '}
             <Link href="/about" style={{ color: 'var(--clr-primary)', fontWeight: 600, textDecoration: 'none' }}>Learn more about the verification process →</Link>
           </p>
         </div>

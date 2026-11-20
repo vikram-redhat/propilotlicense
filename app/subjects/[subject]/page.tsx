@@ -150,7 +150,7 @@ export default async function SubjectPage({ params }: { params: Promise<{ subjec
             Start practising {subject.shortTitle}
           </div>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.72)', marginBottom: 20 }}>
-            {questionCount.toLocaleString()} practice questions, reviewed by active airline captains. {FREE_TIER_LINE}
+            {questionCount.toLocaleString()} practice questions, each citing its source. {FREE_TIER_LINE}
           </p>
           <Link
             href="/login"

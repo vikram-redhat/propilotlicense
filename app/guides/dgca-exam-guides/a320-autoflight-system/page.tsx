@@ -202,7 +202,7 @@ export default async function A320AutoflightPost() {
 
         <CtaBlock
           title="Practise A320 questions"
-          body={`ProPilotLicence has ${roundedTotal(totals.all)} DGCA ATPL and CPL practice questions — including a full A320 question bank covering every ATA chapter, verified by active airline captains. Free to start.`}
+          body={`ProPilotLicence has ${roundedTotal(totals.all)} DGCA ATPL and CPL practice questions — including a full A320 question bank covering every ATA chapter, with explanations and source citations. Free to start.`}
           href="/login?next=/atpl"
           label="Practise A320 questions →"
         />

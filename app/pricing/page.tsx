@@ -32,7 +32,7 @@ export default async function PricingPage() {
             <p className="text-sm text-slate-400 mb-6">forever</p>
             <ul className="space-y-2.5 text-sm mb-8">
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> One 10-question mixed session a day</li>
-              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> One free 10-question session on every chapter</li>
+              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> One free 10-question session on every Meteorology and Air Regulations chapter</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> One free session on the new Bharatiya Vayuyan rules</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Full explanations with source citations</li>
               <li className="flex items-start gap-2 text-slate-400"><span className="mt-0.5">✗</span> Mock exams</li>
@@ -55,11 +55,9 @@ export default async function PricingPage() {
             <ul className="space-y-2.5 text-sm mb-8">
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Everything in Free</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Mock exams with timer</li>
-              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> 50 or 100 questions</li>
+              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> 10 to 100 questions, timed</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> By book sessions</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> By chapter sessions</li>
-              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> By topic sessions</li>
-              <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Basic / Advanced difficulty</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> Full question bank</li>
               <li className="flex items-start gap-2 text-slate-600"><span className="text-green-500 mt-0.5">✓</span> All new-rules (Bharatiya Vayuyan) questions</li>
             </ul>

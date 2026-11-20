@@ -116,7 +116,7 @@ export default async function DgcaCplBooksPost() {
           </SubSection>
           <p>
             For content updated after your edition of Bali, supplement with current DGCA CARs from the{' '}
-            <span style={{ fontWeight: 500 }}>DGCA website</span> (free download). ProPilotLicence Air Regulations questions are reviewed against current CARs before publication.
+            <span style={{ fontWeight: 500 }}>DGCA website</span> (free download). Questions on Indian law are being moved onto the Bharatiya Vayuyan Adhiniyam and Niyam, and are reviewed by our Captain Panel.
           </p>
           <p>
             ProPilotLicence has{' '}
@@ -168,7 +168,7 @@ export default async function DgcaCplBooksPost() {
             Indian aviation textbooks have limited distribution. The most reliable sources are the publishers directly or established aviation bookshops. Photocopied editions circulate widely in flying clubs — while the content is the same, note that edition dates matter for Air Regulations (older editions may have outdated CARs).
           </p>
           <p>
-            Questions on ProPilotLicence are always reviewed against the current DGCA-prescribed edition of each textbook before publication.
+            Questions on ProPilotLicence are written to the current DGCA-prescribed edition of each textbook and cite their source.
           </p>
         </Section>
 
@@ -177,7 +177,7 @@ export default async function DgcaCplBooksPost() {
             Practice questions from these books
           </div>
           <p style={{ fontSize: 14, color: 'var(--clr-text-med)', lineHeight: 1.65, margin: 0 }}>
-            ProPilotLicence has {roundedTotal(totals.cpl)} questions sourced from DGCA-prescribed textbooks, organised by subject and chapter, and reviewed by active airline captains.
+            ProPilotLicence has {roundedTotal(totals.cpl)} questions written to the DGCA syllabus, organised by subject and chapter, each citing its source.
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
             <Link href="/books/ic-joshi-aviation-meteorology" data-cta="guide" style={{ fontSize: 13, fontWeight: 600, color: 'var(--clr-primary)', textDecoration: 'none' }}>IC Joshi — Meteorology →</Link>

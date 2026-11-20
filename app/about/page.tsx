@@ -7,8 +7,8 @@ import { getHeaderAuthState } from '@/lib/supabase-server'
 import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 
 export const metadata = buildMetadata({
-  title: 'About ProPilotLicence — DGCA Exam Prep Verified by Airline Captains',
-  description: 'ProPilotLicence is a DGCA CPL and ATPL theory exam preparation platform built by pilots, for pilots. Every question reviewed by a panel of four active airline captains.',
+  title: 'About ProPilotLicence — DGCA CPL and ATPL Exam Prep',
+  description: 'DGCA CPL and ATPL practice questions with explanations and source citations, from a team that includes airline captains. Built by pilots, for pilots.',
   path: '/about',
 })
 
@@ -49,9 +49,9 @@ export default async function AboutPage() {
         <Section title="The verification panel">
           <p>This is what makes ProPilotLicence different from every other platform in this space.</p>
           <p>
-            Before any question enters the question bank, it is reviewed by a panel of four or more active commercial airline captains. These are not retired pilots consulting from memory. They are currently flying commercially on Indian domestic and international routes, holding valid DGCA CPL and ATPL licences, and sitting in the left seat of aircraft you have flown on. The pilots have vast experience in flying in airspace managed by DGCA, FAA, EASA, North America, South America, AFRICA, SE ASIA, Middle East GCC, CHINA rules and guidelines. 
+            Every question is written to the DGCA syllabus and cites its source. Our Captain Panel of airline captains reviews questions, starting with the ones students miss most. The captains on the panel are not retired pilots consulting from memory. They are currently flying commercially on Indian domestic and international routes, holding valid DGCA CPL and ATPL licences, and sitting in the left seat of aircraft you have flown on. The pilots have vast experience in flying in airspace managed by DGCA, FAA, EASA, North America, South America, AFRICA, SE ASIA, Middle East GCC, CHINA rules and guidelines. 
           </p>
-          <p>The panel reviews each question for:</p>
+          <p>When the panel reviews a question, it checks:</p>
           <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
             {[
               ['Technical accuracy', 'Is the correct answer actually correct, per current DGCA-prescribed texts and regulations?'],

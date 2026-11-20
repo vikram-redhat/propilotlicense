@@ -81,7 +81,7 @@ export default async function HumanPerformanceSubjectPage() {
             Start practising Human Performance
           </div>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.72)', marginBottom: 20 }}>
-            {chapter.questions.toLocaleString()} practice questions, reviewed by active airline captains.
+            {chapter.questions.toLocaleString()} practice questions, each citing its source.
           </p>
           <Link
             href={humanPerformancePracticeHref(chapter.number)}

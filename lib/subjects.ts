@@ -63,7 +63,7 @@ export const SUBJECTS = [
       },
       {
         q: 'Does the DGCA Air Regulations paper reflect current regulations?',
-        a: 'Yes. The DGCA updates its examination content to reflect current Civil Aviation Requirements. ProPilotLicence questions are reviewed against current DGCA CARs by the captain panel before publication, ensuring they reflect the regulatory environment as it stands today.',
+        a: 'Yes. The DGCA updates its examination content to reflect current Civil Aviation Requirements. Questions on Indian law are being moved onto the Bharatiya Vayuyan Adhiniyam and Niyam, and are reviewed by our Captain Panel.',
       },
     ],
   },

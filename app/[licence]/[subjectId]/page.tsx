@@ -220,6 +220,7 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
         data.error === 'free_tier_scope'  ? 'Upgrade to access this scope.' :
         data.error === 'free_tier_count'  ? 'Upgrade to use more than 10 questions.' :
         data.error === 'free_tier_mode'   ? 'Upgrade to access mock exam mode.' :
+        data.error === 'free_tier_difficulty' ? 'Upgrade to choose a difficulty.' :
         data.error || 'Failed to start session'
       alert(msg)
       setStarting(false)

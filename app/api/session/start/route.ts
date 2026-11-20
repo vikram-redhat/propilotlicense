@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
-import { FREE_DAILY_ERROR, freeTierError, isSubscribed, startOfTodayInIndia } from '@/lib/subscription'
+import { FREE_DAILY_ERROR, FREE_DIFFICULTY_ERROR, freeTierError, isSubscribed, startOfTodayInIndia } from '@/lib/subscription'
 import { chapterColumnFor } from '@/lib/syllabus'
 import { isChapterTaster, TASTER_QUESTIONS, TASTER_USED_ERROR } from '@/lib/chapter-taster'
 import {
@@ -70,6 +70,8 @@ export async function POST(req: Request) {
   const newRules = isNewRulesSession(scope, sourceBookId)
   const newRulesTaster = newRules && !subscribed && mode === 'practice'
   if (newRules && subscribed) questionCount = 100 // the whole set (fewer than 100)
+  // Difficulty selection is paid only, tasters included (lib/subscription.ts).
+  if (!subscribed && difficulty !== 'all') return Response.json({ error: FREE_DIFFICULTY_ERROR }, { status: 403 })
   if (newRulesTaster) {
     const { data: prior, error: priorError } = await supabase
       .from('sessions').select('id, question_ids, ended_at')
@@ -98,7 +100,7 @@ export async function POST(req: Request) {
     }
     questionCount = TASTER_QUESTIONS
   } else if (!subscribed) {
-    const blocked = freeTierError({ scope, questionCount, mode })
+    const blocked = freeTierError({ scope, questionCount, mode, difficulty })
     if (blocked) return Response.json({ error: blocked }, { status: 403 })
     // One mixed-practice session a day (lib/subscription.ts). Resuming today's session
     // doesn't come through here, and chapter tasters (scope book_chapter) don't count.
@@ -341,8 +343,10 @@ export async function POST(req: Request) {
       chapter_id: scope === 'book_chapter' ? (chapterId ?? null) : null,
       mode,
       difficulty,
-      question_count: newRules ? shuffled.length : questionCount,
-      time_limit_secs: (newRules ? shuffled.length : questionCount) * 45,
+      // What it actually got: a small pool (a topic, a chapter, the new-rules set) can give
+      // fewer than asked for.
+      question_count: shuffled.length,
+      time_limit_secs: shuffled.length * 45,
       question_ids: shuffled,
     })
     .select('id')

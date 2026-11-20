@@ -292,7 +292,7 @@ export default async function CplRoadmapIndiaPost() {
 
         <CtaBlock
           title="Start preparing for your DGCA theory exams today"
-          body={`ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions across all five CPL subjects — organised by book and chapter, verified by active airline captains. Free to start, no credit card required.`}
+          body={`ProPilotLicence gives you ${roundedTotal(totals.cpl)} practice questions across all five CPL subjects — organised by book and chapter, with explanations and source citations. Free to start, no credit card required.`}
           href="/subjects"
           label="Start practising free →"
         />
