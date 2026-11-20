@@ -3,6 +3,8 @@ import Script from 'next/script'
 import { Suspense, useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { AUTH_EVENT_COOKIE, pathOnly, trackEvent, type AuthEvent } from '@/lib/analytics'
+import { supabase } from '@/lib/supabase'
+import { isAdminUser } from '@/lib/roles'
 
 declare global {
   interface Window {
@@ -30,6 +32,37 @@ function PageView({ gaId }: { gaId: string }) {
     })
   }, [pathname, searchParams])
 
+  return null
+}
+
+// Nothing is sent for /admin pages or from a browser used by an admin account: gtag's own
+// opt-out flag, window['ga-disable-<id>'], which it checks before every hit (page views and
+// events). The init script sets it before the first hit, from the path and from
+// ADMIN_KEY, which remembers that this browser has been signed in as an admin (so it stays
+// excluded after signing out). This keeps it current on client-side navigation, and sets or
+// clears ADMIN_KEY once the session is known.
+const ADMIN_KEY = 'ga_exclude_admin'
+const isAdminPath = (path: string) => path === '/admin' || path.startsWith('/admin/')
+
+function AdminExclusion({ gaId }: { gaId: string }) {
+  const pathname = usePathname()
+  useEffect(() => {
+    const flag = `ga-disable-${gaId}`
+    const w = window as unknown as Record<string, unknown>
+    const apply = (admin: boolean) => { w[flag] = admin || isAdminPath(pathname) }
+    let admin = false
+    try { admin = localStorage.getItem(ADMIN_KEY) === '1' } catch { /* storage blocked */ }
+    apply(admin)
+    let live = true
+    supabase.auth.getSession().then(({ data }) => {
+      const user = data.session?.user
+      if (!live || !user) return // signed out: keep what this browser was
+      const isAdmin = isAdminUser(user)
+      try { if (isAdmin) localStorage.setItem(ADMIN_KEY, '1'); else localStorage.removeItem(ADMIN_KEY) } catch { /* storage blocked */ }
+      apply(isAdmin)
+    })
+    return () => { live = false }
+  }, [gaId, pathname])
   return null
 }
 
@@ -77,7 +110,8 @@ export default function GoogleAnalytics() {
     <>
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
       <Script id="ga4-init" strategy="afterInteractive">
-        {`window.dataLayer = window.dataLayer || [];
+        {`try{if((localStorage.getItem('${ADMIN_KEY}')==='1'||/^\/admin(\/|$)/.test(location.pathname)))window['ga-disable-${gaId}']=true}catch(e){}
+window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', '${gaId}', { send_page_view: false });
@@ -85,6 +119,7 @@ window.gaReady = true;`}
       </Script>
       <SiteEvents />
       <Suspense fallback={null}>
+        <AdminExclusion gaId={gaId} />
         <PageView gaId={gaId} />
       </Suspense>
     </>

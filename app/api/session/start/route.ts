@@ -26,6 +26,13 @@ function filterByCountry<T extends CountryTaggedQuestion>(rows: T[], country: st
   return rows.filter(q => isVisibleForCountry(q.source_book?.countries, country))
 }
 
+// A refused free session, for counting limit hits (scripts/migrate_free_session_blocks.sql).
+// The refusal is still sent if this can't be saved.
+async function logBlocked(db: ReturnType<typeof createServiceClient>, userId: string, type: 'daily_limit' | 'taster_used') {
+  const { error } = await db.from('free_session_blocks').insert({ user_id: userId, type })
+  if (error) console.error('[session/start] free_session_blocks insert failed:', error.message)
+}
+
 export async function POST(req: Request) {
   const body = await req.json()
   const { subjectId, licenceType, scope, topicId, sourceBookId, chapterId, mode, difficulty, pairedSubjectId } = body
@@ -72,7 +79,10 @@ export async function POST(req: Request) {
       .from('sessions').select('id', { count: 'exact', head: true })
       .eq('user_id', user.id).eq('scope', 'book_chapter').eq('chapter_id', chapterId)
     if (usedError) return Response.json({ error: usedError.message }, { status: 500 })
-    if (used) return Response.json({ error: TASTER_USED_ERROR }, { status: 403 })
+    if (used) {
+      await logBlocked(supabase, user.id, 'taster_used')
+      return Response.json({ error: TASTER_USED_ERROR }, { status: 403 })
+    }
     questionCount = TASTER_QUESTIONS
   } else if (!subscribed) {
     const blocked = freeTierError({ scope, questionCount, mode })
@@ -83,7 +93,10 @@ export async function POST(req: Request) {
       .from('sessions').select('id', { count: 'exact', head: true })
       .eq('user_id', user.id).eq('scope', 'combined').gte('created_at', startOfTodayInIndia())
     if (todayError) return Response.json({ error: todayError.message }, { status: 500 })
-    if (today) return Response.json({ error: FREE_DAILY_ERROR }, { status: 403 })
+    if (today) {
+      await logBlocked(supabase, user.id, 'daily_limit')
+      return Response.json({ error: FREE_DAILY_ERROR }, { status: 403 })
+    }
   }
 
   // nav_rai_combined — 50 NAV + 50 RAI questions interleaved

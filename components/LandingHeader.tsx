@@ -148,8 +148,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                 Subjects
                 <Chevron />
               </button>
-              {subjectsMenuOpen && (
-                <div style={{ position: 'absolute', left: 0, marginTop: 12, width: 280, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
+                <div hidden={!subjectsMenuOpen} style={{ position: 'absolute', left: 0, marginTop: 12, width: 280, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
                   <Link href="/subjects" data-cta="nav-subjects" onClick={() => setSubjectsMenuOpen(false)} style={{ ...menuLink, fontWeight: 600, borderTop: 'none' }}>
                     All subjects
                   </Link>
@@ -167,7 +166,6 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                     </Link>
                   ))}
                 </div>
-              )}
             </div>
             <div className="relative" ref={guidesMenuRef}>
               <button
@@ -178,8 +176,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                 Guides
                 <Chevron />
               </button>
-              {guidesMenuOpen && (
-                <div style={{ position: 'absolute', left: 0, marginTop: 12, width: 200, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
+                <div hidden={!guidesMenuOpen} style={{ position: 'absolute', left: 0, marginTop: 12, width: 200, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
                   <Link
                     href="/guides"
                     onClick={() => setGuidesMenuOpen(false)}
@@ -198,7 +195,6 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                     </Link>
                   ))}
                 </div>
-              )}
             </div>
             <div className="relative" ref={updatesMenuRef}>
               <button
@@ -209,8 +205,7 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                 DGCA Updates
                 <Chevron />
               </button>
-              {updatesMenuOpen && (
-                <div style={{ position: 'absolute', left: 0, marginTop: 12, width: 230, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
+                <div hidden={!updatesMenuOpen} style={{ position: 'absolute', left: 0, marginTop: 12, width: 230, background: '#fff', borderRadius: 12, border: '1px solid var(--clr-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 50 }}>
                   {NAV_UPDATES.map((u, i) => (
                     <Link key={u.href} href={u.href} data-cta="nav-updates" onClick={() => setUpdatesMenuOpen(false)} style={{ ...menuLink, ...(i === 0 ? { borderTop: 'none' } : {}) }}>
                       {u.label}
@@ -220,7 +215,6 @@ export default function LandingHeader({ name: initialName, isLoggedIn: initialIs
                     All DGCA updates
                   </Link>
                 </div>
-              )}
             </div>
             <Link href="/pricing" data-cta="nav-pricing" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>Pricing</Link>
             <Link href="/about" style={{ fontSize: 13, fontWeight: 500, color: 'var(--clr-text-med)', textDecoration: 'none' }}>About</Link>
