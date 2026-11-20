@@ -7,7 +7,7 @@ import {
   matchResultSession, noticeDateFromTitle, resultActionLink, revalidateResultPages,
 } from '@/lib/dgca-results'
 import {
-  changesEmail, diffNotices, failingEmail, fetchNotices, groupOf, GROUPS, isPilotResult, newCalendarYears,
+  changesEmail, diffNotices, failingEmail, fetchNotices, groupOf, GROUPS, isPilotBoardResult, newCalendarYears, notPublishedReason,
   PARIKSHA_HOME, type Notice, type Published,
 } from '@/lib/dgca-notices'
 
@@ -76,11 +76,17 @@ export async function GET(req: Request) {
   if (test) notices = [...inject.map((title, i) => ({ board: 'pilot' as const, title, url: `${PARIKSHA_HOME}#test-${Date.now()}-${i}` })), ...notices]
   const changes = diffNotices(baseline, notices)
 
-  // New result notices on the Pilot board: published straight away. Not on a first run (no
-  // baseline), when every notice on the board counts as new.
+  // New result notices on the Pilot board: published straight away, unless notPublishedReason
+  // says why not (a first run, when every notice on the board counts as new; a changed title;
+  // no link; an AME result). Every one is listed at the top of the email.
   const published: Published[] = []
-  for (const c of baseline ? changes : []) {
-    if (c.change !== 'new' || !isPilotResult(c)) continue
+  for (const c of changes) {
+    if (!isPilotBoardResult(c)) continue
+    const reason = notPublishedReason(c, !baseline)
+    if (reason || !c.url) {
+      published.push({ title: c.title, url: c.url, sessionName: null, status: 'not_published', reason: reason ?? undefined, hideLink: null })
+      continue
+    }
     const sessionId = matchResultSession(c.title)
     const sessionName = sessionId ? sessionById(sessionId)?.name ?? sessionId : null
     const entry: Published = { title: c.title, url: c.url, sessionName, status: sessionId ? 'published' : 'hidden', hideLink: null }
@@ -89,7 +95,7 @@ export async function GET(req: Request) {
         { session_id: sessionId, label: c.title, url: c.url, notice_date: noticeDateFromTitle(c.title), hidden: !sessionId, source: 'auto' },
         { onConflict: 'url', ignoreDuplicates: true },
       ).select('id')
-      if (error) Object.assign(entry, { status: 'failed', error: error.message })
+      if (error) Object.assign(entry, { status: 'failed', reason: error.message })
       else if (!data?.length) entry.status = 'already'
       else if (sessionId) entry.hideLink = resultActionLink('hide', (data[0] as { id: number }).id)
     }

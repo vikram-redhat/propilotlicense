@@ -88,7 +88,8 @@ export const GROUPS = [
   'New sessions or portal windows',
   'Venue lists',
   'Admit cards',
-  'Results (pilot board)',
+  'Results (pilot board)', // listed at the top of the email instead (published or not)
+  'AME results (ignored, not published)',
   'Calendars',
   'Other',
 ] as const
@@ -98,18 +99,27 @@ export function groupOf(n: Notice): Group {
   const t = n.title
   if (/calendar/i.test(t)) return 'Calendars'
   if (n.board === 'pilot' && /result/i.test(t)) return 'Results (pilot board)'
+  if (n.board === 'ame' && /result/i.test(t)) return 'AME results (ignored, not published)'
   if (/venue/i.test(t)) return 'Venue lists'
   if (/admit card/i.test(t)) return 'Admit cards'
   if (n.board === 'banner' || /public notice|portal|schedule|time ?table/i.test(t)) return 'New sessions or portal windows'
   return 'Other'
 }
 
-// A result notice the check publishes itself: on the Pilot board, with "Result" in the title.
-// AME-board notices are never published, nor Pilot-board ones that mention AME, unless they
-// also say FC or Flight Crew.
-export function isPilotResult(n: Notice): n is Notice & { url: string } {
-  const t = n.title
-  return n.board === 'pilot' && /result/i.test(t) && !!n.url && (!/\bAME\b/i.test(t) || /\bFC\b|flight crew/i.test(t))
+// A result notice on the Pilot board ("Result" in the title). The check publishes it unless
+// notPublishedReason says why not. AME-board notices are never published.
+export function isPilotBoardResult(n: Notice): boolean {
+  return n.board === 'pilot' && /result/i.test(n.title)
+}
+
+// Why a Pilot-board result notice isn't published automatically, or null if it can be (then
+// it's still added hidden when it can't be matched to a session).
+export function notPublishedReason(c: Change, firstRun: boolean): string | null {
+  if (firstRun) return 'First run of the check: nothing is published, as every notice on the board counts as new.'
+  if (c.change === 'changed') return `Its title changed at a link already seen (was: “${c.previousTitle ?? ''}”), so nothing was published. Check whether dgca_results needs the new title.`
+  if (!c.url) return 'The notice has no PDF link to publish.'
+  if (/\bAME\b/i.test(c.title) && !/\bFC\b|flight crew/i.test(c.title)) return 'The title mentions AME without FC or Flight Crew, so it was treated as an AME result. If it is a pilot result, add it to dgca_results by hand.'
+  return null
 }
 
 // An exam calendar link for a year after the latest one in the data file, new this run.
@@ -126,32 +136,38 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 // What the check did with a new result notice on the Pilot board, for the email.
 export type Published = {
   title: string
-  url: string
+  url: string | null
   sessionName: string | null // the matched session; null: not matched, so inserted hidden
-  status: 'published' | 'hidden' | 'already' | 'failed'
-  error?: string
+  status: 'published' | 'already' | 'hidden' | 'failed' | 'not_published'
+  reason?: string // why it failed or wasn't published
   hideLink: string | null
 }
+// Statuses listed under "Pilot result NOT published (needs attention)".
+const NEEDS_ATTENTION: ReadonlySet<Published['status']> = new Set(['hidden', 'failed', 'not_published'])
 
 function publishedLine(p: Published): string {
   switch (p.status) {
     case 'published': return `Published for ${p.sessionName}: on the results guide, in the updates bar and on DGCA Updates.`
     case 'hidden': return 'Not matched to a session, so it was added hidden and isn’t shown anywhere. Add the session to the data file, set its session_id in dgca_results and set hidden to false.'
     case 'already': return 'Already in dgca_results: nothing changed.'
-    case 'failed': return `Couldn’t be saved (${p.error ?? 'unknown error'}): add it to dgca_results by hand.`
+    case 'failed': return `Couldn’t be saved (${p.reason ?? 'unknown error'}): add it to dgca_results by hand.`
+    case 'not_published': return p.reason ?? 'Not published.'
   }
 }
 
 export function changesEmail(allChanges: Change[], opts: { firstRun: boolean; found: number; afterYear: number; published?: Published[]; test?: boolean }): { subject: string; html: string; text: string } {
   const published = opts.published ?? []
-  // A result that was published is listed once, at the top, not again under its group.
-  const handled = new Set(published.map(p => p.url))
-  const changes = allChanges.filter(c => !c.url || !handled.has(c.url))
+  // Pilot-board results are listed once, at the top (needing attention first), not again
+  // under their group.
+  const changes = allChanges.filter(c => groupOf(c) !== 'Results (pilot board)')
   const years = newCalendarYears(changes, opts.afterYear)
+  const attention = published.filter(p => NEEDS_ATTENTION.has(p.status))
+  const done = published.filter(p => !NEEDS_ATTENTION.has(p.status))
   const live = published.filter(p => p.status === 'published')
   const subject = (opts.test ? '[TEST] ' : '') + (
-    live.length ? `DGCA result published: ${live.map(p => p.title).join('; ')}`
-    : published.length ? `DGCA result notice to check: ${published.map(p => p.title).join('; ')}`
+    attention.length ? `DGCA pilot result NOT published (needs attention): ${attention.map(p => p.title).join('; ')}${live.length ? `; ${live.length} published` : ''}`
+    : live.length ? `DGCA result published: ${live.map(p => p.title).join('; ')}`
+    : published.length ? `DGCA result notice already published: ${published.map(p => p.title).join('; ')}`
     : years.length ? `DGCA ${years.join(', ')} exam calendar is out, plus ${changes.length} notice change${changes.length === 1 ? '' : 's'}`
     : opts.firstRun ? `DGCA notice check: first run, ${changes.length} notices on the Pariksha home page`
     : `DGCA notices: ${changes.length} new or changed`)
@@ -161,12 +177,15 @@ export function changesEmail(allChanges: Change[], opts: { firstRun: boolean; fo
       ? `${changes.length} ${published.length ? 'other ' : ''}new or changed notice${changes.length === 1 ? '' : 's'} on the Pariksha home page since the last check. Update lib/data/dgca-exam-sessions.json from these.`
       : 'No other new or changed notices since the last check.'
 
-  const resultsHtml = published.length ? `<h2 style="font-size:15px;margin:0 0 8px;">New result notice${published.length === 1 ? '' : 's'} (Pilot board)</h2>
-${published.map(p => `<div style="margin:0 0 14px;padding:12px 14px;background:${p.status === 'published' ? '#eaf6ee' : '#fdf4dc'};border-radius:8px;font-size:14px;line-height:1.5;">
-<div><a href="${esc(p.url)}" style="color:#185FA5;font-weight:600;">${esc(p.title)}</a></div>
-<div style="margin-top:4px;">${esc(publishedLine(p))}</div>
+  const resultCard = (p: Published) => `<div style="margin:0 0 14px;padding:12px 14px;background:${NEEDS_ATTENTION.has(p.status) ? '#fdecea' : '#eaf6ee'};border-radius:8px;font-size:14px;line-height:1.5;">
+<div>${p.url ? `<a href="${esc(p.url)}" style="color:#185FA5;font-weight:600;">${esc(p.title)}</a>` : `<strong>${esc(p.title)}</strong>`}</div>
+<div style="margin-top:4px;">${NEEDS_ATTENTION.has(p.status) ? '<strong>Reason:</strong> ' : ''}${esc(publishedLine(p))}</div>
 ${p.hideLink ? `<div style="margin-top:10px;"><a href="${esc(p.hideLink)}" style="display:inline-block;padding:6px 12px;border:1px solid #c47d00;border-radius:6px;color:#7a5200;text-decoration:none;font-weight:600;">Hide this</a> <span style="color:#6b7080;font-size:12px;">No login needed; works for 7 days.</span></div>` : ''}
-</div>`).join('\n')}` : ''
+</div>`
+  const resultsHtml = [
+    attention.length ? `<h2 style="font-size:15px;margin:0 0 8px;color:#a3261a;">Pilot result NOT published (needs attention)</h2>\n${attention.map(resultCard).join('\n')}` : '',
+    done.length ? `<h2 style="font-size:15px;margin:0 0 8px;">New result notice${done.length === 1 ? '' : 's'} published (Pilot board)</h2>\n${done.map(resultCard).join('\n')}` : '',
+  ].filter(Boolean).join('\n')
 
   const sections = GROUPS.map(g => ({ g, items: changes.filter(c => groupOf(c) === g) })).filter(s => s.items.length)
   const item = (c: Change) => {
@@ -185,7 +204,9 @@ ${sections.map(s => `<h2 style="font-size:15px;margin:18px 0 8px;">${s.g} (${s.i
 </div></body></html>`
   const text = [
     subject, '',
-    ...published.flatMap(p => [p.title, `  ${p.url}`, `  ${publishedLine(p)}`, ...(p.hideLink ? [`  Hide this (no login, works for 7 days): ${p.hideLink}`] : []), '']),
+    ...([['Pilot result NOT published (needs attention)', attention], ['New result notices published (Pilot board)', done]] as const)
+      .filter(([, list]) => list.length)
+      .flatMap(([heading, list]) => [heading, ...list.flatMap(p => [`- ${p.title}`, ...(p.url ? [`  ${p.url}`] : []), `  ${NEEDS_ATTENTION.has(p.status) ? 'Reason: ' : ''}${publishedLine(p)}`, ...(p.hideLink ? [`  Hide this (no login, works for 7 days): ${p.hideLink}`] : [])]), '']),
     intro, '',
     ...sections.flatMap(s => [`${s.g} (${s.items.length})`, ...s.items.map(c => `- ${c.title}${c.change === 'changed' ? ` (changed; was: ${c.previousTitle})` : ''} [${BOARD_LABEL[c.board]}]${c.url ? `\n  ${c.url}` : ''}`), '']),
     `Source: ${PARIKSHA_HOME}`,
