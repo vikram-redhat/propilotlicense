@@ -90,6 +90,7 @@ export const GROUPS = [
   'Admit cards',
   'Results (pilot board)', // listed at the top of the email instead (published or not)
   'AME results (ignored, not published)',
+  'FATA results (ignored, not published)',
   'Calendars',
   'Other',
 ] as const
@@ -98,6 +99,7 @@ export type Group = (typeof GROUPS)[number]
 export function groupOf(n: Notice): Group {
   const t = n.title
   if (/calendar/i.test(t)) return 'Calendars'
+  if (isFataResult(n)) return 'FATA results (ignored, not published)'
   if (n.board === 'pilot' && /result/i.test(t)) return 'Results (pilot board)'
   if (n.board === 'ame' && /result/i.test(t)) return 'AME results (ignored, not published)'
   if (/venue/i.test(t)) return 'Venue lists'
@@ -106,10 +108,16 @@ export function groupOf(n: Notice): Group {
   return 'Other'
 }
 
-// A result notice on the Pilot board ("Result" in the title). The check publishes it unless
-// notPublishedReason says why not. AME-board notices are never published.
+// FATA (foreign licence conversion) results: on the Pilot board, but not a CPL/ATPL session,
+// so never published or saved; the email lists them with the AME results.
+function isFataResult(n: Notice): boolean {
+  return /result/i.test(n.title) && /\bFATA\b/i.test(n.title)
+}
+
+// A result notice on the Pilot board ("Result" in the title), other than FATA. The check
+// publishes it unless notPublishedReason says why not. AME-board notices are never published.
 export function isPilotBoardResult(n: Notice): boolean {
-  return n.board === 'pilot' && /result/i.test(n.title)
+  return n.board === 'pilot' && /result/i.test(n.title) && !isFataResult(n)
 }
 
 // Why a Pilot-board result notice isn't published automatically, or null if it can be (then
