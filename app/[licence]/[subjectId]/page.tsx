@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook, Profile } from '@/lib/types'
 import { FREE_DAILY_ERROR, FREE_DAILY_LINE, FREE_TIER_LINE, isSubscribed } from '@/lib/subscription'
 import { isSyllabusBook } from '@/lib/syllabus'
+import { withActiveQuestions } from '@/lib/active-books'
 import UserMenu from '@/components/UserMenu'
 import { isAdminUser } from '@/lib/roles'
 
@@ -121,11 +122,13 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
         supabase.from('source_books').select('*').eq('subject_id', subjectId).order('sort_order'),
         user ? supabase.from('profiles').select('*').eq('id', user.id).single() : Promise.resolve({ data: null }),
       ])
-      // Every book, whatever the student's country (no country filter since 20 Nov 2026).
+      // Every book with active questions, whatever the student's country (no country filter
+      // since 20 Nov 2026; empty books left out since 21 Nov 2026, lib/active-books.ts).
+      const shownBooks = await withActiveQuestions(supabase, bks || [])
 
       setSubject(sub)
       setTopics(tops || [])
-      setBooks(bks || [])
+      setBooks(shownBooks)
       setProfile(profileRes.data)
 
       if ((sub?.code === 'NAV' || sub?.code === 'RAI') && licence.toLowerCase() === 'cpl') {

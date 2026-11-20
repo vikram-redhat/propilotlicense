@@ -12,7 +12,7 @@ import { createAuthClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 import { FREE_TIER_LINE, isSubscribed } from '@/lib/subscription'
 import { hubForExamType } from '@/lib/hub'
-import { questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
+import { activeBookCounts, questionTotalsOrFallback, roundedTotal } from '@/lib/live-counts'
 import { publicSubjects } from '@/lib/public-subjects'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -138,7 +138,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const [shownSubjects, totals, bookCountRes, profileRes] = await Promise.all([
     publicSubjects(),
     questionTotalsOrFallback(),
-    svc.from('source_books').select('*', { count: 'exact', head: true }),
+    // Books with active questions only (lib/active-books.ts).
+    activeBookCounts().catch(() => null),
     user ? svc.from('profiles').select('subscription_tier, subscription_expires_at').eq('id', user.id).single() : Promise.resolve({ data: null }),
   ])
 
@@ -152,7 +153,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const totalQuestions = totals.all
   // Human Performance is a chapter of Air Regulations, not a paper of its own: not counted.
   const subjectCount = shownSubjects.filter(s => s.key !== 'HP').length
-  const bookCount = bookCountRes.count ?? 0
+  const bookCount = bookCountRes ? Object.values(bookCountRes).reduce((a, b) => a + b, 0) : 0
   const subscribed = isSubscribed(profileRes?.data as Parameters<typeof isSubscribed>[0])
   const examType = user?.user_metadata?.exam_type ?? null
 

@@ -12,6 +12,7 @@ import DgcaUpdatesCard from '@/components/DgcaUpdatesCard'
 import { getContinueSession } from '@/lib/continue-session'
 import { notFound } from 'next/navigation'
 import { isAdminUser } from '@/lib/roles'
+import { activeBookCounts } from '@/lib/live-counts'
 
 const VALID_LICENCES = ['cpl', 'atpl']
 
@@ -35,11 +36,10 @@ async function getSubjectsForLicence(licence: string): Promise<(Subject & { book
         supabase.from('questions').select('*', { count: 'exact', head: true }).eq('active', true).eq('subject_id', s.id)
       )
     ),
-    supabase.from('source_books').select('subject_id'),
+    // Books with active questions only (lib/active-books.ts).
+    activeBookCounts().catch(() => ({} as Record<string, number>)),
   ])
-
-  const bMap: Record<string, number> = {}
-  bookCountRes.data?.forEach(b => { bMap[b.subject_id] = (bMap[b.subject_id] || 0) + 1 })
+  const bMap = bookCountRes
 
   return subjects.map((s, i) => ({
     ...s,

@@ -5,6 +5,7 @@ import { createServiceClient } from '@/lib/supabase'
 import { SUBJECTS } from '@/lib/subjects'
 import { isSyllabusBook, SYLLABUS_BOOK_IDS } from '@/lib/syllabus'
 import { NEW_RULES_BOOK_ID, NEW_RULES_REF_PREFIX } from '@/lib/new-rules'
+import { withActiveQuestions } from '@/lib/active-books'
 
 // Live question counts for page copy, so no page carries a hand-typed total.
 //
@@ -28,6 +29,17 @@ export const subjectQuestionCounts = unstable_cache(async (): Promise<SubjectCou
     return { ...s, count: counts[i].count ?? 0 }
   })
 }, ['subject-question-counts'], { revalidate: 3600 })
+
+// Source books with active questions (lib/active-books.ts), per subject: the licence hub's
+// "N books" and, summed, the homepage's source-book count.
+export const activeBookCounts = unstable_cache(async (): Promise<Record<string, number>> => {
+  const supabase = createServiceClient()
+  const { data: books, error } = await supabase.from('source_books').select('id, subject_id')
+  if (error) throw new Error(`Book counts: ${error.message}`)
+  const counts: Record<string, number> = {}
+  for (const b of await withActiveQuestions(supabase, books)) counts[b.subject_id] = (counts[b.subject_id] ?? 0) + 1
+  return counts
+}, ['active-book-counts', ...SYLLABUS_BOOK_IDS], { revalidate: 3600 })
 
 // What a book's whole-book practice draws. A syllabus book (IC Joshi, RK Bali): every question on
 // its syllabus chapters, from any source book (the sum the practice picker shows every
