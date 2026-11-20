@@ -4,6 +4,7 @@ import { countChapterQuestions } from '@/lib/chapter-question-counts'
 import { createServiceClient } from '@/lib/supabase'
 import { SUBJECTS } from '@/lib/subjects'
 import { isSyllabusBook, SYLLABUS_BOOK_IDS } from '@/lib/syllabus'
+import { NEW_RULES_BOOK_ID, NEW_RULES_REF_PREFIX } from '@/lib/new-rules'
 
 // Live question counts for page copy, so no page carries a hand-typed total.
 //
@@ -127,3 +128,11 @@ export async function bookChapterPracticeOrNull(slug: string, chapterId: string)
     return null
   }
 }
+
+// The "New rules 2026" practice set (lib/new-rules.ts): active BVN26 questions.
+export const newRulesQuestionCount = unstable_cache(async (): Promise<number> => {
+  const { count, error } = await createServiceClient().from('questions').select('id', { count: 'exact', head: true })
+    .eq('active', true).eq('source_book_id', NEW_RULES_BOOK_ID).like('external_ref', `${NEW_RULES_REF_PREFIX}%`)
+  if (error) throw new Error(`New rules question count: ${error.message}`)
+  return count ?? 0
+}, ['new-rules-question-count'], { revalidate: 3600 })

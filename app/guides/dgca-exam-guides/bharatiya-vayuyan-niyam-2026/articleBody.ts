@@ -5,8 +5,13 @@
 //   text?" answer (data-cta="bvn-pdf");
 // - links to the Adhiniyam guide from the standfirst, the framework table's Act row and
 //   the first Related link;
-// - real hrefs on the Related links and the CTA (data-cta="bvn-guide"). The CTA goes to
-//   Air Regulations practice; logged-out visitors are sent to /login?next= by proxy.ts.
+// - real hrefs on the Related links (data-cta="bvn-guide");
+// - added 20 Nov 2026 (the new-rules conversion brief): a "Test yourself" line after each PDF
+//   link (data-cta="niyam-pdf-nudge"), the quiz's place after the exam section
+//   (<!--NEW_RULES_QUIZ-->, where page.tsx renders components/guides/NewRulesQuiz.tsx), the
+//   "How ProPilotLicence is handling the change" text with the live question count
+//   ({{NEW_RULES_COUNT}}), and the bottom CTA into the new-rules set ({{NEW_RULES_HREF}},
+//   data-cta="niyam-bottom").
 // The editorial content goes to the Captain Panel for review: don't edit it here.
 export const ARTICLE_HTML = String.raw`
   <div class="eyebrow">DGCA Exam Guides · Air Regulations</div>
@@ -27,7 +32,7 @@ export const ARTICLE_HTML = String.raw`
   <table class="data-table">
     <tbody>
       <tr><td><strong>Full name</strong></td><td>Bharatiya Vayuyan Niyam, 2026</td></tr>
-      <tr><td><strong>Notification</strong></td><td>G.S.R. 957(E), Ministry of Civil Aviation, dated 26 October 2026, Gazette of India, Extraordinary. <a href="/downloads/bharatiya-vayuyan-niyam-2026-gsr-957e.pdf" data-cta="bvn-pdf" type="application/pdf">Download the notified text (PDF, G.S.R. 957(E))</a></td></tr>
+      <tr><td><strong>Notification</strong></td><td>G.S.R. 957(E), Ministry of Civil Aviation, dated 26 October 2026, Gazette of India, Extraordinary. <a href="/downloads/bharatiya-vayuyan-niyam-2026-gsr-957e.pdf" data-cta="bvn-pdf" type="application/pdf">Download the notified text (PDF, G.S.R. 957(E))</a><br><a href="#new-rules-quiz" data-cta="niyam-pdf-nudge">Sitting Air Regulations? Test yourself on the new rules →</a></td></tr>
       <tr><td><strong>Made under</strong></td><td>Bharatiya Vayuyan Adhiniyam, 2024 (16 of 2024)</td></tr>
       <tr><td><strong>In force from</strong></td><td class="mono">1 January 2027 (rule 1)</td></tr>
       <tr><td><strong>Repeals</strong></td><td>The Aircraft Rules, 1937; Part IX of the Aircraft Rules, 1920; the Radio Telephone Operator (Restricted) Certificate and Licence Rules, 2025 (rule 220)</td></tr>
@@ -114,6 +119,8 @@ export const ARTICLE_HTML = String.raw`
       <tr><td>Licence requirements (SPL, PPL, CPL, ATPL, ratings)</td><td>First Schedule</td></tr>
     </tbody>
   </table>
+
+  <!--NEW_RULES_QUIZ-->
 
   <h2>The eight chapters</h2>
   <table class="data-table">
@@ -223,7 +230,7 @@ export const ARTICLE_HTML = String.raw`
   <p>Licences, certificates and approvals granted under the 1937 Rules are saved by rule 220, so far as they're consistent with the Act. A pilot licensed before 1 January 2027 doesn't lose the licence when the new rules start. Radio telephone operator certificates issued by the Department of Telecommunications or DGCA stay valid to their expiry, and are renewed under the new rules without re-examination (rule 219).</p>
 
   <h2>How ProPilotLicence is handling the change</h2>
-  <p>We're writing a new set of Air Regulations questions on the Adhiniyam and the Niyam, reviewed by our Captain Panel, and moving national law practice onto the new rules. Questions on ICAO material are unaffected.</p>
+  <p>We’ve written {{NEW_RULES_COUNT}} practice questions on the Adhiniyam and the Niyam, each citing its rule and reviewed by our Captain Panel, and we’re moving national law practice onto the new rules. Questions on ICAO material are unaffected.</p>
 
   <h2>Frequently asked questions</h2>
 
@@ -256,6 +263,7 @@ export const ARTICLE_HTML = String.raw`
 
   <p class="faq-q">Where can I read the full text?</p>
   <p>In the Gazette of India, Extraordinary, Part II, Section 3(i), as G.S.R. 957(E) dated 26 October 2026, and on the Ministry of Civil Aviation's website. <a href="/downloads/bharatiya-vayuyan-niyam-2026-gsr-957e.pdf" data-cta="bvn-pdf" type="application/pdf">Download the notified text (PDF, G.S.R. 957(E))</a>.</p>
+  <p><a href="#new-rules-quiz" data-cta="niyam-pdf-nudge">Sitting Air Regulations? Test yourself on the new rules →</a></p>
 
   <h2>Related</h2>
   <ul class="related">
@@ -267,9 +275,9 @@ export const ARTICLE_HTML = String.raw`
   </ul>
 
   <div class="cta-block">
-    <h3>Practise Air Regulations</h3>
-    <p>Questions on every topic in the DGCA Air Regulations syllabus, each citing its source. Free to start.</p>
-    <a class="cta-btn" href="/cpl/f27577f4-72cd-4f9b-9ec0-fedf966dd9d2" data-cta="bvn-guide">Practise Air Regulations →</a>
+    <h3>Practise the new rules</h3>
+    <p>Questions on the Adhiniyam and Niyam, each citing its rule. Free to start.</p>
+    <a class="cta-btn" href="{{NEW_RULES_HREF}}" data-cta="niyam-bottom">Practise the new rules →</a>
   </div>
 
   <div class="disclaimer">

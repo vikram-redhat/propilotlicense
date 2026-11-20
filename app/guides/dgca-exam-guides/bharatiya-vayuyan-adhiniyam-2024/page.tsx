@@ -7,6 +7,10 @@ import { buildMetadata } from '@/lib/metadata'
 import { Breadcrumb } from '@/components/guides/ArticleKit'
 import { faqsFromHtml } from '@/lib/chapter-pages'
 import { getPost } from '@/lib/guides'
+import { newRulesQuestionCount } from '@/lib/live-counts'
+import { newRulesHref } from '@/lib/new-rules'
+import { newRulesQuiz } from '@/lib/new-rules-quiz'
+import NewRulesQuiz from '@/components/guides/NewRulesQuiz'
 import { ARTICLE_HTML } from './articleBody'
 import styles from './styles.module.css'
 
@@ -22,11 +26,23 @@ export const metadata = buildMetadata({
 })
 
 // The visible "Updated" date in the byline is generated from updatedAt.
-const html = ARTICLE_HTML.replace('{{UPDATED}}',
+const baseHtml = ARTICLE_HTML.replace('{{UPDATED}}',
   new Date(POST.updatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }))
+const QUIZ_MARKER = '<!--NEW_RULES_QUIZ-->'
 
 export default async function BharatiyaVayuyanAdhiniyamPage() {
-  const { isLoggedIn, name } = await getHeaderAuthState()
+  const [{ isLoggedIn, name }, quiz, count] = await Promise.all([
+    getHeaderAuthState(),
+    newRulesQuiz(),
+    newRulesQuestionCount().catch(() => null),
+  ])
+  // The bottom CTA and the quiz's end link go into the new-rules set (through signup when
+  // logged out); the quiz renders at QUIZ_MARKER, or not at all if its questions can't be read.
+  const ctaHref = newRulesHref(isLoggedIn)
+  const html = baseHtml
+    .replace('{{NEW_RULES_HREF}}', ctaHref)
+    .replace('{{NEW_RULES_COUNT}} ', count ? `${count} ` : '')
+  const [before, after] = html.split(QUIZ_MARKER)
   return (
     <div style={{ minHeight: '100vh', background: 'var(--clr-surface)', color: 'var(--clr-text)' }}>
       <ArticleSchema
@@ -46,7 +62,9 @@ export default async function BharatiyaVayuyanAdhiniyamPage() {
       </div>
 
       <main className={styles.wrap} style={{ paddingTop: 8 }}>
-        <div dangerouslySetInnerHTML={{ __html: html }} />
+        <div dangerouslySetInnerHTML={{ __html: before }} />
+        {quiz && <NewRulesQuiz quiz="adhiniyam" questions={quiz} ctaHref={ctaHref} isLoggedIn={isLoggedIn} />}
+        <div dangerouslySetInnerHTML={{ __html: after ?? '' }} />
       </main>
 
       <SiteFooter />

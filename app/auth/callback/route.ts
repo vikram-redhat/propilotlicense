@@ -99,7 +99,10 @@ export async function GET(request: NextRequest) {
       // skips — so force them into profile setup here before anything else.
       const needsSetup = !user.user_metadata?.exam_type || !user.user_metadata?.country
       if (needsSetup) {
-        response.headers.set('location', new URL('/profile/setup', origin).toString())
+        // Carry the destination: setup sends them on there (app/profile/setup).
+        const setupUrl = new URL('/profile/setup', origin)
+        if (redirectTo !== '/') setupUrl.searchParams.set('next', redirectTo)
+        response.headers.set('location', setupUrl.toString())
       } else if (redirectTo === '/cpl' || redirectTo === '/atpl') {
         // A generic licence-hub `next` may not match the user's exam type — send
         // ATPL users to /atpl instead of the hardcoded /cpl.

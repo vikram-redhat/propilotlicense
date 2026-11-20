@@ -4,6 +4,9 @@ import { FREE_DAILY_ERROR, freeTierError, isSubscribed, startOfTodayInIndia } fr
 import { isVisibleForCountry } from '@/lib/countries'
 import { chapterColumnFor } from '@/lib/syllabus'
 import { isChapterTaster, TASTER_QUESTIONS, TASTER_USED_ERROR } from '@/lib/chapter-taster'
+import {
+  isNewRulesSession, NEW_RULES_REF_PREFIX, NEW_RULES_TASTER_QUESTIONS, NEW_RULES_USED_ERROR, QUIZ_REFS,
+} from '@/lib/new-rules'
 import { isAdminUser } from '@/lib/roles'
 
 const weights = {
@@ -74,7 +77,29 @@ export async function POST(req: Request) {
   // A free account's chapter session is a taster (lib/chapter-taster.ts): 10 questions,
   // chosen as for a paid chapter session, once per chapter.
   const taster = isChapterTaster(scope, subscribed) && !!chapterId && mode === 'practice'
-  if (taster) {
+  // The "New rules 2026" set (lib/new-rules.ts): paid accounts get every BVN26 question; a
+  // free account gets one 10-question session, resumed while it's unfinished.
+  const newRules = isNewRulesSession(scope, sourceBookId)
+  const newRulesTaster = newRules && !subscribed && mode === 'practice'
+  if (newRules && subscribed) questionCount = 100 // the whole set (fewer than 100)
+  if (newRulesTaster) {
+    const { data: prior, error: priorError } = await supabase
+      .from('sessions').select('id, question_ids, ended_at')
+      .eq('user_id', user.id).eq('scope', 'book').eq('source_book_id', sourceBookId)
+      .order('created_at', { ascending: false }).limit(1)
+    if (priorError) return Response.json({ error: priorError.message }, { status: 500 })
+    const last = prior?.[0]
+    if (last) {
+      const { count: answered } = await supabase.from('session_answers')
+        .select('id', { count: 'exact', head: true }).eq('session_id', last.id)
+      if (!last.ended_at && (answered ?? 0) < (last.question_ids?.length ?? 0)) {
+        return Response.json({ sessionId: last.id, resumed: true, taster: true })
+      }
+      await logBlocked(supabase, user.id, 'taster_used')
+      return Response.json({ error: NEW_RULES_USED_ERROR }, { status: 403 })
+    }
+    questionCount = NEW_RULES_TASTER_QUESTIONS
+  } else if (taster) {
     const { count: used, error: usedError } = await supabase
       .from('sessions').select('id', { count: 'exact', head: true })
       .eq('user_id', user.id).eq('scope', 'book_chapter').eq('chapter_id', chapterId)
@@ -251,6 +276,9 @@ export async function POST(req: Request) {
         query = useSyllabus
           ? query.in('syllabus_chapter_id', syllabusChapterIds)
           : query.eq('source_book_id', sourceBookId)
+        if (newRules) query = query.like('external_ref', `${NEW_RULES_REF_PREFIX}%`)
+        // A free new-rules session leaves out the guides' quiz questions, already seen.
+        if (newRulesTaster) query = query.not('external_ref', 'in', `(${QUIZ_REFS.join(',')})`)
         break
       case 'book_chapter':
         if (useSyllabus) {
@@ -325,8 +353,8 @@ export async function POST(req: Request) {
       chapter_id: scope === 'book_chapter' ? (chapterId ?? null) : null,
       mode,
       difficulty,
-      question_count: questionCount,
-      time_limit_secs: questionCount * 45,
+      question_count: newRules ? shuffled.length : questionCount,
+      time_limit_secs: (newRules ? shuffled.length : questionCount) * 45,
       question_ids: shuffled,
     })
     .select('id')
@@ -336,5 +364,5 @@ export async function POST(req: Request) {
     return Response.json({ error: sessionError.message }, { status: 500 })
   }
 
-  return Response.json({ sessionId: session.id, taster })
+  return Response.json({ sessionId: session.id, taster: taster || newRulesTaster })
 }

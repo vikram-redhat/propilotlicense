@@ -2,6 +2,7 @@ import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
 import { isSubscribed } from '@/lib/subscription'
 import { isChapterTaster } from '@/lib/chapter-taster'
+import { isNewRulesSession } from '@/lib/new-rules'
 import { isAdminUser } from '@/lib/roles'
 
 // Ends a session: the student reached the last question, the mock timer ran out, or they
@@ -18,7 +19,7 @@ export async function POST(req: Request) {
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = createServiceClient()
-  const { data: session } = await supabase.from('sessions').select('id, user_id, scope').eq('id', sessionId).maybeSingle()
+  const { data: session } = await supabase.from('sessions').select('id, user_id, scope, source_book_id').eq('id', sessionId).maybeSingle()
   if (!session || session.user_id !== user.id) return Response.json({ error: 'Not found' }, { status: 404 })
 
   const [{ data: answers, error }, { data: profile }] = await Promise.all([
@@ -27,7 +28,8 @@ export async function POST(req: Request) {
   ])
   if (error) return Response.json({ error: error.message }, { status: 500 })
   const subscribed = isAdminUser(user) || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
-  const taster = isChapterTaster(session.scope, subscribed)
+  // A free chapter taster, or a free account's one new-rules session (lib/new-rules.ts).
+  const taster = isChapterTaster(session.scope, subscribed) || (!subscribed && isNewRulesSession(session.scope, session.source_book_id))
   const answered = answers.length
   const correct = answers.filter(a => a.is_correct).length
 

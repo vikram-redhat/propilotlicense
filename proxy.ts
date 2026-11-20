@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { isDeadLicencePath } from '@/lib/licence-routes'
 import { INDEXNOW_KEY_PATH } from '@/lib/indexnow'
 import { isAdminUser } from '@/lib/roles'
+import { NEW_RULES_PATH } from '@/lib/new-rules'
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -76,13 +77,15 @@ export async function proxy(request: NextRequest) {
     if (isDeadLicencePath(pathname)) {
       return NextResponse.rewrite(new URL('/__not-found', request.url))
     }
-    const loginUrl = new URL('/login', request.url)
+    // The new-rules practice set is linked from the guides for new students: signup first.
+    const loginUrl = new URL(pathname === NEW_RULES_PATH ? '/signup' : '/login', request.url)
     loginUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
   if (user && isAuthPage) {
-    return NextResponse.redirect(new URL('/', request.url))
+    const next = request.nextUrl.searchParams.get('next')
+    return NextResponse.redirect(new URL(next?.startsWith('/') && !next.startsWith('//') ? next : '/', request.url))
   }
 
   if (pathname.startsWith('/admin')) {
@@ -96,7 +99,11 @@ export async function proxy(request: NextRequest) {
   const isSetupPage = pathname.startsWith('/profile/setup')
   if (user && !isSetupPage && !isAuthRoute && !isPublicRoute && !isApiRoute && !hasBypass) {
     if (!user.user_metadata?.exam_type || !user.user_metadata?.country) {
-      return NextResponse.redirect(new URL('/profile/setup', request.url))
+      // Carry where they were going, so setup can send them on there (e.g. a new account
+      // from a guide's quiz goes straight into the new-rules session).
+      const setupUrl = new URL('/profile/setup', request.url)
+      setupUrl.searchParams.set('next', pathname + request.nextUrl.search)
+      return NextResponse.redirect(setupUrl)
     }
   }
 

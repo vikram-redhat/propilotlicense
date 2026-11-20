@@ -2,9 +2,12 @@
 // the editorial source (bharatiya-vayuyan-adhiniyam-2024.html), verbatim except for:
 // - the byline's "Updated" date, filled from the registry's updatedAt ({{UPDATED}});
 // - the Act PDF link, added to the Key facts Act number row (data-cta="bva-pdf");
-// - real hrefs on the Key facts Niyam link, the Related links and the CTA
-//   (data-cta="bva-guide"). The CTA goes to Air Regulations practice; logged-out visitors
-//   are sent to /login?next= by proxy.ts.
+// - real hrefs on the Key facts Niyam link and the Related links (data-cta="bva-guide");
+// - added 20 Nov 2026 (the new-rules conversion brief): a "Test yourself" line after the PDF
+//   link (data-cta="adhiniyam-pdf-nudge"), the quiz's place after "What changed from the
+//   Aircraft Act, 1934" (<!--NEW_RULES_QUIZ-->, where page.tsx renders
+//   components/guides/NewRulesQuiz.tsx), and the bottom CTA into the new-rules set
+//   ({{NEW_RULES_HREF}}, data-cta="adhiniyam-bottom").
 // The editorial content goes to the Captain Panel for review: don't edit it here.
 export const ARTICLE_HTML = String.raw`
   <div class="eyebrow">DGCA Exam Guides · Air Regulations</div>
@@ -25,7 +28,7 @@ export const ARTICLE_HTML = String.raw`
   <table class="data-table">
     <tbody>
       <tr><td><strong>Full name</strong></td><td>The Bharatiya Vayuyan Adhiniyam, 2024</td></tr>
-      <tr><td><strong>Act number</strong></td><td class="mono">No. 16 of 2024<br><a href="/downloads/bharatiya-vayuyan-adhiniyam-2024.pdf" data-cta="bva-pdf" type="application/pdf">Download the Act (PDF, Gazette of India, 11 December 2024)</a></td></tr>
+      <tr><td><strong>Act number</strong></td><td class="mono">No. 16 of 2024<br><a href="/downloads/bharatiya-vayuyan-adhiniyam-2024.pdf" data-cta="bva-pdf" type="application/pdf">Download the Act (PDF, Gazette of India, 11 December 2024)</a><br><a href="#new-rules-quiz" data-cta="adhiniyam-pdf-nudge">Sitting Air Regulations? Test yourself on the new rules →</a></td></tr>
       <tr><td><strong>Presidential assent</strong></td><td class="mono">11 December 2024</td></tr>
       <tr><td><strong>In force from</strong></td><td class="mono">1 January 2025</td></tr>
       <tr><td><strong>Replaces</strong></td><td>The Aircraft Act, 1934 (22 of 1934), repealed by section 43</td></tr>
@@ -126,6 +129,8 @@ export const ARTICLE_HTML = String.raw`
     <li><strong>What didn't change:</strong> DGCA, BCAS and AAIB were already statutory bodies, and the ₹1 crore maximum fine dates from the 2020 amendment of the 1934 Act.</li>
   </ul>
 
+  <!--NEW_RULES_QUIZ-->
+
   <h2>All 43 sections</h2>
   <table class="data-table">
     <thead><tr><th>Section</th><th>Heading</th></tr></thead>
@@ -211,9 +216,9 @@ export const ARTICLE_HTML = String.raw`
   </ul>
 
   <div class="cta-block">
-    <h3>Practise Air Regulations</h3>
-    <p>Questions on every topic in the DGCA Air Regulations syllabus, each citing its source. Free to start.</p>
-    <a class="cta-btn" href="/cpl/f27577f4-72cd-4f9b-9ec0-fedf966dd9d2" data-cta="bva-guide">Practise Air Regulations →</a>
+    <h3>Practise the new rules</h3>
+    <p>Questions on the Adhiniyam and Niyam, each citing its rule. Free to start.</p>
+    <a class="cta-btn" href="{{NEW_RULES_HREF}}" data-cta="adhiniyam-bottom">Practise the new rules →</a>
   </div>
 
   <div class="disclaimer">

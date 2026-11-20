@@ -77,7 +77,13 @@ export default function ProfileSetupPage() {
       await supabase.auth.refreshSession()
 
       // Full reload — not router.push — so the fresh cookie is sent with the first request
-      window.location.href = finalExamType === 'ATPL' ? '/atpl' : '/cpl'
+      // Back to where they were going (proxy.ts adds ?next=), else their licence hub (also
+      // for a generic hub path, which may not match the exam type just chosen).
+      const next = new URLSearchParams(window.location.search).get('next')
+      window.location.href = next?.startsWith('/') && !next.startsWith('//') && !next.startsWith('/profile/setup')
+        && !['/', '/cpl', '/atpl'].includes(next)
+        ? next
+        : finalExamType === 'ATPL' ? '/atpl' : '/cpl'
     } catch {
       setSaving(false)
     }
