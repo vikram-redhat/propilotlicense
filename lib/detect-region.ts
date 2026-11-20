@@ -13,7 +13,11 @@ export async function initRegion(): Promise<void> {
     const res = await fetch('/api/region')
     const { region } = await res.json()
     localStorage.setItem('region', region)
-    window.location.reload()
+    // Reload only when the region changes what's shown: getRegion() already said 'IN'. And
+    // never mid-flow, on pages without prices: a reload there re-sends a session start
+    // (/practice/*) or loses a half-filled form (/profile/setup).
+    const midFlow = /^\/(practice|session|results|profile)(\/|$)/.test(window.location.pathname)
+    if (region !== 'IN' && !midFlow) window.location.reload()
   } catch {
     localStorage.setItem('region', 'IN') // fallback
   }
