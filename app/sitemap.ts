@@ -5,7 +5,8 @@ import { GUIDE_SERIES, postHref } from '@/lib/guides'
 import { allChapterPages } from '@/lib/chapter-pages'
 import { dbContentDates, laterDate, type DbContentDates } from '@/lib/content-dates'
 import { HUMAN_PERFORMANCE } from '@/lib/human-performance'
-import { DGCA_EXAMS, DGCA_EXAM_GUIDE_SLUGS, dgcaExamGuideUpdatedAt } from '@/lib/dgca-exams'
+import { DGCA_EXAM_GUIDE_SLUGS, dgcaExamGuideUpdatedAt } from '@/lib/dgca-exams'
+import { getLastChecked } from '@/lib/dgca-results'
 
 const BASE = 'https://www.propilotlicence.com'
 
@@ -20,7 +21,7 @@ const STATIC_PAGE_UPDATED = {
   privacy: '2026-06-29',
   humanPerformance: '2026-11-16', // /subjects/human-performance; its lastmod also follows the RK Bali book's questions
   terms: '2026-06-29',
-  dgcaUpdates: '2026-11-19', // /dgca-updates; its lastmod also follows the DGCA data file's last check
+  dgcaUpdates: '2026-11-19', // /dgca-updates; its lastmod also follows the last notice check
 }
 
 // Refresh hourly so new and reviewed questions and chapter changes reach the subject and
@@ -37,6 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch (e) {
     console.error(e)
   }
+  const lastChecked = await getLastChecked()
 
   const chapters = allChapterPages()
   const seriesUpdated = (series: (typeof GUIDE_SERIES)[number]) =>
@@ -46,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: BASE, lastModified: STATIC_PAGE_UPDATED.home, changeFrequency: 'weekly', priority: 1.0 },
     { url: `${BASE}/about`, lastModified: STATIC_PAGE_UPDATED.about, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/subjects`, lastModified: STATIC_PAGE_UPDATED.subjects, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${BASE}/dgca-updates`, lastModified: laterDate(STATIC_PAGE_UPDATED.dgcaUpdates, DGCA_EXAMS.lastCheckedAgainstDGCA), changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${BASE}/dgca-updates`, lastModified: laterDate(STATIC_PAGE_UPDATED.dgcaUpdates, lastChecked), changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE}/guides`, lastModified: laterDate(STATIC_PAGE_UPDATED.guides, ...GUIDE_SERIES.map(seriesUpdated)), changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE}/pricing`, lastModified: STATIC_PAGE_UPDATED.pricing, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE}/privacy`, lastModified: STATIC_PAGE_UPDATED.privacy, changeFrequency: 'yearly', priority: 0.3 },
@@ -91,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const guidePostPages: MetadataRoute.Sitemap = GUIDE_SERIES.flatMap((series) =>
     series.posts.map((post) => ({
       url: `${BASE}${postHref(series, post)}`,
-      lastModified: DGCA_EXAM_GUIDE_SLUGS.has(post.slug) ? dgcaExamGuideUpdatedAt(post.updatedAt) : post.updatedAt,
+      lastModified: DGCA_EXAM_GUIDE_SLUGS.has(post.slug) ? dgcaExamGuideUpdatedAt(post.updatedAt, lastChecked) : post.updatedAt,
       changeFrequency: 'monthly' as const,
       priority: 0.75,
     }))

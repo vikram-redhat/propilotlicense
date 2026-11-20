@@ -1,12 +1,14 @@
 'use client'
-import { useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
-import { todayInIndia } from '@/lib/dgca-exams'
+import { todayInIndia, type ResultNotice } from '@/lib/dgca-exams'
 import { updatesBarMessage } from '@/lib/dgca-updates'
 
 // One line under the header on every public page (rendered by LandingHeader), saying what's
 // current at DGCA: the first rule in lib/dgca-updates.ts that applies today in India. The
-// message is worked out again in the browser, so a cached page still shows today's.
+// message is worked out again in the browser, so a cached page still shows today's. The
+// result notices come from /api/dgca-results (the dgca_results table): until they arrive the
+// message is worked out without them, so a new result's message replaces it a moment later.
 // Dismissible for the rest of the day (India time) per visitor; the inline script hides it
 // before paint for a visitor who dismissed it today. Clicks are cta_click with
 // cta_location "updates-bar" and cta_variant the rule number.
@@ -28,10 +30,25 @@ function dismissedToday(): boolean {
   try { return localStorage.getItem(KEY) === todayInIndia() } catch { return false }
 }
 
+// Fetched once per page load, shared by every bar on the page.
+let resultsRequest: Promise<ResultNotice[]> | null = null
+function loadResults() {
+  resultsRequest ??= fetch('/api/dgca-results')
+    .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+    .catch(() => { resultsRequest = null; return [] })
+  return resultsRequest
+}
+
 export default function UpdatesBar() {
+  const [results, setResults] = useState<ResultNotice[]>([])
+  useEffect(() => {
+    let live = true
+    loadResults().then(r => { if (live) setResults(r) })
+    return () => { live = false }
+  }, [])
   // Worked out on each render from today's date in India, so a page cached yesterday still
   // shows today's message once it's in the browser.
-  const message = updatesBarMessage(todayInIndia())
+  const message = updatesBarMessage(todayInIndia(), results)
   const dismissed = useSyncExternalStore(subscribe, dismissedToday, () => false)
 
   function dismiss() {

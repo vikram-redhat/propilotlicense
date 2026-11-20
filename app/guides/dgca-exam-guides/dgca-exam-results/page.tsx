@@ -8,7 +8,8 @@ import { faqsFromHtml } from '@/lib/chapter-pages'
 import { getPost } from '@/lib/guides'
 import { SUBJECTS } from '@/lib/subjects'
 import { questionTotalsOrFallback } from '@/lib/live-counts'
-import { DGCA_EXAMS, dgcaExamGuideUpdatedAt, awaitingResults, escapeHtml, formatLongDate, formatRange, formatShortDate, latestResults, todayInIndia } from '@/lib/dgca-exams'
+import { dgcaExamGuideUpdatedAt, awaitingResults, escapeHtml, formatLongDate, formatRange, formatShortDate, latestResults, todayInIndia } from '@/lib/dgca-exams'
+import { getDgcaResults, getLastChecked } from '@/lib/dgca-results'
 import { ARTICLE_HTML } from './articleBody'
 import styles from '../dgca-exam-dates/styles.module.css'
 
@@ -16,7 +17,8 @@ const POST = getPost('dgca-exam-guides', 'dgca-exam-results')!
 const PATH = '/guides/dgca-exam-guides/dgca-exam-results'
 
 // "Awaiting result" depends on today's date in India, and the subject links carry live
-// question counts: re-rendered hourly. The header corrects its login state client-side.
+// question counts: re-rendered hourly, and straight away when a result is published or
+// hidden (lib/dgca-results.ts). The header corrects its login state client-side.
 export const revalidate = 3600
 
 export const metadata = buildMetadata({
@@ -29,17 +31,16 @@ const e = escapeHtml
 
 export default async function DgcaExamResultsPage() {
   const today = todayInIndia()
-  const lastChecked = DGCA_EXAMS.lastCheckedAgainstDGCA
-  const totals = await questionTotalsOrFallback()
+  const [lastChecked, results, totals] = await Promise.all([getLastChecked(), getDgcaResults(), questionTotalsOrFallback()])
 
   const latest = `  <table class="data-table">
     <thead><tr><th>Session</th><th>Result notice</th></tr></thead>
     <tbody>
-${latestResults().map(r => `      <tr><td>${e(r.label)}${r.noticeDate ? `, declared ${formatShortDate(r.noticeDate)}` : ''}</td><td><a href="${e(r.url)}">DGCA result notice (PDF)</a></td></tr>`).join('\n')}
+${latestResults(results).map(r => `      <tr><td>${e(r.label)}${r.noticeDate ? `, declared ${formatShortDate(r.noticeDate)}` : ''}</td><td><a href="${e(r.url)}">DGCA result notice (PDF)</a></td></tr>`).join('\n')}
     </tbody>
   </table>`
 
-  const awaiting = awaitingResults(today)
+  const awaiting = awaitingResults(today, results)
   const awaitingHtml = awaiting.length
     ? `  <ul>\n${awaiting.map(s => `    <li>Awaiting result: ${e(s.name)} (exams ${formatRange(s.examStart, s.examEnd)})</li>`).join('\n')}\n  </ul>`
     : ''
@@ -64,7 +65,7 @@ ${latestResults().map(r => `      <tr><td>${e(r.label)}${r.noticeDate ? `, decla
         description={POST.metaDescription}
         url={`https://www.propilotlicence.com${PATH}`}
         publishedAt={POST.publishedAt}
-        updatedAt={dgcaExamGuideUpdatedAt(POST.updatedAt)}
+        updatedAt={dgcaExamGuideUpdatedAt(POST.updatedAt, lastChecked)}
       />
       <FAQSchema faqs={faqsFromHtml(html)} />
       <LandingHeader isLoggedIn={false} name={null} />

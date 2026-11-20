@@ -1,10 +1,15 @@
 import raw from '@/lib/data/dgca-exam-sessions.json'
 
-// DGCA exam sessions, venues, result notices and other dated updates, from
-// lib/data/dgca-exam-sessions.json: DGCA's published calendar and the Pariksha notice board,
-// kept current by hand after the weekly notice check (app/api/cron/dgca-notices) emails what
-// changed. The exam dates and results guides, the DGCA Updates hub, the updates bar and the
-// dashboard card render from it (the last three through lib/dgca-updates.ts).
+// DGCA exam sessions, venues and other dated updates, from lib/data/dgca-exam-sessions.json:
+// DGCA's published calendar and the Pariksha notice board, kept current by hand after the
+// notice check (app/api/cron/dgca-notices) emails what changed. The exam dates and results
+// guides, the DGCA Updates hub, the updates bar and the dashboard card render from it (the
+// last three through lib/dgca-updates.ts).
+//
+// Result notices live in the dgca_results table (lib/dgca-results.ts), which the notice check
+// publishes to; the functions here take them as an argument. The file's `results` array is
+// only the table's seed, and the fallback when the table can't be read. Likewise the last
+// check's date comes from the notice check's log, with lastCheckedAgainstDGCA as the fallback.
 //
 // Everything in that file is public, so pages and the browser may import it. Details waiting
 // for Captain Panel confirmation (fees, resit waiting period) are kept apart, in
@@ -23,7 +28,7 @@ export type ExamSession = {
 }
 
 export type ResultNotice = {
-  session: string // ExamSession id
+  session: string | null // ExamSession id (null: not matched to a session; such rows are hidden)
   label: string
   url: string
   noticeDate: string | null
@@ -134,30 +139,30 @@ export function sessionsInYear(year: number): ExamSession[] {
 }
 
 // Result notices, newest session first.
-export function latestResults(): (ResultNotice & { sessionEnd: string | null })[] {
-  return DGCA_EXAMS.results
-    .map(r => ({ ...r, sessionEnd: sessionById(r.session)?.examEnd ?? null }))
+export function latestResults(results: ResultNotice[]): (ResultNotice & { sessionEnd: string | null })[] {
+  return results
+    .map(r => ({ ...r, sessionEnd: (r.session && sessionById(r.session)?.examEnd) || null }))
     .sort((a, b) => (b.sessionEnd ?? b.noticeDate ?? b.seenOn).localeCompare(a.sessionEnd ?? a.noticeDate ?? a.seenOn))
 }
 
 // Sessions whose exams have started (so are finished or under way) and ended no more than
 // 30 days ago, with no result notice yet. Older sessions' results will be out, even if the
 // notice has already scrolled off DGCA's notice board.
-export function awaitingResults(today: string): ExamSession[] {
+export function awaitingResults(today: string, results: ResultNotice[]): ExamSession[] {
   const t = new Date(`${today}T00:00:00Z`)
   t.setUTCDate(t.getUTCDate() - 30)
   const cutoff = t.toISOString().slice(0, 10)
-  const declared = new Set(DGCA_EXAMS.results.map(r => r.session))
+  const declared = new Set(results.map(r => r.session))
   return DGCA_EXAMS.sessions
     .filter(s => s.examStart <= today && s.examEnd >= cutoff && !declared.has(s.id))
     .sort((a, b) => b.examStart.localeCompare(a.examStart))
 }
 
 // The two guides that render from this data. Their dateModified (and sitemap lastmod) is the
-// later of their registry updatedAt (an editorial change) and lastCheckedAgainstDGCA.
+// later of their registry updatedAt (an editorial change) and the last check against DGCA.
 export const DGCA_EXAM_GUIDE_SLUGS: ReadonlySet<string> = new Set(['dgca-exam-dates', 'dgca-exam-results'])
-export function dgcaExamGuideUpdatedAt(registryUpdatedAt: string): string {
-  return registryUpdatedAt > DGCA_EXAMS.lastCheckedAgainstDGCA ? registryUpdatedAt : DGCA_EXAMS.lastCheckedAgainstDGCA
+export function dgcaExamGuideUpdatedAt(registryUpdatedAt: string, lastChecked: string): string {
+  return registryUpdatedAt > lastChecked ? registryUpdatedAt : lastChecked
 }
 
 export function escapeHtml(s: string): string {

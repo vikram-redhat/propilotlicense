@@ -1,11 +1,12 @@
 import {
-  DGCA_EXAMS, formatRange, formatShortDate, portalStatus, sessionById, type ExamSession,
+  DGCA_EXAMS, formatRange, formatShortDate, portalStatus, sessionById, type ExamSession, type ResultNotice,
 } from '@/lib/dgca-exams'
 
 // What's changing at DGCA, for the DGCA Updates hub (/dgca-updates), the updates bar under the
-// header (components/UpdatesBar.tsx) and the dashboard card. Built from three parts of
-// lib/data/dgca-exam-sessions.json: the CPL/ATPL sessions (regular and OLODE; FIR/AFIR orals
-// and FATA are left out), their result notices, and the dated rule changes in `updates`.
+// header (components/UpdatesBar.tsx) and the dashboard card. Built from the CPL/ATPL sessions
+// (regular and OLODE; FIR/AFIR orals and FATA are left out) and the dated rule changes in
+// `updates`, from lib/data/dgca-exam-sessions.json, and the sessions' result notices, which
+// the caller reads from the dgca_results table (lib/dgca-results.ts) and passes in.
 // Every rule here takes today's date in India (YYYY-MM-DD, lib/dgca-exams.ts todayInIndia).
 
 export const EXAM_DATES_PATH = '/guides/dgca-exam-guides/dgca-exam-dates'
@@ -14,7 +15,7 @@ export const UPDATES_PATH = '/dgca-updates'
 
 const PILOT_EXAMS: ReadonlySet<string> = new Set(['regular', 'olode'])
 const pilotSessions = () => DGCA_EXAMS.sessions.filter(s => PILOT_EXAMS.has(s.type))
-const pilotResults = () => DGCA_EXAMS.results.filter(r => PILOT_EXAMS.has(sessionById(r.session)?.type ?? ''))
+const pilotResults = (results: ResultNotice[]) => results.filter(r => PILOT_EXAMS.has((r.session && sessionById(r.session)?.type) || ''))
 
 // Whole days from a to b (both YYYY-MM-DD).
 export function daysBetween(a: string, b: string): number {
@@ -45,7 +46,7 @@ export const TYPE_LABEL: Record<TimelineItem['type'], string> = { exam: 'Exam', 
 
 // Coming up (soonest first, sessions still under way included) and past items (newest first),
 // split into the last 12 months and earlier.
-export function dgcaTimeline(today: string) {
+export function dgcaTimeline(today: string, results: ResultNotice[]) {
   const coming: TimelineItem[] = []
   const past: TimelineItem[] = []
   for (const s of pilotSessions()) {
@@ -55,7 +56,7 @@ export function dgcaTimeline(today: string) {
       coming.push({ ...item, detail: `${item.detail} · ${under ? 'under way' : `Portal: ${portalStatus(s, today)}`}` })
     } else past.push({ ...item, title: `${s.name} held` })
   }
-  for (const r of pilotResults()) {
+  for (const r of pilotResults(results)) {
     const date = r.noticeDate ?? r.seenOn
     ;(date > today ? coming : past).push({ date, type: 'result', title: `Results declared: ${r.label}`, url: EXAM_RESULTS_PATH })
   }
@@ -79,21 +80,21 @@ function daysToGo(n: number): string {
 // records, so 6 and 7 were added on 2026-11-19 without renumbering 4 and 5.
 export type BarMessage = { rule: 1 | 2 | 3 | 4 | 5 | 6 | 7; text: string; href: string }
 
-export function updatesBarMessage(today: string): BarMessage {
-  return barRule(today) ?? {
+export function updatesBarMessage(today: string, results: ResultNotice[]): BarMessage {
+  return barRule(today, results) ?? {
     // 7. Nothing else applies (no session to come in the data): never leave the bar empty.
     rule: 7, text: `DGCA’s ${today.slice(0, 4)} exam calendar: latest dates →`, href: EXAM_DATES_PATH,
   }
 }
 
-function barRule(today: string): BarMessage | null {
+function barRule(today: string, results: ResultNotice[]): BarMessage | null {
   // 1. A result declared in the last 7 days
-  const result = pilotResults()
+  const result = pilotResults(results)
     .map(r => ({ r, date: r.noticeDate ?? r.seenOn }))
     .filter(({ date }) => date <= today && daysBetween(date, today) <= 7)
     .sort((a, b) => b.date.localeCompare(a.date))[0]
   if (result) {
-    const s = sessionById(result.r.session)
+    const s = result.r.session ? sessionById(result.r.session) : undefined
     return { rule: 1, text: `Results declared: ${s?.name ?? result.r.label}. Check yours →`, href: EXAM_RESULTS_PATH }
   }
   // 2. A portal open now and closing within 14 days

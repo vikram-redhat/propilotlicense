@@ -137,9 +137,10 @@ export const GUIDE_SERIES: GuideSeries[] = [
           'Human factors is examined inside the DGCA Air Regulations paper. Which book to use, what RK Bali chapter 23 covers, and the high-yield facts on hypoxia, vision and illusions.',
         reviewedBy: 'ProPilotLicence Captain Panel',
       },
-      // The exam dates and results guides render from lib/data/dgca-exam-sessions.json: their
-      // dateModified and sitemap lastmod follow its lastCheckedAgainstDGCA (app/sitemap.ts), so
-      // updatedAt here only needs changing when the editorial text changes.
+      // The exam dates and results guides render from lib/data/dgca-exam-sessions.json and the
+      // dgca_results table: their dateModified and sitemap lastmod follow the last notice check
+      // (lib/dgca-results.ts getLastChecked), so updatedAt here only needs changing when the
+      // editorial text changes.
       {
         slug: 'dgca-exam-dates',
         title: 'DGCA Exam Dates: Next Sessions, Portal Windows, Centres and How to Apply',

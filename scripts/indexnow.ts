@@ -7,11 +7,10 @@
 // `npm run build` runs --changed after `next build` on Vercel production builds only
 // (VERCEL_ENV=production). It never fails the build: errors are logged and it exits 0.
 import { GUIDE_SERIES, postHref } from '../lib/guides'
-import { INDEXNOW_KEY, INDEXNOW_KEY_PATH } from '../lib/indexnow'
+import { pingIndexNow } from '../lib/indexnow'
 import { allChapterPages } from '../lib/chapter-pages'
 
 const HOST = 'www.propilotlicence.com'
-const ENDPOINTS = ['https://www.bing.com/indexnow', 'https://yandex.com/indexnow']
 
 function changedUrls(): string[] {
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }) // YYYY-MM-DD
@@ -23,15 +22,7 @@ function changedUrls(): string[] {
 }
 
 async function ping(urls: string[]) {
-  const body = JSON.stringify({ host: HOST, key: INDEXNOW_KEY, keyLocation: `https://${HOST}${INDEXNOW_KEY_PATH}`, urlList: urls })
-  for (const endpoint of ENDPOINTS) {
-    try {
-      const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json; charset=utf-8' }, body })
-      console.log(`IndexNow ${endpoint}: ${res.status} for ${urls.length} URL(s)`)
-    } catch (e) {
-      console.error(`IndexNow ${endpoint}: ${(e as Error).message}`)
-    }
-  }
+  for (const line of await pingIndexNow(urls)) console.log(`IndexNow ${line}`)
 }
 
 async function main() {

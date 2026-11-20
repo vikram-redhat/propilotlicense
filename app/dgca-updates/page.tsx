@@ -3,12 +3,14 @@ import LandingHeader from '@/components/LandingHeader'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import SiteFooter from '@/components/SiteFooter'
 import { buildMetadata } from '@/lib/metadata'
-import { DGCA_EXAMS, formatLongDate, formatShortDate, todayInIndia } from '@/lib/dgca-exams'
+import { formatLongDate, formatShortDate, todayInIndia } from '@/lib/dgca-exams'
+import { getDgcaResults, getLastChecked } from '@/lib/dgca-results'
 import { dgcaTimeline, TYPE_LABEL, UPDATES_PATH, type TimelineItem } from '@/lib/dgca-updates'
 
-// The DGCA Updates hub: what's changing at DGCA now, from lib/data/dgca-exam-sessions.json
-// (lib/dgca-updates.ts). Which items are coming up and which are past depends on today's date
-// in India, so it's re-rendered hourly and rolls over without a deploy. The header corrects
+// The DGCA Updates hub: what's changing at DGCA now, from lib/data/dgca-exam-sessions.json and
+// the dgca_results table (lib/dgca-updates.ts). Which items are coming up and which are past
+// depends on today's date in India, so it's re-rendered hourly and rolls over without a
+// deploy, and straight away when a result is published or hidden (lib/dgca-results.ts). The header corrects
 // its login state client-side.
 export const revalidate = 3600
 
@@ -41,8 +43,9 @@ function Item({ item }: { item: TimelineItem }) {
   )
 }
 
-export default function DgcaUpdatesPage() {
-  const { coming, recent, earlier } = dgcaTimeline(todayInIndia())
+export default async function DgcaUpdatesPage() {
+  const [results, lastChecked] = await Promise.all([getDgcaResults(), getLastChecked()])
+  const { coming, recent, earlier } = dgcaTimeline(todayInIndia(), results)
   const h2 = { fontFamily: 'var(--font-outfit),sans-serif', fontSize: 20, fontWeight: 700, color: 'var(--clr-text)', margin: '36px 0 4px' }
   const list = { listStyle: 'none', padding: 0, margin: 0 }
 
@@ -60,7 +63,7 @@ export default function DgcaUpdatesPage() {
           What&apos;s changing at DGCA for pilots and student pilots: upcoming exam sessions, results as they&apos;re declared, and the move to the new Bharatiya Vayuyan Act and Rules. We check DGCA&apos;s notices every week.
         </p>
         <p style={{ fontSize: 13, color: 'var(--clr-text-med)', marginBottom: 8 }}>
-          Last checked against DGCA: {formatLongDate(DGCA_EXAMS.lastCheckedAgainstDGCA)}
+          Last checked against DGCA: {formatLongDate(lastChecked)}
         </p>
 
         <h2 style={h2}>Coming up</h2>

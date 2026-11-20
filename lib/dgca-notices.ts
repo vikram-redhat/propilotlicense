@@ -1,8 +1,10 @@
-// The weekly DGCA notice check (app/api/cron/dgca-notices): reads the Pariksha home page,
-// lists its notices (the Pilot and AME notice boards, the portal-window banner, and the
+// The DGCA notice check (app/api/cron/dgca-notices, twice a day): reads the Pariksha home
+// page, lists its notices (the Pilot and AME notice boards, the portal-window banner, and the
 // Examinations menu's calendar links), and compares them with the last saved list in
-// dgca_notice_snapshots (scripts/migrate_dgca_notice_snapshots.sql). New or changed notices
-// are emailed, grouped by kind, so lib/data/dgca-exam-sessions.json can be updated by hand.
+// dgca_notice_snapshots (scripts/migrate_dgca_notice_snapshots.sql). A new result notice on
+// the Pilot board is published to dgca_results (lib/dgca-results.ts); the email lists what
+// was published first, then the other new or changed notices, grouped by kind, so
+// lib/data/dgca-exam-sessions.json can be updated by hand.
 
 export const PARIKSHA_HOME = 'https://pariksha.dgca.gov.in/home'
 const ORIGIN = 'https://pariksha.dgca.gov.in'
@@ -102,6 +104,12 @@ export function groupOf(n: Notice): Group {
   return 'Other'
 }
 
+// A result notice the check publishes itself: on the Pilot board, with "Result" in the title.
+// AME-board notices are never published.
+export function isPilotResult(n: Notice): n is Notice & { url: string } {
+  return n.board === 'pilot' && /result/i.test(n.title) && !!n.url
+}
+
 // An exam calendar link for a year after the latest one in the data file, new this run.
 export function newCalendarYears(changes: Change[], afterYear: number): number[] {
   const years = changes
@@ -113,16 +121,50 @@ export function newCalendarYears(changes: Change[], afterYear: number): number[]
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-export function changesEmail(changes: Change[], opts: { firstRun: boolean; found: number; afterYear: number }): { subject: string; html: string; text: string } {
+// What the check did with a new result notice on the Pilot board, for the email.
+export type Published = {
+  title: string
+  url: string
+  sessionName: string | null // the matched session; null: not matched, so inserted hidden
+  status: 'published' | 'hidden' | 'already' | 'failed'
+  error?: string
+  hideLink: string | null
+}
+
+function publishedLine(p: Published): string {
+  switch (p.status) {
+    case 'published': return `Published for ${p.sessionName}: on the results guide, in the updates bar and on DGCA Updates.`
+    case 'hidden': return 'Not matched to a session, so it was added hidden and isn’t shown anywhere. Add the session to the data file, set its session_id in dgca_results and set hidden to false.'
+    case 'already': return 'Already in dgca_results: nothing changed.'
+    case 'failed': return `Couldn’t be saved (${p.error ?? 'unknown error'}): add it to dgca_results by hand.`
+  }
+}
+
+export function changesEmail(allChanges: Change[], opts: { firstRun: boolean; found: number; afterYear: number; published?: Published[]; test?: boolean }): { subject: string; html: string; text: string } {
+  const published = opts.published ?? []
+  // A result that was published is listed once, at the top, not again under its group.
+  const handled = new Set(published.map(p => p.url))
+  const changes = allChanges.filter(c => !c.url || !handled.has(c.url))
   const years = newCalendarYears(changes, opts.afterYear)
-  const subject = years.length
-    ? `DGCA ${years.join(', ')} exam calendar is out, plus ${changes.length} notice change${changes.length === 1 ? '' : 's'}`
-    : opts.firstRun
-      ? `DGCA notice check: first run, ${changes.length} notices on the Pariksha home page`
-      : `DGCA notices: ${changes.length} new or changed`
+  const live = published.filter(p => p.status === 'published')
+  const subject = (opts.test ? '[TEST] ' : '') + (
+    live.length ? `DGCA result published: ${live.map(p => p.title).join('; ')}`
+    : published.length ? `DGCA result notice to check: ${published.map(p => p.title).join('; ')}`
+    : years.length ? `DGCA ${years.join(', ')} exam calendar is out, plus ${changes.length} notice change${changes.length === 1 ? '' : 's'}`
+    : opts.firstRun ? `DGCA notice check: first run, ${changes.length} notices on the Pariksha home page`
+    : `DGCA notices: ${changes.length} new or changed`)
   const intro = opts.firstRun
-    ? `First run of the weekly check: there is no earlier list to compare with, so every notice on the Pariksha home page is listed (${opts.found}). From next week, only new or changed notices are emailed.`
-    : `${changes.length} new or changed notice${changes.length === 1 ? '' : 's'} on the Pariksha home page since the last check. Update lib/data/dgca-exam-sessions.json from these.`
+    ? `First run of the check: there is no earlier list to compare with, so every notice on the Pariksha home page is listed (${opts.found}). From the next check, only new or changed notices are emailed.`
+    : changes.length
+      ? `${changes.length} ${published.length ? 'other ' : ''}new or changed notice${changes.length === 1 ? '' : 's'} on the Pariksha home page since the last check. Update lib/data/dgca-exam-sessions.json from these.`
+      : 'No other new or changed notices since the last check.'
+
+  const resultsHtml = published.length ? `<h2 style="font-size:15px;margin:0 0 8px;">New result notice${published.length === 1 ? '' : 's'} (Pilot board)</h2>
+${published.map(p => `<div style="margin:0 0 14px;padding:12px 14px;background:${p.status === 'published' ? '#eaf6ee' : '#fdf4dc'};border-radius:8px;font-size:14px;line-height:1.5;">
+<div><a href="${esc(p.url)}" style="color:#185FA5;font-weight:600;">${esc(p.title)}</a></div>
+<div style="margin-top:4px;">${esc(publishedLine(p))}</div>
+${p.hideLink ? `<div style="margin-top:10px;"><a href="${esc(p.hideLink)}" style="display:inline-block;padding:6px 12px;border:1px solid #c47d00;border-radius:6px;color:#7a5200;text-decoration:none;font-weight:600;">Hide this</a> <span style="color:#6b7080;font-size:12px;">No login needed; works for 7 days.</span></div>` : ''}
+</div>`).join('\n')}` : ''
 
   const sections = GROUPS.map(g => ({ g, items: changes.filter(c => groupOf(c) === g) })).filter(s => s.items.length)
   const item = (c: Change) => {
@@ -132,14 +174,17 @@ export function changesEmail(changes: Change[], opts: { firstRun: boolean; found
   }
   const html = `<!doctype html><html><body style="margin:0;padding:24px 16px;background:#f7f8fc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0d1117;">
 <div style="max-width:640px;margin:0 auto;background:#fff;border:1px solid #e2e4ea;border-radius:12px;padding:24px;">
-<h1 style="font-size:18px;margin:0 0 12px;">DGCA notice check</h1>
+<h1 style="font-size:18px;margin:0 0 12px;">DGCA notice check${opts.test ? ' (test run)' : ''}</h1>
+${resultsHtml}
 ${years.length ? `<p style="margin:0 0 14px;padding:12px 14px;background:#fdf4dc;border-left:3px solid #c47d00;font-size:14px;"><strong>The ${years.join(', ')} exam calendar link has appeared.</strong> Add it to the calendars in the data file, with its sessions.</p>` : ''}
 <p style="font-size:14px;line-height:1.6;color:#353a47;margin:0 0 18px;">${esc(intro)}</p>
 ${sections.map(s => `<h2 style="font-size:15px;margin:18px 0 8px;">${s.g} (${s.items.length})</h2><ul style="padding-left:18px;margin:0;font-size:14px;line-height:1.5;">${s.items.map(item).join('')}</ul>`).join('\n')}
 <p style="font-size:12px;color:#6b7080;margin:22px 0 0;">Source: <a href="${PARIKSHA_HOME}" style="color:#6b7080;">${PARIKSHA_HOME}</a></p>
 </div></body></html>`
   const text = [
-    subject, '', intro, '',
+    subject, '',
+    ...published.flatMap(p => [p.title, `  ${p.url}`, `  ${publishedLine(p)}`, ...(p.hideLink ? [`  Hide this (no login, works for 7 days): ${p.hideLink}`] : []), '']),
+    intro, '',
     ...sections.flatMap(s => [`${s.g} (${s.items.length})`, ...s.items.map(c => `- ${c.title}${c.change === 'changed' ? ` (changed; was: ${c.previousTitle})` : ''} [${BOARD_LABEL[c.board]}]${c.url ? `\n  ${c.url}` : ''}`), '']),
     `Source: ${PARIKSHA_HOME}`,
   ].join('\n')
@@ -148,7 +193,7 @@ ${sections.map(s => `<h2 style="font-size:15px;margin:18px 0 8px;">${s.g} (${s.i
 
 export function failingEmail(errors: string[]): { subject: string; html: string; text: string } {
   const subject = 'DGCA notice check is failing'
-  const text = `The weekly DGCA notice check has failed ${errors.length} times in a row, so new DGCA notices may be going unnoticed.\n\n${errors.map((e, i) => `Run ${i + 1}: ${e}`).join('\n')}\n\nCheck ${PARIKSHA_HOME} by hand, and the Vercel logs for /api/cron/dgca-notices.`
+  const text = `The DGCA notice check has failed ${errors.length} times in a row, so new DGCA notices may be going unnoticed.\n\n${errors.map((e, i) => `Run ${i + 1}: ${e}`).join('\n')}\n\nCheck ${PARIKSHA_HOME} by hand, and the Vercel logs for /api/cron/dgca-notices. While it keeps failing, this email is sent at most once every 6 hours.`
   const html = `<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0d1117;padding:24px 16px;"><div style="max-width:640px;margin:0 auto;"><h1 style="font-size:18px;">${subject}</h1><p style="font-size:14px;line-height:1.6;white-space:pre-line;">${esc(text)}</p></div></body></html>`
   return { subject, html, text }
 }

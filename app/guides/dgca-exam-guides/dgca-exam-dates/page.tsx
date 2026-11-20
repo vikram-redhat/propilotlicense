@@ -10,6 +10,7 @@ import {
   DGCA_EXAMS, dgcaExamGuideUpdatedAt, SESSION_TYPE_LABEL, calendarYears, escapeHtml, formatLongDate, formatRange, formatRangeLong,
   portalStatus, sessionById, sessionsInYear, todayInIndia, upcomingSessions, type ExamSession,
 } from '@/lib/dgca-exams'
+import { getLastChecked } from '@/lib/dgca-results'
 import { ARTICLE_HTML } from './articleBody'
 import styles from './styles.module.css'
 
@@ -43,9 +44,9 @@ function calendarRegion(year: number, url: string | null, today: string): string
   return url ? `${table}\n  <p><a href="${e(url)}">DGCA's ${year} exam calendar (PDF)</a></p>` : table
 }
 
-export default function DgcaExamDatesPage() {
+export default async function DgcaExamDatesPage() {
   const today = todayInIndia()
-  const lastChecked = DGCA_EXAMS.lastCheckedAgainstDGCA
+  const lastChecked = await getLastChecked()
 
   const nextExams = sessionsTable(upcomingSessions(today).slice(0, 4), { head: 'Portal', cell: s => portalStatus(s, today) })
 
@@ -91,7 +92,7 @@ ${[...byCity].sort(([a], [b]) => a.localeCompare(b)).map(([city, centres]) => ` 
         description={POST.metaDescription}
         url={`https://www.propilotlicence.com${PATH}`}
         publishedAt={POST.publishedAt}
-        updatedAt={dgcaExamGuideUpdatedAt(POST.updatedAt)}
+        updatedAt={dgcaExamGuideUpdatedAt(POST.updatedAt, lastChecked)}
       />
       <FAQSchema faqs={faqsFromHtml(html)} />
       <LandingHeader isLoggedIn={false} name={null} />
