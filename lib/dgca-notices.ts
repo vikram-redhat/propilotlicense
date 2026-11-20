@@ -105,9 +105,11 @@ export function groupOf(n: Notice): Group {
 }
 
 // A result notice the check publishes itself: on the Pilot board, with "Result" in the title.
-// AME-board notices are never published.
+// AME-board notices are never published, nor Pilot-board ones that mention AME, unless they
+// also say FC or Flight Crew.
 export function isPilotResult(n: Notice): n is Notice & { url: string } {
-  return n.board === 'pilot' && /result/i.test(n.title) && !!n.url
+  const t = n.title
+  return n.board === 'pilot' && /result/i.test(t) && !!n.url && (!/\bAME\b/i.test(t) || /\bFC\b|flight crew/i.test(t))
 }
 
 // An exam calendar link for a year after the latest one in the data file, new this run.

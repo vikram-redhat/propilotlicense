@@ -33,6 +33,9 @@ export type ResultNotice = {
   url: string
   noticeDate: string | null
   seenOn: string
+  // 'auto': published by the notice check, so label is DGCA's notice title; pages name the
+  // session from the data instead (resultSessionName) and keep the title as the link text.
+  source?: 'auto' | 'manual'
 }
 
 export type ExamData = {
@@ -136,6 +139,13 @@ export function calendarYears(today: string) {
 
 export function sessionsInYear(year: number): ExamSession[] {
   return DGCA_EXAMS.sessions.filter(s => s.examStart.startsWith(`${year}-`))
+}
+
+// What a result is called on the pages: the session's name for one the notice check
+// published, otherwise the label written by hand.
+export function resultSessionName(r: ResultNotice): string {
+  const s = r.source === 'auto' && r.session ? sessionById(r.session) : undefined
+  return s?.name ?? r.label
 }
 
 // Result notices, newest session first.

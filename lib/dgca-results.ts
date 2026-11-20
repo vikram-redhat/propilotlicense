@@ -22,7 +22,7 @@ export type ResultRow = {
 }
 
 export const toNotice = (r: ResultRow): ResultNotice => ({
-  session: r.session_id, label: r.label, url: r.url, noticeDate: r.notice_date, seenOn: todayInIndia(new Date(r.seen_at)),
+  session: r.session_id, label: r.label, url: r.url, noticeDate: r.notice_date, seenOn: todayInIndia(new Date(r.seen_at)), source: r.source,
 })
 
 // The published (not hidden) results. If the table can't be read, the data file's seed list,
@@ -58,18 +58,20 @@ export function revalidateResultPages(withLastChecked = false) {
 
 const ID_PREFIX: Record<SessionType, string> = { olode: 'olod', regular: 'reg', fir_afir: 'fir' }
 
-// "Result of OLODE Session 08" -> olod-08-2026. The type is FIR/AFIR (checked first: their
-// sessions are also called "Regular Session 10"), OLODE/OLOD or Regular; the number follows
-// "Session". With no year in the title, the most recent session of that type and number
-// that has started.
+// "Declaration of FC Result for OLODE 07 of 2026" -> olod-07-2026. The type is FIR/AFIR
+// (checked first: their sessions are also called "Regular Session 10"), OLODE/OLOD or
+// Regular; then the session number and year, "07 of 2026" or "07/2026", with or without the
+// word "Session". Without a year ("Session 08"), the most recent session of that type and
+// number that has started. Anything else (FATA, RTR) matches nothing.
 export function matchResultSession(title: string, today = todayInIndia()): string | null {
   const type: SessionType | null = /\bA?FIR\b/i.test(title) ? 'fir_afir'
     : /\bOLODE?\b/i.test(title) ? 'olode'
     : /\bregular\b/i.test(title) ? 'regular'
     : null
-  const num = title.match(/\bsession\s*(?:no\.?\s*)?[-–:]?\s*0*(\d{1,2})\b/i)?.[1]
+  const withYear = title.match(/\b(?:session\s*(?:no\.?\s*)?[-–:]?\s*)?0*(\d{1,2})\s*(?:of|\/)\s*(20\d\d)\b/i)
+  const num = withYear?.[1] ?? title.match(/\bsession\s*(?:no\.?\s*)?[-–:]?\s*0*(\d{1,2})\b/i)?.[1]
   if (!type || !num) return null
-  const year = title.match(/\b(20\d\d)\b/)?.[1]
+  const year = withYear?.[2]
   const prefix = `${ID_PREFIX[type]}-${num.padStart(2, '0')}-`
   const candidates = DGCA_EXAMS.sessions
     .filter(s => s.type === type && s.id.startsWith(prefix) && (year ? s.id.endsWith(year) : s.examStart <= today))

@@ -1,5 +1,5 @@
 import {
-  DGCA_EXAMS, formatRange, formatShortDate, portalStatus, sessionById, type ExamSession, type ResultNotice,
+  DGCA_EXAMS, formatRange, formatShortDate, portalStatus, resultSessionName, sessionById, type ExamSession, type ResultNotice,
 } from '@/lib/dgca-exams'
 
 // What's changing at DGCA, for the DGCA Updates hub (/dgca-updates), the updates bar under the
@@ -58,7 +58,7 @@ export function dgcaTimeline(today: string, results: ResultNotice[]) {
   }
   for (const r of pilotResults(results)) {
     const date = r.noticeDate ?? r.seenOn
-    ;(date > today ? coming : past).push({ date, type: 'result', title: `Results declared: ${r.label}`, url: EXAM_RESULTS_PATH })
+    ;(date > today ? coming : past).push({ date, type: 'result', title: `Results declared: ${resultSessionName(r)}`, url: EXAM_RESULTS_PATH })
   }
   for (const u of DGCA_EXAMS.updates) {
     if (u.date > today) coming.push({ date: u.date, type: 'rule', title: u.title, url: u.url, detail: u.countdown ? daysToGo(daysBetween(today, u.date)) : undefined })

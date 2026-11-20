@@ -25,7 +25,7 @@ import {
 // Vercel sends "Authorization: Bearer <CRON_SECRET>". The same header runs it by hand;
 // ?dry=1 returns the email it would send without sending or saving anything.
 // ?inject=<title> is a test run: it adds a Pilot-board notice with that title (linking to the
-// Pariksha home page) to what DGCA lists, and does everything a real run does except the
+// Pariksha home page) to what DGCA lists (inject can be repeated; with dry=1, nothing is saved), and does everything a real run does except the
 // IndexNow ping. Test runs are logged with trigger 'test' and never become the baseline, so
 // the next real run compares with the last real list.
 export const dynamic = 'force-dynamic'
@@ -42,8 +42,8 @@ export async function GET(req: Request) {
 
   const params = new URL(req.url).searchParams
   const dry = params.get('dry') === '1'
-  const inject = params.get('inject')?.trim() || null
-  const test = !!inject
+  const inject = params.getAll('inject').map(t => t.trim()).filter(Boolean)
+  const test = inject.length > 0
   const trigger = test ? 'test' : /vercel-cron/i.test(req.headers.get('user-agent') ?? '') ? 'cron' : 'manual'
   const db = createServiceClient()
 
@@ -73,7 +73,7 @@ export async function GET(req: Request) {
     return Response.json({ ok: false, error, failuresInARow: streak.length, alertedRecently, emailed: !!email && !emailError, emailError }, { status: 502 })
   }
 
-  if (inject) notices = [{ board: 'pilot', title: inject, url: `${PARIKSHA_HOME}#test-${Date.now()}` }, ...notices]
+  if (test) notices = [...inject.map((title, i) => ({ board: 'pilot' as const, title, url: `${PARIKSHA_HOME}#test-${Date.now()}-${i}` })), ...notices]
   const changes = diffNotices(baseline, notices)
 
   // New result notices on the Pilot board: published straight away. Not on a first run (no

@@ -8,7 +8,7 @@ import { faqsFromHtml } from '@/lib/chapter-pages'
 import { getPost } from '@/lib/guides'
 import { SUBJECTS } from '@/lib/subjects'
 import { questionTotalsOrFallback } from '@/lib/live-counts'
-import { dgcaExamGuideUpdatedAt, awaitingResults, escapeHtml, formatLongDate, formatRange, formatShortDate, latestResults, todayInIndia } from '@/lib/dgca-exams'
+import { dgcaExamGuideUpdatedAt, awaitingResults, escapeHtml, formatLongDate, formatRange, formatShortDate, latestResults, resultSessionName, todayInIndia } from '@/lib/dgca-exams'
 import { getDgcaResults, getLastChecked } from '@/lib/dgca-results'
 import { ARTICLE_HTML } from './articleBody'
 import styles from '../dgca-exam-dates/styles.module.css'
@@ -36,7 +36,7 @@ export default async function DgcaExamResultsPage() {
   const latest = `  <table class="data-table">
     <thead><tr><th>Session</th><th>Result notice</th></tr></thead>
     <tbody>
-${latestResults(results).map(r => `      <tr><td>${e(r.label)}${r.noticeDate ? `, declared ${formatShortDate(r.noticeDate)}` : ''}</td><td><a href="${e(r.url)}">DGCA result notice (PDF)</a></td></tr>`).join('\n')}
+${latestResults(results).map(r => `      <tr><td>${e(resultSessionName(r))}${r.noticeDate ? `, declared ${formatShortDate(r.noticeDate)}` : ''}</td><td><a href="${e(r.url)}">${r.source === 'auto' ? e(r.label) : 'DGCA result notice'} (PDF)</a></td></tr>`).join('\n')}
     </tbody>
   </table>`
 
