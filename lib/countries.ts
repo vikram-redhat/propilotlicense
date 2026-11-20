@@ -6,20 +6,7 @@ export function flagEmoji(code: string): string {
   return String.fromCodePoint(...points)
 }
 
-// Shared visibility rule for country-scoped content (books, and questions via their
-// linked book). Used by both the session-start API (server) and the book picker (client)
-// so the two can't silently drift.
-//
-// `bookCountries` semantics:
-//   - null/undefined (no book at all, or a book whose countries column was never set —
-//     legacy/pre-migration data) -> universal, visible regardless of student country.
-//   - [] (a book explicitly tagged with zero countries, e.g. an admin unchecked every
-//     box) -> hidden from every country. This is a deliberate "no countries assigned"
-//     state, distinct from "never tagged".
-//   - non-empty array -> visible only if it contains the student's country.
-export function isVisibleForCountry(bookCountries: string[] | null | undefined, studentCountry: string | null): boolean {
-  if (!studentCountry) return true
-  if (bookCountries == null) return true
-  if (bookCountries.length === 0) return false
-  return bookCountries.includes(studentCountry)
-}
+// Books' countries tags (source_books.countries, set in the admin book form) no longer
+// filter anything: since 20 Nov 2026 every student sees every active book, whatever the
+// country in their profile. The tags are kept in the database, unused. A student's country
+// is still used for pricing and region.

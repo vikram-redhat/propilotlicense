@@ -70,9 +70,9 @@ async function loadChapterData(sourceBookId: string, chapterNumber: number, samp
   }
   const book = bookRes.data!
   const chapter = chapterRes.data!
-  // Same count the practice picker shows an Indian student.
+  // Same count the practice picker shows.
   const counts = await countChapterQuestions(supabase, {
-    subjectId: book.subject_id, bookId: book.id, chapterIds: [chapter.id], country: 'IN',
+    subjectId: book.subject_id, bookId: book.id, chapterIds: [chapter.id],
   })
   const byId = new Map(((samplesRes.data ?? []) as unknown as SampleQuestion[]).map(q => [q.id, q]))
   return {

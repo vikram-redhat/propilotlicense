@@ -30,8 +30,8 @@ export const subjectQuestionCounts = unstable_cache(async (): Promise<SubjectCou
 }, ['subject-question-counts'], { revalidate: 3600 })
 
 // What a book's whole-book practice draws. A syllabus book (IC Joshi, RK Bali): every question on
-// its syllabus chapters, from any source book (the sum the practice picker shows an
-// Indian student). Any other book: the active questions that cite it.
+// its syllabus chapters, from any source book (the sum the practice picker shows every
+// student). Any other book: the active questions that cite it.
 export const bookQuestionTotal = unstable_cache(async (slug: string): Promise<number> => {
   const book = getBookBySlug(slug)
   if (!book) throw new Error(`Unknown book ${slug}`)
@@ -45,7 +45,7 @@ export const bookQuestionTotal = unstable_cache(async (slug: string): Promise<nu
     if (bookRes.error) throw new Error(`Question count for ${slug}: ${bookRes.error.message}`)
     if (chaptersRes.error) throw new Error(`Question count for ${slug}: ${chaptersRes.error.message}`)
     const counts = await countChapterQuestions(supabase, {
-      subjectId: bookRes.data.subject_id, bookId, chapterIds: chaptersRes.data.map(c => c.id), country: 'IN',
+      subjectId: bookRes.data.subject_id, bookId, chapterIds: chaptersRes.data.map(c => c.id),
     })
     return Object.values(counts).reduce((a, b) => a + b, 0)
   }
@@ -71,7 +71,7 @@ export const bookChapterPractice = unstable_cache(async (slug: string, chapterId
   if (bookRes.error) throw new Error(`Chapter ${chapterId} of ${slug}: ${bookRes.error.message}`)
   if (chapterRes.error) throw new Error(`Chapter ${chapterId} of ${slug}: ${chapterRes.error.message}`)
   const counts = await countChapterQuestions(supabase, {
-    subjectId: bookRes.data.subject_id, bookId, chapterIds: [chapterId], country: 'IN',
+    subjectId: bookRes.data.subject_id, bookId, chapterIds: [chapterId],
   })
   return { number: chapterRes.data.chapter_number, questions: counts[chapterId] ?? 0 }
   // The key's date part was changed on 2026-11-16 so the deploy dropped entries cached before

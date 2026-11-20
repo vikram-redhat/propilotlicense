@@ -6,7 +6,6 @@ import { pathOnly, trackEvent } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 import { Subject, Topic, SourceBook, Profile } from '@/lib/types'
 import { FREE_DAILY_ERROR, FREE_DAILY_LINE, FREE_TIER_LINE, isSubscribed } from '@/lib/subscription'
-import { isVisibleForCountry } from '@/lib/countries'
 import { isSyllabusBook } from '@/lib/syllabus'
 import UserMenu from '@/components/UserMenu'
 import { isAdminUser } from '@/lib/roles'
@@ -122,12 +121,11 @@ export default function SessionConfigPage({ params }: { params: Promise<{ licenc
         supabase.from('source_books').select('*').eq('subject_id', subjectId).order('sort_order'),
         user ? supabase.from('profiles').select('*').eq('id', user.id).single() : Promise.resolve({ data: null }),
       ])
-      const studentCountry = profileRes.data?.country ?? null
-      const visibleBooks = (bks || []).filter(b => isVisibleForCountry(b.countries, studentCountry))
+      // Every book, whatever the student's country (no country filter since 20 Nov 2026).
 
       setSubject(sub)
       setTopics(tops || [])
-      setBooks(visibleBooks)
+      setBooks(bks || [])
       setProfile(profileRes.data)
 
       if ((sub?.code === 'NAV' || sub?.code === 'RAI') && licence.toLowerCase() === 'cpl') {

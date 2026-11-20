@@ -41,7 +41,7 @@ const loadChapterRows = unstable_cache(async (): Promise<Omit<SyllabusChapter, '
   if (chaptersRes.error) throw new Error(`IC Joshi syllabus: ${chaptersRes.error.message}`)
   const counts = await countChapterQuestions(supabase, {
     subjectId: bookRes.data.subject_id, bookId: bookRes.data.id,
-    chapterIds: chaptersRes.data.map(c => c.id), country: 'IN',
+    chapterIds: chaptersRes.data.map(c => c.id),
   })
   return chaptersRes.data.map(c => ({
     number: c.chapter_number,

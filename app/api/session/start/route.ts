@@ -1,7 +1,6 @@
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthClient } from '@/lib/supabase-server'
 import { FREE_DAILY_ERROR, freeTierError, isSubscribed, startOfTodayInIndia } from '@/lib/subscription'
-import { isVisibleForCountry } from '@/lib/countries'
 import { chapterColumnFor } from '@/lib/syllabus'
 import { isChapterTaster, TASTER_QUESTIONS, TASTER_USED_ERROR } from '@/lib/chapter-taster'
 import {
@@ -15,19 +14,9 @@ const weights = {
   advanced: { basic: 0.2, advanced: 0.8 },
 }
 
-type CountryTaggedQuestion = {
-  id: string
-  difficulty: string
-  source_book: { countries: string[] | null } | null
-}
-
-// Questions with no linked book (the common pool) are treated as universal —
-// only questions tied to a book explicitly tagged to other countries are excluded.
-// See lib/countries.ts's isVisibleForCountry for the shared rule (also used by the
-// book picker at app/[licence]/[subjectId]/page.tsx).
-function filterByCountry<T extends CountryTaggedQuestion>(rows: T[], country: string | null): T[] {
-  return rows.filter(q => isVisibleForCountry(q.source_book?.countries, country))
-}
+// Every student draws from every active book, whatever the country in their profile (since
+// 20 Nov 2026). Books keep their countries tags in the database, unused.
+type PoolQuestion = { id: string; difficulty: string }
 
 // A refused free session, for counting limit hits (scripts/migrate_free_session_blocks.sql).
 // The refusal is still sent if this can't be saved.
@@ -66,11 +55,10 @@ export async function POST(req: Request) {
   // Server-side subscription enforcement
   const { data: profile } = await supabase
     .from('profiles')
-    .select('subscription_tier, subscription_expires_at, country')
+    .select('subscription_tier, subscription_expires_at')
     .eq('id', user.id)
     .single()
 
-  const studentCountry = profile?.country ?? null
   const isAdmin    = isAdminUser(user)
   const subscribed = isAdmin || isSubscribed(profile as Parameters<typeof isSubscribed>[0])
 
@@ -132,10 +120,10 @@ export async function POST(req: Request) {
     const pickHalf = async (sid: string): Promise<string[]> => {
       const { data: rows } = await supabase
         .from('questions')
-        .select('id, difficulty, source_book:source_books(countries)')
+        .select('id, difficulty')
         .eq('subject_id', sid)
         .eq('active', true)
-      const qs = filterByCountry((rows || []) as unknown as CountryTaggedQuestion[], studentCountry)
+      const qs = ((rows || []) as PoolQuestion[])
       if (qs.length === 0) return []
       const w = weights[difficulty as keyof typeof weights] || weights.all
       const weighted: string[] = []
@@ -195,10 +183,10 @@ export async function POST(req: Request) {
     const pickN = async (subjectIds: string[], n: number): Promise<string[]> => {
       const { data: rows } = await supabase
         .from('questions')
-        .select('id, difficulty, source_book:source_books(countries)')
+        .select('id, difficulty')
         .in('subject_id', subjectIds)
         .eq('active', true)
-      const qs = filterByCountry((rows || []) as unknown as CountryTaggedQuestion[], studentCountry)
+      const qs = ((rows || []) as PoolQuestion[])
       if (qs.length === 0) return []
       const w = weights[difficulty as keyof typeof weights] || weights.all
       const weighted: string[] = []
@@ -264,7 +252,7 @@ export async function POST(req: Request) {
   const buildQuery = (useSyllabus: boolean) => {
     let query = supabase
       .from('questions')
-      .select('id, difficulty, source_book:source_books(countries)')
+      .select('id, difficulty')
       .eq('subject_id', subjectId)
       .eq('active', true)
 
@@ -318,7 +306,7 @@ export async function POST(req: Request) {
     return Response.json({ error: error.message }, { status: 500 })
   }
 
-  const questions = filterByCountry((rawQuestions || []) as unknown as CountryTaggedQuestion[], studentCountry)
+  const questions = ((rawQuestions || []) as PoolQuestion[])
 
   if (questions.length === 0) {
     return Response.json({ error: 'No questions available for this configuration' }, { status: 400 })
