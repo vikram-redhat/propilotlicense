@@ -11,7 +11,8 @@ import {
   PARIKSHA_HOME, type Notice, type Published,
 } from '@/lib/dgca-notices'
 
-// The DGCA notice check, run by Vercel Cron twice a day (vercel.json: 07:30 and 13:30 UTC,
+// The DGCA notice check, run by Vercel Cron twice a day (vercel.json: two daily jobs, as the
+// Hobby plan allows one run a day per job, at 07:30 and 13:30 UTC,
 // 13:00 and 19:00 IST; DGCA posts notices on weekdays between about 10:00 and 17:30 IST).
 // Fetches the Pariksha home page and compares its notices with the last saved list
 // (lib/dgca-notices.ts). A new result notice on the Pilot board is published to dgca_results

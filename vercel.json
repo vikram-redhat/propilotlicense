@@ -1,5 +1,6 @@
 {
   "crons": [
-    { "path": "/api/cron/dgca-notices", "schedule": "30 7,13 * * *" }
+    { "path": "/api/cron/dgca-notices", "schedule": "30 7 * * *" },
+    { "path": "/api/cron/dgca-notices", "schedule": "30 13 * * *" }
   ]
 }
